@@ -1,0 +1,832 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>APE.Language</name>
+    </assembly>
+    <members>
+        <member name="T:APE.Language.GUIAxLZResultsGrid">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            LatentZero.Capstone.ComSupport.ResultsGrid.AxLZResultsGrid 
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIObject">
+            <summary>
+            Abstract base object which all other winforms object extend
+            </summary>
+        </member>
+        <member name="F:APE.Language.GUIObject.Identity">
+            <summary>
+            Gets the identity of the control
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIObject.#ctor(System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for form controls
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIObject.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for everything which isn't a Form
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIObject.ContextMenuSelect(System.String)">
+            <summary>
+            Selects the specified item on the currently displayed context menu
+            </summary>
+            <param name="ContextMenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseMove(System.Int32,System.Int32)">
+            <summary>
+            Moves the mouse cursor to the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to move the mouse</param>
+            <param name="Y">How far from the top edge of the control to move the mouse</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseSingleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a mouse click with the specified button in the middle of the control
+            </summary>
+            <param name="Button">The button to click</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+             Perform a mouse click with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to click the mouse</param>
+            <param name="Y">How far from the top edge of the control to click the mouse</param>
+            <param name="Button">The button to click</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to click the mouse</param>
+            <param name="Y">How far from the top edge of the control to click the mouse</param>
+            <param name="Button">The button to click</param>
+            <param name="Keys">The key to hold while clicking</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseDoubleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a double mouse click with the specified button in the middle of the control
+            </summary>
+            <param name="Button">The button to double click</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+             Perform a double mouse click with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to double click the mouse</param>
+            <param name="Y">How far from the top edge of the control to double click the mouse</param>
+            <param name="Button">The button to double click</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a double mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to double click the mouse</param>
+            <param name="Y">How far from the top edge of the control to double click the mouse</param>
+            <param name="Button">The button to double click</param>
+            <param name="Keys">The key to hold while double clicking</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseTripleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a triple mouse click with the specified button in the middle of the control
+            </summary>
+            <param name="Button">The button to triple click</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+             Perform a triple mouse click with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to triple click the mouse</param>
+            <param name="Y">How far from the top edge of the control to triple click the mouse</param>
+            <param name="Button">The button to triple click</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a triple mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to triple click the mouse</param>
+            <param name="Y">How far from the top edge of the control to triple click the mouse</param>
+            <param name="Button">The button to triple click</param>
+            <param name="Keys">The key to hold while triple clicking</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseDown(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+            Perform a mouse down with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to perform a mouse down</param>
+            <param name="Y">How far from the top edge of the control to perform a mouse down</param>
+            <param name="Button">The button to press</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseDown(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse down with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to perform a mouse down</param>
+            <param name="Y">How far from the top edge of the control to perform a mouse down</param>
+            <param name="Button">The button to press</param>
+            <param name="Keys">The key to hold while performing a mouse down</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseUp(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+            Perform a mouse up with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to perform a mouse up</param>
+            <param name="Y">How far from the top edge of the control to perform a mouse up</param>
+            <param name="Button">The button to release</param>
+        </member>
+        <member name="M:APE.Language.GUIObject.MouseUp(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse up with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to perform a mouse up</param>
+            <param name="Y">How far from the top edge of the control to perform a mouse up</param>
+            <param name="Button">The button to release</param>
+            <param name="Keys">The key to hold while performing a mouse up</param>
+        </member>
+        <member name="P:APE.Language.GUIObject.ClassName">
+            <summary>
+            Gets the windows classname (not that helpful in the .NET world)
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.IsEnabled">
+            <summary>
+            Gets whether the control is currently enabled
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Exists">
+            <summary>
+            Gets whether the control currently exists
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.ExtendedStyle">
+            <summary>
+            Gets the extended window style of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Height">
+            <summary>
+            Gets the height of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Handle">
+            <summary>
+            Gets the controls window handle
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Id">
+            <summary>
+            Gets the id of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Left">
+            <summary>
+            Gets the left edge of the control relative to the screen
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Name">
+            <summary>
+            Get the .Name property of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Style">
+            <summary>
+            Gets the window style of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Text">
+            <summary>
+            Gets the windows title bar current text
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Top">
+            <summary>
+            Gets the topedge of the control relative to the screen
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.TypeName">
+            <summary>
+            Gets the name of the .NET type of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.IsVisible">
+            <summary>
+            Gets whether the control is currently visible
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.Width">
+            <summary>
+            Gets the width of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.TechnologyType">
+            <summary>
+            Gets the technology type of the control, currently this can be one of the following:
+              Windows Forms (WinForms)
+              Windows Native
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.TypeNameSpace">
+            <summary>
+            Gets the namespace of the .NET type of the control
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.ModuleName">
+            <summary>
+            Gets the name of the module the control is part of
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIObject.AssemblyName">
+            <summary>
+            Gets the name of the assembly the control is part of
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIAxLZResultsGrid.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIAxLZResultsGrid.CopyToClipboard">
+            <summary>
+            Copies the contents of the results grid to the clipboard
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIButton">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.Button 
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIButton.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUICheckBox">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.CheckBox
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUICheckBox.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUICheckBox.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to click the mouse</param>
+            <param name="Y">How far from the top edge of the control to click the mouse</param>
+            <param name="Button">The button to click</param>
+            <param name="Keys">The key to hold while clicking</param>
+        </member>
+        <member name="M:APE.Language.GUICheckBox.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a double mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to double click the mouse</param>
+            <param name="Y">How far from the top edge of the control to double click the mouse</param>
+            <param name="Button">The button to double click</param>
+            <param name="Keys">The key to hold while double clicking</param>
+        </member>
+        <member name="M:APE.Language.GUICheckBox.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a triple mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to triple click the mouse</param>
+            <param name="Y">How far from the top edge of the control to triple click the mouse</param>
+            <param name="Button">The button to triple click</param>
+            <param name="Keys">The key to hold while triple clicking</param>
+        </member>
+        <member name="P:APE.Language.GUICheckBox.Checked">
+            <summary>
+            Gets the checked state of the control
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIComboBox">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.ComboBox
+            LatentZero.Utility.Controls.GUIComboBox
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIComboBox.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIComboBox.ItemExists(System.String)">
+            <summary>
+            Checks if the specified item exists in the combobox
+            </summary>
+            <param name="Item">The item to check if it exists</param>
+            <returns></returns>
+        </member>
+        <member name="M:APE.Language.GUIComboBox.ItemSelect(System.String)">
+            <summary>
+            Selects the specified item in the combobox
+            </summary>
+            <param name="Item">The item to select</param>
+        </member>
+        <member name="M:APE.Language.GUIComboBox.SetText(System.String)">
+            <summary>
+            Sets the text portion of the combobox to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text portion of the combobox to</param>
+        </member>
+        <member name="T:APE.Language.GUIDateTimePicker">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.DateTimePicker
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIDateTimePicker.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIDateTimePicker.SetText(System.String)">
+            <summary>
+            Sets the text portion of the datetimepicker to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text portion of the datetimepicker to</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIFlexgrid">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            C1.Win.C1FlexGrid.C1FlexGrid
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIForm">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms
+            </summary>
+            
+        </member>
+        <member name="M:APE.Language.GUIForm.#ctor(System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for form controls
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIPictureBox">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.PictureBox
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIPictureBox.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIPictureBox.Save(System.String)">
+            <summary>
+            Saves the image of the picturebox to the specified file
+            </summary>
+            <param name="filename">Filename including path to save the image to</param>
+        </member>
+        <member name="M:APE.Language.GUIPictureBox.SaveBackground(System.String)">
+            <summary>
+            Saves the background image of the picturebox to the specified file
+            </summary>
+            <param name="filename">Filename including path to save the background image to</param>
+        </member>
+        <member name="T:APE.Language.GUIProgressBar">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.ProgressBar
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIProgressBar.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="P:APE.Language.GUIProgressBar.Minimum">
+            <summary>
+            Gets the minimum value of the progressbar
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIProgressBar.Maximum">
+            <summary>
+            Gets the maximum value of the progressbar
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIProgressBar.Value">
+            <summary>
+            Gets the current value of the progressbar
+            </summary>
+        </member>
+        <member name="T:APE.Language.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:APE.Language.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:APE.Language.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:APE.Language.Properties.Resources.APE256x256">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+            </summary>
+        </member>
+        <member name="P:APE.Language.Properties.Resources.Cross16x16">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:APE.Language.Properties.Resources.Tick16x16">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIStatusBar">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.StatusBar
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIStatusBar.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStrip">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.ToolStrip
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.LogItemTypeEnum">
+            <summary>
+            The type of information that is being logged
+            </summary>
+        </member>
+        <member name="F:APE.LogItemTypeEnum.Information">
+            <summary>
+            Used for logging other non-user interaction such as waiting for a grid to be populated
+            </summary>
+        </member>
+        <member name="F:APE.LogItemTypeEnum.Action">
+            <summary>
+            Used for logging user interaction with the application such as clicking on a button
+            </summary>
+        </member>
+        <member name="F:APE.LogItemTypeEnum.ApeContext">
+            <summary>
+            Used internally by the automation framework
+            </summary>
+        </member>
+        <member name="T:APE.ViewPort">
+            <summary>
+            Class used to display a small window which shows the last few lines logged, along with some other
+            information and buttons to break, abort and display an about box
+            </summary>
+        </member>
+        <member name="F:APE.ViewPort.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:APE.ViewPort.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:APE.ViewPort.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIGenericWalker">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            LatentZero.Capstone.Controls.Walker.WalkerControl
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIGenericWalker.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUILabel">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.Label
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUILabel.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIListBox">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.ListBox
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIListBox.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIListBox.ItemExists(System.String)">
+            <summary>
+            Checks if the specified item exists in the listbox
+            </summary>
+            <param name="Item">The item to check if it exists</param>
+            <returns>Whether item exists</returns>
+        </member>
+        <member name="M:APE.Language.GUIListBox.ItemSelect(System.String)">
+            <summary>
+            Selects the specified item in the combobox
+            </summary>
+            <param name="Item">The item to select</param>
+        </member>
+        <member name="T:APE.Language.GUIListView">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.ListView
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIListView.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIListView.Select(System.String)">
+            <summary>
+            Selects the specified item in the listview
+            </summary>
+            <param name="ListViewItem">The item to select</param>
+        </member>
+        <member name="M:APE.Language.GUIListView.SelectGroup(System.String)">
+            <summary>
+            Selects the specified group in the listview
+            </summary>
+            <param name="ListViewGroup">The group to select</param>
+        </member>
+        <member name="M:APE.Language.GUIListView.Select(System.String,System.String)">
+            <summary>
+            Selects the specified item in the specified group in the listview
+            </summary>
+            <param name="ListViewGroup">The group the item to select belongs to</param>
+            /// <param name="ListViewItem">The item to select</param>
+        </member>
+        <member name="T:APE.Language.GUIMenuStrip">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.MenuStrip
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIMenuStrip.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIMenuStrip.Select(System.String)">
+            <summary>
+            Selects the specified menu item
+            </summary>
+            <param name="MenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
+        </member>
+        <member name="T:APE.Language.GUIRadioButton">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.RadioButton
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIRadioButton.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIStatusStrip">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.StatusStrip
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIStatusStrip.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIDocumentContainer">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            TD.SandDock.DocumentContainer
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUITextBox">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.TextBox
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUITextBox.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUITextBox.SetText(System.String)">
+            <summary>
+            Sets the text of the textbox to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text of the textbox to</param>
+        </member>
+        <member name="T:APE.Language.GUITitleFrame">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            LatentZero.Utility.Controls.TitleFrame
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUITitleFrame.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="P:APE.Language.GUITitleFrame.Text">
+            <summary>
+            Gets the titleframe current text
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUITreeView">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.TreeView
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUITreeView.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIUpDown">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.NumericUpDown
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIUpDown.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+    </members>
+</doc>

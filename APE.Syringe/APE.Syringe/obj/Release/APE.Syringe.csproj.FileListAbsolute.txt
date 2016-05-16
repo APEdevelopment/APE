@@ -1,0 +1,8 @@
+C:\Tools\APE\APE.Syringe\APE.Syringe\bin\Release\APE.Syringe.dll
+C:\Tools\APE\APE.Syringe\APE.Syringe\bin\Release\APE.Syringe.pdb
+C:\Tools\APE\APE.Syringe\APE.Syringe\obj\Release\APE.Syringe.dll
+C:\Tools\APE\APE.Syringe\APE.Syringe\obj\Release\APE.Syringe.pdb
+C:\Users\david.beales\Desktop\compared\APE\APE.Syringe\APE.Syringe\bin\Release\APE.Syringe.dll
+C:\Users\david.beales\Desktop\compared\APE\APE.Syringe\APE.Syringe\bin\Release\APE.Syringe.pdb
+C:\Users\david.beales\Desktop\compared\APE\APE.Syringe\APE.Syringe\obj\Release\APE.Syringe.dll
+C:\Users\david.beales\Desktop\compared\APE\APE.Syringe\APE.Syringe\obj\Release\APE.Syringe.pdb

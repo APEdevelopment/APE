@@ -1,0 +1,10 @@
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\bin\Release\APE.Watcher.exe.config
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\bin\Release\APE.Watcher.exe
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\bin\Release\APE.Watcher.pdb
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\bin\Release\APE.Dock.dll
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\bin\Release\APE.Dock.pdb
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\obj\Release\APE.Watcher.csprojResolveAssemblyReference.cache
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\obj\Release\APE.Watcher.Properties.Resources.resources
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\obj\Release\APE.Watcher.csproj.GenerateResource.Cache
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\obj\Release\APE.Watcher.exe
+D:\Work\Test\Test\v18\APE.Watcher\APE.Watcher\obj\Release\APE.Watcher.pdb

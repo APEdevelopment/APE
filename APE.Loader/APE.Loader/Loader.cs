@@ -1,0 +1,63 @@
+﻿using System;
+using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using RGiesecke.DllExport;
+using System.Threading;
+using System.Reflection;
+using System.IO;
+using Microsoft.Win32;
+using System.Diagnostics;
+
+namespace APE.Loader
+{
+    internal static class Loader
+    {
+        [DllExport]
+        static int LoadAPEIPC(IntPtr apePid)
+        {
+            try
+            {
+                int APEPID = apePid.ToInt32();
+                string APEProcessId = apePid.ToString();
+                string AUTProcessId = Process.GetCurrentProcess().Id.ToString();
+
+                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
+                string APEPath = (string)key.GetValue(APEProcessId + "_Path_" + AUTProcessId, null);
+                string AppDomainToLoadInto = (string)key.GetValue(APEProcessId + "_AppDomain_" + AUTProcessId, null);
+                key.DeleteValue(APEProcessId + "_Path_" + AUTProcessId);
+                key.DeleteValue(APEProcessId + "_AppDomain_" + AUTProcessId);
+                key.Close();
+
+                Assembly assembly = Assembly.LoadFrom(APEPath + @"\..\APE.Domain.dll");
+                Type myAPEDomainType = assembly.GetType("APE.Domain.DomainSearch");
+                AppDomain appDom = null;
+
+                if (AppDomainToLoadInto == "DefaultDomain")
+                {
+                    if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+                    {
+                        appDom = AppDomain.CurrentDomain;
+                    }
+                }
+                else
+                {
+                    appDom = (AppDomain)myAPEDomainType.InvokeMember("GetAppDomain", BindingFlags.Default | BindingFlags.InvokeMethod, null, null, new object[] { AppDomainToLoadInto });
+                }
+
+                if (appDom == null)
+                {
+                    throw new Exception("Failed to find the appdomain " + AppDomainToLoadInto);
+                }
+
+                appDom.CreateInstanceFrom(APEPath + @"\..\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto }, null, null);
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message + "\r\n" + e.StackTrace);
+                return -1;
+            }
+        }
+    }
+}

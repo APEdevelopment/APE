@@ -1,0 +1,18 @@
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Loader\APE.Loader\bin\x86\Release\APE.Loader.dll
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Loader\APE.Loader\bin\x86\Release\APE.Loader.pdb
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.csprojResolveAssemblyReference.cache
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.dll
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.pdb
+C:\Tools\APE\APE.Loader\APE.Loader\bin\x86\Release\APE.Loader.dll
+C:\Tools\APE\APE.Loader\APE.Loader\bin\x86\Release\APE.Loader.pdb
+C:\Tools\APE\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.csprojResolveAssemblyReference.cache
+C:\Tools\APE\APE.Loader\APE.Loader\obj\x86\Release\Interop.mscoree.dll
+C:\Tools\APE\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.csproj.ResolveComReference.cache
+C:\Tools\APE\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.dll
+C:\Tools\APE\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.pdb
+C:\Tools\APE\APE.Loader\APE.Loader\bin\x86\Release\APE.Domain.dll
+C:\Tools\APE\APE.Loader\APE.Loader\bin\x86\Release\APE.Domain.pdb
+C:\Users\david.beales\Desktop\compared\APE\APE.Loader\APE.Loader\bin\x86\Release\APE.Loader.dll
+C:\Users\david.beales\Desktop\compared\APE\APE.Loader\APE.Loader\bin\x86\Release\APE.Loader.pdb
+C:\Users\david.beales\Desktop\compared\APE\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.dll
+C:\Users\david.beales\Desktop\compared\APE\APE.Loader\APE.Loader\obj\x86\Release\APE.Loader.pdb

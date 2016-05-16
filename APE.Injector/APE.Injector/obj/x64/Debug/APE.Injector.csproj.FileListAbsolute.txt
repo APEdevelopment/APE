@@ -1,0 +1,59 @@
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\bin\x64\Debug\ManagedInjector.exe.config
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\bin\x64\Debug\ManagedInjector.exe
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\bin\x64\Debug\ManagedInjector.pdb
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.dll
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.pdb
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\obj\x64\Debug\ManagedInjector.exe
+C:\Users\david.beales\Documents\Visual Studio 2013\Projects\APE.Injector\APE.Injector\obj\x64\Debug\ManagedInjector.pdb
+C:\Tools\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe.config
+C:\Tools\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe
+C:\Tools\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.pdb
+C:\Tools\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.dll
+C:\Tools\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.pdb
+C:\Tools\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.exe
+C:\Tools\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.pdb
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe.config
+C:\Tools\APE\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.exe
+C:\Tools\APE\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.pdb
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.pdb
+C:\Users\david.beales\Desktop\compared\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe.config
+C:\Users\david.beales\Desktop\compared\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe
+C:\Users\david.beales\Desktop\compared\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.pdb
+C:\Users\david.beales\Desktop\compared\APE\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.exe
+C:\Users\david.beales\Desktop\compared\APE\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.pdb
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.dll
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.pdb
+C:\Tools\APE\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.csprojResolveAssemblyReference.cache
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe.config
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.pdb
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.dll
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.dll
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.pdb
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.pdb
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.csprojResolveAssemblyReference.cache
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.exe
+D:\Work\Test\Test\v29\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.pdb
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe.config
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.pdb
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.dll
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.dll
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.pdb
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.pdb
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.csprojResolveAssemblyReference.cache
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.exe
+D:\Work\Test\Test\v30\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.pdb
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.dll
+C:\Tools\APE\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.pdb
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe.config
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.exe
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Injector.pdb
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.dll
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.dll
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Syringe.pdb
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\bin\x64\Debug\APE.Native.pdb
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.csprojResolveAssemblyReference.cache
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.exe
+D:\Work\Test\Test\v31\APE.Injector\APE.Injector\obj\x64\Debug\APE.Injector.pdb

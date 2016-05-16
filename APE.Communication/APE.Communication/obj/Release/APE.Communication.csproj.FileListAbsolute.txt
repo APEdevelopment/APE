@@ -1,0 +1,10 @@
+C:\Tools\APE\APE.Communication\APE.Communication\obj\Release\APE.Communication.csprojResolveAssemblyReference.cache
+C:\Users\david.beales\Desktop\compared\APE\APE.Communication\APE.Communication\obj\Release\APE.Communication.csprojResolveAssemblyReference.cache
+C:\Tools\APE\APE.Communication\APE.Communication\bin\Release\APE.Communication.dll
+C:\Tools\APE\APE.Communication\APE.Communication\bin\Release\APE.Communication.pdb
+C:\Tools\APE\APE.Communication\APE.Communication\bin\Release\APE.Domain.dll
+C:\Tools\APE\APE.Communication\APE.Communication\bin\Release\Fasterflect.dll
+C:\Tools\APE\APE.Communication\APE.Communication\bin\Release\APE.Domain.pdb
+C:\Tools\APE\APE.Communication\APE.Communication\bin\Release\Fasterflect.xml
+C:\Tools\APE\APE.Communication\APE.Communication\obj\Release\APE.Communication.dll
+C:\Tools\APE\APE.Communication\APE.Communication\obj\Release\APE.Communication.pdb
