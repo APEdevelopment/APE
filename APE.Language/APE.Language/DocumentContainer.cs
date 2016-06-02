@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using APE.Capture;
 using APE.Communication;
-using Parameter = APE.Communication.APEIPC.Parameter;
 using System.Threading;
 using System.Drawing.Imaging;
 using System.Security.Principal;
@@ -37,11 +36,11 @@ namespace APE.Language
 
         private int DockControls()
         {
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "GetDockControls", MemberTypes.Method);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "GetLength", MemberTypes.Method, new Parameter(GUI.m_APE, 0));
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetLength", MemberTypes.Method, new Parameter(GUI.m_APE, 0));
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -57,13 +56,13 @@ namespace APE.Language
 
             for (int Tab = 0; Tab < NumberOfDockControls; Tab++)
             {
-                GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "GetDockControls", MemberTypes.Method);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "Parent", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store5, "Handle", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store5);
+                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Parent", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Handle", MemberTypes.Property);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -84,15 +83,15 @@ namespace APE.Language
 
             for (int Tab = 0; Tab < NumberOfDockControls; Tab++)
             {
-                GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "GetDockControls", MemberTypes.Method);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "TabText", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store5, "Parent", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store5, APEIPC.DataStores.Store6, "Handle", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store6);
+                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "TabText", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Parent", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "Handle", MemberTypes.Property);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store6);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -120,11 +119,11 @@ namespace APE.Language
         {
             GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "GetDockControls", MemberTypes.Method);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "GetLength", MemberTypes.Method, new Parameter(GUI.m_APE, 0));
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetLength", MemberTypes.Method, new Parameter(GUI.m_APE, 0));
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -132,12 +131,12 @@ namespace APE.Language
 
             for (int Tab = 0; Tab < NumberOfItems; Tab++)
             {
-                GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "GetDockControls", MemberTypes.Method);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "TabText", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
+                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "TabText", MemberTypes.Property);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -145,19 +144,19 @@ namespace APE.Language
 
                 if (TabText == Item)
                 {
-                    GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "GetDockControls", MemberTypes.Method);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "TabBounds", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store5, "X", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store6, "Y", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store7, "Width", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store8, "Height", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store5);
-                    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store6);
-                    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store7);
-                    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store8);
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "TabBounds", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Width", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store8, "Height", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store6);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store7);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store8);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -199,11 +198,11 @@ namespace APE.Language
 
         public string ItemActive()
         {
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Manager", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "ActiveTabbedDocument", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "TabText", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ActiveTabbedDocument", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "TabText", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call

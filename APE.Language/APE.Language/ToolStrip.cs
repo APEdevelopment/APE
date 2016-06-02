@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using APE.Capture;
 using APE.Communication;
-using Parameter = APE.Communication.APEIPC.Parameter;
 using System.Threading;
 using System.Drawing.Imaging;
 using NM = APE.Native.NativeMethods;
@@ -149,64 +148,64 @@ namespace APE.Language
             string ModuleName = null;
             string AssemblyName = null;
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, item));
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, item));
             if (m_Identity.Name != null)
             {
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "Name", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
             }
             if (m_Identity.TypeNameSpace != null || m_Identity.TypeName != null || m_Identity.AssemblyName != null || m_Identity.ModuleName != null)
             {
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store4, "GetType", MemberTypes.Method);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
                 if (m_Identity.TypeNameSpace != null)
                 {
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store5, "Namespace", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Namespace", MemberTypes.Property);
                 }
                 if (m_Identity.TypeName != null)
                 {
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store6, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store6, "Name", MemberTypes.Property);
                 }
                 if (m_Identity.AssemblyName != null)
                 {
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store7, "Assembly", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store7, APEIPC.DataStores.Store8, "GetName", MemberTypes.Method);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store8, APEIPC.DataStores.Store9, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Assembly", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store7, DataStores.Store8, "GetName", MemberTypes.Method);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store8, DataStores.Store9, "Name", MemberTypes.Property);
                 }
                 if (m_Identity.ModuleName != null)
                 {
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store7, "Module", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store7, APEIPC.DataStores.Store8, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Module", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
                 }
             }
             if (m_Identity.Text != null)
             {
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store7, "Text", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store7, "Text", MemberTypes.Property);
             }
 
             if (m_Identity.Name != null)
             {
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             }
             if (m_Identity.Text != null)
             {
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store7);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store7);
             }
             if (m_Identity.TypeNameSpace != null)
             {
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store5);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
             }
             if (m_Identity.TypeName != null)
             {
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store6);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store6);
             }
             if (m_Identity.ModuleName != null)
             {
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store8);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store8);
             }
             if (m_Identity.AssemblyName != null)
             {
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store9);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store9);
             }
 
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -306,25 +305,25 @@ namespace APE.Language
 
         //internal bool ItemMatchIdentifier(int item)
         //{
-        //    GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, item));
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "Name", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store4, "GetType", MemberTypes.Method);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store5, "Namespace", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store6, "Name", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store7, "Assembly", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store7, APEIPC.DataStores.Store8, "GetName", MemberTypes.Method);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store8, APEIPC.DataStores.Store9, "Name", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store7, "Module", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store7, APEIPC.DataStores.Store8, "Name", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store7, "Text", MemberTypes.Property);
-        //    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
-        //    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store5);
-        //    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store6);
-        //    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store7);
-        //    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store8);
-        //    GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store9);
+        //    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, item));
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Namespace", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store6, "Name", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Assembly", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store7, DataStores.Store8, "GetName", MemberTypes.Method);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store8, DataStores.Store9, "Name", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Module", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store7, "Text", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store6);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store7);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store8);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store9);
         //    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
         //    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
         //    // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -407,10 +406,10 @@ namespace APE.Language
             bool match = false;
 
             //Get the number of items
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Count", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store2);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -474,11 +473,11 @@ namespace APE.Language
             {
                 UpdateIndex();
 
-                GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "Text", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
+                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -491,10 +490,10 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessagePollMember(APEIPC.DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, Text));
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessagePollMember(DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, Text));
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
         }
@@ -505,11 +504,11 @@ namespace APE.Language
             {
                 UpdateIndex();
 
-                GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-                GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "ToolTipText", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store3);
+                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ToolTipText", MemberTypes.Property);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -523,13 +522,13 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "Image", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store5, "Save", MemberTypes.Method, new Parameter(GUI.m_APE, filename));
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Image", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Height", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Save", MemberTypes.Method, new Parameter(GUI.m_APE, filename));
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -545,18 +544,18 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store4, "Bounds", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store5, "X", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store6, "Y", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store7, "Width", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store4, APEIPC.DataStores.Store8, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store5);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store6);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store7);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store8);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "Bounds", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Width", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store8, "Height", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store7);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store8);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -573,12 +572,12 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "DropDown", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "DropDown", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -738,12 +737,12 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "ComboBox", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ComboBox", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -809,12 +808,12 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "TextBox", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "TextBox", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -868,12 +867,12 @@ namespace APE.Language
         {
             UpdateIndex();
             
-            GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Item", MemberTypes.Property, new APEIPC.Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store2, APEIPC.DataStores.Store3, "ProgressBar", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store3, APEIPC.DataStores.Store4, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store4);
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ProgressBar", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call

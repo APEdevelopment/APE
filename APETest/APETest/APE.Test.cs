@@ -104,7 +104,7 @@ namespace APE.Test
             //Debug.Listeners[0].WriteLine("\t Grid:\n" + gridcontents);
 
             ////MessageBox.Show("unhide thr row");
-            //vfgStats.Select(3, 0, MouseButton.Left, GUIFlexgrid.CellClickLocation.ExpandCollapseIconOfCell);
+            //vfgStats.Select(3, 0, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
             //MessageBox.Show(vfgStats.FindRow("Post-trade Incidents -> New Missing Data").ToString());
 
             
@@ -169,7 +169,7 @@ namespace APE.Test
 
 
 
-            layoutGrid.Select(group + " -> " + layout, layoutGrid.FirstVisibleColumn(), MouseButton.Left, GUIFlexgrid.CellClickLocation.CentreOfCell);
+            layoutGrid.Select(group + " -> " + layout, layoutGrid.FirstVisibleColumn(), MouseButton.Left, CellClickLocation.CentreOfCell);
             
             timer = Stopwatch.StartNew();
             do
@@ -243,121 +243,137 @@ namespace APE.Test
             GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "test");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "test");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Standard");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Standard");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+
+            GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+
+            Stopwatch foo = Stopwatch.StartNew();
+
+            //for (int i = 1; i < 10000; i++)
+            //{
+                entry.GetEdititorType(0, 0);
+            //}
+            foo.Stop();
+            Debug.WriteLine(foo.ElapsedMilliseconds.ToString());
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Maximum");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "test");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "test");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Standard");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Maximum");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Standard");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Portfolio Studio x 2");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Maximum");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Portfolio Studio x 2");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Maximum");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Portfolio Studio x 2");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Portfolio Studio x 2");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix Max");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
 
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix Max");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
-            stepTimer = Stopwatch.StartNew();
-            SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
-            stepTimer.Stop();
-            Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+
+
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix Max");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+
+
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "PS and Matrix Max");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
+            //stepTimer = Stopwatch.StartNew();
+            //SwitchLayout(IMS, layout, "Automated Screens", "Order Viewer Only");
+            //stepTimer.Stop();
+            //Debug.WriteLine(String.Format("{0:N2}", (Convert.ToDouble(stepTimer.ElapsedMilliseconds) / 1000)));
 
             //Process p = Process.GetProcessesByName("toolstrip")[0];
             //GUI.AttachToProcess(p);
@@ -419,7 +435,7 @@ namespace APE.Test
 
 
             //xxx = Stopwatch.StartNew();
-            //fgGrid.Select(1, "Counterparty", MouseButton.Left, GUIFlexgrid.CellClickLocation.CentreOfCell);
+            //fgGrid.Select(1, "Counterparty", MouseButton.Left, CellClickLocation.CentreOfCell);
             //GUI.WaitForInputIdle(fgGrid);
             //SendKeys.SendWait("HSBC{ENTER}");
             //GUI.WaitForInputIdle(fgGrid);

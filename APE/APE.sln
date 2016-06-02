@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APE.Capture", "..\APE.Capture\APE.Capture\APE.Capture.csproj", "{9DCC9BB7-CA01-4171-9B9E-5F6E0AD4A158}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -48,6 +48,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APETest", "..\APETest\APETest\APETest.csproj", "{F51E2167-186E-4417-8C80-8939CB26D2C8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E199B35B-265F-4E0F-8CBD-F97946CF0802} = {E199B35B-265F-4E0F-8CBD-F97946CF0802}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SentinelPerformance", "..\SentinelPerformance\SentinelPerformance\SentinelPerformance.csproj", "{860190C3-8DBC-4C25-8475-E21A340F4A29}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E199B35B-265F-4E0F-8CBD-F97946CF0802} = {E199B35B-265F-4E0F-8CBD-F97946CF0802}
+		{9DCC9BB7-CA01-4171-9B9E-5F6E0AD4A158} = {9DCC9BB7-CA01-4171-9B9E-5F6E0AD4A158}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APE.Domain", "..\APE.Domain\APE.Domain\APE.Domain.csproj", "{7A67FDDF-8B04-4A0E-B4C0-1EA9C5A7B568}"
@@ -178,6 +184,18 @@ Global
 		{F51E2167-186E-4417-8C80-8939CB26D2C8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F51E2167-186E-4417-8C80-8939CB26D2C8}.Release|x64.ActiveCfg = Release|Any CPU
 		{F51E2167-186E-4417-8C80-8939CB26D2C8}.Release|x86.ActiveCfg = Release|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Release|x64.ActiveCfg = Release|Any CPU
+		{860190C3-8DBC-4C25-8475-E21A340F4A29}.Release|x86.ActiveCfg = Release|Any CPU
 		{7A67FDDF-8B04-4A0E-B4C0-1EA9C5A7B568}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7A67FDDF-8B04-4A0E-B4C0-1EA9C5A7B568}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A67FDDF-8B04-4A0E-B4C0-1EA9C5A7B568}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

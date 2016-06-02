@@ -34,8 +34,11 @@ namespace TestApplication
             {
                 StatusStrip.Items[0].Text = i.ToString();
                 StatusStrip.Update();
-                Thread.Sleep(75);
-                Application.DoEvents();
+                for (int x = 0; x < 3; x++)
+                {
+                    Thread.Sleep(25);
+                    Application.DoEvents();
+                }
             }
             StatusStrip.Items[0].Text = "";
         }

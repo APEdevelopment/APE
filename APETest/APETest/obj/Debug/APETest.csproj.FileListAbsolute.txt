@@ -159,6 +159,3 @@ D:\Work\Test\Test\v32\APETest\APETest\obj\Debug\APE.Test.Form1.resources
 D:\Work\Test\Test\v32\APETest\APETest\obj\Debug\APE.Properties.Resources.resources
 D:\Work\Test\Test\v32\APETest\APETest\obj\Debug\APETest.csproj.GenerateResource.Cache
 C:\Tools\APE\APETest\APETest\bin\Debug\APE.Language.xml
-D:\APE\APETest\APETest\bin\Debug\APETest.exe.config
-D:\APE\APETest\APETest\obj\Debug\APETest.exe
-D:\APE\APETest\APETest\obj\Debug\APETest.pdb

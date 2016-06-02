@@ -178,10 +178,10 @@ namespace APE.Language
             //If all controls set the contextmenu / contextmenustrip property we could find it using the below
             //but some don't so we use an alternative method to find them
             ////Get the ContextMenuStrip handle
-            //GUI.m_APE.AddMessageFindByHandle(APEIPC.DataStores.Store0, Parent, Control);
-            //GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store0, APEIPC.DataStores.Store1, "ContextMenuStrip", MemberTypes.Property);
-            //GUI.m_APE.AddMessageQueryMember(APEIPC.DataStores.Store1, APEIPC.DataStores.Store2, "Handle", MemberTypes.Property);
-            //GUI.m_APE.AddMessageGetValue(APEIPC.DataStores.Store2);
+            //GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
+            //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "ContextMenuStrip", MemberTypes.Property);
+            //GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
+            //GUI.m_APE.AddMessageGetValue(DataStores.Store2);
             //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             ////get the values returned

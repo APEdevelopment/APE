@@ -36,18 +36,29 @@ namespace APE.Communication
         public string Text;
     }
 
+    public enum DataStores : int
+    {
+        Store0 = 0,
+        Store1 = 1,
+        Store2 = 2,
+        Store3 = 3,
+        Store4 = 4,
+        Store5 = 5,
+        Store6 = 6,
+        Store7 = 7,
+        Store8 = 8,
+        Store9 = 9,
+    }
+
     public class APEIPC
     {
-        private const int MaxParameters = 10;
-        private const int MaxMessages = 20;
         private const int ERROR_ALREADY_EXISTS = 183;
-        private const int OneLargerThanTypeCodeEnumMax = 19;
         private const int StringSpaceBytes = 1048576;
 
         //Memory Map File for IPC for message strings
         private IntPtr m_HandleMemoryMappedFileStringStore;
-        private IntPtr m_IntPtrMemoryMappedFileViewStringStore;
-        private int m_StringStoreOffset;
+        internal IntPtr m_IntPtrMemoryMappedFileViewStringStore;
+        internal int m_StringStoreOffset;
 
         private NM.HookProc MouseHookProcedure;
         private NM.EnumThread EnumThreadProcedue;
@@ -67,13 +78,14 @@ namespace APE.Communication
 
         //Memory Map File for IPC for message value types
         private IntPtr m_HandleMemoryMappedFileMessageStore;
-        private IntPtr m_IntPtrMemoryMappedFileViewMessageStore;
-        private unsafe MessageStore* m_PtrMessageStore;
+        internal IntPtr m_IntPtrMemoryMappedFileViewMessageStore;
+        internal unsafe MessageStore* m_PtrMessageStore;
 
-        private unsafe int m_SizeOfMessage = sizeof(Message);
+        internal unsafe int m_SizeOfMessage = sizeof(Message);
         private ParametersTypeCircularList ParametersTypeCache = new ParametersTypeCircularList(3);    //3 is optimal here as there are only a couple of very frequently used types
         private MemberGetterCircularList MemberGetterCache = new MemberGetterCircularList(10);
         private MethodInvokerCircularList MethodInvokerCache = new MethodInvokerCircularList(10);
+        private ConstructorInvokerCircularList ConstructorInvokerCache = new ConstructorInvokerCircularList(10);
 
         //Cache all the primitive types (for performance)
         private Type m_TypeBoolean = typeof(Boolean);
@@ -130,31 +142,6 @@ namespace APE.Communication
         private int m_MessageNumber = 0;
 
         [Flags]
-        public enum MessageAction : int
-        {
-            RemoveFileMapping = -1,
-            None = 0,
-            Find = 1,
-            Refind = 2,
-            ReflectGet = 3,
-            GetResult = 4,
-            GetListViewGroupRectangle = 5,
-            GetListViewItemRectangle = 6,
-            SetTimeOuts = 7,
-            GetTitleBarItemRectangle = 8,
-            AddMouseHook = 9,
-            RemoveMouseHook = 10,
-            WaitForMouseState = 11,
-            GarbageCollect = 12,
-            GetContextMenuStrip = 13,
-            GetAppDomains = 14,
-            GetRecognisedType = 15,
-            GetApeTypeFromType = 16,
-            GetApeTypeFromObject = 17,
-            ReflectPoll = 18,
-        }
-
-        [Flags]
         public enum MessageResult : int
         {
             Success = 1,
@@ -175,30 +162,17 @@ namespace APE.Communication
             Middle = 2,
         }
 
-        public enum DataStores : int
-        {
-            Store0 = 0,
-            Store1 = 1,
-            Store2 = 2,
-            Store3 = 3,
-            Store4 = 4,
-            Store5 = 5,
-            Store6 = 6,
-            Store7 = 7,
-            Store8 = 8,
-            Store9 = 9,
-        }
-
         public enum EventSet : byte
         {
             APE = 0,
             AUT = 1,
         }
 
-        // if you add more Messages here remember to update MaxMessages as well
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MessageStore
+        internal struct MessageStore
         {
+            internal const int MaxMessages = 20;
+
             public Message Message0;
             public Message Message1;
             public Message Message2;
@@ -221,48 +195,6 @@ namespace APE.Communication
             public Message Message19;
             public byte NumberOfMessages;
             public EventSet LastWake;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct Message
-        {
-            public int MoreStringData;
-            public int TotalStringDataLength;
-            public MessageAction Action;
-            public DataStores SourceStore;
-            public DataStores DestinationStore;
-            public int NameOffset;
-            public int NameLength;
-            public int NumberOfParameters;
-            public MemberTypes MemberType;
-            public long TypeCodeKey;
-            public Parameters Parameter;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        unsafe struct Parameters
-        {
-            public fixed Int32 TypeCode[MaxParameters];
-            public fixed Boolean Boolean[MaxParameters];
-            public fixed Byte Byte[MaxParameters];
-            public fixed Char Char[MaxParameters];
-            public fixed Int64 DateTimeBinary[MaxParameters];
-            public fixed Int32 DecimalBits0[MaxParameters];
-            public fixed Int32 DecimalBits1[MaxParameters];
-            public fixed Int32 DecimalBits2[MaxParameters];
-            public fixed Int32 DecimalBits3[MaxParameters];
-            public fixed Double Double[MaxParameters];
-            public fixed Int16 Int16[MaxParameters];
-            public fixed Int32 Int32[MaxParameters];
-            public fixed Int64 Int64[MaxParameters];
-            public fixed SByte SByte[MaxParameters];
-            public fixed Single Single[MaxParameters];
-            public fixed Int32 StringOffset[MaxParameters];
-            public fixed Int32 StringLength[MaxParameters];
-            public fixed UInt16 UInt16[MaxParameters];
-            public fixed UInt32 UInt32[MaxParameters];
-            public fixed UInt64 UInt64[MaxParameters];
-            public fixed Int64 IntPtr[MaxParameters];
         }
 
         private bool EnumThreadCallback(IntPtr hWnd, IntPtr lParam)
@@ -1855,7 +1787,7 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.ReflectPoll;
             fixed (void* PtrName = Name)
             {
-                NM.CopyMemory(m_IntPtrMemoryMappedFileViewStringStore + m_StringStoreOffset, (IntPtr)PtrName, (UIntPtr)(Name.Length * 2));    //UTF16 charcter = 2 bytes
+                NM.CopyMemory(m_IntPtrMemoryMappedFileViewStringStore + m_StringStoreOffset, (IntPtr)PtrName, (UIntPtr)(Name.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
             }
 
             PtrMessage->NameOffset = m_StringStoreOffset;
@@ -1885,7 +1817,7 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.ReflectGet;
             fixed (void* PtrName = Name)
             {
-                NM.CopyMemory(m_IntPtrMemoryMappedFileViewStringStore + m_StringStoreOffset, (IntPtr)PtrName, (UIntPtr)(Name.Length * 2));    //UTF16 charcter = 2 bytes
+                NM.CopyMemory(m_IntPtrMemoryMappedFileViewStringStore + m_StringStoreOffset, (IntPtr)PtrName, (UIntPtr)(Name.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
             }
 
             PtrMessage->NameOffset = m_StringStoreOffset;
@@ -2641,7 +2573,7 @@ namespace APE.Communication
                 {
                     PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
                     PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Empty;
-                    PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Empty);
+                    PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Empty);
                     PtrMessage->NumberOfParameters++;
                     m_PtrMessageStore->NumberOfMessages++;
                 }
@@ -2921,6 +2853,11 @@ namespace APE.Communication
 
                 do
                 {
+                    if (ControlType == null)
+                    {
+                        break;
+                    }
+
                     if (ControlType.Namespace.StartsWith("System.Windows."))
                     {
                         break;
@@ -3364,11 +3301,62 @@ namespace APE.Communication
                             ParametersType[i] = m_TypeIntPtr;
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
+                        case 19:
+                            int datastoreNumber = PtrMessage->Parameter.Int32[i];
+                            switch (datastoreNumber)
+                            {
+                                case 0:
+                                    ParametersType[i] = tempStore0.GetType();
+                                    ParametersObject[i] = tempStore0;
+                                    break;
+                                case 1:
+                                    ParametersType[i] = tempStore1.GetType();
+                                    ParametersObject[i] = tempStore1;
+                                    break;
+                                case 2:
+                                    ParametersType[i] = tempStore2.GetType();
+                                    ParametersObject[i] = tempStore2;
+                                    break;
+                                case 3:
+                                    ParametersType[i] = tempStore3.GetType();
+                                    ParametersObject[i] = tempStore3;
+                                    break;
+                                case 4:
+                                    ParametersType[i] = tempStore4.GetType();
+                                    ParametersObject[i] = tempStore4;
+                                    break;
+                                case 5:
+                                    ParametersType[i] = tempStore5.GetType();
+                                    ParametersObject[i] = tempStore5;
+                                    break;
+                                case 6:
+                                    ParametersType[i] = tempStore6.GetType();
+                                    ParametersObject[i] = tempStore6;
+                                    break;
+                                case 7:
+                                    ParametersType[i] = tempStore7.GetType();
+                                    ParametersObject[i] = tempStore7;
+                                    break;
+                                case 8:
+                                    ParametersType[i] = tempStore8.GetType();
+                                    ParametersObject[i] = tempStore8;
+                                    break;
+                                case 9:
+                                    ParametersType[i] = tempStore9.GetType();
+                                    ParametersObject[i] = tempStore9;
+                                    break;
+                                default:
+                                    throw new Exception("Unsupported SourceStore " + datastoreNumber.ToString());
+                            }
+                            break;
                         default:
                             throw new Exception("Unsupported System.TypeCode: " + ((int)(PtrMessage->Parameter.TypeCode[i])).ToString());
                     }
                 }
-                ParametersTypeCache.AddToList(PtrMessage->TypeCodeKey, ParametersType);
+                if (PtrMessage->TypeCodeKey != -1)  //not a datastore type
+                {
+                    ParametersTypeCache.AddToList(PtrMessage->TypeCodeKey, ParametersType);
+                }
             }
             else
             {
@@ -3446,6 +3434,7 @@ namespace APE.Communication
 
             Type SourceType;
             string Name;
+            Fasterflect.ConstructorInvoker ConstructorInvoker;
             Fasterflect.MethodInvoker MethodInvoker;
             Fasterflect.MemberGetter MemberGetter;
             Fasterflect.ArrayElementGetter ArrayElementGetter;
@@ -3514,6 +3503,23 @@ namespace APE.Communication
                 {
                     switch (PtrMessage->MemberType)
                     {
+                        case MemberTypes.Constructor:
+                            ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, out ConstructorInvoker);
+                            if (ConstructorInvoker == null)
+                            {
+                                Type typeContainingConstructor;
+                                typeContainingConstructor = SourceType.Assembly.GetTypes().FirstOrDefault(x => x.FullName == Name);
+                                if (typeContainingConstructor == null)
+                                {
+                                    typeContainingConstructor = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == Name);
+                                }
+                                ConstructorInvoker = typeContainingConstructor.DelegateForCreateInstance(ParametersType);
+                                ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, ConstructorInvoker);
+                            }
+                            DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
+                            //DestinationObject = ((Control)tempStore0).Invoke((Delegate)ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                            ConstructorInvoker = null;
+                            break;
                         case MemberTypes.Field:
                             MemberGetterCache.GetFromList(SourceType.TypeHandle, Name, out MemberGetter);
                             if (MemberGetter == null)
@@ -3756,7 +3762,7 @@ namespace APE.Communication
                     if (!Result)
                     {
                         //clean up all the messages
-                        for (int MessageNumber = 1; MessageNumber <= MaxMessages; MessageNumber++)
+                        for (int MessageNumber = 1; MessageNumber <= MessageStore.MaxMessages; MessageNumber++)
                         {
                             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
 
@@ -4183,423 +4189,6 @@ namespace APE.Communication
         //        m_Sleep = value;
         //    }
         //}
-
-        unsafe public class Parameter
-        {
-            public Parameter(APEIPC instance, Boolean param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Boolean[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Boolean;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Boolean);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Byte param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Byte[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Byte;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Byte);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Char param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Char[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Char;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Char);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, DateTime param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.DateTimeBinary[PtrMessage->NumberOfParameters] = param.ToBinary();
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.DateTime;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.DateTime);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Decimal param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-                int[] DecimalBits = decimal.GetBits(param);
-
-                PtrMessage->Parameter.DecimalBits0[PtrMessage->NumberOfParameters] = DecimalBits[0];
-                PtrMessage->Parameter.DecimalBits1[PtrMessage->NumberOfParameters] = DecimalBits[1];
-                PtrMessage->Parameter.DecimalBits2[PtrMessage->NumberOfParameters] = DecimalBits[2];
-                PtrMessage->Parameter.DecimalBits3[PtrMessage->NumberOfParameters] = DecimalBits[3];
-
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Decimal;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Decimal);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Double param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Double[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Double;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Double);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Int16 param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Int16[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Int16;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Int16);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Int32 param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Int32[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Int32;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Int32);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, IntPtr param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.IntPtr[PtrMessage->NumberOfParameters] = param.ToInt64();
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = 17;    //17 is unused so we steal it
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + 17);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Int64 param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Int64[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Int64;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Int64);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, SByte param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.SByte[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.SByte;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.SByte);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, Single param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.Single[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Single;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Single);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, String[] param)
-            {
-                Parameter p = new Parameter(instance, ConvertString1dArrayToString(param));
-                //TODO update the type so we know its a 1d array for the other side to decode
-            }
-
-            public Parameter(APEIPC instance, String[,] param)
-            {
-                Parameter p = new Parameter(instance, ConvertString2dArrayToString(param));
-                //TODO update the type so we know its a 2d array for the other side to decode
-            }
-
-            private string ConvertString1dArrayToString(string[] StringArray)
-            {
-                StringBuilder sb = new StringBuilder(StringArray.Length * 4);
-
-                for (int y = 0; y < StringArray.GetUpperBound(0) + 1; y++)
-                {
-                    if (y < StringArray.GetUpperBound(0))
-                    {
-                        sb.Append("\n");
-                    }
-                }
-                return sb.ToString();
-            }
-
-            private string ConvertString2dArrayToString(string[,] StringArray)
-            {
-                StringBuilder sb = new StringBuilder(StringArray.Length * 4);
-
-                for (int y = 0; y < StringArray.GetUpperBound(0) + 1; y++)
-                {
-                    for (int x = 0; x < StringArray.GetUpperBound(1) + 1; x++)
-                    {
-                        sb.Append(StringArray[y, x]);
-                        if (x < StringArray.GetUpperBound(1))
-                        {
-                            sb.Append("\t");
-                        }
-                        else
-                        {
-                            if (y < StringArray.GetUpperBound(0))
-                            {
-                                sb.Append("\n");
-                            }
-                        }
-                    }
-                }
-                return sb.ToString();
-            }
-
-            public Parameter(APEIPC instance, String param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                if (param != null)
-                {
-                    fixed (void* PtrString = param)
-                    {
-                        NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(param.Length * 2));    //UTF16 charcter = 2 bytes
-                    }
-                    PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
-                    PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = param.Length;
-                    instance.m_StringStoreOffset = instance.m_StringStoreOffset + (param.Length * 2);
-                }
-                else
-                {
-                    PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = -1;
-                    PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = -1;
-                }
-
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.String;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.String);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, UInt16 param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.UInt16[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.UInt16;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.UInt16);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, UInt32 param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.UInt32[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.UInt32;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.UInt32);
-                PtrMessage->NumberOfParameters++;
-            }
-
-            public Parameter(APEIPC instance, UInt64 param)
-            {
-                Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
-
-                PtrMessage->Parameter.UInt64[PtrMessage->NumberOfParameters] = param;
-                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.UInt64;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.UInt64);
-                PtrMessage->NumberOfParameters++;
-            }
-        }
-
-        private class ParametersTypeCircularList
-        {
-            Type[][] m_ParametersType;
-            Int64[] m_TypeCodeKey;
-            int m_OldestItemInList;
-            int m_ListSize;
-
-            public void AddToList(Int64 TypeCodeKey, Type[] ParametersType)
-            {
-                //Add an item to the list replacing the eldest item
-                m_TypeCodeKey[m_OldestItemInList] = TypeCodeKey;
-                m_ParametersType[m_OldestItemInList] = ParametersType;
-                m_OldestItemInList++;
-                if (m_OldestItemInList > m_ListSize - 1)
-                {
-                    m_OldestItemInList = 0;
-                }
-            }
-
-            public void GetFromList(Int64 TypeCodeKey, out Type[] ParametersType)
-            {
-                //Search for the item starting at the youngest item in the list
-                for (int i = m_OldestItemInList - 1; i >= 0; i--)
-                {
-                    if (m_TypeCodeKey[i] == TypeCodeKey)
-                    {
-                        ParametersType = m_ParametersType[i];
-                        return;
-                    }
-                }
-
-                for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
-                {
-                    if (m_TypeCodeKey[i] == TypeCodeKey)
-                    {
-                        ParametersType = m_ParametersType[i];
-                        return;
-                    }
-                }
-
-                ParametersType = null;
-            }
-
-            public ParametersTypeCircularList(int Length)
-            {
-                if (Length < 1)
-                {
-                    throw new Exception("Length must be positive");
-                }
-
-                m_ListSize = Length;
-                m_ParametersType = new Type[Length][];
-                m_TypeCodeKey = new Int64[Length];
-            }
-        }
-
-        private class MethodInvokerCircularList
-        {
-            RuntimeTypeHandle[] m_RunTimeTypeHandle;
-            string[] m_Name;
-            Fasterflect.MethodInvoker[] m_MethodInvoker;
-            Int64[] m_TypeCodeKey;
-            int m_OldestItemInList;
-            int m_ListSize;
-
-            public void AddToList(RuntimeTypeHandle RuntimeTypeHandle, string Name, Int64 TypeCodeKey, Fasterflect.MethodInvoker MethodInvoker)
-            {
-                //Add an item to the list replacing the eldest item
-                m_RunTimeTypeHandle[m_OldestItemInList] = RuntimeTypeHandle;
-                m_Name[m_OldestItemInList] = Name;
-                m_TypeCodeKey[m_OldestItemInList] = TypeCodeKey;
-                m_MethodInvoker[m_OldestItemInList] = MethodInvoker;
-
-                m_OldestItemInList++;
-                if (m_OldestItemInList > m_ListSize - 1)
-                {
-                    m_OldestItemInList = 0;
-                }
-            }
-
-            public void GetFromList(RuntimeTypeHandle RuntimeTypeHandle, string Name, Int64 TypeCodeKey, out Fasterflect.MethodInvoker MethodInvoker)
-            {
-                //Search for the item starting at the youngest item in the list
-                for (int i = m_OldestItemInList - 1; i >= 0; i--)
-                {
-                    if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name && m_TypeCodeKey[i] == TypeCodeKey)
-                    {
-                        MethodInvoker = m_MethodInvoker[i];
-                        return;
-                    }
-                }
-
-                for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
-                {
-                    if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name && m_TypeCodeKey[i] == TypeCodeKey)
-                    {
-                        MethodInvoker = m_MethodInvoker[i];
-                        return;
-                    }
-                }
-
-                MethodInvoker = null;
-            }
-
-            public MethodInvokerCircularList(int Length)
-            {
-                if (Length < 1)
-                {
-                    throw new Exception("Length must be positive");
-                }
-
-                m_ListSize = Length;
-                m_RunTimeTypeHandle = new RuntimeTypeHandle[Length];
-                m_Name = new string[Length];
-                m_MethodInvoker = new Fasterflect.MethodInvoker[Length];
-                m_TypeCodeKey = new Int64[Length];
-            }
-        }
-
-        private class MemberGetterCircularList
-        {
-            RuntimeTypeHandle[] m_RunTimeTypeHandle;
-            string[] m_Name;
-            Fasterflect.MemberGetter[] m_MemberGetter;
-            int m_OldestItemInList;
-            int m_ListSize;
-
-            public void AddToList(RuntimeTypeHandle RuntimeTypeHandle, string Name, Fasterflect.MemberGetter MemberGetter)
-            {
-                //Add an item to the list replacing the eldest item
-                m_RunTimeTypeHandle[m_OldestItemInList] = RuntimeTypeHandle;
-                m_Name[m_OldestItemInList] = Name;
-                m_MemberGetter[m_OldestItemInList] = MemberGetter;
-
-                m_OldestItemInList++;
-                if (m_OldestItemInList > m_ListSize - 1)
-                {
-                    m_OldestItemInList = 0;
-                }
-            }
-
-            public void GetFromList(RuntimeTypeHandle RuntimeTypeHandle, string Name, out Fasterflect.MemberGetter MemberGetter)
-            {
-                //Search for the item starting at the youngest item in the list
-                for (int i = m_OldestItemInList - 1; i >= 0; i--)
-                {
-                    if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name)
-                    {
-                        MemberGetter = m_MemberGetter[i];
-                        return;
-                    }
-                }
-
-                for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
-                {
-                    if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name)
-                    {
-                        MemberGetter = m_MemberGetter[i];
-                        return;
-                    }
-                }
-
-                MemberGetter = null;
-            }
-
-            public MemberGetterCircularList(int Length)
-            {
-                if (Length < 1)
-                {
-                    throw new Exception("Length must be positive");
-                }
-
-                m_ListSize = Length;
-                m_RunTimeTypeHandle = new RuntimeTypeHandle[Length];
-                m_Name = new string[Length];
-                m_MemberGetter = new Fasterflect.MemberGetter[Length];
-            }
-        }
     }
-
-    #region Native API Signatures and Types
-    
-    #endregion
 }
 

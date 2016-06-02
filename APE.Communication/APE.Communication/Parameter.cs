@@ -3,22 +3,67 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Fasterflect;
-using System.Threading;
-using System.Windows.Forms;
 using System.Reflection;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Management;
+using NM = APE.Native.NativeMethods;
 
 namespace APE.Communication
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct Message
+    unsafe internal struct Parameters
+    {
+        private const int MaxParameters = 10;
+
+        public fixed Int32 TypeCode[MaxParameters];
+        public fixed Boolean Boolean[MaxParameters];
+        public fixed Byte Byte[MaxParameters];
+        public fixed Char Char[MaxParameters];
+        public fixed Int64 DateTimeBinary[MaxParameters];
+        public fixed Int32 DecimalBits0[MaxParameters];
+        public fixed Int32 DecimalBits1[MaxParameters];
+        public fixed Int32 DecimalBits2[MaxParameters];
+        public fixed Int32 DecimalBits3[MaxParameters];
+        public fixed Double Double[MaxParameters];
+        public fixed Int16 Int16[MaxParameters];
+        public fixed Int32 Int32[MaxParameters];
+        public fixed Int64 Int64[MaxParameters];
+        public fixed SByte SByte[MaxParameters];
+        public fixed Single Single[MaxParameters];
+        public fixed Int32 StringOffset[MaxParameters];
+        public fixed Int32 StringLength[MaxParameters];
+        public fixed UInt16 UInt16[MaxParameters];
+        public fixed UInt32 UInt32[MaxParameters];
+        public fixed UInt64 UInt64[MaxParameters];
+        public fixed Int64 IntPtr[MaxParameters];
+    }
+
+    [Flags]
+    internal enum MessageAction : int
+    {
+        RemoveFileMapping = -1,
+        None = 0,
+        Find = 1,
+        Refind = 2,
+        ReflectGet = 3,
+        GetResult = 4,
+        GetListViewGroupRectangle = 5,
+        GetListViewItemRectangle = 6,
+        SetTimeOuts = 7,
+        GetTitleBarItemRectangle = 8,
+        AddMouseHook = 9,
+        RemoveMouseHook = 10,
+        WaitForMouseState = 11,
+        GarbageCollect = 12,
+        GetContextMenuStrip = 13,
+        GetAppDomains = 14,
+        GetRecognisedType = 15,
+        GetApeTypeFromType = 16,
+        GetApeTypeFromObject = 17,
+        ReflectPoll = 18,
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    internal struct Message
     {
         public int MoreStringData;
         public int TotalStringDataLength;
@@ -35,6 +80,8 @@ namespace APE.Communication
 
     unsafe public class Parameter
     {
+        internal const int OneLargerThanTypeCodeEnumMax = 20;
+
         public Parameter(APEIPC instance, Boolean param)
         {
             Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
@@ -119,6 +166,17 @@ namespace APE.Communication
             PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Int32);
             PtrMessage->NumberOfParameters++;
         }
+
+        public Parameter(APEIPC instance, DataStores param)
+        {
+            Message* PtrMessage = (Message*)(instance.m_IntPtrMemoryMappedFileViewMessageStore + (instance.m_PtrMessageStore->NumberOfMessages * instance.m_SizeOfMessage));
+
+            PtrMessage->Parameter.Int32[PtrMessage->NumberOfParameters] = (Int32)param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = 19;    //19 is unused so we steal it
+            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanTypeCodeEnumMax) + 19);
+            PtrMessage->NumberOfParameters++;
+        }
+
 
         public Parameter(APEIPC instance, IntPtr param)
         {
@@ -219,7 +277,7 @@ namespace APE.Communication
             {
                 fixed (void* PtrString = param)
                 {
-                    NativeMethods.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(param.Length * 2));    //UTF16 charcter = 2 bytes
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(param.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
                 }
                 PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
                 PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = param.Length;
