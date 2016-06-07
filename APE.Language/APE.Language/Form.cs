@@ -52,13 +52,12 @@ namespace APE.Language
                     GUI.m_APE.AddMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Close);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
-                    //TODO remove the message number from GetValueFromMessage as its not needed
-                    NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage(1);
-                    int Top = GUI.m_APE.GetValueFromMessage(2);
-                    int Left = GUI.m_APE.GetValueFromMessage(3);
-                    int Bottom = GUI.m_APE.GetValueFromMessage(4);
-                    int Right = GUI.m_APE.GetValueFromMessage(5);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage();
+                    int Top = GUI.m_APE.GetValueFromMessage();
+                    int Left = GUI.m_APE.GetValueFromMessage();
+                    int Bottom = GUI.m_APE.GetValueFromMessage();
+                    int Right = GUI.m_APE.GetValueFromMessage();
 
                     // Check the close button is actually displayed
                     if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
@@ -121,7 +120,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string WindowState = GUI.m_APE.GetValueFromMessage(1);
+                    string WindowState = GUI.m_APE.GetValueFromMessage();
 
                     if (WindowState == "Minimized")
                     {
@@ -133,17 +132,15 @@ namespace APE.Language
                         throw new Exception("Can not maximise the window as it already is");
                     }
 
-
                     GUI.m_APE.AddMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Maximize);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
-                    //TODO remove the message number from GetValueFromMessage as its not needed
-                    NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage(1);
-                    int Top = GUI.m_APE.GetValueFromMessage(2);
-                    int Left = GUI.m_APE.GetValueFromMessage(3);
-                    int Bottom = GUI.m_APE.GetValueFromMessage(4);
-                    int Right = GUI.m_APE.GetValueFromMessage(5);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage();
+                    int Top = GUI.m_APE.GetValueFromMessage();
+                    int Left = GUI.m_APE.GetValueFromMessage();
+                    int Bottom = GUI.m_APE.GetValueFromMessage();
+                    int Right = GUI.m_APE.GetValueFromMessage();
 
                     // Check the maximise button is actually displayed
                     if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
@@ -176,7 +173,7 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            WindowState = GUI.m_APE.GetValueFromMessage(1);
+                            WindowState = GUI.m_APE.GetValueFromMessage();
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
@@ -213,7 +210,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string WindowState = GUI.m_APE.GetValueFromMessage(1);
+                    string WindowState = GUI.m_APE.GetValueFromMessage();
 
                     if (WindowState == "Minimized")
                     {
@@ -223,13 +220,12 @@ namespace APE.Language
                     GUI.m_APE.AddMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Minimize);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
-                    //TODO remove the message number from GetValueFromMessage as its not needed
-                    NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage(1);
-                    int Top = GUI.m_APE.GetValueFromMessage(2);
-                    int Left = GUI.m_APE.GetValueFromMessage(3);
-                    int Bottom = GUI.m_APE.GetValueFromMessage(4);
-                    int Right = GUI.m_APE.GetValueFromMessage(5);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage();
+                    int Top = GUI.m_APE.GetValueFromMessage();
+                    int Left = GUI.m_APE.GetValueFromMessage();
+                    int Bottom = GUI.m_APE.GetValueFromMessage();
+                    int Right = GUI.m_APE.GetValueFromMessage();
 
                     // Check the maximise button is actually displayed
                     if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
@@ -262,7 +258,7 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            WindowState = GUI.m_APE.GetValueFromMessage(1);
+                            WindowState = GUI.m_APE.GetValueFromMessage();
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
@@ -299,7 +295,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string WindowState = GUI.m_APE.GetValueFromMessage(1);
+                    string WindowState = GUI.m_APE.GetValueFromMessage();
 
                     if (WindowState == "Normal")
                     {
@@ -330,7 +326,7 @@ namespace APE.Language
                                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                                WindowState = GUI.m_APE.GetValueFromMessage(1);
+                                WindowState = GUI.m_APE.GetValueFromMessage();
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
@@ -353,13 +349,12 @@ namespace APE.Language
                         GUI.m_APE.AddMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Maximize);
                         GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                         GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
-                        //TODO remove the message number from GetValueFromMessage as its not needed
-                        NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage(1);
-                        int Top = GUI.m_APE.GetValueFromMessage(2);
-                        int Left = GUI.m_APE.GetValueFromMessage(3);
-                        int Bottom = GUI.m_APE.GetValueFromMessage(4);
-                        int Right = GUI.m_APE.GetValueFromMessage(5);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                        NM.StateSystem State = (NM.StateSystem)GUI.m_APE.GetValueFromMessage();
+                        int Top = GUI.m_APE.GetValueFromMessage();
+                        int Left = GUI.m_APE.GetValueFromMessage();
+                        int Bottom = GUI.m_APE.GetValueFromMessage();
+                        int Right = GUI.m_APE.GetValueFromMessage();
 
                         // Check the maximise button is actually displayed
                         if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
@@ -392,7 +387,7 @@ namespace APE.Language
                                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                                WindowState = GUI.m_APE.GetValueFromMessage(1);
+                                WindowState = GUI.m_APE.GetValueFromMessage();
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {

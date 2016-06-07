@@ -167,7 +167,8 @@ namespace APE.Language
         ModuleName = 6,
         AssemblyName = 7,
         Index = 8,
-        Text = 9
+        Text = 9,
+        ChildOf = 10
     }
 
     [Flags]
@@ -421,12 +422,12 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            Visible = GUI.m_APE.GetValueFromMessage(1);
-            Enabled = GUI.m_APE.GetValueFromMessage(2);
-            Width = GUI.m_APE.GetValueFromMessage(3);
-            Height = GUI.m_APE.GetValueFromMessage(4);
-            X = GUI.m_APE.GetValueFromMessage(5);
-            Y = GUI.m_APE.GetValueFromMessage(6);
+            Visible = GUI.m_APE.GetValueFromMessage();
+            Enabled = GUI.m_APE.GetValueFromMessage();
+            Width = GUI.m_APE.GetValueFromMessage();
+            Height = GUI.m_APE.GetValueFromMessage();
+            X = GUI.m_APE.GetValueFromMessage();
+            Y = GUI.m_APE.GetValueFromMessage();
 
             //Check its enabled, visible and click on it
             if (Visible)
@@ -467,7 +468,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            HasDropDown = GUI.m_APE.GetValueFromMessage(1);
+            HasDropDown = GUI.m_APE.GetValueFromMessage();
 
             if (HasDropDown == false)
             {
@@ -484,7 +485,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            return (IntPtr)GUI.m_APE.GetValueFromMessage(1);
+            return (IntPtr)GUI.m_APE.GetValueFromMessage();
         }
 
         public int GetIndexOfMenuItem(IntPtr Parent, IntPtr Control, string MenuItem)
@@ -499,7 +500,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            Items = GUI.m_APE.GetValueFromMessage(1);
+            Items = GUI.m_APE.GetValueFromMessage();
 
             //Loop through looking for the item we want
             for (int Item = 0; Item < Items; Item++)
@@ -512,7 +513,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //get the values returned
-                string ItemText = GUI.m_APE.GetValueFromMessage(1);
+                string ItemText = GUI.m_APE.GetValueFromMessage();
 
                 if (ItemText == MenuItem)
                 {

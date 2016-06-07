@@ -44,7 +44,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic UpDownEditControl = GUI.m_APE.GetValueFromMessage(1);
+            dynamic UpDownEditControl = GUI.m_APE.GetValueFromMessage();
 
             if (UpDownEditControl == null)
             {
@@ -68,7 +68,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic UpDownButtonsControl = GUI.m_APE.GetValueFromMessage(1);
+            dynamic UpDownButtonsControl = GUI.m_APE.GetValueFromMessage();
 
             if (UpDownButtonsControl == null)
             {
@@ -92,7 +92,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic UpDownButtonsControl = GUI.m_APE.GetValueFromMessage(1);
+            dynamic UpDownButtonsControl = GUI.m_APE.GetValueFromMessage();
 
             if (UpDownButtonsControl == null)
             {

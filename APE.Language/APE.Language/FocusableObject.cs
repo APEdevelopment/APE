@@ -37,7 +37,7 @@ namespace APE.Language
 
         protected void SendKeys(string TextToSend)
         {
-            GUI.Log("Type [" + TextToSend + "] into " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Type [" + TextToSend + "] into the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
             SendKeysInternal(TextToSend);
         }
 

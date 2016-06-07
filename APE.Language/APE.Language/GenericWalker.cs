@@ -15,7 +15,6 @@ using NM = APE.Native.NativeMethods;
 
 namespace APE.Language
 {
-    //TODO actually make this the walker not the textbox of the walker
     /// <summary>
     /// Automation class used to automate controls derived from the following:
     /// LatentZero.Capstone.Controls.Walker.WalkerControl
@@ -43,11 +42,26 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                CurrentText = GUI.m_APE.GetWindowText(Identity.Handle);
+                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "WalkerTextBox", MemberTypes.Property);
+                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
+                GUI.m_APE.AddMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                IntPtr textboxHandle = GUI.m_APE.GetValueFromMessage();
+
+                GUITextBox textbox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
+
+                CurrentText = GUI.m_APE.GetWindowText(textboxHandle);
 
                 if (CurrentText != "")
                 {
-                    base.MouseDoubleClick(MouseButton.Left);
+                    textbox.MouseSingleClick(MouseButton.Left);
+                    //textbox.MouseDoubleClick(MouseButton.Left);
+
+                    //Select everything in the textbox
+                    base.SendKeys("{HOME}+{END}");
 
                     string selectedText;
 
@@ -56,13 +70,13 @@ namespace APE.Language
                     do
                     {
                         //Get the selectedText property
-                        GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, textboxHandle);
                         GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "SelectedText", MemberTypes.Property);
                         GUI.m_APE.AddMessageGetValue(DataStores.Store1);
                         GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                         GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                         //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        selectedText = GUI.m_APE.GetValueFromMessage(1);
+                        selectedText = GUI.m_APE.GetValueFromMessage();
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
@@ -77,22 +91,31 @@ namespace APE.Language
 
                 //Send first 2 characters
                 base.SendKeys(text.Substring(0, 2));
+                GUI.Log("Wait for the generic walker popup to appear", LogItemTypeEnum.Action);
 
                 //Wait for popup
                 string PopupState;
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    //Get the selectedText property
+                    ////Get the selectedText property
+                    //GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Parent", MemberTypes.Property);
+                    //GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "PopupState", MemberTypes.Property);
+                    //GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
+                    //GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    ////Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    //PopupState = GUI.m_APE.GetValueFromMessage();
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Parent", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "PopupState", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "PopupState", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    PopupState = GUI.m_APE.GetValueFromMessage(1);
+                    PopupState = GUI.m_APE.GetValueFromMessage();
                 }
                 while (PopupState != "Open");
                 timer.Stop();
@@ -104,7 +127,7 @@ namespace APE.Language
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    CurrentText = GUI.m_APE.GetWindowText(Identity.Handle);
+                    CurrentText = GUI.m_APE.GetWindowText(textboxHandle);
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
@@ -117,7 +140,7 @@ namespace APE.Language
                 timer.Stop();
 
                 GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
-                base.SendKeys("{Enter}");
+                base.SendKeysInternal("{Enter}");
             }
             finally
             {

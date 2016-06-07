@@ -49,9 +49,9 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int ChildNodes = GUI.m_APE.GetValueFromMessage(1);
-            m_ShowPlusMinus = GUI.m_APE.GetValueFromMessage(2);
-            m_CheckBoxes = GUI.m_APE.GetValueFromMessage(3);
+            int ChildNodes = GUI.m_APE.GetValueFromMessage();
+            m_ShowPlusMinus = GUI.m_APE.GetValueFromMessage();
+            m_CheckBoxes = GUI.m_APE.GetValueFromMessage();
 
             //if (CheckBoxes)
             //{
@@ -74,8 +74,8 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string Text = GUI.m_APE.GetValueFromMessage(1);
-                IntPtr NewNodeHandle = GUI.m_APE.GetValueFromMessage(2);
+                string Text = GUI.m_APE.GetValueFromMessage();
+                IntPtr NewNodeHandle = GUI.m_APE.GetValueFromMessage();
 
                 if (Text == NodeText)
                 {
@@ -95,7 +95,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int ChildNodes = GUI.m_APE.GetValueFromMessage(1);
+            int ChildNodes = GUI.m_APE.GetValueFromMessage();
 
             for (int ChildItem = 0; ChildItem < ChildNodes; ChildItem++)
             {
@@ -111,8 +111,8 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string Text = GUI.m_APE.GetValueFromMessage(1);
-                IntPtr NewNodeHandle = GUI.m_APE.GetValueFromMessage(2);
+                string Text = GUI.m_APE.GetValueFromMessage();
+                IntPtr NewNodeHandle = GUI.m_APE.GetValueFromMessage();
 
                 if (Text == NodeText)
                 {
@@ -146,7 +146,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool IsExpanded = GUI.m_APE.GetValueFromMessage(1);
+            bool IsExpanded = GUI.m_APE.GetValueFromMessage();
 
             if (IsExpanded)
             {
@@ -171,10 +171,10 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                Left = GUI.m_APE.GetValueFromMessage(1);
-                Top = GUI.m_APE.GetValueFromMessage(2);
-                Right = GUI.m_APE.GetValueFromMessage(3);
-                Bottom = GUI.m_APE.GetValueFromMessage(4);
+                Left = GUI.m_APE.GetValueFromMessage();
+                Top = GUI.m_APE.GetValueFromMessage();
+                Right = GUI.m_APE.GetValueFromMessage();
+                Bottom = GUI.m_APE.GetValueFromMessage();
 
                 NM.GetClientRect(Identity.Handle, out ClientRect);
 
@@ -249,7 +249,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IsNowExpanded = GUI.m_APE.GetValueFromMessage(1);
+                IsNowExpanded = GUI.m_APE.GetValueFromMessage();
 
                 if (IsNowExpanded)
                 {
@@ -280,7 +280,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    Bottom = GUI.m_APE.GetValueFromMessage(1);
+                    Bottom = GUI.m_APE.GetValueFromMessage();
 
                     if (Bottom >= ClientRect.bottom)
                     {
@@ -321,7 +321,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IsSelected = GUI.m_APE.GetValueFromMessage(1);
+                IsSelected = GUI.m_APE.GetValueFromMessage();
 
                 // If we are left clicking and its already selected don't reselect
                 if (IsSelected)
@@ -349,10 +349,10 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                Left = GUI.m_APE.GetValueFromMessage(1);
-                Top = GUI.m_APE.GetValueFromMessage(2);
-                Right = GUI.m_APE.GetValueFromMessage(3);
-                Bottom = GUI.m_APE.GetValueFromMessage(4);
+                Left = GUI.m_APE.GetValueFromMessage();
+                Top = GUI.m_APE.GetValueFromMessage();
+                Right = GUI.m_APE.GetValueFromMessage();
+                Bottom = GUI.m_APE.GetValueFromMessage();
 
                 NM.GetClientRect(Identity.Handle, out ClientRect);
 
@@ -395,7 +395,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    IsNowSelected = GUI.m_APE.GetValueFromMessage(1);
+                    IsNowSelected = GUI.m_APE.GetValueFromMessage();
 
                     if (IsNowSelected)
                     {
@@ -447,7 +447,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            IsChecked = GUI.m_APE.GetValueFromMessage(1);
+            IsChecked = GUI.m_APE.GetValueFromMessage();
 
             if (IsChecked == Check)
             {
@@ -476,10 +476,10 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                Left = GUI.m_APE.GetValueFromMessage(1);
-                Top = GUI.m_APE.GetValueFromMessage(2);
-                Right = GUI.m_APE.GetValueFromMessage(3);
-                Bottom = GUI.m_APE.GetValueFromMessage(4);
+                Left = GUI.m_APE.GetValueFromMessage();
+                Top = GUI.m_APE.GetValueFromMessage();
+                Right = GUI.m_APE.GetValueFromMessage();
+                Bottom = GUI.m_APE.GetValueFromMessage();
 
                 NM.GetClientRect(Identity.Handle, out ClientRect);
 
@@ -534,7 +534,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IsNowChecked = GUI.m_APE.GetValueFromMessage(1);
+                IsNowChecked = GUI.m_APE.GetValueFromMessage();
 
                 if (IsNowChecked == Check)
                 {

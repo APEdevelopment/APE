@@ -47,7 +47,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic Height = GUI.m_APE.GetValueFromMessage(1);
+            dynamic Height = GUI.m_APE.GetValueFromMessage();
 
             if (Height == null)
             {
@@ -69,7 +69,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic Height = GUI.m_APE.GetValueFromMessage(1);
+            dynamic Height = GUI.m_APE.GetValueFromMessage();
 
             if (Height == null)
             {

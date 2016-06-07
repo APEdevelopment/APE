@@ -76,6 +76,11 @@ namespace APE.Language
                     case Identifiers.Text:
                         Identity.Text = i.IdentifierValue;
                         break;
+                    case Identifiers.ChildOf:
+                        Identity.ChildOf = i.IdentifierValue.Handle;
+                        break;
+                    default:
+                        throw new Exception("Unknown Identifier: " + i.ToString());
                 }
             }
 
@@ -185,7 +190,7 @@ namespace APE.Language
             //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             ////get the values returned
-            //ContextMenuHandle = GUI.m_APE.GetValueFromMessage(1);
+            //ContextMenuHandle = GUI.m_APE.GetValueFromMessage();
 
             Stopwatch timer = Stopwatch.StartNew();
             do
@@ -200,7 +205,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //get the values returned
-                ContextMenuHandle = GUI.m_APE.GetValueFromMessage(1);
+                ContextMenuHandle = GUI.m_APE.GetValueFromMessage();
 
                 Thread.Sleep(15);
             }

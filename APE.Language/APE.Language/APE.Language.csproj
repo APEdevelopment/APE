@@ -60,6 +60,7 @@
     <Compile Include="CheckBox.cs" />
     <Compile Include="ComboBox.cs" />
     <Compile Include="DateTimePicker.cs" />
+    <Compile Include="DockableWindow.cs" />
     <Compile Include="ElementStripGrid.cs" />
     <Compile Include="FlexGrid.cs" />
     <Compile Include="FocusableObject.cs" />

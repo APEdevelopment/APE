@@ -49,7 +49,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Items = GUI.m_APE.GetValueFromMessage(1);
+            int Items = GUI.m_APE.GetValueFromMessage();
 
             for (int Item = 0; Item < Items; Item++)
             {
@@ -61,7 +61,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string ItemText = GUI.m_APE.GetValueFromMessage(1);
+                string ItemText = GUI.m_APE.GetValueFromMessage();
 
                 if (ItemText == ListViewItem)
                 {
@@ -74,15 +74,15 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int Index = GUI.m_APE.GetValueFromMessage(1);
+                    int Index = GUI.m_APE.GetValueFromMessage();
 
                     GUI.m_APE.AddMessageGetListViewItemRectangle(Identity.Handle, Index);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                    int Top = GUI.m_APE.GetValueFromMessage(1);
-                    int Left = GUI.m_APE.GetValueFromMessage(2);
-                    int Bottom = GUI.m_APE.GetValueFromMessage(3);
-                    int Right = GUI.m_APE.GetValueFromMessage(4);
+                    int Top = GUI.m_APE.GetValueFromMessage();
+                    int Left = GUI.m_APE.GetValueFromMessage();
+                    int Bottom = GUI.m_APE.GetValueFromMessage();
+                    int Right = GUI.m_APE.GetValueFromMessage();
 
                     base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
@@ -99,7 +99,7 @@ namespace APE.Language
                         GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                         GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                         // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        Selected = GUI.m_APE.GetValueFromMessage(1);
+                        Selected = GUI.m_APE.GetValueFromMessage();
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
@@ -145,7 +145,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                GroupID = GUI.m_APE.GetValueFromMessage(1);
+                GroupID = GUI.m_APE.GetValueFromMessage();
             }
             else
             {
@@ -156,7 +156,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int Groups = GUI.m_APE.GetValueFromMessage(1);
+                int Groups = GUI.m_APE.GetValueFromMessage();
 
                 for (Group = 0; Group < Groups; Group++)
                 {
@@ -171,8 +171,8 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string Text = GUI.m_APE.GetValueFromMessage(1);
-                    GroupID = GUI.m_APE.GetValueFromMessage(2);
+                    string Text = GUI.m_APE.GetValueFromMessage();
+                    GroupID = GUI.m_APE.GetValueFromMessage();
 
                     if (Text == ListViewGroup)
                     {
@@ -188,7 +188,7 @@ namespace APE.Language
                         GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                         GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                         // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        int Index = GUI.m_APE.GetValueFromMessage(1);
+                        int Index = GUI.m_APE.GetValueFromMessage();
 
                         break;
                     }
@@ -204,10 +204,10 @@ namespace APE.Language
             GUI.m_APE.AddMessageGetListViewGroupRectangle(Identity.Handle, GroupID);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-            int Top = GUI.m_APE.GetValueFromMessage(1);
-            int Left = GUI.m_APE.GetValueFromMessage(2);
-            int Bottom = GUI.m_APE.GetValueFromMessage(3);
-            int Right = GUI.m_APE.GetValueFromMessage(4);
+            int Top = GUI.m_APE.GetValueFromMessage();
+            int Left = GUI.m_APE.GetValueFromMessage();
+            int Bottom = GUI.m_APE.GetValueFromMessage();
+            int Right = GUI.m_APE.GetValueFromMessage();
 
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
@@ -237,7 +237,7 @@ namespace APE.Language
                                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                                Selected = GUI.m_APE.GetValueFromMessage(1);
+                                Selected = GUI.m_APE.GetValueFromMessage();
 
                                 if (!Selected)
                                 {
@@ -268,7 +268,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int ItemsInGroup = GUI.m_APE.GetValueFromMessage(1);
+                    int ItemsInGroup = GUI.m_APE.GetValueFromMessage();
 
                     Stopwatch timer = Stopwatch.StartNew();
                     do
@@ -286,7 +286,7 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            Selected = GUI.m_APE.GetValueFromMessage(1);
+                            Selected = GUI.m_APE.GetValueFromMessage();
 
                             if (!Selected)
                             {
@@ -321,7 +321,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int TotalCount = GUI.m_APE.GetValueFromMessage(1);
+            int TotalCount = GUI.m_APE.GetValueFromMessage();
 
             bool[] ListviewItemsHaveGroup = new bool[TotalCount];
 
@@ -333,7 +333,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Groups = GUI.m_APE.GetValueFromMessage(1);
+            int Groups = GUI.m_APE.GetValueFromMessage();
 
             for (int Group = 0; Group < Groups; Group++)
             {
@@ -346,7 +346,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int Items = GUI.m_APE.GetValueFromMessage(1);
+                int Items = GUI.m_APE.GetValueFromMessage();
 
                 for (int Item = 0; Item < Items; Item++)
                 {
@@ -360,7 +360,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int Index = GUI.m_APE.GetValueFromMessage(1);
+                    int Index = GUI.m_APE.GetValueFromMessage();
 
                     ListviewItemsHaveGroup[Index] = true;
                 }
@@ -396,7 +396,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int Items = GUI.m_APE.GetValueFromMessage(1);
+                int Items = GUI.m_APE.GetValueFromMessage();
 
                 for (int Item = 0; Item < Items; Item++)
                 {
@@ -410,7 +410,7 @@ namespace APE.Language
                         GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                         GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                         // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        string ItemText = GUI.m_APE.GetValueFromMessage(1);
+                        string ItemText = GUI.m_APE.GetValueFromMessage();
 
                         if (ItemText == ListViewItem)
                         {
@@ -423,15 +423,15 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            int Index = GUI.m_APE.GetValueFromMessage(1);
+                            int Index = GUI.m_APE.GetValueFromMessage();
 
                             GUI.m_APE.AddMessageGetListViewItemRectangle(Identity.Handle, Index);
                             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                            int Top = GUI.m_APE.GetValueFromMessage(1);
-                            int Left = GUI.m_APE.GetValueFromMessage(2);
-                            int Bottom = GUI.m_APE.GetValueFromMessage(3);
-                            int Right = GUI.m_APE.GetValueFromMessage(4);
+                            int Top = GUI.m_APE.GetValueFromMessage();
+                            int Left = GUI.m_APE.GetValueFromMessage();
+                            int Bottom = GUI.m_APE.GetValueFromMessage();
+                            int Right = GUI.m_APE.GetValueFromMessage();
 
                             base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
@@ -448,7 +448,7 @@ namespace APE.Language
                                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                                Selected = GUI.m_APE.GetValueFromMessage(1);
+                                Selected = GUI.m_APE.GetValueFromMessage();
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
@@ -475,7 +475,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int Groups = GUI.m_APE.GetValueFromMessage(1);
+                int Groups = GUI.m_APE.GetValueFromMessage();
 
                 for (int Group = 0; Group < Groups; Group++)
                 {
@@ -490,8 +490,8 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string GroupHeader = GUI.m_APE.GetValueFromMessage(1);
-                    int Items = GUI.m_APE.GetValueFromMessage(2);
+                    string GroupHeader = GUI.m_APE.GetValueFromMessage();
+                    int Items = GUI.m_APE.GetValueFromMessage();
 
                     if (GroupHeader == ListViewGroup)
                     {
@@ -507,7 +507,7 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            string ItemText = GUI.m_APE.GetValueFromMessage(1);
+                            string ItemText = GUI.m_APE.GetValueFromMessage();
 
                             if (ItemText == ListViewItem)
                             {
@@ -522,15 +522,15 @@ namespace APE.Language
                                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                                int Index = GUI.m_APE.GetValueFromMessage(1);
+                                int Index = GUI.m_APE.GetValueFromMessage();
 
                                 GUI.m_APE.AddMessageGetListViewItemRectangle(Identity.Handle, Index);
                                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                                int Top = GUI.m_APE.GetValueFromMessage(1);
-                                int Left = GUI.m_APE.GetValueFromMessage(2);
-                                int Bottom = GUI.m_APE.GetValueFromMessage(3);
-                                int Right = GUI.m_APE.GetValueFromMessage(4);
+                                int Top = GUI.m_APE.GetValueFromMessage();
+                                int Left = GUI.m_APE.GetValueFromMessage();
+                                int Bottom = GUI.m_APE.GetValueFromMessage();
+                                int Right = GUI.m_APE.GetValueFromMessage();
 
                                 base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
@@ -547,7 +547,7 @@ namespace APE.Language
                                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                                    Selected = GUI.m_APE.GetValueFromMessage(1);
+                                    Selected = GUI.m_APE.GetValueFromMessage();
 
                                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                     {

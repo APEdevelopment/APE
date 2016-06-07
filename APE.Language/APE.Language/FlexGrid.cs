@@ -39,7 +39,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic ReturnValue = GUI.m_APE.GetValueFromMessage(1);     //Could be a null so we use dynamic
+            dynamic ReturnValue = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 
             if (ReturnValue == null)
             {
@@ -129,7 +129,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool RowIsNode = GUI.m_APE.GetValueFromMessage(1);
+            bool RowIsNode = GUI.m_APE.GetValueFromMessage();
 
             return RowIsNode;
         }
@@ -187,7 +187,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool Visible = GUI.m_APE.GetValueFromMessage(1);
+            bool Visible = GUI.m_APE.GetValueFromMessage();
 
             return !Visible;
         }
@@ -208,7 +208,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool Visible = GUI.m_APE.GetValueFromMessage(1);
+            bool Visible = GUI.m_APE.GetValueFromMessage();
 
             return !Visible;
         }
@@ -227,10 +227,10 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int LeftColumn = GUI.m_APE.GetValueFromMessage(1);
-            int RightColumn = GUI.m_APE.GetValueFromMessage(2);
-            int TopRow = GUI.m_APE.GetValueFromMessage(3);
-            int BottomRow = GUI.m_APE.GetValueFromMessage(4);
+            int LeftColumn = GUI.m_APE.GetValueFromMessage();
+            int RightColumn = GUI.m_APE.GetValueFromMessage();
+            int TopRow = GUI.m_APE.GetValueFromMessage();
+            int BottomRow = GUI.m_APE.GetValueFromMessage();
 
             if (Column <= LeftColumn || Column >= RightColumn || Row <= TopRow || Row >= BottomRow)
             {
@@ -276,7 +276,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int SelectedRow = GUI.m_APE.GetValueFromMessage(1);
+            int SelectedRow = GUI.m_APE.GetValueFromMessage();
 
             return SelectedRow;
         }
@@ -289,7 +289,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int SelectedColumn = GUI.m_APE.GetValueFromMessage(1);
+            int SelectedColumn = GUI.m_APE.GetValueFromMessage();
 
             return SelectedColumn;
         }
@@ -303,7 +303,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FixedRows = GUI.m_APE.GetValueFromMessage(1);
+            int FixedRows = GUI.m_APE.GetValueFromMessage();
 
             return FixedRows;
         }
@@ -317,7 +317,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FixedColumns = GUI.m_APE.GetValueFromMessage(1);
+            int FixedColumns = GUI.m_APE.GetValueFromMessage();
 
             return FixedColumns;
         }
@@ -331,7 +331,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FrozenColumns = GUI.m_APE.GetValueFromMessage(1);
+            int FrozenColumns = GUI.m_APE.GetValueFromMessage();
 
             return FrozenColumns;
         }
@@ -345,7 +345,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Rows = GUI.m_APE.GetValueFromMessage(1);
+            int Rows = GUI.m_APE.GetValueFromMessage();
 
             return Rows;
         }
@@ -359,7 +359,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Columns = GUI.m_APE.GetValueFromMessage(1);
+            int Columns = GUI.m_APE.GetValueFromMessage();
 
             return Columns;
         }
@@ -471,9 +471,9 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-            string APEDirectType = GUI.m_APE.GetValueFromMessage(1);
-            string APEBaseType = GUI.m_APE.GetValueFromMessage(2);
-            dynamic EditorHandle = GUI.m_APE.GetValueFromMessage(3);
+            string APEDirectType = GUI.m_APE.GetValueFromMessage();
+            string APEBaseType = GUI.m_APE.GetValueFromMessage();
+            dynamic EditorHandle = GUI.m_APE.GetValueFromMessage();
 
             if (EditorHandle == null)
             {
@@ -537,7 +537,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string CellRangeClip = GUI.m_APE.GetValueFromMessage(1);
+            string CellRangeClip = GUI.m_APE.GetValueFromMessage();
 
             return CellRangeClip;
         }
@@ -580,7 +580,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string CellDataDisplay = GUI.m_APE.GetValueFromMessage(1);
+                    string CellDataDisplay = GUI.m_APE.GetValueFromMessage();
                     return CellDataDisplay;
                 case CellProperty.BackColor:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -591,7 +591,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    Color CellBackColor = GUI.m_APE.GetValueFromMessage(1);
+                    Color CellBackColor = GUI.m_APE.GetValueFromMessage();
                     return CellBackColor;
                 case CellProperty.ForeColor:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -602,7 +602,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    Color CellForeColor = GUI.m_APE.GetValueFromMessage(1);
+                    Color CellForeColor = GUI.m_APE.GetValueFromMessage();
                     return CellForeColor;
                 default:
                     throw new Exception("Implement support for getting cell property " + Property.ToString());
@@ -640,7 +640,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string Checked = GUI.m_APE.GetValueFromMessage(1);
+            string Checked = GUI.m_APE.GetValueFromMessage();
 
             return Checked;
         }
@@ -663,7 +663,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                dynamic Ignore = GUI.m_APE.GetValueFromMessage(1);
+                dynamic Ignore = GUI.m_APE.GetValueFromMessage();
             }
         }
 
@@ -795,10 +795,10 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int X = GUI.m_APE.GetValueFromMessage(1);
-            int Y = GUI.m_APE.GetValueFromMessage(2);
-            int Width = GUI.m_APE.GetValueFromMessage(3);
-            int Height = GUI.m_APE.GetValueFromMessage(4);
+            int X = GUI.m_APE.GetValueFromMessage();
+            int Y = GUI.m_APE.GetValueFromMessage();
+            int Width = GUI.m_APE.GetValueFromMessage();
+            int Height = GUI.m_APE.GetValueFromMessage();
 
             Rectangle CellRectangle = new Rectangle(X, Y, Width, Height);
             return CellRectangle;
@@ -864,7 +864,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                CurrentRow = GUI.m_APE.GetValueFromMessage(1);
+                CurrentRow = GUI.m_APE.GetValueFromMessage();
 
                 if (CurrentRow == -1)
                 {
@@ -984,7 +984,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int TreeViewColumn = GUI.m_APE.GetValueFromMessage(1);
+            int TreeViewColumn = GUI.m_APE.GetValueFromMessage();
 
             return TreeViewColumn;
         }
@@ -1012,7 +1012,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int TreeViewIndent = GUI.m_APE.GetValueFromMessage(1);
+            int TreeViewIndent = GUI.m_APE.GetValueFromMessage();
 
             return TreeViewIndent;
         }
@@ -1034,7 +1034,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int NodeLevel = GUI.m_APE.GetValueFromMessage(1);
+            int NodeLevel = GUI.m_APE.GetValueFromMessage();
 
             return NodeLevel;
         }
@@ -1048,7 +1048,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string BorderStyle = GUI.m_APE.GetValueFromMessage(1);
+            string BorderStyle = GUI.m_APE.GetValueFromMessage();
 
             switch (BorderStyle)
             {

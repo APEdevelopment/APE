@@ -76,8 +76,8 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string Style = GUI.m_APE.GetValueFromMessage(1);
-            bool DroppedDown = GUI.m_APE.GetValueFromMessage(2);
+            string Style = GUI.m_APE.GetValueFromMessage();
+            bool DroppedDown = GUI.m_APE.GetValueFromMessage();
 
             IntPtr ListBox = IntPtr.Zero;
 
@@ -94,7 +94,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    ListBox = (IntPtr)GUI.m_APE.GetValueFromMessage(1);
+                    ListBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
                 }
                 else
                 {
@@ -112,7 +112,7 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    dynamic DroppedDownHandle = GUI.m_APE.GetValueFromMessage(1);
+                    dynamic DroppedDownHandle = GUI.m_APE.GetValueFromMessage();
 
                     if (DroppedDownHandle == null)
                     {
@@ -214,7 +214,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string Style = GUI.m_APE.GetValueFromMessage(1);
+            string Style = GUI.m_APE.GetValueFromMessage();
 
             if (Style == "DropDownList")
             {
@@ -229,7 +229,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            IntPtr EditBox = (IntPtr)GUI.m_APE.GetValueFromMessage(1);
+            IntPtr EditBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
 
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try

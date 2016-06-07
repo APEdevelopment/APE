@@ -242,6 +242,18 @@ namespace APE.Test
             GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
             GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));
 
+            //https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
+            //Debug.WriteLine(System.Text.RegularExpressions.Regex.IsMatch("Orders [Count: 3][Link:]", "Orders [[]Count: [0-9]+[]][[]Link:[]]").ToString());
+
+
+            GUIDockableWindow OrderViewerDockableWindow = new GUIDockableWindow(IMS, "Order viewer dockable window", new Identifier(Identifiers.Text, "Orders [[]Count: [0-9]+[]][[]Link:[]]"), new Identifier(Identifiers.TypeName, "DockableWindow"));
+            GUIElementStripGrid OrderViewerGrid = new GUIElementStripGrid(IMS, "Order viewer grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, OrderViewerDockableWindow));
+
+
+            GUIDockableWindow ExecutionViewerDockableWindow = new GUIDockableWindow(IMS, "Execution viewer dockable window", new Identifier(Identifiers.Text, "Executions [[]Count: [0-9]+[]][[]Link:[]]"), new Identifier(Identifiers.TypeName, "DockableWindow"));
+            GUIElementStripGrid ExecutionGrid = new GUIElementStripGrid(IMS, "Execution viewer grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, ExecutionViewerDockableWindow));
+
+
 
 
 
@@ -249,14 +261,17 @@ namespace APE.Test
 
             GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
 
-            Stopwatch foo = Stopwatch.StartNew();
+            Debug.WriteLine(entry.FindRow("Order"));
+            Debug.WriteLine(entry.FindColumn("Instrument"));
 
-            //for (int i = 1; i < 10000; i++)
-            //{
-                entry.GetEdititorType(0, 0);
-            //}
-            foo.Stop();
-            Debug.WriteLine(foo.ElapsedMilliseconds.ToString());
+            //entry.SetCellValue(1, 0, "Execution", "Execution", null);
+            entry.SetCellValue(1, 4, "AEGON 5 3/4 12/15/20", "AEGON 5 3/4 12/15/20", null);
+
+            //Stopwatch foo = Stopwatch.StartNew();
+
+            
+            //foo.Stop();
+            //Debug.WriteLine((foo.ElapsedMilliseconds / entry.Columns()).ToString());
 
 
             //stepTimer = Stopwatch.StartNew();
@@ -674,6 +689,7 @@ namespace APE.Test
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("Failed", ex.Message + "\r\n" + ex.StackTrace);
                 mySMTP.Send("david.beales@fidessa.com", "david.beales@fidessa.com", "Failed", ex.Message + "\r\n" + ex.StackTrace);
             }
 

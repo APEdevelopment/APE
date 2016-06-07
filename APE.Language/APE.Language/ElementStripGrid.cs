@@ -137,7 +137,7 @@ namespace APE.Language
         /// <returns>True or False</returns>
         public bool SelectedRowsContains(int row)
         {
-            row = row - TitleRows();
+            row -= TitleRows();
 
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "SelectedRows", MemberTypes.Method);
@@ -428,7 +428,7 @@ namespace APE.Language
                     {
                         visibleColumns[column] = true;
                     }
-                    column = column++;
+                    column++;
                 }
             }
     
@@ -576,7 +576,7 @@ namespace APE.Language
             //If the range we want includes the title rows
             if (row1 < titleRows)
             {
-                for (int row = row1; row <= titleRows; row++)
+                for (int row = row1; row < titleRows; row++)
                 {
                     if (row > row2)
                     {
@@ -627,7 +627,7 @@ namespace APE.Language
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string dataText = GUI.m_APE.GetValueFromMessage();
 
-                text += text + dataText;
+                text += dataText;
             }
 
             if (text.EndsWith("\r"))
@@ -694,7 +694,7 @@ namespace APE.Language
         /// <returns>The index of the row</returns>
         public int FindRowEx(string row, int column)
         {
-            string columnText = this.GetCellRange(0, column, this.Rows(), column);
+            string columnText = this.GetCellRange(0, column, this.Rows() - 1 , column);
 
             char[] separator = { '\r' };
             string[] columnArray = columnText.Split(separator);
@@ -728,6 +728,8 @@ namespace APE.Language
         /// <param name="columnIndex">Column index of the cell</param>
         public void Show(int rowIndex, int columnIndex)
         {
+            rowIndex -= TitleRows();
+
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "EnsureCellVisible", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
             GUI.m_APE.AddMessageGetValue(DataStores.Store1);
@@ -744,10 +746,10 @@ namespace APE.Language
         /// <returns>True or False</returns>
         public bool RowIsChild(int rowIndex)
         {
-            int row = rowIndex - TitleRows();
+            rowIndex -= TitleRows();
 
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, row));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "IsChild", MemberTypes.Property);
             GUI.m_APE.AddMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -932,29 +934,32 @@ namespace APE.Language
             return Location;
         }
 
-        public Rectangle GetCellRectangle(string Row, string Column)
+        public Rectangle GetCellRectangle(string row, string column)
         {
-            int RowNumber = FindRow(Row);
-            int ColumnNumber = FindColumn(Column);
+            int RowNumber = FindRow(row);
+            int ColumnNumber = FindColumn(column);
             return GetCellRectangle(RowNumber, ColumnNumber);
         }
 
-        public Rectangle GetCellRectangle(int Row, string Column)
+        public Rectangle GetCellRectangle(int row, string column)
         {
-            int ColumnNumber = FindColumn(Column);
-            return GetCellRectangle(Row, ColumnNumber);
+            int ColumnNumber = FindColumn(column);
+            return GetCellRectangle(row, ColumnNumber);
         }
 
-        public Rectangle GetCellRectangle(string Row, int Column)
+        public Rectangle GetCellRectangle(string row, int column)
         {
-            int RowNumber = FindRow(Row);
-            return GetCellRectangle(RowNumber, Column);
+            int RowNumber = FindRow(row);
+            return GetCellRectangle(RowNumber, column);
         }
 
-        public Rectangle GetCellRectangle(int Row, int Column)
+        public Rectangle GetCellRectangle(int row, int column)
         {
+            int titleRows = TitleRows();
+            row -= titleRows;
+
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellDisplayBounds", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellDisplayBounds", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
@@ -966,17 +971,20 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int X = GUI.m_APE.GetValueFromMessage(1);
-            int Y = GUI.m_APE.GetValueFromMessage(2);
-            int Width = GUI.m_APE.GetValueFromMessage(3);
-            int Height = GUI.m_APE.GetValueFromMessage(4);
+            int X = GUI.m_APE.GetValueFromMessage();
+            int Y = GUI.m_APE.GetValueFromMessage();
+            int Width = GUI.m_APE.GetValueFromMessage();
+            int Height = GUI.m_APE.GetValueFromMessage();
 
             Rectangle CellRectangle = new Rectangle(X, Y, Width, Height);
             return CellRectangle;
         }
 
-        public void GetEdititorType(int row, int column)
+        public string GetEdititorType(int row, int column)
         {
+            int titleRows = TitleRows();
+            row -= titleRows;
+
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, row));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, column));
@@ -992,12 +1000,168 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-            string APEDirectType = GUI.m_APE.GetValueFromMessage();
-            string APEBaseType = GUI.m_APE.GetValueFromMessage();
+            string Namespace = GUI.m_APE.GetValueFromMessage();
+            string Name = GUI.m_APE.GetValueFromMessage();
 
-            Debug.WriteLine(APEDirectType);
-            Debug.WriteLine(APEBaseType);
+            return Namespace + "." + Name;
+        }
 
+        private IntPtr GetComboBoxRendererComboBox(int row, int column)
+        {
+            int titleRows = TitleRows();
+            row -= titleRows;
+
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, row));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetEditDescriptor", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Editor", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "m_comboBox", MemberTypes.Field);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store6, DataStores.Store7, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store7);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+            IntPtr comboBoxHandle = GUI.m_APE.GetValueFromMessage();
+            return comboBoxHandle;
+        }
+
+        private IntPtr GetNonRenderedControl(int row, int column)
+        {
+            int titleRows = TitleRows();
+            row -= titleRows;
+
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, row));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetEditDescriptor", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Editor", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store6);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+            IntPtr walkerHandle = GUI.m_APE.GetValueFromMessage();
+            return walkerHandle;
+        }
+
+        public void SetCellValue(int Row, int Column, string Value, string ExpectedValue, string submitKey)
+        {
+            this.Select(Row, Column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            SetCellValueInternal(Row, Column, Value, ExpectedValue, submitKey);
+        }
+
+        private void SetCellValueInternal(int row, int column, string value, string expectedValue, string submitKey)
+        {
+            Stopwatch ook = Stopwatch.StartNew();
+
+            if (expectedValue == null)
+            {
+                expectedValue = value;
+            }
+
+            if (submitKey == null)
+            {
+                submitKey = "{Enter}";
+            }
+
+            // Check if the cell is already set to the correct value
+            string CurrentValue = this.GetCellValue(row, column);
+
+            if (CurrentValue == expectedValue)
+            {
+                GUI.Log("Ensure the cell is set to " + expectedValue, LogItemTypeEnum.Action);
+                return;
+            }
+
+            // Put the cell into edit mode
+            GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
+            base.SendKeysInternal("{F2}");
+
+            string editorType = GetEdititorType(row, column);
+
+            //LatentZero.Utility.Controls.ComboBoxRenderer  EnhancedComboBox m_comboBox	bool m_isDropdownVisible
+            //LatentZero.Utility.Controls.CheckBoxComboBoxRenderer  CheckedComboBox m_comboBox	bool m_isDropdownVisible
+            //LatentZero.Utility.Controls.DatePickerRenderer    DateTimePicker m_dateTimePicker	bool m_isDroppedDown
+            //LatentZero.Utility.Controls.CheckStateControl.CheckStateRenderer  //cant put this in edit mode
+            //LatentZero.Capstone.Controls.Walker.WalkerControl
+            //LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl
+            //System.Windows.Forms.TextBox
+
+            IntPtr EditorHandle = IntPtr.Zero;
+
+            //Set the value
+            switch (editorType)
+            {
+                case "LatentZero.Utility.Controls.ComboBoxRenderer":
+                    // Get the handle of the editor for this cell then locate the control
+                    EditorHandle = GetComboBoxRendererComboBox(row, column);
+                    Debug.WriteLine("handle " + EditorHandle.ToString());
+                    
+                    GUIComboBox comboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                    // Select the item
+                    comboBox.ItemSelect(value);
+                    break;
+                case "LatentZero.Utility.Controls.CheckBoxComboBoxRenderer":
+                    // Get the handle of the editor for this cell then locate the control
+                    EditorHandle = GetComboBoxRendererComboBox(row, column);
+                    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                    // Select the item
+                    checkBoxComboBox.ItemSelect(value);
+                    break;
+                //case "LatentZero.Utility.Controls.DatePickerRenderer":
+                //    // Get the handle of the editor for this cell then locate the control
+                //    EditorHandle = GetComboBoxRendererComboBox(row, column);
+                //    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                //    // Select the item
+                //    checkBoxComboBox.ItemSelect(value);
+                //    break;
+                //case "LatentZero.Utility.Controls.CheckStateControl.CheckStateRenderer":
+                //    // Get the handle of the editor for this cell then locate the control
+                //    EditorHandle = GetComboBoxRendererComboBox(row, column);
+                //    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                //    // Select the item
+                //    checkBoxComboBox.ItemSelect(value);
+                //    break;
+                case "LatentZero.Capstone.Controls.Walker.WalkerControl":
+                    // Get the handle of the editor for this cell then locate the control
+                    EditorHandle = GetNonRenderedControl(row, column);
+                    GUIGenericWalker genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Handle, EditorHandle));
+                    // Select the item
+                    genericWalker.SetText(value);
+                    break;
+                //case "LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl":
+                //    // Get the handle of the editor for this cell then locate the control
+                //    EditorHandle = GetNonRenderedControl(row, column);
+                //    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                //    // Select the item
+                //    checkBoxComboBox.ItemSelect(value);
+                //    break;
+                default:
+                    throw new Exception("Unsupported element strip grid editor: Type: " + editorType);
+            }
+
+            //Check the value was set
+            Stopwatch timer = Stopwatch.StartNew();
+            do
+            {
+                CurrentValue = this.GetCellValue(row, column);
+
+                if (CurrentValue == expectedValue)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception("Failed to set the element strip grid cell value");
+                }
+
+                Thread.Sleep(15);
+            }
+            while (true);
         }
 
         //TODO

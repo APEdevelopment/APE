@@ -160,7 +160,7 @@ namespace APE.Spy
                 m_APE.SendMessages(APEIPC.EventSet.APE);
                 m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string AppDomains = m_APE.GetValueFromMessage(1);
+                string AppDomains = m_APE.GetValueFromMessage();
                 string[] Separator = { "\t" };
                 string[] AppDomainArray = AppDomains.Split(Separator, StringSplitOptions.None);
                 
@@ -185,11 +185,18 @@ namespace APE.Spy
             {
                 if (NM.IsWindowVisible(hWnd))
                 {
-                    GetIdentity(hWnd);
-                    string APEType = GetAPEType(m_Identity);
-                    ListOfTopLevelWindows.Add(hWnd, m_Identity.Name);
-                    TreeNode ParentNode = WindowTree.Nodes.Add("0:" + hWnd.ToString(), APEType + " " + m_Identity.Name + " [" + hWnd.ToString() + "]");
-                    AddChildNode(hWnd, ParentNode, hWnd);
+                    NM.RECT WindowSize;
+                    NM.GetClientRect(hWnd, out WindowSize);
+
+                    if (WindowSize.Right > 0)   //If the window has 0 width then ignore it
+                    {
+                        GetIdentity(hWnd);
+                        string APEType = GetAPEType(m_Identity);
+                        ListOfTopLevelWindows.Add(hWnd, m_Identity.Name);
+                        TreeNode ParentNode = WindowTree.Nodes.Add("0:" + hWnd.ToString(), APEType + " " + m_Identity.Name + " [" + hWnd.ToString() + "]");
+                        AddChildNode(hWnd, ParentNode, hWnd);
+                    }
+                    
                 }
             }
             return true;
@@ -387,7 +394,11 @@ namespace APE.Spy
                 TreeNode[] Nodes = WindowTree.Nodes.Find(m_Identity.ParentHandle.ToString() + ":" + m_Identity.Handle.ToString(), true);
                 if (Nodes.GetLength(0) == 0)
                 {
+                    //store a temp copy of m_Identity as BuildTree splats it
+                    ControlIdentifier temp = m_Identity;
                     BuildTree();
+                    //restore m_Identity
+                    m_Identity = temp;
                     Nodes = WindowTree.Nodes.Find(m_Identity.ParentHandle.ToString() + ":" + m_Identity.Handle.ToString(), true);
                 }
                 if (Nodes.GetLength(0) > 0)
@@ -487,7 +498,7 @@ namespace APE.Spy
             m_APE.SendMessages(APEIPC.EventSet.APE);
             m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string ColumnInfoXML = m_APE.GetValueFromMessage(1);
+            string ColumnInfoXML = m_APE.GetValueFromMessage();
 
             XmlDocument columnDocument = new XmlDocument();
             columnDocument.LoadXml(ColumnInfoXML);
@@ -513,7 +524,7 @@ namespace APE.Spy
             m_APE.SendMessages(APEIPC.EventSet.APE);
             m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Rows = m_APE.GetValueFromMessage(1);
+            int Rows = m_APE.GetValueFromMessage();
 
             PropertyListbox.Items.Add("Rows\t\t: " + (Rows + maxLevels + 1).ToString());
 
@@ -523,7 +534,7 @@ namespace APE.Spy
             m_APE.SendMessages(APEIPC.EventSet.APE);
             m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FixedRows = m_APE.GetValueFromMessage(1);
+            int FixedRows = m_APE.GetValueFromMessage();
 
             PropertyListbox.Items.Add("Fixed Rows\t: " + (FixedRows + maxLevels + 1).ToString());
         }
@@ -537,7 +548,7 @@ namespace APE.Spy
             m_APE.SendMessages(APEIPC.EventSet.APE);
             m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int items = m_APE.GetValueFromMessage(1);
+            int items = m_APE.GetValueFromMessage();
 
             for (int item = 0; item < items; item++)
             {
@@ -552,8 +563,8 @@ namespace APE.Spy
                 m_APE.SendMessages(APEIPC.EventSet.APE);
                 m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string itemName = m_APE.GetValueFromMessage(1);
-                string itemType = m_APE.GetValueFromMessage(2);
+                string itemName = m_APE.GetValueFromMessage();
+                string itemType = m_APE.GetValueFromMessage();
 
                 //string APESubType = "GUIStatusBarPanel";
 
@@ -572,7 +583,7 @@ namespace APE.Spy
             m_APE.SendMessages(APEIPC.EventSet.APE);
             m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int items = m_APE.GetValueFromMessage(1);
+            int items = m_APE.GetValueFromMessage();
 
             for (int item = 0; item < items; item++)
             {
@@ -587,8 +598,8 @@ namespace APE.Spy
                 m_APE.SendMessages(APEIPC.EventSet.APE);
                 m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string itemName = m_APE.GetValueFromMessage(1);
-                string itemType = m_APE.GetValueFromMessage(2);
+                string itemName = m_APE.GetValueFromMessage();
+                string itemType = m_APE.GetValueFromMessage();
 
                 string APESubType = "";
 
@@ -651,8 +662,8 @@ namespace APE.Spy
                 m_APE.SendMessages(APEIPC.EventSet.APE);
                 m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-                string APEDirectType = m_APE.GetValueFromMessage(1);
-                string APEBaseType = m_APE.GetValueFromMessage(2);
+                string APEDirectType = m_APE.GetValueFromMessage();
+                string APEBaseType = m_APE.GetValueFromMessage();
 
                 if (APEDirectType != "")
                 {

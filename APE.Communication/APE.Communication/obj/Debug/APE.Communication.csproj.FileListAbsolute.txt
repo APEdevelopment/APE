@@ -76,3 +76,14 @@ D:\Work\Test\Test\v32\APE.Communication\APE.Communication\bin\Debug\Fasterflect.
 D:\Work\Test\Test\v32\APE.Communication\APE.Communication\obj\Debug\APE.Communication.csprojResolveAssemblyReference.cache
 D:\Work\Test\Test\v32\APE.Communication\APE.Communication\obj\Debug\APE.Communication.dll
 D:\Work\Test\Test\v32\APE.Communication\APE.Communication\obj\Debug\APE.Communication.pdb
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\APE.Communication.dll
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\APE.Communication.pdb
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\APE.Domain.dll
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\APE.Native.dll
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\Fasterflect.dll
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\APE.Domain.pdb
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\APE.Native.pdb
+D:\Github\APE\APE.Communication\APE.Communication\bin\Debug\Fasterflect.xml
+D:\Github\APE\APE.Communication\APE.Communication\obj\Debug\APE.Communication.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Communication\APE.Communication\obj\Debug\APE.Communication.dll
+D:\Github\APE\APE.Communication\APE.Communication\obj\Debug\APE.Communication.pdb

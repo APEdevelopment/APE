@@ -46,7 +46,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int minimum = GUI.m_APE.GetValueFromMessage(1);     //Could be a null so we use dynamic
+                int minimum = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 
                 return minimum;
             }
@@ -65,7 +65,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int maximum = GUI.m_APE.GetValueFromMessage(1);     //Could be a null so we use dynamic
+                int maximum = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 
                 return maximum;
             }
@@ -84,7 +84,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int value = GUI.m_APE.GetValueFromMessage(1);     //Could be a null so we use dynamic
+                int value = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 
                 return value;
             }

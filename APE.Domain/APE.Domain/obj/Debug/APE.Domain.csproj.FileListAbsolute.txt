@@ -34,3 +34,10 @@ D:\Work\Test\Test\v32\APE.Domain\APE.Domain\obj\Debug\Interop.mscoree.dll
 D:\Work\Test\Test\v32\APE.Domain\APE.Domain\obj\Debug\APE.Domain.csproj.ResolveComReference.cache
 D:\Work\Test\Test\v32\APE.Domain\APE.Domain\obj\Debug\APE.Domain.dll
 D:\Work\Test\Test\v32\APE.Domain\APE.Domain\obj\Debug\APE.Domain.pdb
+D:\Github\APE\APE.Domain\APE.Domain\bin\Debug\APE.Domain.dll
+D:\Github\APE\APE.Domain\APE.Domain\bin\Debug\APE.Domain.pdb
+D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\Interop.mscoree.dll
+D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.csproj.ResolveComReference.cache
+D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.dll
+D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.pdb

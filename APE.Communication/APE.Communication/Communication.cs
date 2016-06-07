@@ -34,6 +34,7 @@ namespace APE.Communication
         public string AssemblyName;
         public int Index;
         public string Text;
+        public IntPtr ChildOf;
     }
 
     public enum DataStores : int
@@ -1103,13 +1104,8 @@ namespace APE.Communication
         unsafe public dynamic GetValueFromMessage()
         {
             m_MessageNumber++;
-            return GetValueFromMessage(m_MessageNumber);
-        }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        unsafe public dynamic GetValueFromMessage(int messageNumber)
-        {
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((m_MessageNumber - 1) * m_SizeOfMessage));
             int parameter = 0;
             dynamic returnValue;
 
@@ -1336,8 +1332,10 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
+        //TODO remove this?
         unsafe public void AddMessageGetValue(DataStores SourceStore, int TypeCode)
         {
+            m_MessageNumber = 0;
 
             if (m_DoneFind == false)
             {
@@ -1368,11 +1366,7 @@ namespace APE.Communication
 
         unsafe public void AddMessageFindByProperty(ControlIdentifier Identifier)
         {
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
             PtrMessage->Action = MessageAction.Find;
@@ -1430,11 +1424,7 @@ namespace APE.Communication
 
         unsafe private void AddMessageSetTimeOuts()
         {
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
             PtrMessage->Action = MessageAction.SetTimeOuts;
@@ -1450,11 +1440,7 @@ namespace APE.Communication
 
         unsafe public void AddMessageRemoveFileMapping()
         {
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
             PtrMessage->Action = MessageAction.RemoveFileMapping;
@@ -1467,7 +1453,8 @@ namespace APE.Communication
 
         unsafe public void AddResultMessage(MessageResult Result)
         {
-            WriteLog("setting result message " + m_PtrMessageStore->NumberOfMessages.ToString() + " to " + Result.ToString());
+            Message* PtrMessage = (Message*)(this.m_IntPtrMemoryMappedFileViewMessageStore + (this.m_PtrMessageStore->NumberOfMessages * this.m_SizeOfMessage));
+            WriteLog("setting result message " + m_PtrMessageStore->NumberOfMessages.ToString() + " to " + Result.ToString() + " parameter " + PtrMessage->NumberOfParameters.ToString());
 
             // This should be the last message returned
             Parameter p;
@@ -1528,6 +1515,9 @@ namespace APE.Communication
             //p10
             p = new Parameter(this, Identifier.Text);
 
+            //p11
+            p = new Parameter(this, Identifier.ChildOf);
+
             m_PtrMessageStore->NumberOfMessages++;
         }
 
@@ -1543,12 +1533,7 @@ namespace APE.Communication
             //}
             //Debug.Listeners[0].WriteLine("");
             ////end dbug
-
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1565,11 +1550,7 @@ namespace APE.Communication
         unsafe public void AddMessageGetAppDomains()
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1584,11 +1565,7 @@ namespace APE.Communication
         unsafe public void AddMessageGetTitleBarItemRectangle(IntPtr Handle, NM.TitleBarStateElement Item)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1596,6 +1573,7 @@ namespace APE.Communication
 
             Parameter HandleParam = new Parameter(this, Handle);
             Parameter ItemParam = new Parameter(this, (int)Item);
+            m_MessageNumber = 0;
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -1606,11 +1584,7 @@ namespace APE.Communication
         unsafe public void AddMessageGetListViewItemRectangle(IntPtr ControlHandle, int ItemIndex)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1618,6 +1592,7 @@ namespace APE.Communication
 
             Parameter ControlHandleParam = new Parameter(this, ControlHandle);
             Parameter GroupIDParam = new Parameter(this, ItemIndex);
+            m_MessageNumber = 0;
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -1628,11 +1603,7 @@ namespace APE.Communication
         unsafe public void AddMessageGetListViewGroupRectangle(IntPtr ControlHandle, int GroupID)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1649,11 +1620,7 @@ namespace APE.Communication
 
         //unsafe public void AddMessageMouseClick(IntPtr Handle, MouseButton Button, Boolean Down, Boolean Up, int Clicks, bool ControlKey, bool ShiftKey)
         //{
-        //    m_StringStoreOffset = 0;
-        //    m_PtrMessageStore->NumberOfMessages = 0;
-        //    m_DoneFind = false;
-        //    m_DoneQuery = false;
-        //    m_DoneGet = false;
+        //    FirstMessage();
 
         //    Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1675,11 +1642,7 @@ namespace APE.Communication
 
         unsafe public void AddMessageAddMouseHook(IntPtr Handle)
         {
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1709,11 +1672,7 @@ namespace APE.Communication
 
         unsafe public void AddMessageGetContextMenuStrip(IntPtr Handle)
         {
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1727,13 +1686,20 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageGarbageCollect(int generation)
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        unsafe private void FirstMessageInitialise()
         {
+            m_MessageNumber = 0;
             m_StringStoreOffset = 0;
             m_PtrMessageStore->NumberOfMessages = 0;
             m_DoneFind = false;
             m_DoneQuery = false;
             m_DoneGet = false;
+        }
+
+        unsafe public void AddMessageGarbageCollect(int generation)
+        {
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -1749,11 +1715,7 @@ namespace APE.Communication
 
         unsafe public void AddMessageWaitForMouseState(MouseButton Button, Boolean MouseDown, Boolean FirstClick)
         {
-            m_StringStoreOffset = 0;
-            m_PtrMessageStore->NumberOfMessages = 0;
-            m_DoneFind = false;
-            m_DoneQuery = false;
-            m_DoneGet = false;
+            FirstMessageInitialise();
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
@@ -2007,6 +1969,16 @@ namespace APE.Communication
                         throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[9])).ToString());
                     }
                 }
+
+                // p11 = ChildOf
+                if ((PtrMessage->Parameter.TypeCode[10]) == 17)
+                {
+                    Identifier.ChildOf = (IntPtr)PtrMessage->Parameter.IntPtr[10];
+                }
+                else
+                {
+                    throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[10])).ToString());
+                }
             }
 
             //cleanup the message
@@ -2253,7 +2225,7 @@ namespace APE.Communication
                 if (Identifier.Handle != IntPtr.Zero)
                 {
                     Control TheControl = Form.FromHandle(Identifier.Handle);
-
+                    
                     if (TheControl != null)
                     {
                         GetHandleAndName(TheControl);
@@ -2296,7 +2268,6 @@ namespace APE.Communication
                             Handle = m_Handle;
                             Name = m_Name;
 
-                            //TODO do we want only visible ones? yes we probably do
                             if (NM.IsWindowVisible(Handle))
                             {
                                 //if (Identifier.Name != null)
@@ -2364,6 +2335,14 @@ namespace APE.Communication
                                     }
                                 }
 
+                                if (Identifier.ChildOf != IntPtr.Zero)
+                                {
+                                    if (!NM.IsChild(Identifier.ChildOf, Handle))
+                                    {
+                                        continue;
+                                    }
+                                }
+
                                 CurrentIndex++;
 
                                 if (Identifier.Index > 0)
@@ -2375,11 +2354,8 @@ namespace APE.Communication
                                 }
 
                                 //we have a match
-                                if (NM.IsWindowVisible(Handle))
-                                {
-                                    FoundControl = true;
-                                    break;
-                                }
+                                FoundControl = true;
+                                break;
                             }
                         }
 
@@ -2408,9 +2384,8 @@ namespace APE.Communication
                 NewIdentifier.TypeName = theType.Name;
                 NewIdentifier.ModuleName = theType.Module.Name;
                 NewIdentifier.AssemblyName = theType.Assembly.GetName().Name;
-                NewIdentifier.Index = 1;
+                NewIdentifier.Index = 1;    //TODO fix this
                 NewIdentifier.Text = GetWindowText(Handle);
-
                 AddIdentifierMessage(NewIdentifier);
             }
             //else
@@ -2750,6 +2725,8 @@ namespace APE.Communication
                     {
                         case "DocumentContainer":
                             return "GUIDocumentContainer";
+                        case "DockableWindow":
+                            return "GUIDockableWindow";
                         default:
                             return "";
                     }
@@ -2858,16 +2835,20 @@ namespace APE.Communication
                         break;
                     }
 
-                    if (ControlType.Namespace.StartsWith("System.Windows."))
+                    string nameSpace = ControlType.Namespace;
+                    if (nameSpace != null)  //Some obfuscation tools set the namespace to null...
                     {
-                        break;
-                    }
+                        if (nameSpace.StartsWith("System.Windows."))
+                        {
+                            break;
+                        }
 
-                    string APEType = GetAPETypeFromTypeInternal(ControlType.Namespace, ControlType.Name);
+                        string APEType = GetAPETypeFromTypeInternal(ControlType.Namespace, ControlType.Name);
 
-                    if (APEType != "")
-                    {
-                        break;
+                        if (APEType != "")
+                        {
+                            break;
+                        }
                     }
 
                     ControlType = ControlType.BaseType;
@@ -3208,6 +3189,7 @@ namespace APE.Communication
         {
             object SourceObject;
             object DestinationObject;
+            bool cache = true;
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
 
@@ -3302,6 +3284,7 @@ namespace APE.Communication
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
                         case 19:
+                            cache = false;
                             int datastoreNumber = PtrMessage->Parameter.Int32[i];
                             switch (datastoreNumber)
                             {
@@ -3353,7 +3336,7 @@ namespace APE.Communication
                             throw new Exception("Unsupported System.TypeCode: " + ((int)(PtrMessage->Parameter.TypeCode[i])).ToString());
                     }
                 }
-                if (PtrMessage->TypeCodeKey != -1)  //not a datastore type
+                if (cache)  //not a datastore type
                 {
                     ParametersTypeCache.AddToList(PtrMessage->TypeCodeKey, ParametersType);
                 }
@@ -3427,7 +3410,7 @@ namespace APE.Communication
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
                         default:
-                            throw new Exception("Unsupported System.TypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
+                            throw new Exception("Unsupported System.TypeCode: " + ((int)PtrMessage->Parameter.TypeCode[i]).ToString());
                     }
                 }
             }

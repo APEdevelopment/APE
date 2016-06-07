@@ -44,7 +44,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int NumberOfItems = GUI.m_APE.GetValueFromMessage(1);
+            int NumberOfItems = GUI.m_APE.GetValueFromMessage();
 
             return NumberOfItems;
         }
@@ -66,7 +66,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IntPtr ParentHandle = GUI.m_APE.GetValueFromMessage(1);
+                IntPtr ParentHandle = GUI.m_APE.GetValueFromMessage();
 
                 if (ParentHandle == this.Handle)
                 {
@@ -95,8 +95,8 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string TabText = GUI.m_APE.GetValueFromMessage(1);
-                IntPtr ParentHandle = GUI.m_APE.GetValueFromMessage(2);
+                string TabText = GUI.m_APE.GetValueFromMessage();
+                IntPtr ParentHandle = GUI.m_APE.GetValueFromMessage();
 
                 if (ParentHandle == this.Handle)
                 {
@@ -127,7 +127,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int NumberOfItems = GUI.m_APE.GetValueFromMessage(1);
+            int NumberOfItems = GUI.m_APE.GetValueFromMessage();
 
             for (int Tab = 0; Tab < NumberOfItems; Tab++)
             {
@@ -140,7 +140,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string TabText = GUI.m_APE.GetValueFromMessage(1);
+                string TabText = GUI.m_APE.GetValueFromMessage();
 
                 if (TabText == Item)
                 {
@@ -160,10 +160,10 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int X = GUI.m_APE.GetValueFromMessage(1);
-                    int Y = GUI.m_APE.GetValueFromMessage(2);
-                    int Width = GUI.m_APE.GetValueFromMessage(3);
-                    int Height = GUI.m_APE.GetValueFromMessage(4);
+                    int X = GUI.m_APE.GetValueFromMessage();
+                    int Y = GUI.m_APE.GetValueFromMessage();
+                    int Width = GUI.m_APE.GetValueFromMessage();
+                    int Height = GUI.m_APE.GetValueFromMessage();
                     
                     base.MouseSingleClickInternal(X + (Width / 2), Y + (Height / 2), Button, MouseKeyModifier.None);
 
@@ -206,7 +206,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string TabText = GUI.m_APE.GetValueFromMessage(1);
+            string TabText = GUI.m_APE.GetValueFromMessage();
 
             return TabText;
         }

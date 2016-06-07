@@ -380,6 +380,22 @@
             </summary>
             <param name="text">The text to set the text portion of the datetimepicker to</param>
         </member>
+        <member name="T:APE.Language.GUIDockableWindow">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            TD.SandDock.DockableWindow
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIDockableWindow.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
         <member name="T:APE.Language.GUIElementStripGrid">
             <summary>
             Automation class used to automate controls derived from the following:

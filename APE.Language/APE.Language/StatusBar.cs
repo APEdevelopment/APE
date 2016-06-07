@@ -46,7 +46,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            Items = GUI.m_APE.GetValueFromMessage(1);
+            Items = GUI.m_APE.GetValueFromMessage();
 
             //Loop through looking for the item we want
             for (int Item = 0; Item < Items; Item++)
@@ -59,7 +59,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //get the values returned
-                string CurrentPanelName = GUI.m_APE.GetValueFromMessage(1);
+                string CurrentPanelName = GUI.m_APE.GetValueFromMessage();
 
                 if (CurrentPanelName == PanelName)
                 {
@@ -83,7 +83,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            return GUI.m_APE.GetValueFromMessage(1);
+            return GUI.m_APE.GetValueFromMessage();
         }
 
         public void PanelPollForText(int PanelIndex, string Text)
@@ -111,7 +111,7 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
             //get the values returned
-            return GUI.m_APE.GetValueFromMessage(1);
+            return GUI.m_APE.GetValueFromMessage();
         }
 
         public string PanelText(string PanelName)
@@ -126,7 +126,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            Items = GUI.m_APE.GetValueFromMessage(1);
+            Items = GUI.m_APE.GetValueFromMessage();
 
             //Loop through looking for the item we want
             for (int Item = 0; Item < Items; Item++)
@@ -141,8 +141,8 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //get the values returned
-                string CurrentPanelName = GUI.m_APE.GetValueFromMessage(1);
-                string CurrentPanelText = GUI.m_APE.GetValueFromMessage(2);
+                string CurrentPanelName = GUI.m_APE.GetValueFromMessage();
+                string CurrentPanelText = GUI.m_APE.GetValueFromMessage();
 
                 if (CurrentPanelName == PanelName)
                 {

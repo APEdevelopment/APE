@@ -86,10 +86,10 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //get the values returned
-            Left = GUI.m_APE.GetValueFromMessage(1);
-            Top = GUI.m_APE.GetValueFromMessage(2);
-            Right = GUI.m_APE.GetValueFromMessage(3);
-            Bottom = GUI.m_APE.GetValueFromMessage(4);
+            Left = GUI.m_APE.GetValueFromMessage();
+            Top = GUI.m_APE.GetValueFromMessage();
+            Right = GUI.m_APE.GetValueFromMessage();
+            Bottom = GUI.m_APE.GetValueFromMessage();
 
             //scroll the item into view if needed
             NM.tagRect ClientRect;
@@ -105,7 +105,7 @@ namespace APE.Language
                 //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 ////get the values returned
-                //int CurrentIndex = GUI.m_APE.GetValueFromMessage(1);
+                //int CurrentIndex = GUI.m_APE.GetValueFromMessage();
                 IntPtr SendResult;
                 IntPtr MessageResult;
 
@@ -130,10 +130,10 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //get the values returned
-                Left = GUI.m_APE.GetValueFromMessage(1);
-                Top = GUI.m_APE.GetValueFromMessage(2);
-                Right = GUI.m_APE.GetValueFromMessage(3);
-                Bottom = GUI.m_APE.GetValueFromMessage(4);
+                Left = GUI.m_APE.GetValueFromMessage();
+                Top = GUI.m_APE.GetValueFromMessage();
+                Right = GUI.m_APE.GetValueFromMessage();
+                Bottom = GUI.m_APE.GetValueFromMessage();
             }
 
             //click the item
@@ -150,7 +150,7 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                SelectedIndex = GUI.m_APE.GetValueFromMessage(1);
+                SelectedIndex = GUI.m_APE.GetValueFromMessage();
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
@@ -172,7 +172,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Index = GUI.m_APE.GetValueFromMessage(1);
+            int Index = GUI.m_APE.GetValueFromMessage();
 
             return Index;
         }
