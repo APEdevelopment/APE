@@ -88,3 +88,15 @@ D:\Work\Test\Test\v32\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.csproj.Gener
 D:\Work\Test\Test\v32\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.exe
 D:\Work\Test\Test\v32\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.pdb
 C:\Tools\APE\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Watcher.exe.config
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Watcher.exe
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Watcher.pdb
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Dock.dll
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Native.dll
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Dock.pdb
+D:\Github\APE\APE.Watcher\APE.Watcher\bin\Debug\APE.Native.pdb
+D:\Github\APE\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.Properties.Resources.resources
+D:\Github\APE\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.csproj.GenerateResource.Cache
+D:\Github\APE\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.exe
+D:\Github\APE\APE.Watcher\APE.Watcher\obj\Debug\APE.Watcher.pdb

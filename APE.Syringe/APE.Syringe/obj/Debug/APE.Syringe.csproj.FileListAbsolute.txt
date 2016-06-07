@@ -45,3 +45,10 @@ D:\Work\Test\Test\v32\APE.Syringe\APE.Syringe\bin\Debug\APE.Native.pdb
 D:\Work\Test\Test\v32\APE.Syringe\APE.Syringe\obj\Debug\APE.Syringe.csprojResolveAssemblyReference.cache
 D:\Work\Test\Test\v32\APE.Syringe\APE.Syringe\obj\Debug\APE.Syringe.dll
 D:\Work\Test\Test\v32\APE.Syringe\APE.Syringe\obj\Debug\APE.Syringe.pdb
+D:\Github\APE\APE.Syringe\APE.Syringe\bin\Debug\APE.Syringe.dll
+D:\Github\APE\APE.Syringe\APE.Syringe\bin\Debug\APE.Syringe.pdb
+D:\Github\APE\APE.Syringe\APE.Syringe\bin\Debug\APE.Native.dll
+D:\Github\APE\APE.Syringe\APE.Syringe\bin\Debug\APE.Native.pdb
+D:\Github\APE\APE.Syringe\APE.Syringe\obj\Debug\APE.Syringe.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Syringe\APE.Syringe\obj\Debug\APE.Syringe.dll
+D:\Github\APE\APE.Syringe\APE.Syringe\obj\Debug\APE.Syringe.pdb

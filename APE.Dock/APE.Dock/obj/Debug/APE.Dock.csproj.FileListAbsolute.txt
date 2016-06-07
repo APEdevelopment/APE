@@ -45,3 +45,10 @@ D:\Work\Test\Test\v32\APE.Dock\APE.Dock\obj\Debug\APE.Dock.csprojResolveAssembly
 D:\Work\Test\Test\v32\APE.Dock\APE.Dock\obj\Debug\APE.Dock.dll
 D:\Work\Test\Test\v32\APE.Dock\APE.Dock\obj\Debug\APE.Dock.pdb
 C:\Tools\APE\APE.Dock\APE.Dock\obj\Debug\APE.Dock.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Dock\APE.Dock\bin\Debug\APE.Dock.dll
+D:\Github\APE\APE.Dock\APE.Dock\bin\Debug\APE.Dock.pdb
+D:\Github\APE\APE.Dock\APE.Dock\bin\Debug\APE.Native.dll
+D:\Github\APE\APE.Dock\APE.Dock\bin\Debug\APE.Native.pdb
+D:\Github\APE\APE.Dock\APE.Dock\obj\Debug\APE.Dock.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Dock\APE.Dock\obj\Debug\APE.Dock.dll
+D:\Github\APE\APE.Dock\APE.Dock\obj\Debug\APE.Dock.pdb

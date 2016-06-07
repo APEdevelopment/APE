@@ -69,3 +69,13 @@ D:\Work\Test\Test\v32\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.cspro
 D:\Work\Test\Test\v32\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.exe
 D:\Work\Test\Test\v32\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.pdb
 C:\Tools\APE\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Injector.exe.config
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Injector.exe
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Injector.pdb
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Syringe.dll
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Native.dll
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Syringe.pdb
+D:\Github\APE\APE.Injector\APE.Injector\bin\x86\Debug\APE.Native.pdb
+D:\Github\APE\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.exe
+D:\Github\APE\APE.Injector\APE.Injector\obj\x86\Debug\APE.Injector.pdb

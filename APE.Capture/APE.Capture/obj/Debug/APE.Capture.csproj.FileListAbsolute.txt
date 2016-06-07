@@ -49,3 +49,12 @@ D:\Work\Test\Test\v32\APE.Capture\APE.Capture\bin\Debug\nQuant.Core.pdb
 D:\Work\Test\Test\v32\APE.Capture\APE.Capture\obj\Debug\APE.Capture.csprojResolveAssemblyReference.cache
 D:\Work\Test\Test\v32\APE.Capture\APE.Capture\obj\Debug\APE.Capture.dll
 D:\Work\Test\Test\v32\APE.Capture\APE.Capture\obj\Debug\APE.Capture.pdb
+D:\Github\APE\APE.Capture\APE.Capture\bin\Debug\APE.Capture.dll
+D:\Github\APE\APE.Capture\APE.Capture\bin\Debug\APE.Capture.pdb
+D:\Github\APE\APE.Capture\APE.Capture\bin\Debug\APE.Native.dll
+D:\Github\APE\APE.Capture\APE.Capture\bin\Debug\nQuant.Core.dll
+D:\Github\APE\APE.Capture\APE.Capture\bin\Debug\APE.Native.pdb
+D:\Github\APE\APE.Capture\APE.Capture\bin\Debug\nQuant.Core.pdb
+D:\Github\APE\APE.Capture\APE.Capture\obj\Debug\APE.Capture.csprojResolveAssemblyReference.cache
+D:\Github\APE\APE.Capture\APE.Capture\obj\Debug\APE.Capture.dll
+D:\Github\APE\APE.Capture\APE.Capture\obj\Debug\APE.Capture.pdb
