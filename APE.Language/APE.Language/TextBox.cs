@@ -14,18 +14,12 @@
 //limitations under the License.
 //
 using System;
-using System.ComponentModel;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Windows.Forms;
-using System.Reflection;
+using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using APE.Capture;
-using APE.Communication;
 using System.Threading;
-using System.Drawing.Imaging;
-using System.Security.Principal;
 using NM = APE.Native.NativeMethods;
 
 namespace APE.Language
@@ -72,7 +66,11 @@ namespace APE.Language
 
                 if (currentText != "")
                 {
-                    base.MouseDoubleClick(MouseButton.Left);
+                    base.MouseSingleClick(MouseButton.Left);
+                    //base.MouseDoubleClick(MouseButton.Left);
+
+                    //Select everything in the textbox
+                    base.SendKeys("{HOME}+{END}");
 
                     string selectedText;
 

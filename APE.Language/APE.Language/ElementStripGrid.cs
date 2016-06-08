@@ -219,9 +219,27 @@ namespace APE.Language
             return row;
         }
 
+        /// <summary>
+        /// Returns an array of indexes of the currently selected rows
+        /// </summary>
+        /// <returns>An array of indexes</returns>
         public int[] GetSelectedRows()
         {
-            return null;
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetSelectedRowIndexesAsString", MemberTypes.Method);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string selectedRowIndexesString = GUI.m_APE.GetValueFromMessage();
+
+            int titleRows = TitleRows();
+
+            char[] splitSeparator = { ',' };
+            string[] selectedRowIndexesStringArray = selectedRowIndexesString.Split(splitSeparator);
+            int[] selectedRowIndexesintArray = Array.ConvertAll(selectedRowIndexesStringArray, s => int.Parse(s) + titleRows);
+
+            return selectedRowIndexesintArray;
         }
 
         /// <summary>
@@ -342,6 +360,14 @@ namespace APE.Language
             //Build an array of the correct size
             string[,] titles = new string[maxLevels + 1, maxColumns + 1];
 
+            for (int y = 0; y < titles.GetLength(0); y++)
+            {
+                for (int x = 0; x < titles.GetLength(1); x++)
+                {
+                    titles[y, x] = "";
+                }
+            }
+
             //Convert to a 2d array
             int column = 0;
             ConvertXMLTreeTo2dArray(columnsXMLDocument.SelectSingleNode("Columns").ChildNodes, ref column, ref titles, maxLevels, visibleOnly);
@@ -350,11 +376,33 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns true if the specified column in the grid exists
+        /// </summary>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <returns>True or False</returns>
+        public bool ColumnExists(string columnToFind)
+        {
+            if (FindColumnInternal(columnToFind, false) == -1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Returns the index of the specified column in the grid or -1 if its not found
         /// </summary>
         /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
-        /// <returns>The index of the column or -1</returns>
+        /// <returns>The index of the column</returns>
         public int FindColumn(string columnToFind)
+        {
+            return FindColumnInternal(columnToFind, true);
+        }
+
+        private int FindColumnInternal(string columnToFind, bool raiseExceptionIfNotFound)
         {
             string[] Delimiter = { " -> " };
             string[] columnHeader = columnToFind.Split(Delimiter, StringSplitOptions.None);
@@ -379,7 +427,7 @@ namespace APE.Language
 
                             if (columnHeader[row] != "")
                             {
-                                while (titles[row, tempColumn] == "" || titles[row, tempColumn] == null)
+                                while (titles[row, tempColumn] == "")
                                 {
                                     tempColumn--;
                                 }
@@ -410,6 +458,11 @@ namespace APE.Language
                 return column;
             }
 
+            if (raiseExceptionIfNotFound)
+            {
+                throw new Exception("Failed to find column " + columnToFind + " in " + m_DescriptionOfControl);
+            }
+            
             return -1;
         }
 
@@ -793,6 +846,29 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns the index of the total row
+        /// </summary>
+        /// <returns>The total row index</returns>
+        public int TotalRow()
+        {
+            int row = TitleRows();
+
+            if (TotalRowVisible())
+            {
+                if (FilterRowVisible())
+                {
+                    row++;    
+                }
+
+                return row;
+            }
+            else
+            {
+                throw new Exception("Total row is not visible");
+            }
+        }
+
+        /// <summary>
         /// Returns whether the filter row is visible or not
         /// </summary>
         /// <returns>True or False</returns>
@@ -810,6 +886,24 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns the index of the filter row
+        /// </summary>
+        /// <returns>The filter row index</returns>
+        public int FilterRow()
+        {
+            int row = TitleRows();
+
+            if (FilterRowVisible())
+            {
+                return row;
+            }
+            else
+            {
+                throw new Exception("Filter row is not visible");
+            }
+        }
+
+        /// <summary>
         /// Returns whether the multi edit row is visible or not
         /// </summary>
         /// <returns>True or False</returns>
@@ -824,6 +918,34 @@ namespace APE.Language
             bool isVisible = GUI.m_APE.GetValueFromMessage();
 
             return isVisible;
+        }
+
+        /// <summary>
+        /// Returns the index of the multi edit row
+        /// </summary>
+        /// <returns>The multi edit row index</returns>
+        public int MultiEditRow()
+        {
+            int row = TitleRows();
+
+            if (MultiEditRowVisible())
+            {
+                if (FilterRowVisible())
+                {
+                    row++;
+                }
+
+                if (TotalRowVisible())
+                {
+                    row++;
+                }
+
+                return row;
+            }
+            else
+            {
+                throw new Exception("Multi edit row is not visible");
+            }
         }
 
         /// <summary>
@@ -891,6 +1013,12 @@ namespace APE.Language
             base.MouseSingleClickInternal(Location.X, Location.Y, Button, MouseKeyModifier.None);
         }
 
+        /// <summary>
+        /// Moves the mouse cursor to the specified location the specified cell
+        /// </summary>
+        /// <param name="Row">The row index of the cell to move the cursor to</param>
+        /// <param name="Column">The column index of the cell to move the cursor to</param>
+        /// <param name="LocationInCell">The location in the cell to move the cursor to</param>
         public void MouseMove(int Row, int Column, CellClickLocation LocationInCell)
         {
             Point Location = GetLocationInCell(Row, Column, LocationInCell);
@@ -949,26 +1077,26 @@ namespace APE.Language
             return Location;
         }
 
-        public Rectangle GetCellRectangle(string row, string column)
+        private Rectangle GetCellRectangle(string row, string column)
         {
             int RowNumber = FindRow(row);
             int ColumnNumber = FindColumn(column);
             return GetCellRectangle(RowNumber, ColumnNumber);
         }
 
-        public Rectangle GetCellRectangle(int row, string column)
+        private Rectangle GetCellRectangle(int row, string column)
         {
             int ColumnNumber = FindColumn(column);
             return GetCellRectangle(row, ColumnNumber);
         }
 
-        public Rectangle GetCellRectangle(string row, int column)
+        private Rectangle GetCellRectangle(string row, int column)
         {
             int RowNumber = FindRow(row);
             return GetCellRectangle(RowNumber, column);
         }
 
-        public Rectangle GetCellRectangle(int row, int column)
+        private Rectangle GetCellRectangle(int row, int column)
         {
             int titleRows = TitleRows();
             row -= titleRows;
@@ -995,6 +1123,12 @@ namespace APE.Language
             return CellRectangle;
         }
 
+        /// <summary>
+        /// Returns the namespace and name of the editor the cell uses
+        /// </summary>
+        /// <param name="row">The row index of the cell to get the editor of</param>
+        /// <param name="column">The column index of the cell to get the editor of</param>
+        /// <returns></returns>
         public string GetEdititorType(int row, int column)
         {
             int titleRows = TitleRows();
@@ -1021,7 +1155,7 @@ namespace APE.Language
             return Namespace + "." + Name;
         }
 
-        private IntPtr GetComboBoxRendererComboBox(int row, int column)
+        private IntPtr GetRenderedControlHandle(int row, int column)
         {
             int titleRows = TitleRows();
             row -= titleRows;
@@ -1032,17 +1166,17 @@ namespace APE.Language
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetEditDescriptor", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Editor", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "m_comboBox", MemberTypes.Field);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "GetControl", MemberTypes.Method);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store6, DataStores.Store7, "Handle", MemberTypes.Property);
             GUI.m_APE.AddMessageGetValue(DataStores.Store7);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-            IntPtr comboBoxHandle = GUI.m_APE.GetValueFromMessage();
-            return comboBoxHandle;
+            IntPtr controlHandle = GUI.m_APE.GetValueFromMessage();
+            return controlHandle;
         }
 
-        private IntPtr GetNonRenderedControl(int row, int column)
+        private IntPtr GetNonRenderedControlHandle(int row, int column)
         {
             int titleRows = TitleRows();
             row -= titleRows;
@@ -1058,19 +1192,177 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-            IntPtr walkerHandle = GUI.m_APE.GetValueFromMessage();
-            return walkerHandle;
+            IntPtr controlHandle = GUI.m_APE.GetValueFromMessage();
+            return controlHandle;
+        }
+        
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, string column, string value)
+        {
+            return SetCellValue(row, column, value, null, null);
         }
 
-        public void SetCellValue(int Row, int Column, string Value, string ExpectedValue, string submitKey)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, string column, string value, string expectedValue)
         {
-            this.Select(Row, Column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            SetCellValueInternal(Row, Column, Value, ExpectedValue, submitKey);
+            return SetCellValue(row, column, value, expectedValue, null);
         }
 
-        private void SetCellValueInternal(int row, int column, string value, string expectedValue, string submitKey)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, string column, string value, string expectedValue, string submitKey)
         {
-            Stopwatch ook = Stopwatch.StartNew();
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            int RowNumber = FindRow(row);
+            int ColumnNumber = FindColumn(column);
+            return SetCellValueInternal(RowNumber, ColumnNumber, value, expectedValue, submitKey);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, string column, string value)
+        {
+            return SetCellValue(row, column, value, null, null);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, string column, string value, string expectedValue)
+        {
+            return SetCellValue(row, column, value, expectedValue, null);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, string column, string value, string expectedValue, string submitKey)
+        {
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            int ColumnNumber = FindColumn(column);
+            return SetCellValueInternal(row, ColumnNumber, value, expectedValue, submitKey);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, int column, string value)
+        {
+            return SetCellValue(row, column, value, null, null);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, int column, string value, string expectedValue)
+        {
+            return SetCellValue(row, column, value, expectedValue, null);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, int column, string value, string expectedValue, string submitKey)
+        {
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            int RowNumber = FindRow(row);
+            return SetCellValueInternal(RowNumber, column, value, expectedValue, submitKey);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, int column, string value)
+        {
+            return SetCellValue(row, column, value, null, null);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, int column, string value, string expectedValue)
+        {
+            return SetCellValue(row, column, value, expectedValue, null);
+        }
+
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, int column, string value, string expectedValue, string submitKey)
+        {
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            return SetCellValueInternal(row, column, value, expectedValue, submitKey);
+        }
+
+        private bool SetCellValueInternal(int row, int column, string value, string expectedValue, string submitKey)
+        {
+            Stopwatch timer;
 
             if (expectedValue == null)
             {
@@ -1088,23 +1380,15 @@ namespace APE.Language
             if (CurrentValue == expectedValue)
             {
                 GUI.Log("Ensure the cell is set to " + expectedValue, LogItemTypeEnum.Action);
-                return;
+                return false;
             }
 
             // Put the cell into edit mode
             GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
             base.SendKeysInternal("{F2}");
+            Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
 
             string editorType = GetEdititorType(row, column);
-
-            //LatentZero.Utility.Controls.ComboBoxRenderer  EnhancedComboBox m_comboBox	bool m_isDropdownVisible
-            //LatentZero.Utility.Controls.CheckBoxComboBoxRenderer  CheckedComboBox m_comboBox	bool m_isDropdownVisible
-            //LatentZero.Utility.Controls.DatePickerRenderer    DateTimePicker m_dateTimePicker	bool m_isDroppedDown
-            //LatentZero.Utility.Controls.CheckStateControl.CheckStateRenderer  //cant put this in edit mode
-            //LatentZero.Capstone.Controls.Walker.WalkerControl
-            //LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl
-            //System.Windows.Forms.TextBox
-
             IntPtr EditorHandle = IntPtr.Zero;
 
             //Set the value
@@ -1112,7 +1396,7 @@ namespace APE.Language
             {
                 case "LatentZero.Utility.Controls.ComboBoxRenderer":
                     // Get the handle of the editor for this cell then locate the control
-                    EditorHandle = GetComboBoxRendererComboBox(row, column);
+                    EditorHandle = GetRenderedControlHandle(row, column);
                     Debug.WriteLine("handle " + EditorHandle.ToString());
                     
                     GUIComboBox comboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
@@ -1121,45 +1405,69 @@ namespace APE.Language
                     break;
                 case "LatentZero.Utility.Controls.CheckBoxComboBoxRenderer":
                     // Get the handle of the editor for this cell then locate the control
-                    EditorHandle = GetComboBoxRendererComboBox(row, column);
+                    EditorHandle = GetRenderedControlHandle(row, column);
                     GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     checkBoxComboBox.ItemSelect(value);
+                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    base.SendKeysInternal(submitKey);
                     break;
-                //case "LatentZero.Utility.Controls.DatePickerRenderer":
-                //    // Get the handle of the editor for this cell then locate the control
-                //    EditorHandle = GetComboBoxRendererComboBox(row, column);
-                //    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
-                //    // Select the item
-                //    checkBoxComboBox.ItemSelect(value);
-                //    break;
+                case "LatentZero.Utility.Controls.DatePickerRenderer":
+                    // Get the handle of the editor for this cell then locate the control
+                    EditorHandle = GetRenderedControlHandle(row, column);
+                    GUIDateTimePicker datePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " date picker", new Identifier(Identifiers.Handle, EditorHandle));
+                    // Select the item
+                    datePicker.SetText(value);
+                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    base.SendKeysInternal(submitKey);
+                    break;
+                //TODO is this used anywhere?
                 //case "LatentZero.Utility.Controls.CheckStateControl.CheckStateRenderer":
                 //    // Get the handle of the editor for this cell then locate the control
-                //    EditorHandle = GetComboBoxRendererComboBox(row, column);
-                //    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                //    EditorHandle = GetRenderedControlHandle(row, column);
+                //    GUICheckStateControl checkStateControl = new GUICheckStateControl(m_ParentForm, m_DescriptionOfControl + " check state control", new Identifier(Identifiers.Handle, EditorHandle));
                 //    // Select the item
-                //    checkBoxComboBox.ItemSelect(value);
+                //    checkStateControl.MouseSingleClick(MouseButton.Left);
                 //    break;
                 case "LatentZero.Capstone.Controls.Walker.WalkerControl":
                     // Get the handle of the editor for this cell then locate the control
-                    EditorHandle = GetNonRenderedControl(row, column);
+                    EditorHandle = GetNonRenderedControlHandle(row, column);
                     GUIGenericWalker genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     genericWalker.SetText(value);
+                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    base.SendKeysInternal(submitKey);
                     break;
-                //case "LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl":
-                //    // Get the handle of the editor for this cell then locate the control
-                //    EditorHandle = GetNonRenderedControl(row, column);
-                //    GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
-                //    // Select the item
-                //    checkBoxComboBox.ItemSelect(value);
-                //    break;
+                case "LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl":
+                    // Get the handle of the editor for this cell then locate the control
+                    EditorHandle = GetNonRenderedControlHandle(row, column);
+                    GUITextValueWithTypeControl textValueWithTypeControl = new GUITextValueWithTypeControl(m_ParentForm, m_DescriptionOfControl + " text value with type control", new Identifier(Identifiers.Handle, EditorHandle));
+                    // split the item up into type and text
+                    char[] splitSeparator = { '|' };
+                    string[] textType = value.Split(splitSeparator);
+                    // Select the type
+                    textValueWithTypeControl.SetType(textType[1]);
+                    // Select the item
+                    textValueWithTypeControl.SetText(textType[0]);
+                    // Submit the change
+                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    base.SendKeysInternal(submitKey);
+                    break;
+                case "System.Windows.Forms.TextBox":
+                    // Get the handle of the editor for this cell then locate the control
+                    EditorHandle = GetNonRenderedControlHandle(row, column);
+                    GUITextBox textBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
+                    // Select the item
+                    textBox.SetText(value);
+                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    base.SendKeysInternal(submitKey);
+                    break;
                 default:
                     throw new Exception("Unsupported element strip grid editor: Type: " + editorType);
             }
 
             //Check the value was set
-            Stopwatch timer = Stopwatch.StartNew();
+            timer = Stopwatch.StartNew();
             do
             {
                 CurrentValue = this.GetCellValue(row, column);
@@ -1177,22 +1485,24 @@ namespace APE.Language
                 Thread.Sleep(15);
             }
             while (true);
+
+            return true;
         }
 
         //TODO
-        //public bool SetTotalCellValue()
-        //{
-        //    return false;
-        //}
-
         //public bool SetFilterCellValue()
         //{
         //    return false;
         //}
 
-        //public void SetCellValue()
+        //public bool SetTotalCellValue()
         //{
+        //    return false;
+        //}
 
+        //public bool SetMultiEditCellValue()
+        //{
+        //    return false;
         //}
 
         //public string GetAllVisibleCells()

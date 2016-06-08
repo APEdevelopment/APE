@@ -247,7 +247,7 @@ namespace APE.Test
             button2.Enabled = false;
 
             Stopwatch stepTimer;
-            
+            stepTimer = Stopwatch.StartNew();
 
 
             Process p = Process.GetProcessesByName("LzCapstone")[0];
@@ -271,20 +271,58 @@ namespace APE.Test
 
 
 
+            //Find the New fixed income order form
+            GUIForm newOrderForm = new GUIForm("New fixed income order form", new Identifier(Identifiers.Name, "SimpleContainer"));
 
-            GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+            //Locate the 3 element strip grids
+            GUIElementStripGrid instrumentGrid = new GUIElementStripGrid(newOrderForm, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 1));
+            GUIElementStripGrid entryGrid = new GUIElementStripGrid(newOrderForm, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+            GUIElementStripGrid accountAllocationGrid = new GUIElementStripGrid(newOrderForm, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 3));
 
-            GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+            //
+            entryGrid.SetCellValue(1, "Instrument", "AEGON 5 3/4 12/15/20");
+            entryGrid.SetCellValue(1, "Price", "101.8", "101.80");
+            entryGrid.SetCellValue(1, "Manager", "AutoTest07");
+            entryGrid.SetCellValue(1, "Trade Date", "17 Sep 2016");
+            entryGrid.SetCellValue(1, "Minimum Allocation", "100|Qty", "100.00");
 
-            Debug.WriteLine(entry.FindRow("Order"));
-            Debug.WriteLine(entry.FindColumn("Instrument"));
-
-            //entry.SetCellValue(1, 0, "Execution", "Execution", null);
-            entry.SetCellValue(1, 4, "AEGON 5 3/4 12/15/20", "AEGON 5 3/4 12/15/20", null);
-
-            //Stopwatch foo = Stopwatch.StartNew();
-
+            //Find the Account / Profile combobox and then the profile combobox
+            GUIComboBox accountProfileComboBox = new GUIComboBox(newOrderForm, "Account / Profile ComboBox", new Identifier(Identifiers.Name, "m_typeSelectorCombo"));
+            GUIComboBox profileComboBox = new GUIComboBox(newOrderForm, "Profile ComboBox", new Identifier(Identifiers.Name, "m_combo"));
             
+            accountProfileComboBox.ItemSelect("Profile");
+            profileComboBox.ItemSelect("MIN_1_Accounts");
+
+            //Wait for the account row to appear in the account allocation grid
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOuts())
+                {
+                    throw new Exception("Failed to find the expected number of rows in the ccount allocation grid");
+                }
+
+                if (accountAllocationGrid.Rows() == 7)
+                {
+                    break;
+                }
+            }
+
+            //set the quantity of the account
+            accountAllocationGrid.SetCellValue(6, "AEGON 5 3/4 12/15/20 -> Order -> Qty", "100", "100,000", "k");
+            accountAllocationGrid.SetCellValue(6, " -> Indicators -> Locked", "True");
+            //string ook = accountAllocationGrid.GetCellValue(6, "-> Indicators -> Locked");
+            Debug.WriteLine(accountAllocationGrid.GetCellValue(6, " -> Indicators -> Locked"));
+
+
+
+            GUIButton validateButton = new GUIButton(newOrderForm, "Validate button", new Identifier(Identifiers.Text, "Validate"));
+            GUIButton addButton = new GUIButton(newOrderForm, "Add button", new Identifier(Identifiers.Text, "Add"));
+
+            validateButton.MouseSingleClick(MouseButton.Left);
+            addButton.MouseSingleClick(MouseButton.Left);
+
+
             //foo.Stop();
             //Debug.WriteLine((foo.ElapsedMilliseconds / entry.Columns()).ToString());
 

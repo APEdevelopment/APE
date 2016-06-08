@@ -506,7 +506,7 @@ namespace APE.Language
                     GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
                     flexgridTextBox.SetText(value);
                     GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
-                    base.SendKeys(submitKey);
+                    base.SendKeysInternal(submitKey);
                     break;
                 default:
                     throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
@@ -776,26 +776,26 @@ namespace APE.Language
             return Location;
         }
 
-        public Rectangle GetCellRectangle(string Row, string Column)
+        private Rectangle GetCellRectangle(string Row, string Column)
         {
             int RowNumber = FindRow(Row);
             int ColumnNumber = FindColumn(Column);
             return GetCellRectangle(RowNumber, ColumnNumber);
         }
 
-        public Rectangle GetCellRectangle(int Row, string Column)
+        private Rectangle GetCellRectangle(int Row, string Column)
         {
             int ColumnNumber = FindColumn(Column);
             return GetCellRectangle(Row, ColumnNumber);
         }
 
-        public Rectangle GetCellRectangle(string Row, int Column)
+        private Rectangle GetCellRectangle(string Row, int Column)
         {
             int RowNumber = FindRow(Row);
             return GetCellRectangle(RowNumber, Column);
         }
 
-        public Rectangle GetCellRectangle(int Row, int Column)
+        private Rectangle GetCellRectangle(int Row, int Column)
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRect", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));

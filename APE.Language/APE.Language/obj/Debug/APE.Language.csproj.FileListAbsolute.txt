@@ -82,7 +82,6 @@ C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Language.dll
 C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Language.pdb
 C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Capture.dll
 C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Communication.dll
-C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Dock.dll
 C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Native.dll
 C:\Tools\APE\APE.Language\APE.Language\bin\Debug\nQuant.Core.dll
 C:\Tools\APE\APE.Language\APE.Language\bin\Debug\Fasterflect.dll
@@ -168,3 +167,4 @@ D:\Github\APE\APE.Language\APE.Language\bin\Debug\nQuant.Core.pdb
 D:\Github\APE\APE.Language\APE.Language\bin\Debug\Fasterflect.xml
 D:\Github\APE\APE.Language\APE.Language\bin\Debug\APE.Domain.pdb
 D:\Github\APE\APE.Language\APE.Language\obj\Debug\APE.Language.pdb
+C:\Tools\APE\APE.Language\APE.Language\bin\Debug\APE.Dock.dll

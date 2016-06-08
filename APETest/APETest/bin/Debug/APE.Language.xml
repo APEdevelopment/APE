@@ -322,6 +322,54 @@
             Gets the checked state of the control
             </summary>
         </member>
+        <member name="T:APE.Language.GUICheckStateControl">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            System.Windows.Forms.CheckBox
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUICheckStateControl.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUICheckStateControl.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to click the mouse</param>
+            <param name="Y">How far from the top edge of the control to click the mouse</param>
+            <param name="Button">The button to click</param>
+            <param name="Keys">The key to hold while clicking</param>
+        </member>
+        <member name="M:APE.Language.GUICheckStateControl.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a double mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to double click the mouse</param>
+            <param name="Y">How far from the top edge of the control to double click the mouse</param>
+            <param name="Button">The button to double click</param>
+            <param name="Keys">The key to hold while double clicking</param>
+        </member>
+        <member name="M:APE.Language.GUICheckStateControl.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a triple mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to triple click the mouse</param>
+            <param name="Y">How far from the top edge of the control to triple click the mouse</param>
+            <param name="Button">The button to triple click</param>
+            <param name="Keys">The key to hold while triple clicking</param>
+        </member>
+        <member name="P:APE.Language.GUICheckStateControl.State">
+            <summary>
+            Gets the state of the control
+            </summary>
+        </member>
         <member name="T:APE.Language.GUIComboBox">
             <summary>
             Automation class used to automate controls derived from the following:
@@ -378,7 +426,7 @@
             <summary>
             Sets the text portion of the datetimepicker to the specified text by sending keystrokes
             </summary>
-            <param name="text">The text to set the text portion of the datetimepicker to</param>
+            <param name="dateText">The text to set the text portion of the datetimepicker to</param>
         </member>
         <member name="T:APE.Language.GUIDockableWindow">
             <summary>
@@ -462,18 +510,31 @@
             </summary>
             <returns>The selected row number</returns>
         </member>
+        <member name="M:APE.Language.GUIElementStripGrid.GetSelectedRows">
+            <summary>
+            Returns an array of indexes of the currently selected rows
+            </summary>
+            <returns>An array of indexes</returns>
+        </member>
         <member name="M:APE.Language.GUIElementStripGrid.Columns">
             <summary>
             Returns the number of columns, including those which are hidden
             </summary>
             <returns>The number of columns</returns>
         </member>
+        <member name="M:APE.Language.GUIElementStripGrid.ColumnExists(System.String)">
+            <summary>
+            Returns true if the specified column in the grid exists
+            </summary>
+            <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+            <returns>True or False</returns>
+        </member>
         <member name="M:APE.Language.GUIElementStripGrid.FindColumn(System.String)">
             <summary>
             Returns the index of the specified column in the grid or -1 if its not found
             </summary>
             <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
-            <returns>The index of the column or -1</returns>
+            <returns>The index of the column</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.FirstVisibleRow">
             <summary>
@@ -655,6 +716,130 @@
             <param name="Button">The button with which to click</param>
             <param name="LocationInCell">The location in the cell to click</param>
         </member>
+        <member name="M:APE.Language.GUIElementStripGrid.MouseMove(System.Int32,System.Int32,APE.Language.CellClickLocation)">
+            <summary>
+            Moves the mouse cursor to the specified location the specified cell
+            </summary>
+            <param name="Row">The row index of the cell to move the cursor to</param>
+            <param name="Column">The column index of the cell to move the cursor to</param>
+            <param name="LocationInCell">The location in the cell to move the cursor to</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.GetEdititorType(System.Int32,System.Int32)">
+            <summary>
+            Returns the namespace and name of the editor the cell uses
+            </summary>
+            <param name="row">The row index of the cell to get the editor of</param>
+            <param name="column">The column index of the cell to get the editor of</param>
+            <returns></returns>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.Int32,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.Int32,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        </member>
         <member name="T:APE.Language.GUIFlexgrid">
             <summary>
             Automation class used to automate controls derived from the following:
@@ -714,6 +899,28 @@
             Saves the background image of the picturebox to the specified file
             </summary>
             <param name="filename">Filename including path to save the background image to</param>
+        </member>
+        <member name="T:APE.Language.GUIPopupList">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            LatentZero.Utility.Controls.PopupControlHelper
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIPopupList.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIPopupList.Select(System.String)">
+            <summary>
+            Sets the text portion of the TextValueWithTypeControl to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text portion of the TextValueWithTypeControl to</param>
         </member>
         <member name="T:APE.Language.GUIProgressBar">
             <summary>
@@ -792,6 +999,34 @@
             <para/>This text is used in the logging method.  For example: OK button</param>
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUITextValueWithTypeControl">
+            <summary>
+            Automation class used to automate controls derived from the following:
+            LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUITextValueWithTypeControl.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUITextValueWithTypeControl.SetType(System.String)">
+            <summary>
+            Sets the type portion of the TextValueWithTypeControl to the specified text
+            </summary>
+            <param name="typeText">The text to set the type portion of the TextValueWithTypeControl to</param>
+        </member>
+        <member name="M:APE.Language.GUITextValueWithTypeControl.SetText(System.String)">
+            <summary>
+            Sets the text portion of the TextValueWithTypeControl to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text portion of the TextValueWithTypeControl to</param>
         </member>
         <member name="T:APE.Language.GUIToolStrip">
             <summary>

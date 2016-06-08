@@ -290,7 +290,26 @@ namespace APE.Language
 
         internal void MouseSingleClickInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeEnabled();
             Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
+        }
+
+        private void WaitToBeEnabled()
+        {
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOuts())
+                {
+                    throw new Exception(m_DescriptionOfControl + " is not enabled");
+                }
+
+                if (NM.IsWindowEnabled(Identity.Handle))
+                {
+                    break;
+                }
+            }
+            timer.Stop();
         }
 
         /// <summary>
@@ -331,6 +350,7 @@ namespace APE.Language
 
         internal void MouseDoubleClickInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeEnabled();
             Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
         }
 
@@ -372,6 +392,7 @@ namespace APE.Language
 
         internal void MouseTripleClickInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeEnabled();
             Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
         }
 
@@ -404,6 +425,7 @@ namespace APE.Language
 
         internal void MouseDownInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeEnabled();
             Input.MouseDown(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
         }
 
@@ -436,6 +458,7 @@ namespace APE.Language
 
         internal void MouseUpInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeEnabled();
             Input.MouseUp(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
         }
 

@@ -58,6 +58,7 @@
     <Compile Include="AxLZResultsGrid.cs" />
     <Compile Include="Button.cs" />
     <Compile Include="CheckBox.cs" />
+    <Compile Include="CheckStateControl.cs" />
     <Compile Include="ComboBox.cs" />
     <Compile Include="DateTimePicker.cs" />
     <Compile Include="DockableWindow.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="FocusableObject.cs" />
     <Compile Include="Form.cs" />
     <Compile Include="PictureBox.cs" />
+    <Compile Include="PopupList.cs" />
     <Compile Include="ProgressBar.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -73,6 +75,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="StatusBar.cs" />
+    <Compile Include="TextValueWithTypeControl.cs" />
     <Compile Include="ToolStrip.cs" />
     <Compile Include="ViewPort.cs">
       <SubType>Form</SubType>

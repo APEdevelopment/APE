@@ -34,7 +34,6 @@ D:\Work\Test\Test\v32\APE.Loader\APE.Loader\bin\x86\Debug\APE.Loader.pdb
 D:\Work\Test\Test\v32\APE.Loader\APE.Loader\obj\x86\Debug\APE.Loader.csprojResolveAssemblyReference.cache
 D:\Work\Test\Test\v32\APE.Loader\APE.Loader\obj\x86\Debug\APE.Loader.dll
 D:\Work\Test\Test\v32\APE.Loader\APE.Loader\obj\x86\Debug\APE.Loader.pdb
-C:\Tools\APE\APE.Loader\APE.Loader\obj\x86\Debug\APE.Loader.csprojResolveAssemblyReference.cache
 D:\Github\APE\APE.Loader\APE.Loader\bin\x86\Debug\APE.Loader.dll
 D:\Github\APE\APE.Loader\APE.Loader\bin\x86\Debug\APE.Loader.pdb
 D:\Github\APE\APE.Loader\APE.Loader\obj\x86\Debug\APE.Loader.csprojResolveAssemblyReference.cache
