@@ -34,40 +34,21 @@ using APE.Language;
 namespace APE
 {
     /// <summary>
-    /// The type of information that is being logged
-    /// </summary>
-    public enum LogItemTypeEnum
-    {
-        /// <summary>
-        /// Used for logging other non-user interaction such as waiting for a grid to be populated
-        /// </summary>
-        Information = 0,
-        /// <summary>
-        /// Used for logging user interaction with the application such as clicking on a button
-        /// </summary>
-        Action = 1,
-        /// <summary>
-        /// Used internally by the automation framework
-        /// </summary>
-        ApeContext = 2,
-    }
-
-    /// <summary>
     /// Class used to display a small window which shows the last few lines logged, along with some other
     /// information and buttons to break, abort and display an about box
     /// </summary>
-    public partial class ViewPort : AppBar
+    internal partial class ViewPort : AppBar
     {
         private int m_Lines;
         private object m_lock = new object();
-        public IntPtr Foreground = IntPtr.Zero;
-        public bool Acknowledge = false;
+        internal IntPtr Foreground = IntPtr.Zero;
+        internal bool Acknowledge = false;
         private bool Processing = false;
         private uint m_DoubleClickTimer = 0;
 
         private delegate void AppendToLogCallback(string text, LogItemTypeEnum type);
 
-        public ViewPort()
+        internal ViewPort()
         {
             InitializeComponent();
             rtbLogViewer.BackColor = Color.White;
@@ -221,7 +202,7 @@ namespace APE
             Environment.Exit(0);
         }
 
-        public void AppendToLog(string text, LogItemTypeEnum type)
+        internal void AppendToLog(string text, LogItemTypeEnum type)
         {
             if (this.InvokeRequired)
             {
@@ -332,7 +313,7 @@ namespace APE
             }
         }
 
-        public static Process GetParentProcess(Process process)
+        internal static Process GetParentProcess(Process process)
         {
             int pid = process.Id;
             Process parentProc = null;

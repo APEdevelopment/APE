@@ -36,7 +36,7 @@ namespace APE.Language
     public sealed class GUIElementStripGrid : GUIFocusableObject
     {
         /// <summary>
-        /// Constructor used for non-form controls
+        /// Initialises a new instance of the GUIElementStripGrid class
         /// </summary>
         /// <param name="parentForm">The top level form the control belongs to</param>
         /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
@@ -99,9 +99,9 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of fixed rows, that is a row which doesn't scroll, in the grid
+        /// Returns the number of fixed / frozen rows, that is a row which doesn't scroll, in the grid
         /// </summary>
-        /// <returns>The number of fixed rows</returns>
+        /// <returns>The number of fixed / frozen rows</returns>
         public int FixedRows()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -546,7 +546,7 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified column is hidden in the grid
         /// </summary>
-        /// <param name="column">Column number to check if hidden</param>
+        /// <param name="column">Column index to check if hidden</param>
         /// <returns>True or False</returns>
         public bool IsColumnHidden(int column)
         {
@@ -565,7 +565,18 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified row is hidden in the grid
         /// </summary>
-        /// <param name="row">Row number to check if hidden</param>
+        /// <param name="row">Row to check if hidden</param>
+        /// <returns>True or False</returns>
+        public bool IsRowHidden(string row)
+        {
+            int RowNumber = FindRow(row);
+            return IsRowHidden(RowNumber);
+        }
+
+        /// <summary>
+        /// Returns true if the specified row is hidden in the grid
+        /// </summary>
+        /// <param name="row">Row index to check if hidden</param>
         /// <returns>True or False</returns>
         public bool IsRowHidden(int row)
         {

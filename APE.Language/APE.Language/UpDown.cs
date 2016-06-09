@@ -49,6 +49,10 @@ namespace APE.Language
         {
         }
 
+        /// <summary>
+        /// Sets the text portion of the up down control to the specified text
+        /// </summary>
+        /// <param name="text">The text to set the control to</param>
         public void SetText(string text)
         {
             //Get the selectedText property
@@ -73,6 +77,10 @@ namespace APE.Language
             UpDownEdit.SetText(text);
         }
 
+        /// <summary>
+        /// Clicks on the up portion of the up down control
+        /// </summary>
+        /// <param name="Button">The button with which to click</param>
         public void SingleClickUp(MouseButton Button)
         {
             //Get the selectedText property
@@ -97,6 +105,10 @@ namespace APE.Language
             UpDownButton.MouseSingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 1, Button);
         }
 
+        /// <summary>
+        /// Clicks on the down portion of the up down control
+        /// </summary>
+        /// <param name="Button">>The button with which to click</param>
         public void SingleClickDown(MouseButton Button)
         {
             //Get the selectedText property

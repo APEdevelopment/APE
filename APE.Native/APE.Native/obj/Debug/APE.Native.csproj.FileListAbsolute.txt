@@ -23,3 +23,4 @@ D:\Github\APE\APE.Native\APE.Native\bin\Debug\APE.Native.pdb
 D:\Github\APE\APE.Native\APE.Native\obj\Debug\APE.Native.csprojResolveAssemblyReference.cache
 D:\Github\APE\APE.Native\APE.Native\obj\Debug\APE.Native.dll
 D:\Github\APE\APE.Native\APE.Native\obj\Debug\APE.Native.pdb
+C:\Tools\APE\APE.Native\APE.Native\obj\Debug\APE.Native.csprojResolveAssemblyReference.cache

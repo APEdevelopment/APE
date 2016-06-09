@@ -59,59 +59,154 @@ namespace APE.Language
 
         //TODO support overflow
 
+        /// <summary>
+        /// Returns a GUIToolStripButton object which can be used to automate a toolstrip button
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripButton object</returns>
         public GUIToolStripButton GetButton(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripButton(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripLabel object which can be used to automate a toolstrip label
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripLabel object</returns>
         public GUIToolStripLabel GetLabel(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripLabel(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GetSplitButton object which can be used to automate a toolstrip split button
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GetSplitButton object</returns>
         public GUIToolStripSplitButton GetSplitButton(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripSplitButton(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripMenu object which can be used to automate a toolstrip menu
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripMenu object</returns>
         public GUIToolStripMenu GetMenu(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripMenu(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripDropDownButton object which can be used to automate a toolstrip drop down button
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripDropDownButton object</returns>
         public GUIToolStripDropDownButton GetDropDownButton(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripDropDownButton(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripSeparator object which can be used to automate a toolstrip separator
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripSeparator object</returns>
         public GUIToolStripSeparator GetSeparator(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripSeparator(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripComboBox object which can be used to automate a toolstrip combobox
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripComboBox object</returns>
         public GUIToolStripComboBox GetComboBox(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripComboBox(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripTextBox object which can be used to automate a toolstrip textbox
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripTextBox object</returns>
         public GUIToolStripTextBox GetTextBox(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripTextBox(this, descriptionOfControl, identParams);
         }
 
+        /// <summary>
+        /// Returns a GUIToolStripProgressBar object which can be used to automate a toolstrip progress bar
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        /// <returns>The GUIToolStripProgressBar object</returns>
         public GUIToolStripProgressBar GetProgressBar(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripProgressBar(this, descriptionOfControl, identParams);
         }
     }
 
+    /// <summary>
+    /// Abstract base object which all other toolstrip objects extend
+    /// </summary>
     public abstract class GUIToolStripObject
     {
-        protected GUIToolStrip m_ParentToolStrip;
-        protected string m_DescriptionOfControl;
+        /// <summary>
+        /// The identity of the toolstrip object
+        /// </summary>
         protected ControlIdentifier m_Identity;
+        /// <summary>
+        /// The index of the toolstrip object within the toolstrip
+        /// </summary>
         protected int m_Index = 0;
+        /// <summary>
+        /// The toolstrip which the toolstrip object belongs to
+        /// </summary>
+        protected GUIToolStrip m_ParentToolStrip;
+        /// <summary>
+        /// The human readable description of the toolstrip object
+        /// </summary>
+        protected string m_DescriptionOfControl;
 
+        /// <summary>
+        /// Constructor used for toolstrip objects
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         protected GUIToolStripObject(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
         {
             m_ParentToolStrip = parentToolStrip;
@@ -363,13 +458,28 @@ namespace APE.Language
         }
     }
 
+    /// <summary>
+    /// Abstract extension of the GUIToolStripObject object which all other rendered toolstrip objects extend
+    /// </summary>
     public abstract class GUIToolStripRenderedObject : GUIToolStripObject
     {
+        /// <summary>
+        /// Constructor used for rendered toolstrip objects
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         protected GUIToolStripRenderedObject(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
 
+        /// <summary>
+        /// Perform a mouse click with the specified button in the middle of the toolstrip object
+        /// </summary>
+        /// <param name="button">The button to click</param>
         public virtual void MouseSingleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
@@ -377,6 +487,10 @@ namespace APE.Language
             m_ParentToolStrip.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
+        /// <summary>
+        /// Perform a double mouse click with the specified button in the middle of the toolstrip object
+        /// </summary>
+        /// <param name="button">The button to double click</param>
         public virtual void MouseDoubleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
@@ -384,6 +498,9 @@ namespace APE.Language
             m_ParentToolStrip.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
+        /// <summary>
+        /// Gets the toolstrip objects current text
+        /// </summary>
         public virtual string Text
         {
             get
@@ -403,6 +520,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Polls for the toolstrip object to have the specified text
+        /// </summary>
+        /// <param name="Text">The text to wait for the toolstrip object to have</param>
         public void PollForText(string Text)
         {
             UpdateIndex();
@@ -415,6 +536,9 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
         }
 
+        /// <summary>
+        /// The tool tip text of the toolstrip object
+        /// </summary>
         public virtual string ToolTipText
         {
             get
@@ -435,6 +559,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Saves the image of the toolstrip object to the specified filename
+        /// </summary>
+        /// <param name="filename">File name to save the image to</param>
         public virtual void SaveImage(string filename)
         {
             UpdateIndex();
@@ -510,40 +638,77 @@ namespace APE.Language
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip buttons
+    /// </summary>
     public sealed class GUIToolStripButton : GUIToolStripRenderedObject
     {
+        /// <summary>
+        /// Constructor used for toolstrip buttons
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripButton(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip labels
+    /// </summary>
     public sealed class GUIToolStripLabel : GUIToolStripRenderedObject
     {
+        /// <summary>
+        /// Constructor used for toolstrip labels
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripLabel(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip split buttons
+    /// </summary>
     public sealed class GUIToolStripSplitButton : GUIToolStripRenderedObject
     {
         MenuUtils m_MenuUtils = new MenuUtils();
 
+        /// <summary>
+        /// Constructor used for toolstrip split buttons
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripSplitButton(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
 
-        public void Select(string SplitDropDownItem)
+        /// <summary>
+        /// Selects the specified item in the split drop down
+        /// </summary>
+        /// <param name="splitDropDownItem">The item to select from the split drop down</param>
+        public void Select(string splitDropDownItem)
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl, LogItemTypeEnum.Action);
             m_ParentToolStrip.MouseSingleClickInternal(bounds.Width - 3, bounds.Y + (bounds.Height / 2), MouseButton.Left, MouseKeyModifier.None);
 
-            GUI.Log("Select [" + SplitDropDownItem + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + splitDropDownItem + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
 
-            string[] DropDownItems = SplitDropDownItem.Split(new char[] { '\\' });
+            string[] DropDownItems = splitDropDownItem.Split(new char[] { '\\' });
             int MenuIndex = 0;
             IntPtr Handle= GetDropDown();
 
@@ -568,30 +733,56 @@ namespace APE.Language
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip menus
+    /// </summary>
     public sealed class GUIToolStripMenu : GUIToolStripDropDownButton
     {
+        /// <summary>
+        /// Constructor used for toolstrip menus
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripMenu(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip drop down buttons
+    /// </summary>
     public class GUIToolStripDropDownButton : GUIToolStripRenderedObject
     {
         MenuUtils m_MenuUtils = new MenuUtils();
 
+        /// <summary>
+        /// Constructor used for toolstrip drop down buttons
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripDropDownButton(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
 
-        public void Select(string DropDownItem)
+        /// <summary>
+        /// Selects the specified item in the drop down
+        /// </summary>
+        /// <param name="dropDownItem">The item to select from the drop down</param>
+        public void Select(string dropDownItem)
         {
             this.MouseSingleClick(MouseButton.Left);
 
-            GUI.Log("Select [" + DropDownItem + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + dropDownItem + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
 
-            string[] DropDownItems = DropDownItem.Split(new char[] { '\\' });
+            string[] DropDownItems = dropDownItem.Split(new char[] { '\\' });
             int MenuIndex = 0;
             IntPtr Handle = GetDropDown();
 
@@ -616,18 +807,40 @@ namespace APE.Language
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip separators
+    /// </summary>
     public sealed class GUIToolStripSeparator : GUIToolStripRenderedObject
     {
+        /// <summary>
+        /// Constructor used for toolstrip separators
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripSeparator(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip comboboxes
+    /// </summary>
     public sealed class GUIToolStripComboBox : GUIToolStripObject
     {
         private GUIComboBox m_ComboBox;
 
+        /// <summary>
+        /// Constructor used for toolstrip comboboxes
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripComboBox(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
@@ -635,16 +848,29 @@ namespace APE.Language
             m_ComboBox = new GUIComboBox(parentToolStrip.m_ParentForm, descriptionOfControl, new Identifier(Identifiers.Handle, comboBoxHandle));
         }
 
+        /// <summary>
+        /// Checks if the specified item exists in the toolstrip combobox
+        /// </summary>
+        /// <param name="item">The item to check if it exists</param>
+        /// <returns></returns>
         public bool ItemExists(string item)
         {
             return m_ComboBox.ItemExists(item);
         }
 
+        /// <summary>
+        /// Selects the specified item in the toolstrip combobox
+        /// </summary>
+        /// <param name="item">The item to select</param>
         public void ItemSelect(string item)
         {
             m_ComboBox.ItemSelect(item);
         }
 
+        /// <summary>
+        /// Sets the text portion of the toolstrip combobox to the specified text by sending keystrokes
+        /// </summary>
+        /// <param name="text">The text to set the text portion of the combobox to</param>
         public void SetText(string text)
         {
             m_ComboBox.SetText(text);
@@ -674,10 +900,21 @@ namespace APE.Language
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip textboxes
+    /// </summary>
     public sealed class GUIToolStripTextBox : GUIToolStripObject
     {
         private GUITextBox m_TextBox;
 
+        /// <summary>
+        /// Constructor used for toolstrip textboxes
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripTextBox(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
@@ -686,36 +923,74 @@ namespace APE.Language
 
         }
 
+        /// <summary>
+        /// Sets the text of the toolstrip textbox to the specified text by sending keystrokes
+        /// </summary>
+        /// <param name="text">The text to set the text of the textbox to</param>
         public void SetText(string text)
         {
             m_TextBox.SetText(text);
         }
 
+        /// <summary>
+        /// Perform a mouse click with the specified button in the middle of the toolstrip textbox
+        /// </summary>
+        /// <param name="button">The button to click</param>
         public void MouseSingleClick(MouseButton button)
         {
             m_TextBox.MouseSingleClick(button);
         }
 
+        /// <summary>
+        /// Perform a mouse click with the specified button at the specified position relative to the toolstrip textbox
+        /// </summary>
+        /// <param name="x">How far from the left edge of the control to click the mouse</param>
+        /// <param name="y">How far from the top edge of the control to click the mouse</param>
+        /// <param name="button">The button to click</param>
         public void MouseSingleClick(int x, int y, MouseButton button)
         {
             m_TextBox.MouseSingleClick(x, y, button);
         }
 
+        /// <summary>
+        /// Perform a mouse click with the specified button at the specified position relative to the toolstrip textbox while pressing the specified key
+        /// </summary>
+        /// <param name="x">How far from the left edge of the control to click the mouse</param>
+        /// <param name="y">How far from the top edge of the control to click the mouse</param>
+        /// <param name="button">The button to click</param>
+        /// <param name="keys">The key to hold while clicking</param>
         public void MouseSingleClick(int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             m_TextBox.MouseSingleClick(x, y, button, keys);
         }
 
+        /// <summary>
+        /// Perform a double mouse click with the specified button in the middle of the toolstrip textbox
+        /// </summary>
+        /// <param name="button">The button to double click</param>
         public void MouseDoubleClick(MouseButton button)
         {
             m_TextBox.MouseDoubleClick(button);
         }
 
+        /// <summary>
+        /// Perform a double mouse click with the specified button at the specified position relative to the toolstrip textbox
+        /// </summary>
+        /// <param name="x">How far from the left edge of the control to double click the mouse</param>
+        /// <param name="y">How far from the top edge of the control to double click the mouse</param>
+        /// <param name="button">The button to double click</param>
         public void MouseDoubleClick(int x, int y, MouseButton button)
         {
             m_TextBox.MouseDoubleClick(x, y, button);
         }
 
+        /// <summary>
+        /// Perform a double mouse click with the specified button at the specified position relative to the toolstrip textbox while pressing the specified key
+        /// </summary>
+        /// <param name="x">How far from the left edge of the control to double click the mouse</param>
+        /// <param name="y">How far from the top edge of the control to double click the mouse</param>
+        /// <param name="button">The button to double click</param>
+        /// <param name="keys">The key to hold while double clicking</param>
         public void MouseDoubleClick(int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             m_TextBox.MouseDoubleClick(x, y, button, keys);
@@ -745,10 +1020,21 @@ namespace APE.Language
         }
     }
 
+    /// <summary>
+    /// Automation class used to automate toolstrip progressbars
+    /// </summary>
     public sealed class GUIToolStripProgressBar : GUIToolStripObject
     {
         private GUIProgressBar m_ProgressBar;
 
+        /// <summary>
+        /// Constructor used for toolstrip progress bars
+        /// </summary>
+        /// <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIToolStripProgressBar(GUIToolStrip parentToolStrip, string descriptionOfControl, params Identifier[] identParams)
             : base(parentToolStrip, descriptionOfControl, identParams)
         {
@@ -756,6 +1042,9 @@ namespace APE.Language
             m_ProgressBar = new GUIProgressBar(parentToolStrip.m_ParentForm, descriptionOfControl, new Identifier(Identifiers.Handle, progressBarHandle));
         }
 
+        /// <summary>
+        /// Gets the minimum value of the progressbar
+        /// </summary>
         public int Minimum
         {
             get
@@ -764,6 +1053,9 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Gets the maximum value of the progressbar
+        /// </summary>
         public int Maximum
         {
             get
@@ -772,6 +1064,9 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Gets the current value of the progressbar
+        /// </summary>
         public int Value
         {
             get

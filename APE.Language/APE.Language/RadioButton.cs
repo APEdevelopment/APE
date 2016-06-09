@@ -65,6 +65,13 @@ namespace APE.Language
             timer.Stop();
         }
 
+        /// <summary>
+        /// Perform a mouse click with the specified button at the specified position relative to the control while pressing the specified key
+        /// </summary>
+        /// <param name="X">How far from the left edge of the control to click the mouse</param>
+        /// <param name="Y">How far from the top edge of the control to click the mouse</param>
+        /// <param name="Button">The button to click</param>
+        /// <param name="Keys">The key to hold while clicking</param>
         public override void MouseSingleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
             base.MouseSingleClick(X, Y, Button, Keys);
@@ -74,6 +81,12 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Perform a double mouse click with the specified button at the specified position relative to the control
+        /// </summary>
+        /// <param name="X">How far from the left edge of the control to double click the mouse</param>
+        /// <param name="Y">How far from the top edge of the control to double click the mouse</param>
+        /// <param name="Button">The button to double click</param>
         public override void MouseDoubleClick(int X, int Y, MouseButton Button)
         {
             base.MouseDoubleClick(X, Y, Button);
@@ -83,6 +96,12 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Perform a triple mouse click with the specified button at the specified position relative to the control
+        /// </summary>
+        /// <param name="X">How far from the left edge of the control to triple click the mouse</param>
+        /// <param name="Y">How far from the top edge of the control to triple click the mouse</param>
+        /// <param name="Button">The button to triple click</param>
         public override void MouseTripleClick(int X, int Y, MouseButton Button)
         {
             base.MouseTripleClick(X, Y, Button);
@@ -92,6 +111,9 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Whether the radio button is selected or not
+        /// </summary>
         public bool Checked
         {
             get

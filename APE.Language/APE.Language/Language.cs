@@ -31,15 +31,145 @@ using System.Security.Principal;
 
 namespace APE.Language
 {
+    /// <summary>
+    /// The type of information that is being logged
+    /// </summary>
+    public enum LogItemTypeEnum
+    {
+        /// <summary>
+        /// Used for logging other non-user interaction such as waiting for a grid to be populated
+        /// </summary>
+        Information = 0,
+        /// <summary>
+        /// Used for logging user interaction with the application such as clicking on a button
+        /// </summary>
+        Action = 1,
+        /// <summary>
+        /// Used internally by the automation framework
+        /// </summary>
+        ApeContext = 2,
+    }
+
+    /// <summary>
+    /// The location inside a grid cell where to click
+    /// </summary>
     public enum CellClickLocation
     {
+        /// <summary>
+        /// Slightly in from the left side of the cell, centred vertically
+        /// </summary>
         LeftSideOfCell = 0,
+        /// <summary>
+        /// Centre of the cell both horizontally and vertically
+        /// </summary>
         CentreOfCell = 1,
+        /// <summary>
+        /// Slightly in from the right side of the cell, centred vertically
+        /// </summary>
         RightSideOfCell = 2,
+        /// <summary>
+        /// The centre of the expand / collapse icon on a tree view cell
+        /// </summary>
         ExpandCollapseIconOfCell = 3,
+        /// <summary>
+        /// Slightly to the right of the expand / collapse icon of a tree view cell, centred vertically
+        /// </summary>
         LeftSideOfTreeItem = 4,
     }
 
+    /// <summary>
+    /// The property to use to use to identify a control
+    /// </summary>
+    public enum Identifiers : int
+    {
+        /// <summary>
+        /// Windows handle
+        /// </summary>
+        Handle = 1,
+        /// <summary>
+        /// Name property
+        /// </summary>
+        Name = 2,
+        /// <summary>
+        /// The technology the control uses.  Valid options are:
+        ///   Windows Forms (WinForms)
+        ///   Windows Presentation Foundation (WPF)
+        ///   Windows Native
+        /// </summary>
+        TechnologyType = 3,
+        /// <summary>
+        /// The name space of the type the control belongs to
+        /// </summary>
+        TypeNameSpace = 4,
+        /// <summary>
+        /// The name of the type the control belongs to
+        /// </summary>
+        TypeName = 5,
+        /// <summary>
+        /// The module name the control belongs to
+        /// </summary>
+        ModuleName = 6,
+        /// <summary>
+        /// The assembly name the control belongs to
+        /// </summary>
+        AssemblyName = 7,
+        /// <summary>
+        /// The index of the control relative to other control matching other identifier properties
+        /// </summary>
+        Index = 8,
+        /// <summary>
+        /// The text caption of the control.  Regular expression syntax is supported see msdn for details:
+        /// https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
+        /// </summary>
+        Text = 9,
+        /// <summary>
+        /// A control which the control we are identifying is a child of
+        /// </summary>
+        ChildOf = 10
+    }
+
+    /// <summary>
+    /// Keyboard keys which modify the action of a mouse click
+    /// </summary>
+    [Flags]
+    public enum MouseKeyModifier : int
+    {
+        /// <summary>
+        /// No keyboard keys are pressed while performing a mouse action
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// The control key is pressed while performing a mouse action
+        /// </summary>
+        Control = 2,
+        /// <summary>
+        /// The shift key is pressed while performing a mouse action
+        /// </summary>
+        Shift = 4,
+    }
+    
+    /// <summary>
+    /// The mouse button to press or release while performing a mouse action
+    /// </summary>
+    public enum MouseButton : int
+    {
+        /// <summary>
+        /// The left mouse button
+        /// </summary>
+        Left = 0,
+        /// <summary>
+        /// The right mouse button
+        /// </summary>
+        Right = 1,
+        /// <summary>
+        /// The middle mouse button
+        /// </summary>
+        Middle = 2,
+    }
+
+    /// <summary>
+    /// Provides setup and teardown of APE
+    /// </summary>
     public static class GUI
     {
         internal static APEIPC m_APE;
@@ -48,7 +178,15 @@ namespace APE.Language
         private static Thread tViewPort;
         private static bool m_IsElevatedAdmin = false;
 
+        /// <summary>
+        /// Delegate method to provide custom logging
+        /// </summary>
+        /// <param name="textToLog">The text to be logged</param>
+        /// <param name="type">The type of information to be logged</param>
         public delegate void LoggerDelegate(string textToLog, LogItemTypeEnum type);
+        /// <summary>
+        /// Assign a method to this field which matches the LoggerDelegate to allow custom logging 
+        /// </summary>
         public static LoggerDelegate Logger;
 
         static GUI()
@@ -66,12 +204,19 @@ namespace APE.Language
             }
         }
 
-        // TODO is this needed?
+        /// <summary>
+        /// Returns a graphics object
+        /// </summary>
+        /// <returns>A graphics object</returns>
         public static Graphics CreateGraphics()
         {
             return ViewPort.CreateGraphics();
         }
 
+        /// <summary>
+        /// Waits for the specified controls gui thread to be idle waiting for user input
+        /// </summary>
+        /// <param name="Control"></param>
         public static void WaitForInputIdle(GUIObject Control)
         {
             Input.WaitForInputIdle(Control.Handle, m_APE.TimeOut);
@@ -86,6 +231,11 @@ namespace APE.Language
             Application.Run(ViewPort);
         }
 
+        /// <summary>
+        /// Logs the specified text with as specified type to the viewport and any method assigned to the GUI.Logger
+        /// </summary>
+        /// <param name="textToLog"></param>
+        /// <param name="type"></param>
         public static void Log(string textToLog, LogItemTypeEnum type)
         {
             while (ViewPort == null || ViewPort.IsHandleCreated == false || ViewPort.Visible == false)
@@ -99,11 +249,15 @@ namespace APE.Language
                 Logger.Invoke(textToLog, type);
             }
         }
-
-        public static void AttachToProcess(Process p)
+        
+        /// <summary>
+        /// Attaches APE to the specified process so it can automate it
+        /// </summary>
+        /// <param name="process">The process to attach to</param>
+        public static void AttachToProcess(Process process)
         {
-            Log("Attached to process [" + p.ProcessName + "]", LogItemTypeEnum.ApeContext);
-            p.WaitForInputIdle();
+            Log("Attached to process [" + process.ProcessName + "]", LogItemTypeEnum.ApeContext);
+            process.WaitForInputIdle();
 
             //Instead of m_APE.RemoveFileMapping we could do a
             //m_APE = null;
@@ -113,30 +267,49 @@ namespace APE.Language
             {
                 m_APE.RemoveFileMapping();
             }
-            m_APE = new APEIPC(p);
-            m_AttachedProcess = p;
+            m_APE = new APEIPC(process);
+            m_AttachedProcess = process;
         }
 
+        /// <summary>
+        /// Returns the process object for the currently attached process
+        /// </summary>
+        /// <returns>The process object</returns>
         public static Process GetAttachedProcess()
         {
             return m_AttachedProcess;
         }
 
-        public static void SetTimeOuts(int msTimeOut)
+        /// <summary>
+        /// Sets the timeout for an automation action to complete within, in milliseconds
+        /// </summary>
+        /// <param name="msTimeOut"></param>
+        public static void SetTimeOut(int msTimeOut)
         {
             m_APE.TimeOut = (uint)msTimeOut;
         }
 
-        public static int GetTimeOuts()
+        /// <summary>
+        /// Gets the timeout value that an automation action must complete within, in milliseconds
+        /// </summary>
+        /// <returns></returns>
+        public static int GetTimeOut()
         {
             return (int)m_APE.TimeOut;
         }
 
+        /// <summary>
+        /// Performs a max generation garbage collection in both this and the application being automated
+        /// </summary>
         public static void GarbageCollect()
         {
             GarbageCollect(GC.MaxGeneration);
         }
 
+        /// <summary>
+        /// Performs a garbage collection using the specified generation in both this and the application being automated
+        /// </summary>
+        /// <param name="generation"></param>
         public static void GarbageCollect(int generation)
         {
             m_APE.AddMessageGarbageCollect(generation);
@@ -172,41 +345,25 @@ namespace APE.Language
         }
     }
 
-    public enum Identifiers : int
-    {
-        Handle = 1, //do we want to allow this?
-        Name = 2,
-        TechnologyType = 3,
-        TypeNameSpace = 4,
-        TypeName = 5,
-        ModuleName = 6,
-        AssemblyName = 7,
-        Index = 8,
-        Text = 9,
-        ChildOf = 10
-    }
-
-    [Flags]
-    public enum MouseKeyModifier : int
-    {
-        None = 0,
-        Control = 2,
-        Shift = 4,
-    }
-
-    //TODO replace with MouseButtons.Left from winforms?
-    public enum MouseButton : int
-    {
-        Left = 0,
-        Right = 1,
-        Middle = 2,
-    }
-
+    /// <summary>
+    /// Class which holds an identifier and its value, used to find a control
+    /// </summary>
     public class Identifier
     {
+        /// <summary>
+        /// The value of the identifier
+        /// </summary>
         public dynamic IdentifierValue;
+        /// <summary>
+        /// The type of identifier
+        /// </summary>
         public Identifiers IdentifierType;
-
+        
+        /// <summary>
+        /// Initialises a new instance of the Identifier class using the type and value provided
+        /// </summary>
+        /// <param name="type">The type of identifier</param>
+        /// <param name="value">The value of the identifier</param>
         public Identifier(Identifiers type, dynamic value)
         {
             IdentifierType = type;

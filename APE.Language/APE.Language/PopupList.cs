@@ -48,7 +48,7 @@ namespace APE.Language
         /// <summary>
         /// Sets the text portion of the TextValueWithTypeControl to the specified text by sending keystrokes
         /// </summary>
-        /// <param name="text">The text to set the text portion of the TextValueWithTypeControl to</param>
+        /// <param name="item">The text to set the text portion of the TextValueWithTypeControl to</param>
         public void Select(string item)
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);

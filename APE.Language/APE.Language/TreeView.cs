@@ -237,7 +237,7 @@ namespace APE.Language
 
                     //send the message to move
                     IntPtr MessageResult;
-                    IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOuts(), out MessageResult);
+                    IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
 
                     base.MouseSingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
                 }
@@ -527,7 +527,7 @@ namespace APE.Language
 
                 //send the message to move
                 IntPtr MessageResult;
-                IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOuts(), out MessageResult);
+                IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
 
                 base.MouseSingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
             }
@@ -569,16 +569,24 @@ namespace APE.Language
             Thread.Sleep(30);
         }
 
-        public void Check(string TreeViewItem)
+        /// <summary>
+        /// Checks the specified item in the tree view 
+        /// </summary>
+        /// <param name="treeViewItem">The item to check</param>
+        public void Check(string treeViewItem)
         {
-            GUI.Log("Check treeview item [" + TreeViewItem + "]", LogItemTypeEnum.Action);
-            CheckInternal(TreeViewItem, true);
+            GUI.Log("Check treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+            CheckInternal(treeViewItem, true);
         }
 
-        public void Uncheck(string TreeViewItem)
+        /// <summary>
+        /// Unchecks the specified item in the tree view 
+        /// </summary>
+        /// <param name="treeViewItem">The item to uncheck</param>
+        public void Uncheck(string treeViewItem)
         {
-            GUI.Log("Uncheck treeview item [" + TreeViewItem + "]", LogItemTypeEnum.Action);
-            CheckInternal(TreeViewItem, false);
+            GUI.Log("Uncheck treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+            CheckInternal(treeViewItem, false);
         }
 
         private void CheckInternal(string TreeViewItem, bool Check)
@@ -610,27 +618,36 @@ namespace APE.Language
             }
         }
 
-        public void Select(string TreeViewItem)
+        /// <summary>
+        /// Selects the specified item in the tree view
+        /// </summary>
+        /// <param name="treeViewItem">The item to select</param>
+        public void Select(string treeViewItem)
         {
-            Select(TreeViewItem, MouseButton.Left);
+            Select(treeViewItem, MouseButton.Left);
         }
 
-        public void Select(string TreeViewItem, MouseButton Button)
+        /// <summary>
+        /// Clicks on the specified item in the tree view with the specified mouse button
+        /// </summary>
+        /// <param name="treeViewItem">The item to click on</param>
+        /// <param name="button">The mouse button to click with</param>
+        public void Select(string treeViewItem, MouseButton button)
         {
-            switch (Button)
+            switch (button)
             {
                 case MouseButton.Left:
-                    GUI.Log("Left click treeview item [" + TreeViewItem + "]", LogItemTypeEnum.Action);
+                    GUI.Log("Left click treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
                     break;
                 case MouseButton.Middle:
-                    GUI.Log("Middle click treeview item [" + TreeViewItem + "]", LogItemTypeEnum.Action);
+                    GUI.Log("Middle click treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
                     break;
                 case MouseButton.Right:
-                    GUI.Log("Right click treeview item [" + TreeViewItem + "]", LogItemTypeEnum.Action);
+                    GUI.Log("Right click treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
                     break;
             }
 
-            string[] Nodes = TreeViewItem.Split(new char[] { '\\' });
+            string[] Nodes = treeViewItem.Split(new char[] { '\\' });
             IntPtr NodeHandle = IntPtr.Zero;
 
             for (int Item = 0; Item < Nodes.Length; Item++)
@@ -652,7 +669,7 @@ namespace APE.Language
                 else
                 {
                     // Select the node
-                    ClickNode(NodeHandle, Button);
+                    ClickNode(NodeHandle, button);
                 }
             }
         }

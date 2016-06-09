@@ -37,7 +37,7 @@ namespace APE.Test
         public Form1()
         {
             InitializeComponent();
-            GUI.Log("Starting", APE.LogItemTypeEnum.ApeContext);
+            GUI.Log("Starting", LogItemTypeEnum.ApeContext);
         }
 
         private void button1_Click(object sender, EventArgs e)  //Sentinel
@@ -62,7 +62,7 @@ namespace APE.Test
             }
             
             //start sentinel
-            GUI.Log("Launch Sentinel", APE.LogItemTypeEnum.Action);
+            GUI.Log("Launch Sentinel", LogItemTypeEnum.Action);
             ProcessStartInfo SentinelStartup = new ProcessStartInfo();
             SentinelStartup.WorkingDirectory = @"C:\Program Files (x86)\LatentZero\LZ Sentinel\Client\";
             SentinelStartup.FileName = @"LzSentinel.exe";
@@ -74,7 +74,7 @@ namespace APE.Test
 
             //attach
             GUI.AttachToProcess(p);
-            GUI.SetTimeOuts(4000);
+            GUI.SetTimeOut(4000);
             
             //find the login controls and login
             GUIForm Login = new GUIForm("login form", new Identifier(Identifiers.Name, "SimpleContainer"));
@@ -90,7 +90,7 @@ namespace APE.Test
             OK.MouseSingleClick(MouseButton.Left);
 
             //find main sentinel window and the status bar
-            GUI.Log("Wait for Sentinel to load", APE.LogItemTypeEnum.Information);
+            GUI.Log("Wait for Sentinel to load", LogItemTypeEnum.Information);
             GUIForm Sentinel = new GUIForm("sentinel form", new Identifier(Identifiers.Name, "CapstoneContainer"));
             GUIStatusBar SentinelStatusBar = new GUIStatusBar(Sentinel, "sentiinel form status strip", new Identifier(Identifiers.Name, "statusBar"));
 
@@ -182,14 +182,14 @@ namespace APE.Test
 
             GUIStatusBar statusBar = new GUIStatusBar(IMS, "IMS status bar", new Identifier(Identifiers.Name, "statusBar"));
 
-
+            
 
             layoutGrid.Select(group + " -> " + layout, layoutGrid.FirstVisibleColumn(), MouseButton.Left, CellClickLocation.CentreOfCell);
             
             timer = Stopwatch.StartNew();
             do
             {
-                if (timer.ElapsedMilliseconds > GUI.GetTimeOuts())
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
                     throw new Exception("Failed to switch layouts");
                 }
@@ -214,7 +214,7 @@ namespace APE.Test
                     timer = Stopwatch.StartNew();
                     do
                     {
-                        if (timer.ElapsedMilliseconds > GUI.GetTimeOuts())
+                        if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                         {
                             throw new Exception("Failed to switch layouts");
                         }
@@ -256,7 +256,7 @@ namespace APE.Test
 
             GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
             GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));
-
+            
             //https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
             //Debug.WriteLine(System.Text.RegularExpressions.Regex.IsMatch("Orders [Count: 3][Link:]", "Orders [[]Count: [0-9]+[]][[]Link:[]]").ToString());
 
@@ -271,58 +271,20 @@ namespace APE.Test
 
 
 
-            //Find the New fixed income order form
-            GUIForm newOrderForm = new GUIForm("New fixed income order form", new Identifier(Identifiers.Name, "SimpleContainer"));
 
-            //Locate the 3 element strip grids
-            GUIElementStripGrid instrumentGrid = new GUIElementStripGrid(newOrderForm, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 1));
-            GUIElementStripGrid entryGrid = new GUIElementStripGrid(newOrderForm, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
-            GUIElementStripGrid accountAllocationGrid = new GUIElementStripGrid(newOrderForm, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 3));
+            GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
 
-            //
-            entryGrid.SetCellValue(1, "Instrument", "AEGON 5 3/4 12/15/20");
-            entryGrid.SetCellValue(1, "Price", "101.8", "101.80");
-            entryGrid.SetCellValue(1, "Manager", "AutoTest07");
-            entryGrid.SetCellValue(1, "Trade Date", "17 Sep 2016");
-            entryGrid.SetCellValue(1, "Minimum Allocation", "100|Qty", "100.00");
+            GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
 
-            //Find the Account / Profile combobox and then the profile combobox
-            GUIComboBox accountProfileComboBox = new GUIComboBox(newOrderForm, "Account / Profile ComboBox", new Identifier(Identifiers.Name, "m_typeSelectorCombo"));
-            GUIComboBox profileComboBox = new GUIComboBox(newOrderForm, "Profile ComboBox", new Identifier(Identifiers.Name, "m_combo"));
+            Debug.WriteLine(entry.FindRow("Order"));
+            Debug.WriteLine(entry.FindColumn("Instrument"));
+
+            //entry.SetCellValue(1, 0, "Execution", "Execution", null);
+            entry.SetCellValue(1, 4, "AEGON 5 3/4 12/15/20", "AEGON 5 3/4 12/15/20", null);
+
+            //Stopwatch foo = Stopwatch.StartNew();
+
             
-            accountProfileComboBox.ItemSelect("Profile");
-            profileComboBox.ItemSelect("MIN_1_Accounts");
-
-            //Wait for the account row to appear in the account allocation grid
-            Stopwatch timer = Stopwatch.StartNew();
-            while (true)
-            {
-                if (timer.ElapsedMilliseconds > GUI.GetTimeOuts())
-                {
-                    throw new Exception("Failed to find the expected number of rows in the ccount allocation grid");
-                }
-
-                if (accountAllocationGrid.Rows() == 7)
-                {
-                    break;
-                }
-            }
-
-            //set the quantity of the account
-            accountAllocationGrid.SetCellValue(6, "AEGON 5 3/4 12/15/20 -> Order -> Qty", "100", "100,000", "k");
-            accountAllocationGrid.SetCellValue(6, " -> Indicators -> Locked", "True");
-            //string ook = accountAllocationGrid.GetCellValue(6, "-> Indicators -> Locked");
-            Debug.WriteLine(accountAllocationGrid.GetCellValue(6, " -> Indicators -> Locked"));
-
-
-
-            GUIButton validateButton = new GUIButton(newOrderForm, "Validate button", new Identifier(Identifiers.Text, "Validate"));
-            GUIButton addButton = new GUIButton(newOrderForm, "Add button", new Identifier(Identifiers.Text, "Add"));
-
-            validateButton.MouseSingleClick(MouseButton.Left);
-            addButton.MouseSingleClick(MouseButton.Left);
-
-
             //foo.Stop();
             //Debug.WriteLine((foo.ElapsedMilliseconds / entry.Columns()).ToString());
 
@@ -597,7 +559,7 @@ namespace APE.Test
                     }
 
                     //start
-                    GUI.Log("Launch TestApplication", APE.LogItemTypeEnum.Action);
+                    GUI.Log("Launch TestApplication", LogItemTypeEnum.Action);
 
                     ProcessStartInfo AppStartup = new ProcessStartInfo();
                     //AppStartup.WorkingDirectory = @"C:\Tools\TestApplication\TestApplication\bin\Debug\";
@@ -611,8 +573,8 @@ namespace APE.Test
 
                     //attach
                     GUI.AttachToProcess(p);
-
-                    GUI.SetTimeOuts(20000);
+                    
+                    GUI.SetTimeOut(20000);
 
                     //find the form
                     GUIForm TestApplication = new GUIForm("test application main form", new Identifier(Identifiers.Name, "MainForm"));
@@ -755,7 +717,7 @@ namespace APE.Test
 
         private void btnSpamLog_Click(object sender, EventArgs e)
         {
-            GUI.Log("This is a Test!", APE.LogItemTypeEnum.ApeContext);
+            GUI.Log("This is a Test!", LogItemTypeEnum.ApeContext);
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -783,7 +745,7 @@ namespace APE.Test
                 }
 
                 //start
-                GUI.Log("Launch TestApplication", APE.LogItemTypeEnum.Action);
+                GUI.Log("Launch TestApplication", LogItemTypeEnum.Action);
                 
                 ProcessStartInfo AppStartup = new ProcessStartInfo();
                 AppStartup.WorkingDirectory = @"C:\Tools\TestApplication\TestApplication\bin\Debug\";

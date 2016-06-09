@@ -10,14 +10,29 @@
             LatentZero.Capstone.ComSupport.ResultsGrid.AxLZResultsGrid 
             </summary>
         </member>
+        <member name="T:APE.Language.GUIFocusableObject">
+            <summary>
+            Automation class used to automate focusable controls
+            </summary>
+        </member>
         <member name="T:APE.Language.GUIObject">
             <summary>
-            Abstract base object which all other winforms object extend
+            Abstract base object which all other winforms objects extend
             </summary>
         </member>
         <member name="F:APE.Language.GUIObject.Identity">
             <summary>
-            Gets the identity of the control
+            The identity of the control
+            </summary>
+        </member>
+        <member name="F:APE.Language.GUIObject.m_ParentForm">
+            <summary>
+            The parent form the control belongs to.  If the control is a form then this field will be null
+            </summary>
+        </member>
+        <member name="F:APE.Language.GUIObject.m_DescriptionOfControl">
+            <summary>
+            The human readable description of the control
             </summary>
         </member>
         <member name="M:APE.Language.GUIObject.#ctor(System.String,APE.Language.Identifier[])">
@@ -47,15 +62,15 @@
             <summary>
             Perform a mouse click with the specified button in the middle of the control
             </summary>
-            <param name="Button">The button to click</param>
+            <param name="button">The button to click</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
             <summary>
-             Perform a mouse click with the specified button at the specified position relative to the control
+            Perform a mouse click with the specified button at the specified position relative to the control
             </summary>
             <param name="X">How far from the left edge of the control to click the mouse</param>
             <param name="Y">How far from the top edge of the control to click the mouse</param>
-            <param name="Button">The button to click</param>
+            <param name="button">The button to click</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
             <summary>
@@ -63,22 +78,22 @@
             </summary>
             <param name="X">How far from the left edge of the control to click the mouse</param>
             <param name="Y">How far from the top edge of the control to click the mouse</param>
-            <param name="Button">The button to click</param>
-            <param name="Keys">The key to hold while clicking</param>
+            <param name="button">The button to click</param>
+            <param name="keys">The key to hold while clicking</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseDoubleClick(APE.Language.MouseButton)">
             <summary>
             Perform a double mouse click with the specified button in the middle of the control
             </summary>
-            <param name="Button">The button to double click</param>
+            <param name="button">The button to double click</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
             <summary>
-             Perform a double mouse click with the specified button at the specified position relative to the control
+            Perform a double mouse click with the specified button at the specified position relative to the control
             </summary>
             <param name="X">How far from the left edge of the control to double click the mouse</param>
             <param name="Y">How far from the top edge of the control to double click the mouse</param>
-            <param name="Button">The button to double click</param>
+            <param name="button">The button to double click</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
             <summary>
@@ -86,14 +101,14 @@
             </summary>
             <param name="X">How far from the left edge of the control to double click the mouse</param>
             <param name="Y">How far from the top edge of the control to double click the mouse</param>
-            <param name="Button">The button to double click</param>
-            <param name="Keys">The key to hold while double clicking</param>
+            <param name="button">The button to double click</param>
+            <param name="keys">The key to hold while double clicking</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseTripleClick(APE.Language.MouseButton)">
             <summary>
             Perform a triple mouse click with the specified button in the middle of the control
             </summary>
-            <param name="Button">The button to triple click</param>
+            <param name="button">The button to triple click</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
             <summary>
@@ -101,7 +116,7 @@
             </summary>
             <param name="X">How far from the left edge of the control to triple click the mouse</param>
             <param name="Y">How far from the top edge of the control to triple click the mouse</param>
-            <param name="Button">The button to triple click</param>
+            <param name="button">The button to triple click</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
             <summary>
@@ -109,8 +124,8 @@
             </summary>
             <param name="X">How far from the left edge of the control to triple click the mouse</param>
             <param name="Y">How far from the top edge of the control to triple click the mouse</param>
-            <param name="Button">The button to triple click</param>
-            <param name="Keys">The key to hold while triple clicking</param>
+            <param name="button">The button to triple click</param>
+            <param name="keys">The key to hold while triple clicking</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseDown(System.Int32,System.Int32,APE.Language.MouseButton)">
             <summary>
@@ -118,7 +133,7 @@
             </summary>
             <param name="X">How far from the left edge of the control to perform a mouse down</param>
             <param name="Y">How far from the top edge of the control to perform a mouse down</param>
-            <param name="Button">The button to press</param>
+            <param name="button">The button to press</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseDown(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
             <summary>
@@ -126,8 +141,8 @@
             </summary>
             <param name="X">How far from the left edge of the control to perform a mouse down</param>
             <param name="Y">How far from the top edge of the control to perform a mouse down</param>
-            <param name="Button">The button to press</param>
-            <param name="Keys">The key to hold while performing a mouse down</param>
+            <param name="button">The button to press</param>
+            <param name="keys">The key to hold while performing a mouse down</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseUp(System.Int32,System.Int32,APE.Language.MouseButton)">
             <summary>
@@ -135,7 +150,7 @@
             </summary>
             <param name="X">How far from the left edge of the control to perform a mouse up</param>
             <param name="Y">How far from the top edge of the control to perform a mouse up</param>
-            <param name="Button">The button to release</param>
+            <param name="button">The button to release</param>
         </member>
         <member name="M:APE.Language.GUIObject.MouseUp(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
             <summary>
@@ -143,8 +158,8 @@
             </summary>
             <param name="X">How far from the left edge of the control to perform a mouse up</param>
             <param name="Y">How far from the top edge of the control to perform a mouse up</param>
-            <param name="Button">The button to release</param>
-            <param name="Keys">The key to hold while performing a mouse up</param>
+            <param name="button">The button to release</param>
+            <param name="keys">The key to hold while performing a mouse up</param>
         </member>
         <member name="P:APE.Language.GUIObject.ClassName">
             <summary>
@@ -241,6 +256,47 @@
         <member name="P:APE.Language.GUIObject.AssemblyName">
             <summary>
             Gets the name of the assembly the control is part of
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIFocusableObject.#ctor(System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for form controls
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIFocusableObject.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for non-form controls
+            </summary>
+            <param name="parentForm">The top level form the control belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIFocusableObject.SetFocus">
+            <summary>
+            Sets focus to the control
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIFocusableObject.SendKeys(System.String)">
+            <summary>
+            Send the specified text to the currently focused control, logging the action
+            </summary>
+            <param name="textToSend">The text to send to the control</param>
+        </member>
+        <member name="M:APE.Language.GUIFocusableObject.SendKeysInternal(System.String)">
+            <summary>
+            Send the specified text to the currently focused control
+            </summary>
+            <param name="textToSend">The text to send to the control</param>
+        </member>
+        <member name="P:APE.Language.GUIFocusableObject.HasFocus">
+            <summary>
+            Whether the control currently has focus
             </summary>
         </member>
         <member name="M:APE.Language.GUIAxLZResultsGrid.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
@@ -391,14 +447,14 @@
             <summary>
             Checks if the specified item exists in the combobox
             </summary>
-            <param name="Item">The item to check if it exists</param>
+            <param name="item">The item to check if it exists</param>
             <returns></returns>
         </member>
         <member name="M:APE.Language.GUIComboBox.ItemSelect(System.String)">
             <summary>
             Selects the specified item in the combobox
             </summary>
-            <param name="Item">The item to select</param>
+            <param name="item">The item to select</param>
         </member>
         <member name="M:APE.Language.GUIComboBox.SetText(System.String)">
             <summary>
@@ -452,7 +508,7 @@
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
             <summary>
-            Constructor used for non-form controls
+            Initialises a new instance of the GUIElementStripGrid class
             </summary>
             <param name="parentForm">The top level form the control belongs to</param>
             <param name="descriptionOfControl">A description of the control which would make sense to a human.
@@ -474,9 +530,9 @@
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.FixedRows">
             <summary>
-            Returns the number of fixed rows, that is a row which doesn't scroll, in the grid
+            Returns the number of fixed / frozen rows, that is a row which doesn't scroll, in the grid
             </summary>
-            <returns>The number of fixed rows</returns>
+            <returns>The number of fixed / frozen rows</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SelectedRows">
             <summary>
@@ -559,14 +615,21 @@
             <summary>
             Returns true if the specified column is hidden in the grid
             </summary>
-            <param name="column">Column number to check if hidden</param>
+            <param name="column">Column index to check if hidden</param>
+            <returns>True or False</returns>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.IsRowHidden(System.String)">
+            <summary>
+            Returns true if the specified row is hidden in the grid
+            </summary>
+            <param name="row">Row to check if hidden</param>
             <returns>True or False</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.IsRowHidden(System.Int32)">
             <summary>
             Returns true if the specified row is hidden in the grid
             </summary>
-            <param name="row">Row number to check if hidden</param>
+            <param name="row">Row index to check if hidden</param>
             <returns>True or False</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.TopVisibleRow">
@@ -668,17 +731,35 @@
             </summary>
             <returns>True or False</returns>
         </member>
+        <member name="M:APE.Language.GUIElementStripGrid.TotalRow">
+            <summary>
+            Returns the index of the total row
+            </summary>
+            <returns>The total row index</returns>
+        </member>
         <member name="M:APE.Language.GUIElementStripGrid.FilterRowVisible">
             <summary>
             Returns whether the filter row is visible or not
             </summary>
             <returns>True or False</returns>
         </member>
+        <member name="M:APE.Language.GUIElementStripGrid.FilterRow">
+            <summary>
+            Returns the index of the filter row
+            </summary>
+            <returns>The filter row index</returns>
+        </member>
         <member name="M:APE.Language.GUIElementStripGrid.MultiEditRowVisible">
             <summary>
             Returns whether the multi edit row is visible or not
             </summary>
             <returns>True or False</returns>
+        </member>
+        <member name="M:APE.Language.GUIElementStripGrid.MultiEditRow">
+            <summary>
+            Returns the index of the multi edit row
+            </summary>
+            <returns>The multi edit row index</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.Select(System.String,System.String,APE.Language.MouseButton,APE.Language.CellClickLocation)">
             <summary>
@@ -739,6 +820,7 @@
             <param name="row">The row of the cell to set the value of</param>
             <param name="column">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.String,System.String,System.String)">
             <summary>
@@ -748,6 +830,7 @@
             <param name="column">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.String,System.String,System.String,System.String)">
             <summary>
@@ -758,6 +841,7 @@
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.String,System.String)">
             <summary>
@@ -766,6 +850,7 @@
             <param name="row">The row index of the cell to set the value of</param>
             <param name="column">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.String,System.String,System.String)">
             <summary>
@@ -775,6 +860,7 @@
             <param name="column">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.String,System.String,System.String,System.String)">
             <summary>
@@ -785,6 +871,7 @@
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.Int32,System.String)">
             <summary>
@@ -793,6 +880,7 @@
             <param name="row">The row of the cell to set the value of</param>
             <param name="column">The column index of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.Int32,System.String,System.String)">
             <summary>
@@ -802,6 +890,7 @@
             <param name="column">The column index of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.String,System.Int32,System.String,System.String,System.String)">
             <summary>
@@ -812,6 +901,7 @@
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.Int32,System.String)">
             <summary>
@@ -820,6 +910,7 @@
             <param name="row">The row index of the cell to set the value of</param>
             <param name="column">The column index of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.Int32,System.String,System.String)">
             <summary>
@@ -829,6 +920,7 @@
             <param name="column">The column index of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="M:APE.Language.GUIElementStripGrid.SetCellValue(System.Int32,System.Int32,System.String,System.String,System.String)">
             <summary>
@@ -839,6 +931,7 @@
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="T:APE.Language.GUIFlexgrid">
             <summary>
@@ -848,13 +941,214 @@
         </member>
         <member name="M:APE.Language.GUIFlexgrid.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
             <summary>
-            Constructor used for non-form controls
+            Initialises a new instance of the GUIFlexgrid class
             </summary>
             <param name="parentForm">The top level form the control belongs to</param>
             <param name="descriptionOfControl">A description of the control which would make sense to a human.
             <para/>This text is used in the logging method.  For example: OK button</param>
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.IsRowHidden(System.String)">
+            <summary>
+            Returns true if the specified row is hidden in the grid
+            </summary>
+            <param name="row">Row to check if hidden</param>
+            <returns>True or False</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.IsRowHidden(System.Int32)">
+            <summary>
+            Returns true if the specified row is hidden in the grid
+            </summary>
+            <param name="row">Row index to check if hidden</param>
+            <returns>True or False</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.IsColumnHidden(System.String)">
+            <summary>
+            Returns true if the specified column is hidden in the grid
+            </summary>
+            <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+            <returns>True or False</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.IsColumnHidden(System.Int32)">
+            <summary>
+            Returns true if the specified column is hidden in the grid
+            </summary>
+            <param name="column">Column index to check if hidden</param>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.FirstVisibleRow">
+            <summary>
+            Returns the first visible (non-hidden) row in the grid
+            </summary>
+            <returns>The first visible row</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.FirstVisibleColumn">
+            <summary>
+            Returns the first visible (non-hidden) column in the grid
+            </summary>
+            <returns>The first visible column</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SelectedRow">
+            <summary>
+            Returns the selected row
+            </summary>
+            <returns>The selected row index</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SelectedColumn">
+            <summary>
+            Returns the selected column
+            </summary>
+            <returns>The selected column index</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.FixedRows">
+            <summary>
+            Returns the number of fixed rows, that is a row which doesn't scroll, in the grid
+            </summary>
+            <returns>The number of fixed rows</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.FixedColumns">
+            <summary>
+            Returns the number of fixed columns, that is a column which doesn't scroll, in the grid
+            </summary>
+            <returns>The number of fixed columns</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.FrozenColumns">
+            <summary>
+            Returns the number of frozen columns, that is a column which doesn't scroll, in the grid
+            </summary>
+            <returns>The number of frozen columns</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.Rows">
+            <summary>
+            Returns the number of rows in the grid, including those which are hidden
+            </summary>
+            <returns>The number of rows</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.Columns">
+            <summary>
+            Returns the number of columns, including those which are hidden
+            </summary>
+            <returns>The number of columns</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.Int32,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.String,System.Int32,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.String,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.Int32,System.Int32,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
+        </member>
+        <member name="M:APE.Language.GUIFlexgrid.SetCellValue(System.Int32,System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Sets the specified cell to the specified value
+            </summary>
+            <param name="row">The row index of the cell to set the value of</param>
+            <param name="column">The column index of the cell to set the value of</param>
+            <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+            <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+            <param name="submitKey">The key to press to submit the value you are trying to set</param>
+            <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
         <member name="T:APE.Language.GUIForm">
             <summary>
@@ -871,6 +1165,43 @@
             <para/>This text is used in the logging method.  For example: OK button</param>
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIForm.Close">
+            <summary>
+            Closes the form by click the 'x' in the top right hand corner of the form
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIForm.Maximise">
+            <summary>
+            Maximises the form by clicking the maximise button in the top right hand corner of the form
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIForm.Minimise">
+            <summary>
+            Minimises the form by clicking the minimise button in the top right hand corner of the form
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIForm.Restore">
+            <summary>
+            Restores the window back clicking the restore button in the top right corner of the form
+            Note if the window is minimised then a no gui method is used to restore the form
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIForm.Move(System.Int32,System.Int32)">
+            <summary>
+            Moves the specified window to the specified location
+            </summary>
+            <param name="DestinationUpperLeftX">The new location for the left side of the form</param>
+            <param name="DestinationUpperLeftY">The new location for the top of the form</param>
+        </member>
+        <member name="M:APE.Language.GUIForm.Move(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Moves the specified window to the specified location by clicking at the specified point to drag the form
+            </summary>
+            <param name="MouseDownX">The x coordinate inside the form to perform a mouse down at</param>
+            <param name="MouseDownY">The y coordinate inside the form to perform a mouse down at</param>
+            <param name="DestinationUpperLeftX">The new location for the left side of the form</param>
+            <param name="DestinationUpperLeftY">The new location for the top of the form</param>
         </member>
         <member name="T:APE.Language.GUIPictureBox">
             <summary>
@@ -920,7 +1251,7 @@
             <summary>
             Sets the text portion of the TextValueWithTypeControl to the specified text by sending keystrokes
             </summary>
-            <param name="text">The text to set the text portion of the TextValueWithTypeControl to</param>
+            <param name="item">The text to set the text portion of the TextValueWithTypeControl to</param>
         </member>
         <member name="T:APE.Language.GUIProgressBar">
             <summary>
@@ -1000,6 +1331,48 @@
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
         </member>
+        <member name="M:APE.Language.GUIStatusBar.PanelIndex(System.String)">
+            <summary>
+            Returns the index of the specified panel name
+            </summary>
+            <param name="PanelName">The name of the panel to get the index of</param>
+            <returns>The index of the panel</returns>
+        </member>
+        <member name="M:APE.Language.GUIStatusBar.PanelName(System.Int32)">
+            <summary>
+            Returns the name of the specified panel index
+            </summary>
+            <param name="PanelIndex">The index of the panel to get the name of</param>
+            <returns>The name of the panel</returns>
+        </member>
+        <member name="M:APE.Language.GUIStatusBar.PanelPollForText(System.String,System.String)">
+            <summary>
+            Polls for the panel with the specified name to have the specified text
+            </summary>
+            <param name="panelName">The name of the panel to poll</param>
+            <param name="text">The text to wait for the panel to have</param>
+        </member>
+        <member name="M:APE.Language.GUIStatusBar.PanelPollForText(System.Int32,System.String)">
+            <summary>
+            Polls for the panel at the specified index to have the specified text
+            </summary>
+            <param name="panelIndex">The index of the panel to poll</param>
+            <param name="text">The text to wait for the panel to have</param>
+        </member>
+        <member name="M:APE.Language.GUIStatusBar.PanelText(System.String)">
+            <summary>
+            Returns the text of the panel with the specified name
+            </summary>
+            <param name="panelName">The name of the panel to get the text of</param>
+            <returns>The text of the panel</returns>
+        </member>
+        <member name="M:APE.Language.GUIStatusBar.PanelText(System.Int32)">
+            <summary>
+            Returns the text of the panel at the specified index
+            </summary>
+            <param name="panelIndex">The index of the panel to get the text of</param>
+            <returns>The text of the panel</returns>
+        </member>
         <member name="T:APE.Language.GUITextValueWithTypeControl">
             <summary>
             Automation class used to automate controls derived from the following:
@@ -1044,24 +1417,411 @@
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
         </member>
-        <member name="T:APE.LogItemTypeEnum">
+        <member name="M:APE.Language.GUIToolStrip.GetButton(System.String,APE.Language.Identifier[])">
             <summary>
-            The type of information that is being logged
+            Returns a GUIToolStripButton object which can be used to automate a toolstrip button
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripButton object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetLabel(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripLabel object which can be used to automate a toolstrip label
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripLabel object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetSplitButton(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GetSplitButton object which can be used to automate a toolstrip split button
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GetSplitButton object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetMenu(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripMenu object which can be used to automate a toolstrip menu
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripMenu object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetDropDownButton(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripDropDownButton object which can be used to automate a toolstrip drop down button
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripDropDownButton object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetSeparator(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripSeparator object which can be used to automate a toolstrip separator
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripSeparator object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetComboBox(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripComboBox object which can be used to automate a toolstrip combobox
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripComboBox object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetTextBox(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripTextBox object which can be used to automate a toolstrip textbox
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripTextBox object</returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStrip.GetProgressBar(System.String,APE.Language.Identifier[])">
+            <summary>
+            Returns a GUIToolStripProgressBar object which can be used to automate a toolstrip progress bar
+            </summary>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+            <returns>The GUIToolStripProgressBar object</returns>
+        </member>
+        <member name="T:APE.Language.GUIToolStripObject">
+            <summary>
+            Abstract base object which all other toolstrip objects extend
             </summary>
         </member>
-        <member name="F:APE.LogItemTypeEnum.Information">
+        <member name="F:APE.Language.GUIToolStripObject.m_Identity">
             <summary>
-            Used for logging other non-user interaction such as waiting for a grid to be populated
+            The identity of the toolstrip object
             </summary>
         </member>
-        <member name="F:APE.LogItemTypeEnum.Action">
+        <member name="F:APE.Language.GUIToolStripObject.m_Index">
             <summary>
-            Used for logging user interaction with the application such as clicking on a button
+            The index of the toolstrip object within the toolstrip
             </summary>
         </member>
-        <member name="F:APE.LogItemTypeEnum.ApeContext">
+        <member name="F:APE.Language.GUIToolStripObject.m_ParentToolStrip">
             <summary>
-            Used internally by the automation framework
+            The toolstrip which the toolstrip object belongs to
+            </summary>
+        </member>
+        <member name="F:APE.Language.GUIToolStripObject.m_DescriptionOfControl">
+            <summary>
+            The human readable description of the toolstrip object
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripObject.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip objects
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripRenderedObject">
+            <summary>
+            Abstract extension of the GUIToolStripObject object which all other rendered toolstrip objects extend
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripRenderedObject.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for rendered toolstrip objects
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripRenderedObject.MouseSingleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a mouse click with the specified button in the middle of the toolstrip object
+            </summary>
+            <param name="button">The button to click</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripRenderedObject.MouseDoubleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a double mouse click with the specified button in the middle of the toolstrip object
+            </summary>
+            <param name="button">The button to double click</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripRenderedObject.PollForText(System.String)">
+            <summary>
+            Polls for the toolstrip object to have the specified text
+            </summary>
+            <param name="Text">The text to wait for the toolstrip object to have</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripRenderedObject.SaveImage(System.String)">
+            <summary>
+            Saves the image of the toolstrip object to the specified filename
+            </summary>
+            <param name="filename">File name to save the image to</param>
+        </member>
+        <member name="P:APE.Language.GUIToolStripRenderedObject.Text">
+            <summary>
+            Gets the toolstrip objects current text
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIToolStripRenderedObject.ToolTipText">
+            <summary>
+            The tool tip text of the toolstrip object
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIToolStripButton">
+            <summary>
+            Automation class used to automate toolstrip buttons
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripButton.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip buttons
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripLabel">
+            <summary>
+            Automation class used to automate toolstrip labels
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripLabel.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip labels
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripSplitButton">
+            <summary>
+            Automation class used to automate toolstrip split buttons
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripSplitButton.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip split buttons
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripSplitButton.Select(System.String)">
+            <summary>
+            Selects the specified item in the split drop down
+            </summary>
+            <param name="splitDropDownItem">The item to select from the split drop down</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripMenu">
+            <summary>
+            Automation class used to automate toolstrip menus
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUIToolStripDropDownButton">
+            <summary>
+            Automation class used to automate toolstrip drop down buttons
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripDropDownButton.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip drop down buttons
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripDropDownButton.Select(System.String)">
+            <summary>
+            Selects the specified item in the drop down
+            </summary>
+            <param name="dropDownItem">The item to select from the drop down</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripMenu.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip menus
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripSeparator">
+            <summary>
+            Automation class used to automate toolstrip separators
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripSeparator.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip separators
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripComboBox">
+            <summary>
+            Automation class used to automate toolstrip comboboxes
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripComboBox.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip comboboxes
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripComboBox.ItemExists(System.String)">
+            <summary>
+            Checks if the specified item exists in the toolstrip combobox
+            </summary>
+            <param name="item">The item to check if it exists</param>
+            <returns></returns>
+        </member>
+        <member name="M:APE.Language.GUIToolStripComboBox.ItemSelect(System.String)">
+            <summary>
+            Selects the specified item in the toolstrip combobox
+            </summary>
+            <param name="item">The item to select</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripComboBox.SetText(System.String)">
+            <summary>
+            Sets the text portion of the toolstrip combobox to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text portion of the combobox to</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripTextBox">
+            <summary>
+            Automation class used to automate toolstrip textboxes
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip textboxes
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.SetText(System.String)">
+            <summary>
+            Sets the text of the toolstrip textbox to the specified text by sending keystrokes
+            </summary>
+            <param name="text">The text to set the text of the textbox to</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.MouseSingleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a mouse click with the specified button in the middle of the toolstrip textbox
+            </summary>
+            <param name="button">The button to click</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+            Perform a mouse click with the specified button at the specified position relative to the toolstrip textbox
+            </summary>
+            <param name="x">How far from the left edge of the control to click the mouse</param>
+            <param name="y">How far from the top edge of the control to click the mouse</param>
+            <param name="button">The button to click</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse click with the specified button at the specified position relative to the toolstrip textbox while pressing the specified key
+            </summary>
+            <param name="x">How far from the left edge of the control to click the mouse</param>
+            <param name="y">How far from the top edge of the control to click the mouse</param>
+            <param name="button">The button to click</param>
+            <param name="keys">The key to hold while clicking</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.MouseDoubleClick(APE.Language.MouseButton)">
+            <summary>
+            Perform a double mouse click with the specified button in the middle of the toolstrip textbox
+            </summary>
+            <param name="button">The button to double click</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+            Perform a double mouse click with the specified button at the specified position relative to the toolstrip textbox
+            </summary>
+            <param name="x">How far from the left edge of the control to double click the mouse</param>
+            <param name="y">How far from the top edge of the control to double click the mouse</param>
+            <param name="button">The button to double click</param>
+        </member>
+        <member name="M:APE.Language.GUIToolStripTextBox.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a double mouse click with the specified button at the specified position relative to the toolstrip textbox while pressing the specified key
+            </summary>
+            <param name="x">How far from the left edge of the control to double click the mouse</param>
+            <param name="y">How far from the top edge of the control to double click the mouse</param>
+            <param name="button">The button to double click</param>
+            <param name="keys">The key to hold while double clicking</param>
+        </member>
+        <member name="T:APE.Language.GUIToolStripProgressBar">
+            <summary>
+            Automation class used to automate toolstrip progressbars
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUIToolStripProgressBar.#ctor(APE.Language.GUIToolStrip,System.String,APE.Language.Identifier[])">
+            <summary>
+            Constructor used for toolstrip progress bars
+            </summary>
+            <param name="parentToolStrip">The parent toolstrip the object belongs to</param>
+            <param name="descriptionOfControl">A description of the control which would make sense to a human.
+            <para/>This text is used in the logging method.  For example: OK button</param>
+            <param name="identParams">One or more identifier object(s) used to locate the control.
+            <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="P:APE.Language.GUIToolStripProgressBar.Minimum">
+            <summary>
+            Gets the minimum value of the progressbar
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIToolStripProgressBar.Maximum">
+            <summary>
+            Gets the maximum value of the progressbar
+            </summary>
+        </member>
+        <member name="P:APE.Language.GUIToolStripProgressBar.Value">
+            <summary>
+            Gets the current value of the progressbar
             </summary>
         </member>
         <member name="T:APE.ViewPort">
@@ -1103,6 +1863,12 @@
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
         </member>
+        <member name="M:APE.Language.GUIGenericWalker.SetText(System.String)">
+            <summary>
+            Sets the text of the generic walker control
+            </summary>
+            <param name="text">The text to set the control to</param>
+        </member>
         <member name="T:APE.Language.GUILabel">
             <summary>
             Automation class used to automate controls derived from the following:
@@ -1118,6 +1884,248 @@
             <para/>This text is used in the logging method.  For example: OK button</param>
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="T:APE.Language.LogItemTypeEnum">
+            <summary>
+            The type of information that is being logged
+            </summary>
+        </member>
+        <member name="F:APE.Language.LogItemTypeEnum.Information">
+            <summary>
+            Used for logging other non-user interaction such as waiting for a grid to be populated
+            </summary>
+        </member>
+        <member name="F:APE.Language.LogItemTypeEnum.Action">
+            <summary>
+            Used for logging user interaction with the application such as clicking on a button
+            </summary>
+        </member>
+        <member name="F:APE.Language.LogItemTypeEnum.ApeContext">
+            <summary>
+            Used internally by the automation framework
+            </summary>
+        </member>
+        <member name="T:APE.Language.CellClickLocation">
+            <summary>
+            The location inside a grid cell where to click
+            </summary>
+        </member>
+        <member name="F:APE.Language.CellClickLocation.LeftSideOfCell">
+            <summary>
+            Slightly in from the left side of the cell, centred vertically
+            </summary>
+        </member>
+        <member name="F:APE.Language.CellClickLocation.CentreOfCell">
+            <summary>
+            Centre of the cell both horizontally and vertically
+            </summary>
+        </member>
+        <member name="F:APE.Language.CellClickLocation.RightSideOfCell">
+            <summary>
+            Slightly in from the right side of the cell, centred vertically
+            </summary>
+        </member>
+        <member name="F:APE.Language.CellClickLocation.ExpandCollapseIconOfCell">
+            <summary>
+            The centre of the expand / collapse icon on a tree view cell
+            </summary>
+        </member>
+        <member name="F:APE.Language.CellClickLocation.LeftSideOfTreeItem">
+            <summary>
+            Slightly to the right of the expand / collapse icon of a tree view cell, centred vertically
+            </summary>
+        </member>
+        <member name="T:APE.Language.Identifiers">
+            <summary>
+            The property to use to use to identify a control
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.Handle">
+            <summary>
+            Windows handle
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.Name">
+            <summary>
+            Name property
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.TechnologyType">
+            <summary>
+            The technology the control uses.  Valid options are:
+              Windows Forms (WinForms)
+              Windows Presentation Foundation (WPF)
+              Windows Native
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.TypeNameSpace">
+            <summary>
+            The name space of the type the control belongs to
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.TypeName">
+            <summary>
+            The name of the type the control belongs to
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.ModuleName">
+            <summary>
+            The module name the control belongs to
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.AssemblyName">
+            <summary>
+            The assembly name the control belongs to
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.Index">
+            <summary>
+            The index of the control relative to other control matching other identifier properties
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.Text">
+            <summary>
+            The text caption of the control.  Regular expression syntax is supported see msdn for details:
+            https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.ChildOf">
+            <summary>
+            A control which the control we are identifying is a child of
+            </summary>
+        </member>
+        <member name="T:APE.Language.MouseKeyModifier">
+            <summary>
+            Keyboard keys which modify the action of a mouse click
+            </summary>
+        </member>
+        <member name="F:APE.Language.MouseKeyModifier.None">
+            <summary>
+            No keyboard keys are pressed while performing a mouse action
+            </summary>
+        </member>
+        <member name="F:APE.Language.MouseKeyModifier.Control">
+            <summary>
+            The control key is pressed while performing a mouse action
+            </summary>
+        </member>
+        <member name="F:APE.Language.MouseKeyModifier.Shift">
+            <summary>
+            The shift key is pressed while performing a mouse action
+            </summary>
+        </member>
+        <member name="T:APE.Language.MouseButton">
+            <summary>
+            The mouse button to press or release while performing a mouse action
+            </summary>
+        </member>
+        <member name="F:APE.Language.MouseButton.Left">
+            <summary>
+            The left mouse button
+            </summary>
+        </member>
+        <member name="F:APE.Language.MouseButton.Right">
+            <summary>
+            The right mouse button
+            </summary>
+        </member>
+        <member name="F:APE.Language.MouseButton.Middle">
+            <summary>
+            The middle mouse button
+            </summary>
+        </member>
+        <member name="T:APE.Language.GUI">
+            <summary>
+            Provides setup and teardown of APE
+            </summary>
+        </member>
+        <member name="F:APE.Language.GUI.Logger">
+            <summary>
+            Assign a method to this field which matches the LoggerDelegate to allow custom logging 
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUI.CreateGraphics">
+            <summary>
+            Returns a graphics object
+            </summary>
+            <returns>A graphics object</returns>
+        </member>
+        <member name="M:APE.Language.GUI.WaitForInputIdle(APE.Language.GUIObject)">
+            <summary>
+            Waits for the specified controls gui thread to be idle waiting for user input
+            </summary>
+            <param name="Control"></param>
+        </member>
+        <member name="M:APE.Language.GUI.Log(System.String,APE.Language.LogItemTypeEnum)">
+            <summary>
+            Logs the specified text with as specified type to the viewport and any method assigned to the GUI.Logger
+            </summary>
+            <param name="textToLog"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:APE.Language.GUI.AttachToProcess(System.Diagnostics.Process)">
+            <summary>
+            Attaches APE to the specified process so it can automate it
+            </summary>
+            <param name="process">The process to attach to</param>
+        </member>
+        <member name="M:APE.Language.GUI.GetAttachedProcess">
+            <summary>
+            Returns the process object for the currently attached process
+            </summary>
+            <returns>The process object</returns>
+        </member>
+        <member name="M:APE.Language.GUI.SetTimeOut(System.Int32)">
+            <summary>
+            Sets the timeout for an automation action to complete within, in milliseconds
+            </summary>
+            <param name="msTimeOut"></param>
+        </member>
+        <member name="M:APE.Language.GUI.GetTimeOut">
+            <summary>
+            Gets the timeout value that an automation action must complete within, in milliseconds
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:APE.Language.GUI.GarbageCollect">
+            <summary>
+            Performs a max generation garbage collection in both this and the application being automated
+            </summary>
+        </member>
+        <member name="M:APE.Language.GUI.GarbageCollect(System.Int32)">
+            <summary>
+            Performs a garbage collection using the specified generation in both this and the application being automated
+            </summary>
+            <param name="generation"></param>
+        </member>
+        <member name="T:APE.Language.GUI.LoggerDelegate">
+            <summary>
+            Delegate method to provide custom logging
+            </summary>
+            <param name="textToLog">The text to be logged</param>
+            <param name="type">The type of information to be logged</param>
+        </member>
+        <member name="T:APE.Language.Identifier">
+            <summary>
+            Class which holds an identifier and its value, used to find a control
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifier.IdentifierValue">
+            <summary>
+            The value of the identifier
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifier.IdentifierType">
+            <summary>
+            The type of identifier
+            </summary>
+        </member>
+        <member name="M:APE.Language.Identifier.#ctor(APE.Language.Identifiers,System.Object)">
+            <summary>
+            Initialises a new instance of the Identifier class using the type and value provided
+            </summary>
+            <param name="type">The type of identifier</param>
+            <param name="value">The value of the identifier</param>
         </member>
         <member name="T:APE.Language.GUIListBox">
             <summary>
@@ -1221,6 +2229,36 @@
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
         </member>
+        <member name="M:APE.Language.GUIRadioButton.MouseSingleClick(System.Int32,System.Int32,APE.Language.MouseButton,APE.Language.MouseKeyModifier)">
+            <summary>
+            Perform a mouse click with the specified button at the specified position relative to the control while pressing the specified key
+            </summary>
+            <param name="X">How far from the left edge of the control to click the mouse</param>
+            <param name="Y">How far from the top edge of the control to click the mouse</param>
+            <param name="Button">The button to click</param>
+            <param name="Keys">The key to hold while clicking</param>
+        </member>
+        <member name="M:APE.Language.GUIRadioButton.MouseDoubleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+            Perform a double mouse click with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to double click the mouse</param>
+            <param name="Y">How far from the top edge of the control to double click the mouse</param>
+            <param name="Button">The button to double click</param>
+        </member>
+        <member name="M:APE.Language.GUIRadioButton.MouseTripleClick(System.Int32,System.Int32,APE.Language.MouseButton)">
+            <summary>
+            Perform a triple mouse click with the specified button at the specified position relative to the control
+            </summary>
+            <param name="X">How far from the left edge of the control to triple click the mouse</param>
+            <param name="Y">How far from the top edge of the control to triple click the mouse</param>
+            <param name="Button">The button to triple click</param>
+        </member>
+        <member name="P:APE.Language.GUIRadioButton.Checked">
+            <summary>
+            Whether the radio button is selected or not
+            </summary>
+        </member>
         <member name="T:APE.Language.GUIStatusStrip">
             <summary>
             Automation class used to automate controls derived from the following:
@@ -1252,6 +2290,45 @@
             <para/>This text is used in the logging method.  For example: OK button</param>
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.ItemCount">
+            <summary>
+            Returns the number of controls contained in the document container
+            </summary>
+            <returns>The number of controls in the document container</returns>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.ItemExists(System.String)">
+            <summary>
+            Checks if the specified item exists in the document container
+            </summary>
+            <param name="Item"></param>
+            <returns>True if it exists otherwise false</returns>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.ItemSelect(System.String)">
+            <summary>
+            Selects the specified item in the document container
+            </summary>
+            <param name="Item">The item in the document container</param>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.ItemSelect(System.String,APE.Language.MouseButton)">
+            <summary>
+            Clicks on the specified item in the document container using the specified mouse button
+            </summary>
+            <param name="Item">The item in the document container</param>
+            <param name="Button">The mouse button to click with</param>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.ItemActive">
+            <summary>
+            The currently selected item in the document container
+            </summary>
+            <returns>The text of the currently selected item</returns>
+        </member>
+        <member name="M:APE.Language.GUIDocumentContainer.ItemRemove(System.String)">
+            <summary>
+            Removes the specified item from the document container
+            First selects the item if need be then clicks on the 'x' at the top right of the document container
+            </summary>
+            <param name="Item"></param>
         </member>
         <member name="T:APE.Language.GUITextBox">
             <summary>
@@ -1312,6 +2389,31 @@
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
         </member>
+        <member name="M:APE.Language.GUITreeView.Check(System.String)">
+            <summary>
+            Checks the specified item in the tree view 
+            </summary>
+            <param name="treeViewItem">The item to check</param>
+        </member>
+        <member name="M:APE.Language.GUITreeView.Uncheck(System.String)">
+            <summary>
+            Unchecks the specified item in the tree view 
+            </summary>
+            <param name="treeViewItem">The item to uncheck</param>
+        </member>
+        <member name="M:APE.Language.GUITreeView.Select(System.String)">
+            <summary>
+            Selects the specified item in the tree view
+            </summary>
+            <param name="treeViewItem">The item to select</param>
+        </member>
+        <member name="M:APE.Language.GUITreeView.Select(System.String,APE.Language.MouseButton)">
+            <summary>
+            Clicks on the specified item in the tree view with the specified mouse button
+            </summary>
+            <param name="treeViewItem">The item to click on</param>
+            <param name="button">The mouse button to click with</param>
+        </member>
         <member name="T:APE.Language.GUIUpDown">
             <summary>
             Automation class used to automate controls derived from the following:
@@ -1327,6 +2429,24 @@
             <para/>This text is used in the logging method.  For example: OK button</param>
             <param name="identParams">One or more identifier object(s) used to locate the control.
             <para/>Normally you would just use the name identifier</param>
+        </member>
+        <member name="M:APE.Language.GUIUpDown.SetText(System.String)">
+            <summary>
+            Sets the text portion of the up down control to the specified text
+            </summary>
+            <param name="text">The text to set the control to</param>
+        </member>
+        <member name="M:APE.Language.GUIUpDown.SingleClickUp(APE.Language.MouseButton)">
+            <summary>
+            Clicks on the up portion of the up down control
+            </summary>
+            <param name="Button">The button with which to click</param>
+        </member>
+        <member name="M:APE.Language.GUIUpDown.SingleClickDown(APE.Language.MouseButton)">
+            <summary>
+            Clicks on the down portion of the up down control
+            </summary>
+            <param name="Button">>The button with which to click</param>
         </member>
     </members>
 </doc>

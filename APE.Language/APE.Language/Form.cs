@@ -53,6 +53,9 @@ namespace APE.Language
             Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
         }
 
+        /// <summary>
+        /// Closes the form by click the 'x' in the top right hand corner of the form
+        /// </summary>
         public void Close()
         {
             if (NM.IsWindow(Identity.Handle))
@@ -119,6 +122,9 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Maximises the form by clicking the maximise button in the top right hand corner of the form
+        /// </summary>
         public void Maximise()
         {
             if (NM.IsWindow(Identity.Handle))
@@ -209,6 +215,9 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Minimises the form by clicking the minimise button in the top right hand corner of the form
+        /// </summary>
         public void Minimise()
         {
             if (NM.IsWindow(Identity.Handle))
@@ -294,6 +303,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Restores the window back clicking the restore button in the top right corner of the form
+        /// Note if the window is minimised then a no gui method is used to restore the form
+        /// </summary>
         public void Restore()
         {
             if (NM.IsWindow(Identity.Handle))
@@ -424,12 +437,24 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Moves the specified window to the specified location
+        /// </summary>
+        /// <param name="DestinationUpperLeftX">The new location for the left side of the form</param>
+        /// <param name="DestinationUpperLeftY">The new location for the top of the form</param>
         public void Move(int DestinationUpperLeftX, int DestinationUpperLeftY)
         {
             //TODO get the titlebar left and click there
             Move(33, 10, DestinationUpperLeftX, DestinationUpperLeftY);
         }
 
+        /// <summary>
+        /// Moves the specified window to the specified location by clicking at the specified point to drag the form
+        /// </summary>
+        /// <param name="MouseDownX">The x coordinate inside the form to perform a mouse down at</param>
+        /// <param name="MouseDownY">The y coordinate inside the form to perform a mouse down at</param>
+        /// <param name="DestinationUpperLeftX">The new location for the left side of the form</param>
+        /// <param name="DestinationUpperLeftY">The new location for the top of the form</param>
         public void Move(int MouseDownX, int MouseDownY, int DestinationUpperLeftX, int DestinationUpperLeftY)
         {
             GUI.Log("Move the " + m_DescriptionOfControl + " window to " + DestinationUpperLeftX.ToString() + ", " + DestinationUpperLeftY.ToString(), LogItemTypeEnum.Action);
@@ -452,11 +477,13 @@ namespace APE.Language
         public void Scroll()
         {
             //TODO
+            throw new Exception("Not implemented, yet!");
         }
 
         public void Resize()
         {
             //TODO
+            throw new Exception("Not implemented, yet!");
         }
     }
 }

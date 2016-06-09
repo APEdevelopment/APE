@@ -26,19 +26,25 @@ using NM = APE.Native.NativeMethods;
 namespace APE.Language
 {
     /// <summary>
-    /// Abstract base object which all other winforms object extend
+    /// Abstract base object which all other winforms objects extend
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class GUIObject
     {
         /// <summary>
-        /// Gets the identity of the control
+        /// The identity of the control
         /// </summary>
         protected ControlIdentifier Identity;
+        /// <summary>
+        /// The parent form the control belongs to.  If the control is a form then this field will be null
+        /// </summary>
+        protected internal GUIForm m_ParentForm = null;
+        /// <summary>
+        /// The human readable description of the control
+        /// </summary>
+        protected string m_DescriptionOfControl = null;
         private MenuUtils m_MenuUtils = new MenuUtils();
         private AnimationUtils m_AnimationUtils = new AnimationUtils();
-        internal GUIForm m_ParentForm = null;
-        internal string m_DescriptionOfControl = null;
 
         /// <summary>
         /// Constructor used for form controls
@@ -255,21 +261,21 @@ namespace APE.Language
         /// <summary>
         /// Perform a mouse click with the specified button in the middle of the control
         /// </summary>
-        /// <param name="Button">The button to click</param>
-        public virtual void MouseSingleClick(MouseButton Button)
+        /// <param name="button">The button to click</param>
+        public virtual void MouseSingleClick(MouseButton button)
         {
-            MouseSingleClick(-1, -1, Button, MouseKeyModifier.None);
+            MouseSingleClick(-1, -1, button, MouseKeyModifier.None);
         }
 
         /// <summary>
-        ///  Perform a mouse click with the specified button at the specified position relative to the control
+        /// Perform a mouse click with the specified button at the specified position relative to the control
         /// </summary>
         /// <param name="X">How far from the left edge of the control to click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to click the mouse</param>
-        /// <param name="Button">The button to click</param>
-        public virtual void MouseSingleClick(int X, int Y, MouseButton Button)
+        /// <param name="button">The button to click</param>
+        public virtual void MouseSingleClick(int X, int Y, MouseButton button)
         {
-            MouseSingleClick(X, Y, Button, MouseKeyModifier.None);
+            MouseSingleClick(X, Y, button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -277,21 +283,21 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to click the mouse</param>
-        /// <param name="Button">The button to click</param>
-        /// <param name="Keys">The key to hold while clicking</param>
-        public virtual void MouseSingleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        /// <param name="button">The button to click</param>
+        /// <param name="keys">The key to hold while clicking</param>
+        public virtual void MouseSingleClick(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             string point = GetPointText(X, Y);
-            string keyModifiers = GetKeyModifierText(Keys);
+            string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Single " + Button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
-            MouseSingleClickInternal(X, Y, Button, Keys);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            MouseSingleClickInternal(X, Y, button, keys);
         }
 
-        internal void MouseSingleClickInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        internal void MouseSingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             WaitToBeEnabled();
-            Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
+            Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
         private void WaitToBeEnabled()
@@ -299,7 +305,7 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                if (timer.ElapsedMilliseconds > GUI.GetTimeOuts())
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
                     throw new Exception(m_DescriptionOfControl + " is not enabled");
                 }
@@ -315,21 +321,21 @@ namespace APE.Language
         /// <summary>
         /// Perform a double mouse click with the specified button in the middle of the control
         /// </summary>
-        /// <param name="Button">The button to double click</param>
-        public virtual void MouseDoubleClick(MouseButton Button)
+        /// <param name="button">The button to double click</param>
+        public virtual void MouseDoubleClick(MouseButton button)
         {
-            MouseDoubleClick(-1, -1, Button, MouseKeyModifier.None);
+            MouseDoubleClick(-1, -1, button, MouseKeyModifier.None);
         }
 
         /// <summary>
-        ///  Perform a double mouse click with the specified button at the specified position relative to the control
+        /// Perform a double mouse click with the specified button at the specified position relative to the control
         /// </summary>
         /// <param name="X">How far from the left edge of the control to double click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to double click the mouse</param>
-        /// <param name="Button">The button to double click</param>
-        public virtual void MouseDoubleClick(int X, int Y, MouseButton Button)
+        /// <param name="button">The button to double click</param>
+        public virtual void MouseDoubleClick(int X, int Y, MouseButton button)
         {
-            MouseDoubleClick(X, Y, Button, MouseKeyModifier.None);
+            MouseDoubleClick(X, Y, button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -337,30 +343,30 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to double click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to double click the mouse</param>
-        /// <param name="Button">The button to double click</param>
-        /// <param name="Keys">The key to hold while double clicking</param>
-        public virtual void MouseDoubleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        /// <param name="button">The button to double click</param>
+        /// <param name="keys">The key to hold while double clicking</param>
+        public virtual void MouseDoubleClick(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             string point = GetPointText(X, Y);
-            string keyModifiers = GetKeyModifierText(Keys);
+            string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Double " + Button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
-            MouseDoubleClickInternal(X, Y, Button, Keys);
+            GUI.Log("Double " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            MouseDoubleClickInternal(X, Y, button, keys);
         }
 
-        internal void MouseDoubleClickInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        internal void MouseDoubleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             WaitToBeEnabled();
-            Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
+            Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
         /// <summary>
         /// Perform a triple mouse click with the specified button in the middle of the control
         /// </summary>
-        /// <param name="Button">The button to triple click</param>
-        public virtual void MouseTripleClick(MouseButton Button)
+        /// <param name="button">The button to triple click</param>
+        public virtual void MouseTripleClick(MouseButton button)
         {
-            MouseTripleClick(-1, -1, Button, MouseKeyModifier.None);
+            MouseTripleClick(-1, -1, button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -368,10 +374,10 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to triple click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to triple click the mouse</param>
-        /// <param name="Button">The button to triple click</param>
-        public virtual void MouseTripleClick(int X, int Y, MouseButton Button)
+        /// <param name="button">The button to triple click</param>
+        public virtual void MouseTripleClick(int X, int Y, MouseButton button)
         {
-            MouseTripleClick(X, Y, Button, MouseKeyModifier.None);
+            MouseTripleClick(X, Y, button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -379,21 +385,21 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to triple click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to triple click the mouse</param>
-        /// <param name="Button">The button to triple click</param>
-        /// <param name="Keys">The key to hold while triple clicking</param>
-        public virtual void MouseTripleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        /// <param name="button">The button to triple click</param>
+        /// <param name="keys">The key to hold while triple clicking</param>
+        public virtual void MouseTripleClick(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             string point = GetPointText(X, Y);
-            string keyModifiers = GetKeyModifierText(Keys);
+            string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Triple " + Button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
-            MouseTripleClickInternal(X, Y, Button, Keys);
+            GUI.Log("Triple " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            MouseTripleClickInternal(X, Y, button, keys);
         }
 
-        internal void MouseTripleClickInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        internal void MouseTripleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             WaitToBeEnabled();
-            Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
+            Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
         /// <summary>
@@ -401,10 +407,10 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to perform a mouse down</param>
         /// <param name="Y">How far from the top edge of the control to perform a mouse down</param>
-        /// <param name="Button">The button to press</param>
-        public virtual void MouseDown(int X, int Y, MouseButton Button)
+        /// <param name="button">The button to press</param>
+        public virtual void MouseDown(int X, int Y, MouseButton button)
         {
-            MouseDown(X, Y, Button, MouseKeyModifier.None);
+            MouseDown(X, Y, button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -412,21 +418,21 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to perform a mouse down</param>
         /// <param name="Y">How far from the top edge of the control to perform a mouse down</param>
-        /// <param name="Button">The button to press</param>
-        /// <param name="Keys">The key to hold while performing a mouse down</param>
-        public virtual void MouseDown(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        /// <param name="button">The button to press</param>
+        /// <param name="keys">The key to hold while performing a mouse down</param>
+        public virtual void MouseDown(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             string point = GetPointText(X, Y);
-            string keyModifiers = GetKeyModifierText(Keys);
+            string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log(Button.ToString() + " mouse down on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
-            MouseDownInternal(X, Y, Button, Keys);
+            GUI.Log(button.ToString() + " mouse down on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            MouseDownInternal(X, Y, button, keys);
         }
 
-        internal void MouseDownInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             WaitToBeEnabled();
-            Input.MouseDown(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
+            Input.MouseDown(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
         /// <summary>
@@ -434,10 +440,10 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to perform a mouse up</param>
         /// <param name="Y">How far from the top edge of the control to perform a mouse up</param>
-        /// <param name="Button">The button to release</param>
-        public void MouseUp(int X, int Y, MouseButton Button)
+        /// <param name="button">The button to release</param>
+        public void MouseUp(int X, int Y, MouseButton button)
         {
-            MouseUp(X, Y, Button, MouseKeyModifier.None);
+            MouseUp(X, Y, button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -445,21 +451,21 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to perform a mouse up</param>
         /// <param name="Y">How far from the top edge of the control to perform a mouse up</param>
-        /// <param name="Button">The button to release</param>
-        /// <param name="Keys">The key to hold while performing a mouse up</param>
-        public void MouseUp(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        /// <param name="button">The button to release</param>
+        /// <param name="keys">The key to hold while performing a mouse up</param>
+        public void MouseUp(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             string point = GetPointText(X, Y);
-            string keyModifiers = GetKeyModifierText(Keys);
+            string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log(Button.ToString() + " mouse up on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
-            MouseUpInternal(X, Y, Button, Keys);
+            GUI.Log(button.ToString() + " mouse up on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            MouseUpInternal(X, Y, button, keys);
         }
 
-        internal void MouseUpInternal(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        internal void MouseUpInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             WaitToBeEnabled();
-            Input.MouseUp(Identity.ParentHandle, Identity.Handle, X, Y, Button, Keys);
+            Input.MouseUp(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
         /// <summary>

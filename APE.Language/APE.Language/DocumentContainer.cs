@@ -64,6 +64,10 @@ namespace APE.Language
             return NumberOfItems;
         }
 
+        /// <summary>
+        /// Returns the number of controls contained in the document container
+        /// </summary>
+        /// <returns>The number of controls in the document container</returns>
         public int ItemCount()
         {
             int Count = 0;
@@ -92,6 +96,11 @@ namespace APE.Language
             return Count;
         }
 
+        /// <summary>
+        /// Checks if the specified item exists in the document container
+        /// </summary>
+        /// <param name="Item"></param>
+        /// <returns>True if it exists otherwise false</returns>
         public bool ItemExists(string Item)
         {
             int NumberOfDockControls = DockControls();
@@ -125,11 +134,20 @@ namespace APE.Language
             return false;
         }
 
+        /// <summary>
+        /// Selects the specified item in the document container
+        /// </summary>
+        /// <param name="Item">The item in the document container</param>
         public void ItemSelect(string Item)
         {
             ItemSelect(Item, MouseButton.Left);
         }
 
+        /// <summary>
+        /// Clicks on the specified item in the document container using the specified mouse button
+        /// </summary>
+        /// <param name="Item">The item in the document container</param>
+        /// <param name="Button">The mouse button to click with</param>
         public void ItemSelect(string Item, MouseButton Button)
         {
             GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
@@ -211,6 +229,10 @@ namespace APE.Language
             throw new Exception("Failed to find DocumentContainer tab");
         }
 
+        /// <summary>
+        /// The currently selected item in the document container
+        /// </summary>
+        /// <returns>The text of the currently selected item</returns>
         public string ItemActive()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -226,6 +248,11 @@ namespace APE.Language
             return TabText;
         }
 
+        /// <summary>
+        /// Removes the specified item from the document container
+        /// First selects the item if need be then clicks on the 'x' at the top right of the document container
+        /// </summary>
+        /// <param name="Item"></param>
         public void ItemRemove(string Item)
         {
             if (ItemActive() != Item)

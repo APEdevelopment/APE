@@ -41,3 +41,4 @@ D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\Interop.mscoree.dll
 D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.csproj.ResolveComReference.cache
 D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.dll
 D:\Github\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.pdb
+C:\Tools\APE\APE.Domain\APE.Domain\obj\Debug\APE.Domain.csprojResolveAssemblyReference.cache

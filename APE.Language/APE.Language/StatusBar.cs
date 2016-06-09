@@ -49,6 +49,11 @@ namespace APE.Language
         {
         }
 
+        /// <summary>
+        /// Returns the index of the specified panel name
+        /// </summary>
+        /// <param name="PanelName">The name of the panel to get the index of</param>
+        /// <returns>The index of the panel</returns>
         public int PanelIndex(String PanelName)
         {
             int Items;
@@ -87,6 +92,11 @@ namespace APE.Language
             throw new Exception("Failed to find panel with name [" + PanelName + "]");
         }
 
+        /// <summary>
+        /// Returns the name of the specified panel index
+        /// </summary>
+        /// <param name="PanelIndex">The index of the panel to get the name of</param>
+        /// <returns>The name of the panel</returns>
         public string PanelName(int PanelIndex)
         {
             //query the panel text 0 based index
@@ -101,23 +111,55 @@ namespace APE.Language
             return GUI.m_APE.GetValueFromMessage();
         }
 
-        public void PanelPollForText(int PanelIndex, string Text)
+        /// <summary>
+        /// Polls for the panel with the specified name to have the specified text
+        /// </summary>
+        /// <param name="panelName">The name of the panel to poll</param>
+        /// <param name="text">The text to wait for the panel to have</param>
+        public void PanelPollForText(string panelName, string text)
+        {
+            int panelIndex = PanelIndex(panelName);
+            PanelPollForText(panelIndex, text);
+        }
+
+        /// <summary>
+        /// Polls for the panel at the specified index to have the specified text
+        /// </summary>
+        /// <param name="panelIndex">The index of the panel to poll</param>
+        /// <param name="text">The text to wait for the panel to have</param>
+        public void PanelPollForText(int panelIndex, string text)
         {
             //query the panel text 0 based index
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, PanelIndex));
-            GUI.m_APE.AddMessagePollMember(DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, Text));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, panelIndex));
+            GUI.m_APE.AddMessagePollMember(DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, text));
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
         }
 
-        public string PanelText(int PanelIndex)
+        /// <summary>
+        /// Returns the text of the panel with the specified name
+        /// </summary>
+        /// <param name="panelName">The name of the panel to get the text of</param>
+        /// <returns>The text of the panel</returns>
+        public string PanelText(string panelName)
+        {
+            int panelIndex = PanelIndex(panelName);
+            return PanelText(panelIndex);
+        }
+
+        /// <summary>
+        /// Returns the text of the panel at the specified index
+        /// </summary>
+        /// <param name="panelIndex">The index of the panel to get the text of</param>
+        /// <returns>The text of the panel</returns>
+        public string PanelText(int panelIndex)
         {
             //query the panel text 0 based index
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, PanelIndex));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, panelIndex));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
             GUI.m_APE.AddMessageGetValue(DataStores.Store3);
 
@@ -127,47 +169,6 @@ namespace APE.Language
 
             //get the values returned
             return GUI.m_APE.GetValueFromMessage();
-        }
-
-        public string PanelText(string PanelName)
-        {
-            int Items;
-
-            //Get the number of items
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-            //get the values returned
-            Items = GUI.m_APE.GetValueFromMessage();
-
-            //Loop through looking for the item we want
-            for (int Item = 0; Item < Items; Item++)
-            {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "Text", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                //get the values returned
-                string CurrentPanelName = GUI.m_APE.GetValueFromMessage();
-                string CurrentPanelText = GUI.m_APE.GetValueFromMessage();
-
-                if (CurrentPanelName == PanelName)
-                {
-                    //found it
-                    return CurrentPanelText;
-                }
-            }
-
-            //Failed to find it
-            throw new Exception("Failed to find panel with name [" + PanelName + "]");
         }
     }
 }

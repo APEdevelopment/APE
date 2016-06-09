@@ -33,7 +33,7 @@ namespace APE.Language
     public sealed class GUIFlexgrid : GUIFocusableObject
     {
         /// <summary>
-        /// Constructor used for non-form controls
+        /// Initialises a new instance of the GUIFlexgrid class
         /// </summary>
         /// <param name="parentForm">The top level form the control belongs to</param>
         /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
@@ -186,17 +186,27 @@ namespace APE.Language
             }
         }
 
-        public bool IsRowHidden(string Row)
+        /// <summary>
+        /// Returns true if the specified row is hidden in the grid
+        /// </summary>
+        /// <param name="row">Row to check if hidden</param>
+        /// <returns>True or False</returns>
+        public bool IsRowHidden(string row)
         {
-            int RowNumber = FindRow(Row);
+            int RowNumber = FindRow(row);
             return IsRowHidden(RowNumber);
         }
 
-        public bool IsRowHidden(int Row)
+        /// <summary>
+        /// Returns true if the specified row is hidden in the grid
+        /// </summary>
+        /// <param name="row">Row index to check if hidden</param>
+        /// <returns>True or False</returns>
+        public bool IsRowHidden(int row)
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Row));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, row));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
             GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -207,17 +217,26 @@ namespace APE.Language
             return !Visible;
         }
 
-        public bool IsColumnHidden(string Column)
+        /// <summary>
+        /// Returns true if the specified column is hidden in the grid
+        /// </summary>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <returns>True or False</returns>
+        public bool IsColumnHidden(string columnToFind)
         {
-            int ColumnNumber = FindColumn(Column);
-            return IsColumnHidden(ColumnNumber);
+            int column = FindColumn(columnToFind);
+            return IsColumnHidden(column);
         }
 
-        public bool IsColumnHidden(int Column)
+        /// <summary>
+        /// Returns true if the specified column is hidden in the grid
+        /// </summary>
+        /// <param name="column">Column index to check if hidden</param>
+        public bool IsColumnHidden(int column)
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Column));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, column));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
             GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -257,6 +276,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Returns the first visible (non-hidden) row in the grid
+        /// </summary>
+        /// <returns>The first visible row</returns>
         public int FirstVisibleRow()
         {
             int RowCount = Rows();
@@ -270,6 +293,10 @@ namespace APE.Language
             return -1;
         }
 
+        /// <summary>
+        /// Returns the first visible (non-hidden) column in the grid
+        /// </summary>
+        /// <returns>The first visible column</returns>
         public int FirstVisibleColumn()
         {
             int ColumnCount = Columns();
@@ -283,6 +310,10 @@ namespace APE.Language
             return -1;
         }
 
+        /// <summary>
+        /// Returns the selected row
+        /// </summary>
+        /// <returns>The selected row index</returns>
         public int SelectedRow()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -296,6 +327,10 @@ namespace APE.Language
             return SelectedRow;
         }
 
+        /// <summary>
+        /// Returns the selected column
+        /// </summary>
+        /// <returns>The selected column index</returns>
         public int SelectedColumn()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -309,6 +344,10 @@ namespace APE.Language
             return SelectedColumn;
         }
 
+        /// <summary>
+        /// Returns the number of fixed rows, that is a row which doesn't scroll, in the grid
+        /// </summary>
+        /// <returns>The number of fixed rows</returns>
         public int FixedRows()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -323,6 +362,10 @@ namespace APE.Language
             return FixedRows;
         }
 
+        /// <summary>
+        /// Returns the number of fixed columns, that is a column which doesn't scroll, in the grid
+        /// </summary>
+        /// <returns>The number of fixed columns</returns>
         public int FixedColumns()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -337,6 +380,10 @@ namespace APE.Language
             return FixedColumns;
         }
 
+        /// <summary>
+        /// Returns the number of frozen columns, that is a column which doesn't scroll, in the grid
+        /// </summary>
+        /// <returns>The number of frozen columns</returns>
         public int FrozenColumns()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -351,6 +398,10 @@ namespace APE.Language
             return FrozenColumns;
         }
 
+        /// <summary>
+        /// Returns the number of rows in the grid, including those which are hidden
+        /// </summary>
+        /// <returns>The number of rows</returns>
         public int Rows()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -365,6 +416,10 @@ namespace APE.Language
             return Rows;
         }
 
+        /// <summary>
+        /// Returns the number of columns, including those which are hidden
+        /// </summary>
+        /// <returns>The number of columns</returns>
         public int Columns()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -379,75 +434,171 @@ namespace APE.Language
             return Columns;
         }
 
-        public void SetCellValue(string Row, string Column, string Value)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, string column, string value)
         {
-            SetCellValue(Row, Column, Value, null, null);
+            return SetCellValue(row, column, value, null, null);
         }
 
-        public void SetCellValue(string Row, string Column, string Value, string ExpectedValue)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, string column, string value, string expectedValue)
         {
-            SetCellValue(Row, Column, Value, ExpectedValue, null);
+            return SetCellValue(row, column, value, expectedValue, null);
         }
 
-        public void SetCellValue(string Row, string Column, string Value, string ExpectedValue, string submitKey)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, string column, string value, string expectedValue, string submitKey)
         {
-            this.Select(Row, Column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            int RowNumber = FindRow(Row);
-            int ColumnNumber = FindColumn(Column);
-            SetCellValueInternal(RowNumber, ColumnNumber, Value, ExpectedValue, submitKey);
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            int RowNumber = FindRow(row);
+            int ColumnNumber = FindColumn(column);
+            return SetCellValueInternal(RowNumber, ColumnNumber, value, expectedValue, submitKey);
         }
 
-        public void SetCellValue(int Row, string Column, string Value)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, string column, string value)
         {
-            SetCellValue(Row, Column, Value, null, null);
+            return SetCellValue(row, column, value, null, null);
         }
 
-        public void SetCellValue(int Row, string Column, string Value, string ExpectedValue)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, string column, string value, string expectedValue)
         {
-            SetCellValue(Row, Column, Value, ExpectedValue, null);
+            return SetCellValue(row, column, value, expectedValue, null);
         }
 
-        public void SetCellValue(int Row, string Column, string Value, string ExpectedValue, string submitKey)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, string column, string value, string expectedValue, string submitKey)
         {
-            this.Select(Row, Column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            int ColumnNumber = FindColumn(Column);
-            SetCellValueInternal(Row, ColumnNumber, Value, ExpectedValue, submitKey);
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            int ColumnNumber = FindColumn(column);
+            return SetCellValueInternal(row, ColumnNumber, value, expectedValue, submitKey);
         }
 
-        public void SetCellValue(string Row, int Column, string Value)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, int column, string value)
         {
-            SetCellValue(Row, Column, Value, null, null);
+            return SetCellValue(row, column, value, null, null);
         }
 
-        public void SetCellValue(string Row, int Column, string Value, string ExpectedValue)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, int column, string value, string expectedValue)
         {
-            SetCellValue(Row, Column, Value, ExpectedValue, null);
+            return SetCellValue(row, column, value, expectedValue, null);
         }
 
-        public void SetCellValue(string Row, int Column, string Value, string ExpectedValue, string submitKey)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(string row, int column, string value, string expectedValue, string submitKey)
         {
-            this.Select(Row, Column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            int RowNumber = FindRow(Row);
-            SetCellValueInternal(RowNumber, Column, Value, ExpectedValue, submitKey);
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            int RowNumber = FindRow(row);
+            return SetCellValueInternal(RowNumber, column, value, expectedValue, submitKey);
         }
 
-        public void SetCellValue(int Row, int Column, string Value)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, int column, string value)
         {
-            SetCellValue(Row, Column, Value, null, null);
+            return SetCellValue(row, column, value, null, null);
         }
 
-        public void SetCellValue(int Row, int Column, string Value, string ExpectedValue)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, int column, string value, string expectedValue)
         {
-            SetCellValue(Row, Column, Value, ExpectedValue, null);
+            return SetCellValue(row, column, value, expectedValue, null);
         }
 
-        public void SetCellValue(int Row, int Column, string Value, string ExpectedValue, string submitKey)
+        /// <summary>
+        /// Sets the specified cell to the specified value
+        /// </summary>
+        /// <param name="row">The row index of the cell to set the value of</param>
+        /// <param name="column">The column index of the cell to set the value of</param>
+        /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
+        /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
+        /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetCellValue(int row, int column, string value, string expectedValue, string submitKey)
         {
-            this.Select(Row, Column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            SetCellValueInternal(Row, Column, Value, ExpectedValue, submitKey);
+            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+            return SetCellValueInternal(row, column, value, expectedValue, submitKey);
         }
 
-        private void SetCellValueInternal(int row, int column, string value, string expectedValue, string submitKey)
+        private bool SetCellValueInternal(int row, int column, string value, string expectedValue, string submitKey)
         {
             Stopwatch ook = Stopwatch.StartNew();
 
@@ -467,7 +618,7 @@ namespace APE.Language
             if (CurrentValue == expectedValue)
             {
                 GUI.Log("Ensure the cell is set to " + expectedValue, LogItemTypeEnum.Action);
-                return;
+                return false;
             }
 
             // Put the cell into edit mode
@@ -531,6 +682,8 @@ namespace APE.Language
                 Thread.Sleep(15);
             }
             while (true);
+
+            return true;
         }
 
         public string GetCellRangeClip(string Row1, string Column1, string Row2, string Column2)

@@ -53,11 +53,11 @@ namespace APE.Language
         /// <summary>
         /// Checks if the specified item exists in the combobox
         /// </summary>
-        /// <param name="Item">The item to check if it exists</param>
+        /// <param name="item">The item to check if it exists</param>
         /// <returns></returns>
-        public bool ItemExists(string Item)
+        public bool ItemExists(string item)
         {
-            int Index = ItemIndex(Item);
+            int Index = ItemIndex(item);
 
             if (Index == NM.CB_ERR)
             {
@@ -72,12 +72,12 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified item in the combobox
         /// </summary>
-        /// <param name="Item">The item to select</param>
-        public void ItemSelect(string Item)
+        /// <param name="item">The item to select</param>
+        public void ItemSelect(string item)
         {
             Stopwatch timer;
 
-            GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
 
             //TODO check if already set (no need to set it again)
 
@@ -138,7 +138,7 @@ namespace APE.Language
                 }
 
                 //locate the item
-                int Index = ItemIndex(Item);
+                int Index = ItemIndex(item);
                 if (Index == NM.CB_ERR)
                 {
                     throw new Exception("Failed to find the ComboBox item");
@@ -194,7 +194,7 @@ namespace APE.Language
                 {
                     CurrentText = GUI.m_APE.GetWindowText(Identity.Handle);
 
-                    if (CurrentText == Item)
+                    if (CurrentText == item)
                     {
                         break;
                     }

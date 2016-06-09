@@ -49,6 +49,10 @@ namespace APE.Language
         {
         }
 
+        /// <summary>
+        /// Sets the text of the generic walker control
+        /// </summary>
+        /// <param name="text">The text to set the control to</param>
         public void SetText(string text)
         {
             Stopwatch timer;
@@ -113,16 +117,7 @@ namespace APE.Language
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    ////Get the selectedText property
-                    //GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Parent", MemberTypes.Property);
-                    //GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "PopupState", MemberTypes.Property);
-                    //GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
-                    //GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                    //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                    ////Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    //PopupState = GUI.m_APE.GetValueFromMessage();
+                    //Get the state of the popup control
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "PopupState", MemberTypes.Property);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);

@@ -24,19 +24,40 @@ using NM = APE.Native.NativeMethods;
 
 namespace APE.Language
 {
+    /// <summary>
+    /// Automation class used to automate focusable controls
+    /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class GUIFocusableObject : GUIObject
     {
+        /// <summary>
+        /// Constructor used for form controls
+        /// </summary>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIFocusableObject(string descriptionOfControl, params Identifier[] identParams)
             : base(descriptionOfControl, identParams)
         {
         }
 
+        /// <summary>
+        /// Constructor used for non-form controls
+        /// </summary>
+        /// <param name="parentForm">The top level form the control belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
         public GUIFocusableObject(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
             : base(parentForm, descriptionOfControl, identParams)
         {
         }
 
+        /// <summary>
+        /// Whether the control currently has focus
+        /// </summary>
         public bool HasFocus
         {
             get
@@ -45,18 +66,29 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Sets focus to the control
+        /// </summary>
         public void SetFocus()
         {
             Input.SetFocus(Identity.ParentHandle, Identity.Handle);
         }
 
-        protected void SendKeys(string TextToSend)
+        /// <summary>
+        /// Send the specified text to the currently focused control, logging the action
+        /// </summary>
+        /// <param name="textToSend">The text to send to the control</param>
+        protected void SendKeys(string textToSend)
         {
-            GUI.Log("Type [" + TextToSend + "] into the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
-            SendKeysInternal(TextToSend);
+            GUI.Log("Type [" + textToSend + "] into the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            SendKeysInternal(textToSend);
         }
 
-        protected void SendKeysInternal(string TextToSend)
+        /// <summary>
+        /// Send the specified text to the currently focused control
+        /// </summary>
+        /// <param name="textToSend">The text to send to the control</param>
+        protected void SendKeysInternal(string textToSend)
         {
             Input.Block(Identity.ParentHandle, Identity.Handle);
 
@@ -67,7 +99,7 @@ namespace APE.Language
                     SetFocus();
                 }
 
-                Input.SendKeys(Identity.Handle, TextToSend);
+                Input.SendKeys(Identity.Handle, textToSend);
             }
             finally
             {
