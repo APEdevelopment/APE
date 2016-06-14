@@ -33,6 +33,7 @@ namespace APE.Language
     /// <summary>
     /// Automation class used to automate controls derived from the following:
     /// LatentZero.Capstone.Controls.Walker.WalkerControl
+    /// LzGenericWalker.GenericWalker
     /// </summary>
     public sealed class GUIGenericWalker : GUIFocusableObject
     {

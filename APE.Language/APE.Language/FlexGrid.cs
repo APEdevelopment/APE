@@ -647,23 +647,60 @@ namespace APE.Language
                 throw new Exception("Could not find the flexgrid cell editor");
             }
 
-            //MessageBox.Show(EditorHandle.ToString());
+            //TODO checkboxes both grid native and fidessa custom ones
 
-            //Set the value
-            switch (APEBaseType)
+            // If the editor isn't visible then its likely not being used, so search for the real editor
+            if (!NM.IsWindowVisible(EditorHandle))
             {
-                case "GUIComboBox":
-                    GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
-                    flexgridComboBox.ItemSelect(value);
-                    break;
-                case "GUITextBox":
-                    GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
-                    flexgridTextBox.SetText(value);
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
-                    base.SendKeysInternal(submitKey);
-                    break;
-                default:
-                    throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
+                bool suceeded = false;
+                int timeout = GUI.GetTimeOut();
+
+                // See if a generic walker exists
+                GUIGenericWalker genericWalker = null;
+                try
+                {
+                    GUI.SetTimeOut(0);
+                    genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
+                }
+                finally
+                {
+                    GUI.SetTimeOut(timeout);
+                }
+                if (genericWalker != null && genericWalker.Handle != IntPtr.Zero)
+                {
+                    genericWalker.SetText(value);
+                    suceeded = true;
+                }
+                
+                if (!suceeded)
+                {
+                    throw new Exception("Could not find a visible flexgrid cell editor");
+                }
+            }
+            else
+            {
+                //Set the value
+                switch (APEBaseType)
+                {
+                    case "GUIComboBox":
+                        GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                        flexgridComboBox.ItemSelect(value);
+                        break;
+                    case "GUITextBox":
+                        GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
+                        flexgridTextBox.SetText(value);
+                        GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                        base.SendKeysInternal(submitKey);
+                        break;
+                    case "GUIDateTimePicker":
+                        GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
+                        flexgridDateTimePicker.SetText(value);
+                        GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                        base.SendKeysInternal(submitKey);
+                        break;
+                    default:
+                        throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
+                }
             }
 
             //Check the value was set

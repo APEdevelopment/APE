@@ -50,6 +50,7 @@ namespace APE.Communication
         public int Index;
         public string Text;
         public IntPtr ChildOf;
+        public IntPtr SiblingOf;
     }
 
     public enum DataStores : int
@@ -2353,6 +2354,14 @@ namespace APE.Communication
                                 if (Identifier.ChildOf != IntPtr.Zero)
                                 {
                                     if (!NM.IsChild(Identifier.ChildOf, Handle))
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.SiblingOf != IntPtr.Zero)
+                                {
+                                    if (!NM.IsSibling(Identifier.SiblingOf, Handle))
                                     {
                                         continue;
                                     }

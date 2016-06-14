@@ -258,7 +258,9 @@ namespace APE.Test
             GUIForm execution = new GUIForm("execution form", new Identifier(Identifiers.Name, "frmSingleExecution"));
             GUIFlexgrid add = new GUIFlexgrid(execution, "add grid", new Identifier(Identifiers.Name, "fgAddGrid"));
             add.SetCellValue(1, "Counterparty", "ABN Amro");
-
+            add.SetCellValue(1, "Price", "128.3", "128.3000");
+            add.SetCellValue(1, "Stmp", "True");
+            add.SetCellValue(1, "Trade Date", "16 Jun 2016", "16 Jun 2016");
 
             //GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
             //GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));

@@ -125,7 +125,11 @@ namespace APE.Language
         /// <summary>
         /// A control which the control we are identifying is a child of
         /// </summary>
-        ChildOf = 10
+        ChildOf = 10,
+        /// <summary>
+        /// A control which the control we are identifying is a sibling of
+        /// </summary>
+        SiblingOf = 11
     }
 
     /// <summary>

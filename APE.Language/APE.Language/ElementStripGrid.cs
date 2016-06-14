@@ -1420,7 +1420,7 @@ namespace APE.Language
                     GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     checkBoxComboBox.ItemSelect(value);
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "LatentZero.Utility.Controls.DatePickerRenderer":
@@ -1429,7 +1429,7 @@ namespace APE.Language
                     GUIDateTimePicker datePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " date picker", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     datePicker.SetText(value);
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 //TODO is this used anywhere?
@@ -1446,7 +1446,7 @@ namespace APE.Language
                     GUIGenericWalker genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     genericWalker.SetText(value);
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl":
@@ -1461,7 +1461,7 @@ namespace APE.Language
                     // Select the item
                     textValueWithTypeControl.SetText(textType[0]);
                     // Submit the change
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "System.Windows.Forms.TextBox":
@@ -1470,7 +1470,7 @@ namespace APE.Language
                     GUITextBox textBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     textBox.SetText(value);
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 default:

@@ -2782,6 +2782,38 @@ namespace APE.Native
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsChild([In] IntPtr hWndParent, [In] IntPtr hWnd);
 
+        public static bool IsSibling(IntPtr hWnd1, IntPtr hWnd2)
+        {
+            IntPtr sibling;
+
+            sibling = hWnd1;
+            do
+            {
+                sibling = NativeMethods.GetWindow(sibling, GetWindowCmd.GW_HWNDPREV);
+
+                if (sibling == hWnd2)
+                {
+                    return true;
+                }
+            }
+            while (sibling != IntPtr.Zero);
+
+
+            sibling = hWnd1;
+            do
+            {
+                sibling = NativeMethods.GetWindow(sibling, GetWindowCmd.GW_HWNDNEXT);
+
+                if (sibling == hWnd2)
+                {
+                    return true;
+                }
+            }
+            while (sibling != IntPtr.Zero);
+
+            return false;
+        }
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetForegroundWindow(IntPtr hWnd);

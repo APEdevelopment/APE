@@ -243,6 +243,8 @@ namespace APE.Language
                     case Identifiers.Text:
                         m_Identity.Text = i.IdentifierValue;
                         break;
+                    default:
+                        throw new Exception("Unsupported identifier: " + i.ToString());
                 }
             }
 

@@ -1913,6 +1913,7 @@
             <summary>
             Automation class used to automate controls derived from the following:
             LatentZero.Capstone.Controls.Walker.WalkerControl
+            LzGenericWalker.GenericWalker
             </summary>
         </member>
         <member name="M:APE.Language.GUIGenericWalker.#ctor(APE.Language.GUIForm,System.String,APE.Language.Identifier[])">
@@ -2054,6 +2055,11 @@
         <member name="F:APE.Language.Identifiers.ChildOf">
             <summary>
             A control which the control we are identifying is a child of
+            </summary>
+        </member>
+        <member name="F:APE.Language.Identifiers.SiblingOf">
+            <summary>
+            A control which the control we are identifying is a sibling of
             </summary>
         </member>
         <member name="T:APE.Language.MouseKeyModifier">
