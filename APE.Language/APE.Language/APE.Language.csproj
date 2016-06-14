@@ -75,6 +75,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="StatusBar.cs" />
+    <Compile Include="TabControl.cs" />
     <Compile Include="TextValueWithTypeControl.cs" />
     <Compile Include="ToolStrip.cs" />
     <Compile Include="ViewPort.cs">

@@ -115,6 +115,9 @@ namespace APE.Spy
 
             if (WinformsProcessesCombobox.Enabled)
             {
+                //store a temp copy of m_Identity
+                ControlIdentifier temp = m_Identity;
+
                 WindowTree.Nodes.Clear();
                 PropertyListbox.Items.Clear();
                 m_CurrentAttached = (KeyValuePair<Process, string>)WinformsProcessesCombobox.SelectedItem;
@@ -141,15 +144,14 @@ namespace APE.Spy
                     }
                     m_APE.TimeOut = 0;
 
-                    //m_APE.AddMessageGarbageCollect();
-                    //m_APE.SendMessages(APEIPC.EventSet.APE);
-                    //m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
 
                     NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
                 }
+
+                //restore m_Identity
+                m_Identity = temp;
             }
         }
 
@@ -205,10 +207,18 @@ namespace APE.Spy
 
                     if (WindowSize.Right > 0)   //If the window has 0 width then ignore it
                     {
+                        TreeNode ParentNode;
                         GetIdentity(hWnd);
                         string APEType = GetAPEType(m_Identity);
                         ListOfTopLevelWindows.Add(hWnd, m_Identity.Name);
-                        TreeNode ParentNode = WindowTree.Nodes.Add("0:" + hWnd.ToString(), APEType + " " + m_Identity.Name + " [" + hWnd.ToString() + "]");
+                        if (m_Identity.TechnologyType == "Windows Native")
+                        {
+                            ParentNode = WindowTree.Nodes.Add("0:" + hWnd.ToString(), APEType + " (Windows Native) [" + hWnd.ToString() + "]");
+                        }
+                        else
+                        {
+                            ParentNode = WindowTree.Nodes.Add("0:" + hWnd.ToString(), APEType + " " + m_Identity.Name + " [" + hWnd.ToString() + "]");
+                        }
                         AddChildNode(hWnd, ParentNode, hWnd);
                     }
                     
@@ -284,36 +294,43 @@ namespace APE.Spy
                 IntPtr ParentHandle = new IntPtr(int.Parse(Handles[0]));
                 IntPtr Handle = new IntPtr(int.Parse(Handles[1]));
 
-                if (ParentHandle == IntPtr.Zero)
+                if (NM.IsWindow(Handle))
                 {
-                    NM.BringWindowToTop(Handle);
+                    if (ParentHandle == IntPtr.Zero)
+                    {
+                        NM.BringWindowToTop(Handle);
+                    }
+                    else
+                    {
+                        NM.BringWindowToTop(ParentHandle);
+                    }
+
+                    NM.tagRect area = Display.GetWindowRectangleDIP(Handle);
+
+                    IntPtr hWindowDC = NM.GetDC(IntPtr.Zero);
+                    IntPtr hRectanglePen = NM.CreatePen(NM.PenStyle.PS_SOLID, 3, (uint)ColorTranslator.ToWin32(Color.Red));
+                    IntPtr hPrevPen = NM.SelectObject(hWindowDC, hRectanglePen);
+                    IntPtr hPrevBrush = NM.SelectObject(hWindowDC, NM.GetStockObject(NM.StockObjects.HOLLOW_BRUSH));
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        NM.Rectangle(hWindowDC, area.left, area.top, area.right, area.bottom);
+                        Thread.Sleep(300);
+                        ClearHighlight(area);
+                        if (i < 2)
+                        {
+                            Thread.Sleep(300);
+                        }
+                    }
+
+                    NM.SelectObject(hWindowDC, hPrevPen);
+                    NM.SelectObject(hWindowDC, hPrevBrush);
+                    NM.ReleaseDC(Handle, hWindowDC);
                 }
                 else
                 {
-                    NM.BringWindowToTop(ParentHandle);
+                    BuildTree();
                 }
-
-                NM.tagRect area = Display.GetWindowRectangleDIP(Handle);
-
-                IntPtr hWindowDC = NM.GetDC(IntPtr.Zero);
-                IntPtr hRectanglePen = NM.CreatePen(NM.PenStyle.PS_SOLID, 3, (uint)ColorTranslator.ToWin32(Color.Red));
-                IntPtr hPrevPen = NM.SelectObject(hWindowDC, hRectanglePen);
-                IntPtr hPrevBrush = NM.SelectObject(hWindowDC, NM.GetStockObject(NM.StockObjects.HOLLOW_BRUSH));
-
-                for (int i = 0; i < 3; i++)
-                {
-                    NM.Rectangle(hWindowDC, area.left, area.top, area.right, area.bottom);
-                    Thread.Sleep(300);
-                    ClearHighlight(area);
-                    if (i < 2)
-                    {
-                        Thread.Sleep(300);
-                    }
-                }
-
-                NM.SelectObject(hWindowDC, hPrevPen);
-                NM.SelectObject(hWindowDC, hPrevBrush);
-                NM.ReleaseDC(Handle, hWindowDC);
             }
 
             WindowTree.Focus();
@@ -409,11 +426,7 @@ namespace APE.Spy
                 TreeNode[] Nodes = WindowTree.Nodes.Find(m_Identity.ParentHandle.ToString() + ":" + m_Identity.Handle.ToString(), true);
                 if (Nodes.GetLength(0) == 0)
                 {
-                    //store a temp copy of m_Identity as BuildTree splats it
-                    ControlIdentifier temp = m_Identity;
                     BuildTree();
-                    //restore m_Identity
-                    m_Identity = temp;
                     Nodes = WindowTree.Nodes.Find(m_Identity.ParentHandle.ToString() + ":" + m_Identity.Handle.ToString(), true);
                 }
                 if (Nodes.GetLength(0) > 0)
@@ -502,7 +515,51 @@ namespace APE.Spy
                 case "GUIElementStripGrid":
                     AddGUIElementStripGridToPropertyListbox();
                     break;
+                default:
+                    switch(m_Identity.TypeName)
+                    {
+                        case "ToolStripDropDownMenu":
+                            AddToolStripDropDownMenuToPropertyListbox();
+                            break;
+                    }
+                    break;
             }
+        }
+
+        private void AddToolStripDropDownMenuToPropertyListbox()
+        {
+            int Items;
+            IntPtr temp;
+            temp = m_Identity.ParentHandle;
+            m_Identity.ParentHandle = NM.GetAncestor(m_Identity.Handle, NM.GetAncestorFlags.GetRootOwner);
+
+            //Get the number of items on the menustrip
+            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            m_APE.AddMessageGetValue(DataStores.Store2);
+            m_APE.SendMessages(APEIPC.EventSet.APE);
+            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //get the values returned
+            Items = m_APE.GetValueFromMessage();
+
+            //Loop through all items
+            for (int Item = 0; Item < Items; Item++)
+            {
+                m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+                m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, Item));
+                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                m_APE.AddMessageGetValue(DataStores.Store3);
+                m_APE.SendMessages(APEIPC.EventSet.APE);
+                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                //get the values returned
+                string ItemText = m_APE.GetValueFromMessage();
+
+                PropertyListbox.Items.Add("Menu item\t: " + ItemText);
+            }
+
+            m_Identity.ParentHandle = temp;
         }
 
         private void AddGUIElementStripGridToPropertyListbox()

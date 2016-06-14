@@ -254,33 +254,39 @@ namespace APE.Test
             GUI.AttachToProcess(p);
 
 
-            GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
-            GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));
+
+            GUIForm execution = new GUIForm("execution form", new Identifier(Identifiers.Name, "frmSingleExecution"));
+            GUIFlexgrid add = new GUIFlexgrid(execution, "add grid", new Identifier(Identifiers.Name, "fgAddGrid"));
+            add.SetCellValue(1, "Counterparty", "ABN Amro");
+
+
+            //GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
+            //GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));
             
-            //https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
-            //Debug.WriteLine(System.Text.RegularExpressions.Regex.IsMatch("Orders [Count: 3][Link:]", "Orders [[]Count: [0-9]+[]][[]Link:[]]").ToString());
+            ////https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
+            ////Debug.WriteLine(System.Text.RegularExpressions.Regex.IsMatch("Orders [Count: 3][Link:]", "Orders [[]Count: [0-9]+[]][[]Link:[]]").ToString());
 
 
-            GUIDockableWindow OrderViewerDockableWindow = new GUIDockableWindow(IMS, "Order viewer dockable window", new Identifier(Identifiers.Text, "Orders [[]Count: [0-9]+[]][[]Link:[]]"), new Identifier(Identifiers.TypeName, "DockableWindow"));
-            GUIElementStripGrid OrderViewerGrid = new GUIElementStripGrid(IMS, "Order viewer grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, OrderViewerDockableWindow));
+            //GUIDockableWindow OrderViewerDockableWindow = new GUIDockableWindow(IMS, "Order viewer dockable window", new Identifier(Identifiers.Text, "Orders [[]Count: [0-9]+[]][[]Link:[]]"), new Identifier(Identifiers.TypeName, "DockableWindow"));
+            //GUIElementStripGrid OrderViewerGrid = new GUIElementStripGrid(IMS, "Order viewer grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, OrderViewerDockableWindow));
 
 
-            GUIDockableWindow ExecutionViewerDockableWindow = new GUIDockableWindow(IMS, "Execution viewer dockable window", new Identifier(Identifiers.Text, "Executions [[]Count: [0-9]+[]][[]Link:[]]"), new Identifier(Identifiers.TypeName, "DockableWindow"));
-            GUIElementStripGrid ExecutionGrid = new GUIElementStripGrid(IMS, "Execution viewer grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, ExecutionViewerDockableWindow));
+            //GUIDockableWindow ExecutionViewerDockableWindow = new GUIDockableWindow(IMS, "Execution viewer dockable window", new Identifier(Identifiers.Text, "Executions [[]Count: [0-9]+[]][[]Link:[]]"), new Identifier(Identifiers.TypeName, "DockableWindow"));
+            //GUIElementStripGrid ExecutionGrid = new GUIElementStripGrid(IMS, "Execution viewer grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, ExecutionViewerDockableWindow));
 
 
 
 
 
-            GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+            //GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
 
-            GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+            //GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
 
-            Debug.WriteLine(entry.FindRow("Order"));
-            Debug.WriteLine(entry.FindColumn("Instrument"));
+            //Debug.WriteLine(entry.FindRow("Order"));
+            //Debug.WriteLine(entry.FindColumn("Instrument"));
 
-            //entry.SetCellValue(1, 0, "Execution", "Execution", null);
-            entry.SetCellValue(1, 4, "AEGON 5 3/4 12/15/20", "AEGON 5 3/4 12/15/20", null);
+            ////entry.SetCellValue(1, 0, "Execution", "Execution", null);
+            //entry.SetCellValue(1, 4, "AEGON 5 3/4 12/15/20", "AEGON 5 3/4 12/15/20", null);
 
             //Stopwatch foo = Stopwatch.StartNew();
 
@@ -598,6 +604,14 @@ namespace APE.Test
                     CustomMessageBox.Restore();
 
                     CustomMessageBox.Close();
+
+                    GUITabControl tab1 = new GUITabControl(TestApplication, "tab control", new Identifier(Identifiers.Name, "tabControl1"));
+                    tab1.Select("tabPage3");
+                    tab1.Select("tabPage1");
+
+                    GUITabControl tab2 = new GUITabControl(TestApplication, "tab control", new Identifier(Identifiers.Name, "tabControl2"));
+                    tab2.Select("tabPage4");
+                    tab2.Select("tabPage7");
 
                     GUIStatusStrip ssStatusBar = new GUIStatusStrip(TestApplication, "status strip", new Identifier(Identifiers.Name, "StatusStrip"));
 

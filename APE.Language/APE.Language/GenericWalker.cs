@@ -61,14 +61,30 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "WalkerTextBox", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IntPtr textboxHandle = GUI.m_APE.GetValueFromMessage();
+                IntPtr textboxHandle;
+
+                if (Identity.TypeNameSpace == "LzGenericWalker")
+                {
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "txtText", MemberTypes.Field);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    textboxHandle = GUI.m_APE.GetValueFromMessage();
+                }
+                else
+                {
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "WalkerTextBox", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    textboxHandle = GUI.m_APE.GetValueFromMessage();
+                }               
 
                 GUITextBox textbox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
@@ -113,21 +129,39 @@ namespace APE.Language
                 GUI.Log("Wait for the generic walker popup to appear", LogItemTypeEnum.Action);
 
                 //Wait for popup
-                string PopupState;
                 timer = Stopwatch.StartNew();
+                bool isDropped = false;
                 do
                 {
                     //Get the state of the popup control
-                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "PopupState", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    PopupState = GUI.m_APE.GetValueFromMessage();
+                    if (Identity.TypeNameSpace == "LzGenericWalker")
+                    {
+                        GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "IsDropped", MemberTypes.Property);
+                        GUI.m_APE.AddMessageGetValue(DataStores.Store1);
+                        GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                        GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                        isDropped = GUI.m_APE.GetValueFromMessage();
+                    }
+                    else
+                    {
+                        string PopupState;
+                        GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "PopupState", MemberTypes.Property);
+                        GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+                        GUI.m_APE.AddMessageGetValue(DataStores.Store2);
+                        GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                        GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                        PopupState = GUI.m_APE.GetValueFromMessage();
+                        if (PopupState == "Open")
+                        {
+                            isDropped = true;
+                        }
+                    }
                 }
-                while (PopupState != "Open");
+                while (!isDropped);
                 timer.Stop();
 
                 //Send rest of characters

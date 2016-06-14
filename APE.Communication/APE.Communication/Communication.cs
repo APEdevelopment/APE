@@ -2414,6 +2414,7 @@ namespace APE.Communication
         unsafe private void Refind(int messageNumber)
         {
             object DestinationObject;
+            Control form;
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
 
@@ -2434,11 +2435,11 @@ namespace APE.Communication
             }
 
             //Find the form
-            Form Form = FindFormViaHandle(FormHandle);
-
+            form = FindFormViaHandle(FormHandle);
+            
             if (Identifier.ParentHandle == IntPtr.Zero)
             {
-                DestinationObject = Form;
+                DestinationObject = form;
             }
             else
             {
@@ -2732,6 +2733,8 @@ namespace APE.Communication
                             return "GUIPictureBox";
                         case "ToolStrip":
                             return "GUIToolStrip";
+                        case "TabControl":
+                            return "GUITabControl";
                         default:
                             return "";
                     }
@@ -2784,6 +2787,14 @@ namespace APE.Communication
                     {
                         case "ElementStripGrid":
                             return "GUIElementStripGrid";
+                        default:
+                            return "";
+                    }
+                case "LzGenericWalker":
+                    switch (TypeName)
+                    {
+                        case "GenericWalker":
+                            return "GUIGenericWalker";
                         default:
                             return "";
                     }

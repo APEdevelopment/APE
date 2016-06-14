@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using NM = APE.Native.NativeMethods;
+using System.Windows.Forms;
 
 namespace APE.Language
 {
@@ -623,7 +624,7 @@ namespace APE.Language
 
             // Put the cell into edit mode
             GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
-            base.SendKeys("{F2}");
+            base.SendKeysInternal("{F2}");
 
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Editor", MemberTypes.Property);
@@ -645,6 +646,8 @@ namespace APE.Language
             {
                 throw new Exception("Could not find the flexgrid cell editor");
             }
+
+            //MessageBox.Show(EditorHandle.ToString());
 
             //Set the value
             switch (APEBaseType)
