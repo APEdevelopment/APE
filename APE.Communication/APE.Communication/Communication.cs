@@ -1534,6 +1534,9 @@ namespace APE.Communication
             //p11
             p = new Parameter(this, Identifier.ChildOf);
 
+            //p12
+            p = new Parameter(this, Identifier.SiblingOf);
+
             m_PtrMessageStore->NumberOfMessages++;
         }
 
@@ -1994,6 +1997,16 @@ namespace APE.Communication
                 else
                 {
                     throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[10])).ToString());
+                }
+
+                // p12 = SiblingOf
+                if ((PtrMessage->Parameter.TypeCode[11]) == 17)
+                {
+                    Identifier.SiblingOf = (IntPtr)PtrMessage->Parameter.IntPtr[11];
+                }
+                else
+                {
+                    throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[11])).ToString());
                 }
             }
 
