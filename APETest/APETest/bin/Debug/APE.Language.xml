@@ -817,8 +817,8 @@
             <summary>
             Sets the specified cell to the specified value
             </summary>
-            <param name="row">The row of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="rowText">The row of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
@@ -826,8 +826,8 @@
             <summary>
             Sets the specified cell to the specified value
             </summary>
-            <param name="row">The row of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="rowText">The row of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <returns>True if the cell was set or False if it was already set to the value</returns>
@@ -836,8 +836,8 @@
             <summary>
             Sets the specified cell to the specified value
             </summary>
-            <param name="row">The row of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="rowText">The row of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
@@ -848,7 +848,7 @@
             Sets the specified cell to the specified value
             </summary>
             <param name="row">The row index of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <returns>True if the cell was set or False if it was already set to the value</returns>
         </member>
@@ -857,7 +857,7 @@
             Sets the specified cell to the specified value
             </summary>
             <param name="row">The row index of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <returns>True if the cell was set or False if it was already set to the value</returns>
@@ -867,7 +867,7 @@
             Sets the specified cell to the specified value
             </summary>
             <param name="row">The row index of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
@@ -896,7 +896,7 @@
             <summary>
             Sets the specified cell to the specified value
             </summary>
-            <param name="row">The row of the cell to set the value of</param>
+            <param name="rowText">The row of the cell to set the value of</param>
             <param name="column">The column index of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
@@ -1053,8 +1053,8 @@
             <summary>
             Sets the specified cell to the specified value
             </summary>
-            <param name="row">The row of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="rowText">The row of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
@@ -1084,7 +1084,7 @@
             Sets the specified cell to the specified value
             </summary>
             <param name="row">The row index of the cell to set the value of</param>
-            <param name="column">The column of the cell to set the value of</param>
+            <param name="columnText">The column of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>
             <param name="submitKey">The key to press to submit the value you are trying to set</param>
@@ -1113,7 +1113,7 @@
             <summary>
             Sets the specified cell to the specified value
             </summary>
-            <param name="row">The row of the cell to set the value of</param>
+            <param name="rowText">The row of the cell to set the value of</param>
             <param name="column">The column index of the cell to set the value of</param>
             <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
             <param name="expectedValue">The value you expect the cell to display after you have set it</param>

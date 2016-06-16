@@ -798,7 +798,7 @@
             <param name="parameterTypes">The types of the required arguments to the instruction.</param>
             <param name="optionalParameterTypes">The types of the optional arguments for vararg calls.</param>
             <seealso cref="F:System.Reflection.Emit.OpCodes.Calli">OpCodes.Calli</seealso>
-          <seealso cref="M:System.Reflection.Emit.ILGenerator.EmitCalli(System.Reflection.Emit.OpCode,System.Reflection.CallingConventions,System.Type,System.Type[],System.Type[])">ILGenerator.EmitCalli</seealso>
+            <seealso cref="M:System.Reflection.Emit.ILGenerator.EmitCalli(System.Reflection.Emit.OpCode,System.Reflection.CallingConventions,System.Type,System.Type[],System.Type[])">ILGenerator.EmitCalli</seealso>
         </member>
         <member name="M:Fasterflect.Emitter.EmitHelper.callvirt(System.Reflection.MethodInfo)">
             <summary>
@@ -5222,4 +5222,3 @@
         </member>
     </members>
 </doc>
->
