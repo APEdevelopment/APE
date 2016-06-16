@@ -1,8 +1,0 @@
-C:\Tools\APE\APE.Dock\APE.Dock\bin\Release\APE.Dock.dll
-C:\Tools\APE\APE.Dock\APE.Dock\bin\Release\APE.Dock.pdb
-C:\Tools\APE\APE.Dock\APE.Dock\obj\Release\APE.Dock.dll
-C:\Tools\APE\APE.Dock\APE.Dock\obj\Release\APE.Dock.pdb
-C:\Users\david.beales\Desktop\compared\APE\APE.Dock\APE.Dock\bin\Release\APE.Dock.dll
-C:\Users\david.beales\Desktop\compared\APE\APE.Dock\APE.Dock\bin\Release\APE.Dock.pdb
-C:\Users\david.beales\Desktop\compared\APE\APE.Dock\APE.Dock\obj\Release\APE.Dock.dll
-C:\Users\david.beales\Desktop\compared\APE\APE.Dock\APE.Dock\obj\Release\APE.Dock.pdb

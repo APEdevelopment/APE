@@ -1,9 +1,0 @@
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\bin\Debug\Win10DockFix.exe.config
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\bin\Debug\Win10DockFix.exe
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\bin\Debug\Win10DockFix.pdb
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\bin\Debug\APE.Dock.dll
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\bin\Debug\APE.Dock.pdb
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\obj\Debug\Win10DockFix.Properties.Resources.resources
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\obj\Debug\Win10DockFix.csproj.GenerateResource.Cache
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\obj\Debug\Win10DockFix.exe
-c:\users\dave\documents\visual studio 2013\Projects\Win10DockFix\Win10DockFix\obj\Debug\Win10DockFix.pdb

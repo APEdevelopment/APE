@@ -1,8 +1,0 @@
-C:\Tools\APE\APE.Injector\APE.Injector\bin\x86\Release\APE.Injector.exe.config
-C:\Tools\APE\APE.Injector\APE.Injector\bin\x86\Release\APE.Injector.exe
-C:\Tools\APE\APE.Injector\APE.Injector\bin\x86\Release\APE.Injector.pdb
-C:\Tools\APE\APE.Injector\APE.Injector\bin\x86\Release\APE.Syringe.dll
-C:\Tools\APE\APE.Injector\APE.Injector\bin\x86\Release\APE.Syringe.pdb
-C:\Tools\APE\APE.Injector\APE.Injector\obj\x86\Release\APE.Injector.exe
-C:\Tools\APE\APE.Injector\APE.Injector\obj\x86\Release\APE.Injector.pdb
-C:\Tools\APE\APE.Injector\APE.Injector\obj\x86\Release\APE.Injector.csprojResolveAssemblyReference.cache

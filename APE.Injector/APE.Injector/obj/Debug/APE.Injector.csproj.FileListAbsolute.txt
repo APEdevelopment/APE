@@ -1,8 +1,0 @@
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\bin\Debug\APE.Injector.exe.config
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\obj\Debug\APE.Injector.csprojResolveAssemblyReference.cache
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\bin\Debug\APE.Injector.exe
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\bin\Debug\APE.Injector.pdb
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\bin\Debug\APE.Syringe.dll
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\bin\Debug\APE.Syringe.pdb
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\obj\Debug\APE.Injector.exe
-c:\users\david.beales\documents\visual studio 2013\Projects\APE.Injector\APE.Injector\obj\Debug\APE.Injector.pdb
