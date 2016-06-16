@@ -16,7 +16,7 @@
 using System;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using RGiesecke.DllExport;
+using RGiesecke.DllExport;  //[Un]install-Package UnmanagedExports
 using System.Threading;
 using System.Reflection;
 using System.IO;
