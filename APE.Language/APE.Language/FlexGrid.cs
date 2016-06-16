@@ -463,18 +463,17 @@ namespace APE.Language
         /// <summary>
         /// Sets the specified cell to the specified value
         /// </summary>
-        /// <param name="row">The row of the cell to set the value of</param>
-        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="rowText">The row of the cell to set the value of</param>
+        /// <param name="columnText">The column of the cell to set the value of</param>
         /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
         /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
         /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
-        public bool SetCellValue(string row, string column, string value, string expectedValue, string submitKey)
+        public bool SetCellValue(string rowText, string columnText, string value, string expectedValue, string submitKey)
         {
-            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            int RowNumber = FindRow(row);
-            int ColumnNumber = FindColumn(column);
-            return SetCellValueInternal(RowNumber, ColumnNumber, value, expectedValue, submitKey);
+            int row = FindRow(rowText);
+            int column = FindColumn(columnText);
+            return SetCellValueInternal(rowText, columnText, row, column, value, expectedValue, submitKey);
         }
 
         /// <summary>
@@ -506,16 +505,15 @@ namespace APE.Language
         /// Sets the specified cell to the specified value
         /// </summary>
         /// <param name="row">The row index of the cell to set the value of</param>
-        /// <param name="column">The column of the cell to set the value of</param>
+        /// <param name="columnText">The column of the cell to set the value of</param>
         /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
         /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
         /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
-        public bool SetCellValue(int row, string column, string value, string expectedValue, string submitKey)
+        public bool SetCellValue(int row, string columnText, string value, string expectedValue, string submitKey)
         {
-            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            int ColumnNumber = FindColumn(column);
-            return SetCellValueInternal(row, ColumnNumber, value, expectedValue, submitKey);
+            int column = FindColumn(columnText);
+            return SetCellValueInternal(row.ToString(), columnText, row, column, value, expectedValue, submitKey);
         }
 
         /// <summary>
@@ -546,17 +544,16 @@ namespace APE.Language
         /// <summary>
         /// Sets the specified cell to the specified value
         /// </summary>
-        /// <param name="row">The row of the cell to set the value of</param>
+        /// <param name="rowText">The row of the cell to set the value of</param>
         /// <param name="column">The column index of the cell to set the value of</param>
         /// <param name="value">The value you wish to set the cell to.  If the cell uses a TextValueWithTypeControl editor then separate the value from the type with a | character.  For instance 1000|Qty</param>
         /// <param name="expectedValue">The value you expect the cell to display after you have set it</param>
         /// <param name="submitKey">The key to press to submit the value you are trying to set</param>
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
-        public bool SetCellValue(string row, int column, string value, string expectedValue, string submitKey)
+        public bool SetCellValue(string rowText, int column, string value, string expectedValue, string submitKey)
         {
-            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            int RowNumber = FindRow(row);
-            return SetCellValueInternal(RowNumber, column, value, expectedValue, submitKey);
+            int row = FindRow(rowText);
+            return SetCellValueInternal(rowText, column.ToString(), row, column, value, expectedValue, submitKey);
         }
 
         /// <summary>
@@ -595,11 +592,10 @@ namespace APE.Language
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
         public bool SetCellValue(int row, int column, string value, string expectedValue, string submitKey)
         {
-            this.Select(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
-            return SetCellValueInternal(row, column, value, expectedValue, submitKey);
+            return SetCellValueInternal(row.ToString(), column.ToString(), row, column, value, expectedValue, submitKey);
         }
 
-        private bool SetCellValueInternal(int row, int column, string value, string expectedValue, string submitKey)
+        private bool SetCellValueInternal(string rowText, string columnText, int row, int column, string value, string expectedValue, string submitKey)
         {
             Stopwatch ook = Stopwatch.StartNew();
 
@@ -622,85 +618,101 @@ namespace APE.Language
                 return false;
             }
 
-            // Put the cell into edit mode
-            GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
-            base.SendKeysInternal("{F2}");
+            // Get the data type of the cell we want to set
+            string cellDataType = this.GetCellValue(row, column, CellProperty.DataType);
 
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Editor", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetRecognisedType(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageGetApeTypeFromObject(DataStores.Store1, DataStores.Store3); //Get this to help with debuging
-            GUI.m_APE.AddMessageGetApeTypeFromType(DataStores.Store2, DataStores.Store4);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store5, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-            string APEDirectType = GUI.m_APE.GetValueFromMessage();
-            string APEBaseType = GUI.m_APE.GetValueFromMessage();
-            dynamic EditorHandle = GUI.m_APE.GetValueFromMessage();
-
-            if (EditorHandle == null)
+            switch (cellDataType)
             {
-                throw new Exception("Could not find the flexgrid cell editor");
-            }
+                //case "System.DateTime":
+                case "System.Boolean":  //checkbox
+                    // Click on the checkbox
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                    this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                    break;
+                default:
+                    // Select the cell
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                    this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
 
-            //TODO checkboxes both grid native and fidessa custom ones
+                    // Put the cell into edit mode
+                    GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
+                    base.SendKeysInternal("{F2}");
+                    break;
 
-            // If the editor isn't visible then its likely not being used, so search for the real editor
-            if (!NM.IsWindowVisible(EditorHandle))
-            {
-                bool suceeded = false;
-                int timeout = GUI.GetTimeOut();
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Editor", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetRecognisedType(DataStores.Store1, DataStores.Store2);
+                    GUI.m_APE.AddMessageGetApeTypeFromObject(DataStores.Store1, DataStores.Store3); //Get this to help with debuging
+                    GUI.m_APE.AddMessageGetApeTypeFromType(DataStores.Store2, DataStores.Store4);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store5, "Handle", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                    string APEDirectType = GUI.m_APE.GetValueFromMessage();
+                    string APEBaseType = GUI.m_APE.GetValueFromMessage();
+                    dynamic EditorHandle = GUI.m_APE.GetValueFromMessage();
 
-                // See if a generic walker exists
-                GUIGenericWalker genericWalker = null;
-                try
-                {
-                    GUI.SetTimeOut(0);
-                    genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
-                }
-                finally
-                {
-                    GUI.SetTimeOut(timeout);
-                }
-                if (genericWalker != null && genericWalker.Handle != IntPtr.Zero)
-                {
-                    genericWalker.SetText(value);
-                    suceeded = true;
-                }
-                
-                if (!suceeded)
-                {
-                    throw new Exception("Could not find a visible flexgrid cell editor");
-                }
-            }
-            else
-            {
-                //Set the value
-                switch (APEBaseType)
-                {
-                    case "GUIComboBox":
-                        GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
-                        flexgridComboBox.ItemSelect(value);
-                        break;
-                    case "GUITextBox":
-                        GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
-                        flexgridTextBox.SetText(value);
-                        GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
-                        base.SendKeysInternal(submitKey);
-                        break;
-                    case "GUIDateTimePicker":
-                        GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
-                        flexgridDateTimePicker.SetText(value);
-                        GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
-                        base.SendKeysInternal(submitKey);
-                        break;
-                    default:
-                        throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
-                }
+                    if (EditorHandle == null)
+                    {
+                        throw new Exception("Could not find the flexgrid cell editor");
+                    }
+
+                    // If the editor isn't visible then its likely not being used, so search for the real editor
+                    if (!NM.IsWindowVisible(EditorHandle))
+                    {
+                        bool suceeded = false;
+                        int timeout = GUI.GetTimeOut();
+
+                        // See if a generic walker exists
+                        GUIGenericWalker genericWalker = null;
+                        try
+                        {
+                            GUI.SetTimeOut(0);
+                            genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
+                        }
+                        finally
+                        {
+                            GUI.SetTimeOut(timeout);
+                        }
+                        if (genericWalker != null && genericWalker.Handle != IntPtr.Zero)
+                        {
+                            genericWalker.SetText(value);
+                            suceeded = true;
+                        }
+
+                        if (!suceeded)
+                        {
+                            throw new Exception("Could not find a visible flexgrid cell editor");
+                        }
+                    }
+                    else
+                    {
+                        //Set the value
+                        switch (APEBaseType)
+                        {
+                            case "GUIComboBox":
+                                GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                                flexgridComboBox.ItemSelect(value);
+                                break;
+                            case "GUITextBox":
+                                GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
+                                flexgridTextBox.SetText(value);
+                                GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                                base.SendKeysInternal(submitKey);
+                                break;
+                            case "GUIDateTimePicker":
+                                GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
+                                flexgridDateTimePicker.SetText(value);
+                                GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                                base.SendKeysInternal(submitKey);
+                                break;
+                            default:
+                                throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
+                        }
+                    }
             }
 
             //Check the value was set
@@ -755,34 +767,35 @@ namespace APE.Language
             TextDisplay,
             BackColor,
             ForeColor,
+            DataType,
         }
 
-        public dynamic GetCellValue(string Row, string Column, CellProperty Property)
+        public dynamic GetCellValue(string rowText, string columnText, CellProperty property)
         {
-            int RowNumber = FindRow(Row);
-            int ColumnNumber = FindColumn(Column);
-            return GetCellValue(RowNumber, ColumnNumber, Property);
+            int row = FindRow(rowText);
+            int column = FindColumn(columnText);
+            return GetCellValue(row, column, property);
         }
 
-        public dynamic GetCellValue(int Row, string Column, CellProperty Property)
+        public dynamic GetCellValue(int row, string columnText, CellProperty Property)
         {
-            int ColumnNumber = FindColumn(Column);
-            return GetCellValue(Row, ColumnNumber, Property);
+            int column = FindColumn(columnText);
+            return GetCellValue(row, column, Property);
         }
 
-        public dynamic GetCellValue(string Row, int Column, CellProperty Property)
+        public dynamic GetCellValue(string rowText, int column, CellProperty property)
         {
-            int RowNumber = FindRow(Row);
-            return GetCellValue(RowNumber, Column, Property);
+            int row = FindRow(rowText);
+            return GetCellValue(row, column, property);
         }
 
-        public dynamic GetCellValue(int Row, int Column, CellProperty Property)
+        public dynamic GetCellValue(int row, int column, CellProperty property)
         {
-            switch (Property)
+            switch (property)
             {
                 case CellProperty.TextDisplay:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "DataDisplay", MemberTypes.Property);
                     GUI.m_APE.AddMessageGetValue(DataStores.Store2);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -792,7 +805,7 @@ namespace APE.Language
                     return CellDataDisplay;
                 case CellProperty.BackColor:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "BackColor", MemberTypes.Property);
                     GUI.m_APE.AddMessageGetValue(DataStores.Store3);
@@ -803,7 +816,7 @@ namespace APE.Language
                     return CellBackColor;
                 case CellProperty.ForeColor:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ForeColor", MemberTypes.Property);
                     GUI.m_APE.AddMessageGetValue(DataStores.Store3);
@@ -812,8 +825,23 @@ namespace APE.Language
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     Color CellForeColor = GUI.m_APE.GetValueFromMessage();
                     return CellForeColor;
+                case CellProperty.DataType:
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "DataType", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Namespace", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string cellTypeNamespace = GUI.m_APE.GetValueFromMessage();
+                    string cellTypeName = GUI.m_APE.GetValueFromMessage();
+                    return cellTypeNamespace + "." + cellTypeName;
                 default:
-                    throw new Exception("Implement support for getting cell property " + Property.ToString());
+                    throw new Exception("Implement support for getting cell property " + property.ToString());
             }
         }
 
