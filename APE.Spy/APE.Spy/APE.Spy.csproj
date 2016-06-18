@@ -35,6 +35,9 @@
     <Reference Include="APE.Communication">
       <HintPath>..\..\APE.Communication\APE.Communication\bin\Debug\APE.Communication.dll</HintPath>
     </Reference>
+    <Reference Include="APE.Language">
+      <HintPath>..\..\APE.Language\APE.Language\bin\Debug\APE.Language.dll</HintPath>
+    </Reference>
     <Reference Include="APE.Native, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Native\APE.Native\bin\Debug\APE.Native.dll</HintPath>

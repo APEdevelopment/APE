@@ -20,15 +20,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 //
 using System.Diagnostics;
-using APE.Language;
-using APE.Capture;
-
 using System.Threading;
 using System.Drawing;
 using System.IO;
 //
+using APE.Language;
+//
 using System.Net.Mail;
-//Debug.Listeners[0].WriteLine("\t Time: " + timer.ElapsedMilliseconds.ToString());
 
 namespace APE.Test
 {

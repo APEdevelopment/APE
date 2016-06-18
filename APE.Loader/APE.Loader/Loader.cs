@@ -25,6 +25,14 @@ using System.Diagnostics;
 
 namespace APE.Loader
 {
+#if x64
+    public static class Dummy64
+#else
+    public static class Dummy32
+#endif
+    {
+    }
+
     internal static class Loader
     {
         [DllExport]
@@ -43,7 +51,7 @@ namespace APE.Loader
                 key.DeleteValue(APEProcessId + "_AppDomain_" + AUTProcessId);
                 key.Close();
 
-                Assembly assembly = Assembly.LoadFrom(APEPath + @"\..\APE.Domain.dll");
+                Assembly assembly = Assembly.LoadFrom(APEPath + @"\APE.Domain.dll");
                 Type myAPEDomainType = assembly.GetType("APE.Domain.DomainSearch");
                 AppDomain appDom = null;
 
@@ -64,7 +72,7 @@ namespace APE.Loader
                     throw new Exception("Failed to find the appdomain " + AppDomainToLoadInto);
                 }
 
-                appDom.CreateInstanceFrom(APEPath + @"\..\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto }, null, null);
+                appDom.CreateInstanceFrom(APEPath + @"\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto }, null, null);
 
                 return 0;
             }

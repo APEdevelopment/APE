@@ -14,7 +14,6 @@
 //limitations under the License.
 //
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
@@ -23,10 +22,10 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using APE.Capture;
 using APE.Communication;
+using NM = APE.Native.NativeMethods;
 using System.Threading;
 using System.Drawing.Imaging;
 using Microsoft.Win32;
-using NM = APE.Native.NativeMethods;
 using System.Security.Principal;
 
 namespace APE.Language
@@ -178,8 +177,8 @@ namespace APE.Language
     {
         internal static APEIPC m_APE;
         internal static Process m_AttachedProcess;
-        internal static ViewPort ViewPort;
-        private static Thread tViewPort;
+        internal static ViewPort m_ViewPort;
+        private static Thread m_threadViewPort;
         private static bool m_IsElevatedAdmin = false;
 
         /// <summary>
@@ -193,30 +192,43 @@ namespace APE.Language
         /// </summary>
         public static LoggerDelegate Logger;
 
+        /// <summary>
+        /// Provides methods related to the display such as to capture screenshots and video
+        /// </summary>
+        public static Display Display
+        {
+            get
+            {
+                return Display;
+            }
+        }
+
+        /// <summary>
+        /// Provides methods to capture debug string output
+        /// </summary>
+        public static DebugString DebugString
+        {
+            get
+            {
+                return DebugString;
+            }
+        }
+
         static GUI()
         {
             WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             m_IsElevatedAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
 
-            if (tViewPort == null)
+            if (m_threadViewPort == null)
             {
-                tViewPort = new Thread(new ThreadStart(DisplayViewPort));
-                tViewPort.SetApartmentState(ApartmentState.STA);
-                tViewPort.IsBackground = true;
-                tViewPort.Start();
+                m_threadViewPort = new Thread(new ThreadStart(DisplayViewPort));
+                m_threadViewPort.SetApartmentState(ApartmentState.STA);
+                m_threadViewPort.IsBackground = true;
+                m_threadViewPort.Start();
             }
         }
-
-        /// <summary>
-        /// Returns a graphics object
-        /// </summary>
-        /// <returns>A graphics object</returns>
-        public static Graphics CreateGraphics()
-        {
-            return ViewPort.CreateGraphics();
-        }
-
+        
         /// <summary>
         /// Waits for the specified controls gui thread to be idle waiting for user input
         /// </summary>
@@ -228,11 +240,11 @@ namespace APE.Language
 
         private static void DisplayViewPort()
         {
-            ViewPort = new ViewPort();
-            ViewPort.StartPosition = FormStartPosition.Manual;
-            ViewPort.Location = new Point(0, Screen.PrimaryScreen.WorkingArea.Height - ViewPort.Height);
-            ViewPort.Width = Screen.PrimaryScreen.WorkingArea.Width;
-            Application.Run(ViewPort);
+            m_ViewPort = new ViewPort();
+            m_ViewPort.StartPosition = FormStartPosition.Manual;
+            m_ViewPort.Location = new Point(0, Screen.PrimaryScreen.WorkingArea.Height - m_ViewPort.Height);
+            m_ViewPort.Width = Screen.PrimaryScreen.WorkingArea.Width;
+            Application.Run(m_ViewPort);
         }
 
         /// <summary>
@@ -242,11 +254,11 @@ namespace APE.Language
         /// <param name="type"></param>
         public static void Log(string textToLog, LogItemTypeEnum type)
         {
-            while (ViewPort == null || ViewPort.IsHandleCreated == false || ViewPort.Visible == false)
+            while (m_ViewPort == null || m_ViewPort.IsHandleCreated == false || m_ViewPort.Visible == false)
             {
                 Thread.Sleep(15);
             }
-            ViewPort.AppendToLog(textToLog, type);
+            m_ViewPort.AppendToLog(textToLog, type);
 
             if (GUI.Logger != null)
             {
@@ -346,6 +358,30 @@ namespace APE.Language
                     return false;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// This class should never be used as its only purpose is to force some references
+    /// so that some dependant files get copied local when the language assembly is referenced
+    /// </summary>
+    class ForceReferences
+    {
+        /// <summary>
+        /// Will raise an exception if this method is ever called, its not supposed to be called
+        /// </summary>
+        private ForceReferences()
+        {
+            // Force references for loader so they are copied local
+            Type dummyLoaderType32 = typeof(APE.Loader.Dummy32);
+            Type dummyLoaderType64 = typeof(APE.Loader.Dummy64);
+
+            // Force references for injector so they are copied local
+            Type dummyInjectorType32 = typeof(APE.Injector.Dummy32);
+            Type dummyInjectorType64 = typeof(APE.Injector.Dummy64);
+
+            // Force reference for watcher so it is copied local
+            Type dummyWatcherType = typeof(APE.Watcher.Watcher);
         }
     }
 

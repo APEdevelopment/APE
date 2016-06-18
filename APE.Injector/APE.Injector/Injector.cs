@@ -21,7 +21,15 @@ using System.Windows.Forms;
 
 namespace APE.Injector
 {
-    class Injector
+#if x64
+    public static class Dummy64
+#else
+    public static class Dummy32
+#endif
+    {
+    }
+
+    internal static class Injector
     {
         static int Main(string[] args)
         {

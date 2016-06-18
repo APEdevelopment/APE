@@ -374,9 +374,9 @@ namespace APE.Language
                 {
                     Debug.WriteLine("Falling back to Hotkey method for parent");
                     // Fall back to the Hotkey (which will have SetForegroundWindow permission)
-                    GUI.ViewPort.Foreground = ActualParent;
+                    GUI.m_ViewPort.Foreground = ActualParent;
 
-                    while (GUI.ViewPort.Foreground != IntPtr.Zero)
+                    while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
                     {
                         // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
                         NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
@@ -412,13 +412,13 @@ namespace APE.Language
                     {
                         Debug.WriteLine("Falling back to Hotkey method for child");
                         // Fall back to the Hotkey (which will have SetForegroundWindow permission)
-                        GUI.ViewPort.Foreground = Control;
+                        GUI.m_ViewPort.Foreground = Control;
 
                         // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
                         NM.keybd_event(NM.VK_PAUSE, 0x8f, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_PAUSE, 0x8f, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
-                        while (GUI.ViewPort.Foreground != IntPtr.Zero)
+                        while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
                         {
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {

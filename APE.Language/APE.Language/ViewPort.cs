@@ -111,8 +111,7 @@ namespace APE
             }
 
             ProcessStartInfo AppStartup = new ProcessStartInfo();
-            AppStartup.WorkingDirectory = @".\APE";
-            AppStartup.FileName = @"APE.Watcher.exe";
+            AppStartup.FileName = "APE.Watcher.exe";
             AppStartup.Arguments = Process.GetCurrentProcess().Id.ToString() + " " + ((uint)SystemInformation.DoubleClickTime).ToString();
             Process.Start(AppStartup);
 

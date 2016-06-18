@@ -338,7 +338,7 @@ namespace APE.Communication
         private unsafe void InjectAPEIPC(Process AUTProcess, string AppDomain)
         {
             string AUTProcessId = AUTProcess.Id.ToString();
-            string Path = Directory.GetCurrentDirectory() + @"\APE";
+            string Path = Directory.GetCurrentDirectory();
             string Method = "LoadAPEIPC";
             string APEProcessId = Process.GetCurrentProcess().Id.ToString();
             
@@ -362,13 +362,13 @@ namespace APE.Communication
 
                     if (NM.Is32BitProcess(AUTProcess))
                     {
-                        string Assembly = @"APE\APE.Loader_x86.dll";
-                        Injector.StartInfo = new ProcessStartInfo(@"APE\APE.Injector_x86.exe", AUTProcessId + " " + Assembly + " " + Method + " " + APEProcessId);
+                        string Assembly = "APE.Loader_x86.dll";
+                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x86.exe", AUTProcessId + " " + Assembly + " " + Method + " " + APEProcessId);
                     }
                     else
                     {
-                        string Assembly = @"APE\APE.Loader_x64.dll";
-                        Injector.StartInfo = new ProcessStartInfo(@"APE\APE.Injector_x64.exe", AUTProcessId + " " + Assembly + " " + Method + " " + APEProcessId);
+                        string Assembly = "APE.Loader_x64.dll";
+                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x64.exe", AUTProcessId + " " + Assembly + " " + Method + " " + APEProcessId);
                     }
                     Injector.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     Injector.Start();
