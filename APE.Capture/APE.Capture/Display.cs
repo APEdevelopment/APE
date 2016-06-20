@@ -21,6 +21,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Drawing;
 using System.Drawing.Imaging;
+using APE.Native;
 using NM = APE.Native.NativeMethods;
                                 //http://nquant.codeplex.com/license
 using nQuant;                   //Install-Package nQuant
@@ -106,14 +107,6 @@ namespace APE.Capture
             {
                 CheckIfCapturingVideo();
                 m_VideoKeyFrameEvery = value;
-            }
-        }
-
-        public static bool IsWindowsVistaOrHigher
-        {
-            get
-            {
-                return (Environment.OSVersion.Platform == PlatformID.Win32NT) && (Environment.OSVersion.Version.Major >= 6);
             }
         }
 
@@ -243,7 +236,7 @@ namespace APE.Capture
             else
             {
                 NM.tagRect WindowRect;
-                if (IsWindowsVistaOrHigher && IsTopLevelWindow(Window))
+                if (NativeVersion.IsWindowsVistaOrHigher && IsTopLevelWindow(Window))
                 {
                     bool DWMEnabled;
 
@@ -337,7 +330,7 @@ namespace APE.Capture
             else
             {
                 NM.tagRect WindowRect;
-                if (IsWindowsVistaOrHigher && IsTopLevelWindow(m_VideoCaptureWindow))
+                if (NativeVersion.IsWindowsVistaOrHigher && IsTopLevelWindow(m_VideoCaptureWindow))
                 {
                     bool DWMEnabled;
 

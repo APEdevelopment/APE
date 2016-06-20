@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Threading;
 using APE.Communication;
 using System.Windows.Forms;
+using APE.Native;
 using NM = APE.Native.NativeMethods;
 
 namespace APE.Language
@@ -33,7 +34,9 @@ namespace APE.Language
             {
                 throw new Exception("Window did not go idle within timeout");
             }
+            TimerResolution.SetMaxTimerResolution();
             System.Windows.Forms.SendKeys.SendWait(text);
+            TimerResolution.UnsetMaxTimerResolution();
         }
 
         public static void MouseSingleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
@@ -47,32 +50,40 @@ namespace APE.Language
             Block(ParentHandle, Handle);
             try
             {
+                TimerResolution.SetMaxTimerResolution();
                 NM.SetDoubleClickTime(1);
-
+    
                 ClickCommon(ParentHandle, Handle, X, Y);
-
+                
                 GUI.m_APE.AddMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
-
+                
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 // Some controls don't like it if the mouse is released too quick (For instance Listview group selecting)
-                Thread.Sleep(30);
+                Thread.Sleep(32);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
-
+                
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
                 GUI.m_APE.AddMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
+            catch
+            {
+                NM.SetDoubleClickTime(DoubleClickTimer);        //Reset double click timer
+                Reset();    //Reset the mouse blocking
+                throw;
+            }
             finally
             {
+                TimerResolution.UnsetMaxTimerResolution();
                 NM.SetDoubleClickTime(DoubleClickTimer);
                 Unblock();
             }
@@ -84,10 +95,12 @@ namespace APE.Language
             {
                 throw new Exception("Window did not go idle within timeout");
             }
-
+            
             Block(ParentHandle, Handle);
             try
             {
+                TimerResolution.SetMaxTimerResolution();
+
                 ClickCommon(ParentHandle, Handle, X, Y);
 
                 GUI.m_APE.AddMessageAddMouseHook(Handle);
@@ -95,32 +108,38 @@ namespace APE.Language
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
-
+                
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
-
+                
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
-
+                
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
-
+                
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
                 GUI.m_APE.AddMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
+            catch
+            {
+                Reset();    //Reset the mouse blocking
+                throw;
+            }
             finally
             {
+                TimerResolution.UnsetMaxTimerResolution();
                 Unblock();
             }
         }
@@ -131,10 +150,12 @@ namespace APE.Language
             {
                 throw new Exception("Window did not go idle within timeout");
             }
-
+            
             Block(ParentHandle, Handle);
             try
             {
+                TimerResolution.SetMaxTimerResolution();
+
                 ClickCommon(ParentHandle, Handle, X, Y);
 
                 GUI.m_APE.AddMessageAddMouseHook(Handle);
@@ -178,9 +199,15 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
+            catch
+            {
+                Reset();    //Reset the mouse blocking
+                throw;
+            }
             finally
             {
-                Input.Unblock();
+                TimerResolution.UnsetMaxTimerResolution();
+                Unblock();
             }
         }
 
@@ -194,6 +221,8 @@ namespace APE.Language
             Block(ParentHandle, Handle);
             try
             {
+                TimerResolution.SetMaxTimerResolution();
+
                 ClickCommon(ParentHandle, Handle, X, Y);
 
                 GUI.m_APE.AddMessageAddMouseHook(Handle);
@@ -206,9 +235,15 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
+            catch
+            {
+                Reset();    //Reset the mouse blocking
+                throw;
+            }
             finally
             {
-                Input.Unblock();
+                TimerResolution.UnsetMaxTimerResolution();
+                Unblock();
             }
         }
 
@@ -245,6 +280,8 @@ namespace APE.Language
                     ActualParent = ParentHandle;
                 }
 
+                TimerResolution.SetMaxTimerResolution();
+
                 //TODO this looks wrong should use clickcommon only for this
                 if (ChildHandle == ActualParent)
                 {
@@ -271,9 +308,15 @@ namespace APE.Language
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 }
             }
+            catch
+            {
+                Reset();    //Reset the mouse blocking
+                throw;
+            }
             finally
             {
-                Input.Unblock();
+                TimerResolution.UnsetMaxTimerResolution();
+                Unblock();
             }
         }
 
@@ -675,6 +718,59 @@ namespace APE.Language
                 }
             }
             return false;
+        }
+    }
+
+    static internal class TimerResolution
+    {
+        private static bool m_ResolutionSet = false;
+        private static uint m_MaximumResolution = 0;
+
+        static TimerResolution()
+        {
+            uint minimumResolution;
+            uint maximumResolution;
+            uint currentResolution;
+
+            NM.NtQueryTimerResolution(out minimumResolution, out maximumResolution, out currentResolution);
+
+            m_MaximumResolution = maximumResolution;
+        }
+
+        public static void SetMaxTimerResolution()
+        {
+            if (!m_ResolutionSet)
+            {
+                uint currentResolution;
+                uint result = NM.NtSetTimerResolution(m_MaximumResolution, true, out currentResolution);
+
+                switch (result)
+                {
+                    case NM.STATUS_SUCCESS:
+                        m_ResolutionSet = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public static void UnsetMaxTimerResolution()
+        {
+            if (m_ResolutionSet)
+            {
+                uint currentResolution;
+                uint result = NM.NtSetTimerResolution(m_MaximumResolution, false, out currentResolution);
+
+                switch (result)
+                {
+                    case NM.STATUS_SUCCESS:
+                        m_ResolutionSet = false;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
