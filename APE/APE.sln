@@ -85,6 +85,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APE.Native", "..\APE.Native
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApplication", "..\TestApplication\TestApplication\TestApplication.csproj", "{792D9A7D-8742-4546-AA6A-DC684F802002}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "APE.Installer", "APE.Installer\APE.Installer.vdproj", "{CACEBE20-83D0-4BED-8047-274D236A1E36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -179,6 +181,12 @@ Global
 		{792D9A7D-8742-4546-AA6A-DC684F802002}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{792D9A7D-8742-4546-AA6A-DC684F802002}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{792D9A7D-8742-4546-AA6A-DC684F802002}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Any CPU.ActiveCfg = Debug
+		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Mixed Platforms.Build.0 = Debug
+		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Mixed Platforms.Deploy.0 = Debug
+		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|x64.ActiveCfg = Debug
+		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|x86.ActiveCfg = Debug
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
