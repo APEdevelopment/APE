@@ -1,0 +1,5 @@
+APE
+Copyright 2016 David Beales
+
+This product includes software developed at
+APEdevelopment ( https://github.com/APEdevelopment ).
