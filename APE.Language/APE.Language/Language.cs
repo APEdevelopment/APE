@@ -216,6 +216,12 @@ namespace APE.Language
 
         static GUI()
         {
+            if (NM.IsWow64Process(Process.GetCurrentProcess()))
+            {
+                // On a 64-bit OS APE should run as a 64-bit process
+                throw new Exception("Detected running under Wow64, please untick 'prefer 32-bit' in the project build properties page");
+            }
+
             WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             m_IsElevatedAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
