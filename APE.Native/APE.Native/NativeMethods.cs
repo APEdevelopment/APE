@@ -57,7 +57,10 @@ namespace APE.Native
         [DllImport("kernel32.dll", EntryPoint = "GetModuleHandleW", SetLastError = true)]
         public static extern IntPtr GetModuleHandle([MarshalAs(UnmanagedType.LPWStr)] string lpModuleName);
 
-        [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW", SetLastError = true)]
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int LoadString(IntPtr hInstance, uint uID, StringBuilder lpBuffer, int nBufferMax);
+
+        [DllImport("kernel32.dll", EntryPoint = "LoadLibrary", SetLastError = true)]
         public static extern IntPtr LoadLibrary(string lpFileName);
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -1294,6 +1297,11 @@ namespace APE.Native
             bool retVal;
             IsWow64Process(processHandle, out retVal);
             return retVal;
+        }
+
+        public static bool IsWow64Process(Process process)
+        {
+            return IsWow64Process(process.Handle);
         }
 
         public static bool Is32BitProcess(Process process)
