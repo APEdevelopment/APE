@@ -659,6 +659,34 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_00162B6774A64506964039E351022FE6"
+            {
+            "Name" = "8:Primary output from APE.Spy (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_FAE3C59EBB774B3888EC291E49988371"
+            "FileType" = "3:2"
+            "InstallAction" = "3:2"
+            "Arguments" = "8:-pin"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_627C166F_1629_41B5_A8C0_AC399F577BF6"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_89EA8543256D4D8D9A7DBABFAA996C52"
+            {
+            "Name" = "8:Primary output from APE.Spy (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_FAE3C59EBB774B3888EC291E49988371"
+            "FileType" = "3:2"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:-unpin"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_6B387E0F_DC56_4675_BB89_CE3F54E40A14"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
         }
         "DefaultFeature"
         {
@@ -1470,15 +1498,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:APE"
-        "ProductCode" = "8:{E186DD2B-5B93-455F-948C-CE0E71E4A985}"
-        "PackageCode" = "8:{AB00CFC3-70D2-46DB-B1B1-C612290487F2}"
+        "ProductCode" = "8:{4A4DFEA5-F0DF-4348-A4BC-301CCDE72B38}"
+        "PackageCode" = "8:{4666D902-1600-4276-924B-0864F7C2BC66}"
         "UpgradeCode" = "8:{E1CC050C-D87C-4B6E-AF2F-0A96884F8CC6}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.1"
+        "ProductVersion" = "8:1.0.2"
         "Manufacturer" = "8:APEdevelopment"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1494,7 +1522,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:1"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:FOR /F \"tokens=2 delims== \" %%V IN ('FINDSTR /B /R /C:\" *\\\"ProductVersion\\\"\" \"$(ProjectDir)APE.Installer.vdproj\"') DO FOR %%I IN (\"$(BuiltOuputPath)\") DO REN \"$(BuiltOuputPath)\" \"%%~nI-%%~nxV%%~xI\"\r\n\"$(ProjectDir)\"NewSetupVersion.vbs \"$(ProjectDir)APE.Installer.vdproj\""
+        "PostBuildEvent" = "8:\"$(ProjectDir)\"Impersonate.js \"$(BuiltOuputPath)\"\r\nFOR /F \"tokens=2 delims== \" %%V IN ('FINDSTR /B /R /C:\" *\\\"ProductVersion\\\"\" \"$(ProjectDir)APE.Installer.vdproj\"') DO FOR %%I IN (\"$(BuiltOuputPath)\") DO REN \"$(BuiltOuputPath)\" \"%%~nI-%%~nxV%%~xI\"\r\n\"$(ProjectDir)\"NewSetupVersion.vbs \"$(ProjectDir)APE.Installer.vdproj\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"

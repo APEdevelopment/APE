@@ -14,10 +14,12 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Text;
+using System.Diagnostics;
+using NM = APE.Native.NativeMethods;
+using System.Runtime.InteropServices;
 
 namespace APE.Spy
 {
@@ -27,11 +29,64 @@ namespace APE.Spy
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new APESpy());
+            if (args.Length > 0)
+            {
+                switch (args[0])
+                {
+                    case "-pin":
+                        PinUnpinTaskBar(true);
+                        break;
+                    case "-unpin":
+                        PinUnpinTaskBar(false);
+                        break;
+                }
+            }
+            else
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new APESpy());
+            }
+        }
+
+        static void PinUnpinTaskBar(bool pin)
+        {
+            string filePath = Process.GetCurrentProcess().MainModule.FileName;
+
+            // 5386 is the DLL index for"Pin to Tas&kbar", ref. http://www.win7dll.info/shell32_dll.html
+            int actionIndex = pin ? 5386 : 5387;
+            StringBuilder szPinToStartLocalized = new StringBuilder(2048);
+            IntPtr hShell32 = NM.LoadLibrary("Shell32.dll");
+            if (hShell32 == IntPtr.Zero)
+            {
+                throw new Exception("Failed to load Shell32.dll: Last Error was " + Marshal.GetLastWin32Error().ToString());
+            }
+
+            NM.LoadString(hShell32, (uint)actionIndex, szPinToStartLocalized, szPinToStartLocalized.Capacity);
+            string localizedVerb = szPinToStartLocalized.ToString();
+
+            // create the shell application object
+            dynamic shellApplication = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
+
+            string path = Path.GetDirectoryName(filePath);
+            string fileName = Path.GetFileName(filePath);
+
+            dynamic directory = shellApplication.NameSpace(path);
+            dynamic link = directory.ParseName(fileName);
+
+            dynamic verbs = link.Verbs();
+            for (int i = 0; i < verbs.Count(); i++)
+            {
+                dynamic verb = verbs.Item(i);
+
+                if ((pin && verb.Name.Equals(localizedVerb)) || (!pin && verb.Name.Equals(localizedVerb)))
+                {
+                    verb.DoIt();
+                    break;
+                }
+            }
         }
     }
 }
