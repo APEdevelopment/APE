@@ -477,6 +477,24 @@ namespace APE.Spy
             }
         }
 
+        private ControlIdentifier GetIdentity(ControlIdentifier identity)
+        {
+            try
+            {
+                m_APE.AddMessageFindByProperty(identity);
+                m_APE.SendMessages(APEIPC.EventSet.APE);
+                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.DecodeControl(1, out identity);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message + "\r\n" + ex.StackTrace.ToArray());
+                identity.Handle = IntPtr.Zero;
+            }
+
+            return identity;
+        }
+
         private void PopulatePropertyListbox(IntPtr Handle)
         {
             GetIdentity(Handle);
@@ -491,7 +509,58 @@ namespace APE.Spy
             PropertyListbox.Items.Add("TypeNameSpace\t: " + m_Identity.TypeNameSpace);
             PropertyListbox.Items.Add("TechnologyType\t: " + m_Identity.TechnologyType);
             PropertyListbox.Items.Add("ModuleName\t: " + m_Identity.ModuleName);
-            PropertyListbox.Items.Add("Index\t\t: " + m_Identity.Index);
+
+            //Workout the index
+            while (true)
+            {
+                ControlIdentifier identity = new ControlIdentifier();
+                identity.ParentHandle = m_Identity.ParentHandle;
+                if (m_Identity.Name != "" && m_Identity.Name != null)
+                {
+                    //Use Name as the index key
+                    identity.Name = m_Identity.Name;
+                }
+                else if (m_Identity.Text != "" && m_Identity.Text != null)
+                {
+                    //Use Text as the index key
+                    identity.Text = m_Identity.Text;
+                }
+                else
+                {
+                    //Use type as the index key
+                    identity.TypeNameSpace = m_Identity.TypeNameSpace;
+                    identity.TypeName = m_Identity.TypeName;
+                }
+                identity.Index = m_Identity.Index;
+                identity = GetIdentity(identity);
+
+                if (identity.Handle == m_Identity.Handle)
+                {
+                    break;
+                }
+
+                if (identity.Handle == IntPtr.Zero)
+                {
+                    m_Identity.Index = -1;
+                    break;
+                }
+
+                m_Identity.Index++;
+            }
+
+            if (m_Identity.Name != "" && m_Identity.Name != null)
+            {
+                PropertyListbox.Items.Add("Index (by Name)\t: " + m_Identity.Index);
+            }
+            else if (m_Identity.Text != "" && m_Identity.Text != null)
+            {
+                PropertyListbox.Items.Add("Index (by Text)\t: " + m_Identity.Index);
+            }
+            else
+            {
+                PropertyListbox.Items.Add("Index (by Type)\t: " + m_Identity.Index);
+            }
+
             PropertyListbox.Items.Add("APEType\t\t: " + APEType);
 
             PropertyListbox.Items.Add("");
