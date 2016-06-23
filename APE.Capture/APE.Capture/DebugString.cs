@@ -23,6 +23,9 @@ using NM = APE.Native.NativeMethods;
 
 namespace APE.Capture
 {
+    /// <summary>
+    /// Provides methods to capture debug string output
+    /// </summary>
     public sealed class DebugString
     {
         /// <summary>

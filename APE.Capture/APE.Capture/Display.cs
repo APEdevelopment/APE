@@ -28,6 +28,9 @@ using nQuant;                   //Install-Package nQuant
 
 namespace APE.Capture
 {
+    /// <summary>
+    /// Provides methods related to the display such as to capture screenshots and video
+    /// </summary>
     public sealed class Display
     {
         private static bool m_IsCapturingVideo = false; // Only one video is allowed to be recored at a time...
