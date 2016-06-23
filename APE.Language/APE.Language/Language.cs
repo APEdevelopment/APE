@@ -192,28 +192,6 @@ namespace APE.Language
         /// </summary>
         public static LoggerDelegate Logger;
 
-        /// <summary>
-        /// Provides methods related to the display such as to capture screenshots and video
-        /// </summary>
-        public static Display Display
-        {
-            get
-            {
-                return Display;
-            }
-        }
-
-        /// <summary>
-        /// Provides methods to capture debug string output
-        /// </summary>
-        public static DebugString DebugString
-        {
-            get
-            {
-                return DebugString;
-            }
-        }
-
         static GUI()
         {
             if (NM.IsWow64Process(Process.GetCurrentProcess()))

@@ -120,6 +120,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\APE256x256.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +130,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Tick16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\LICENSE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\NOTICE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
