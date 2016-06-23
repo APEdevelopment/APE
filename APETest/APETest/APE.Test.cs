@@ -14,19 +14,13 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-//
 using System.Diagnostics;
 using System.Threading;
-using System.Drawing;
 using System.IO;
-//
-using APE.Language;
-//
 using System.Net.Mail;
+using APE.Language;
+using APE.Capture;
 
 namespace APE.Test
 {
