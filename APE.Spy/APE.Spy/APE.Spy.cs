@@ -846,5 +846,17 @@ namespace APE.Spy
         {
             //TODO
         }
+
+        private void PropertyListbox_MouseDown(object sender, MouseEventArgs args)
+        {
+            if (args.Button == MouseButtons.Right)
+            {
+                int item = PropertyListbox.IndexFromPoint(args.Location);
+                if (item > -1 && PropertyListbox.SelectedIndices.Contains(item) == false)
+                {
+                    PropertyListbox.SelectedIndex = item;
+                }
+            }
+        }
     }
 }

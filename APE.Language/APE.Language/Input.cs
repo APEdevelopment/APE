@@ -27,9 +27,34 @@ namespace APE.Language
     internal static class Input
     {
         public static int m_Count = 0;
+        private static Process m_Process = null;
+        private static int m_ProcessId = 0;
+        private static bool m_MouseDown = false;
+
+        private static void WaitToBeVisibleAndEnabled(IntPtr handle)
+        {
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                {
+                    throw new Exception("Control is not enabled");
+                }
+
+                if (NM.IsWindowEnabled(handle))
+                {
+                    if (NM.IsWindowVisible(handle))
+                    {
+                        break;
+                    }
+                }
+            }
+            timer.Stop();
+        }
 
         public static void SendKeys(IntPtr Handle, string text)
         {
+            WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
@@ -41,11 +66,13 @@ namespace APE.Language
 
         public static void MouseSingleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
             }
 
+            m_MouseDown = false;
             uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
             Block(ParentHandle, Handle);
             try
@@ -58,15 +85,16 @@ namespace APE.Language
                 GUI.m_APE.AddMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
+                
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
                 GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
-                // Some controls don't like it if the mouse is released too quick (For instance Listview group selecting)
-                Thread.Sleep(32);
+                // Some controls don't like it if the mouse is released too quick (For instance Listview
+                // group selecting) but rather than slowing all clicks down put specific code in the problematic
+                // control to handle it (see SelectGroup in ListView.cs for an example)
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
@@ -91,11 +119,13 @@ namespace APE.Language
 
         public static void MouseDoubleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
             }
-            
+
+            m_MouseDown = false;
             Block(ParentHandle, Handle);
             try
             {
@@ -146,11 +176,13 @@ namespace APE.Language
 
         public static void MouseTripleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
             }
-            
+
+            m_MouseDown = false;
             Block(ParentHandle, Handle);
             try
             {
@@ -213,6 +245,7 @@ namespace APE.Language
 
         public static void MouseDown(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
@@ -244,11 +277,13 @@ namespace APE.Language
             {
                 TimerResolution.UnsetMaxTimerResolution();
                 Unblock();
+                m_MouseDown = true;
             }
         }
 
         public static void MouseUp(IntPtr ParentHandle, IntPtr Handle, int x, int y, MouseButton Button, MouseKeyModifier Keys)
         {
+            WaitToBeVisibleAndEnabled(Handle);
             Block(ParentHandle, Handle);
             try
             {
@@ -317,6 +352,7 @@ namespace APE.Language
             {
                 TimerResolution.UnsetMaxTimerResolution();
                 Unblock();
+                m_MouseDown = false;
             }
         }
 
@@ -431,7 +467,7 @@ namespace APE.Language
                             throw new Exception("Viewport SetForegroundWindow appeared to not trigger");
                         }
 
-                        Thread.Sleep(15);
+                        Thread.Sleep(0);
                     }
                 }
 
@@ -443,7 +479,7 @@ namespace APE.Language
                         throw new Exception("Failed to set focus to the toplevel window");
                     }
 
-                    Thread.Sleep(15);
+                    Thread.Sleep(0);
                 }
             }
 
@@ -469,7 +505,7 @@ namespace APE.Language
                                 throw new Exception("SetForegroundWindow failed to set focus to the window");
                             }
 
-                            Thread.Sleep(15);
+                            Thread.Sleep(0);
                         }
                     }
 
@@ -481,7 +517,7 @@ namespace APE.Language
                             throw new Exception("Failed to set focus to the window");
                         }
                         
-                        Thread.Sleep(15);
+                        Thread.Sleep(0);
                     }
                     timer.Stop();
                 }
@@ -517,7 +553,6 @@ namespace APE.Language
                     }
 
                     NM.tagPoint thePoint = GUI.m_APE.MouseMove(Handle, X, Y);
-
                     IntPtr WindowAtPoint = NM.WindowFromPoint(thePoint);
 
                     if (WindowAtPoint != Handle)
@@ -547,49 +582,42 @@ namespace APE.Language
                     {
                         throw new Exception("Failed to block input");
                     }
-                    Thread.Sleep(15);
-
-                    NM.GetKeyState(0);
 
                     Byte[] state = new byte[256];
-                    bool Reset = false;
 
+                    //dummy call to make the GetKeyboardState accurate
+                    NM.GetKeyState(0);
+
+                    //get the current thread keyboard state
                     NM.GetKeyboardState(state);
 
                     //reset the global mouse states
-                    if ((state[NM.VK_LBUTTON] & 0x80) != 0)
+                    if (m_MouseDown == false)
                     {
-                        //TODO use sendinput
-                        NM.mouse_event(NM.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
-                        Reset = true;
-                    }
+                        if ((state[NM.VK_LBUTTON] & 0x80) != 0)
+                        {
+                            NM.mouse_event(NM.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                        }
 
-                    if ((state[NM.VK_MBUTTON] & 0x80) != 0)
-                    {
-                        //TODO use sendinput
-                        NM.mouse_event(NM.MOUSEEVENTF_MIDDLEUP, 0, 0, 0, UIntPtr.Zero);
-                        Reset = true;
-                    }
+                        if ((state[NM.VK_MBUTTON] & 0x80) != 0)
+                        {
+                            NM.mouse_event(NM.MOUSEEVENTF_MIDDLEUP, 0, 0, 0, UIntPtr.Zero);
+                        }
 
-                    if ((state[NM.VK_RBUTTON] & 0x80) != 0)
-                    {
-                        //TODO use sendinput
-                        NM.mouse_event(NM.MOUSEEVENTF_RIGHTUP, 0, 0, 0, UIntPtr.Zero);
-                        Reset = true;
-                    }
+                        if ((state[NM.VK_RBUTTON] & 0x80) != 0)
+                        {
+                            NM.mouse_event(NM.MOUSEEVENTF_RIGHTUP, 0, 0, 0, UIntPtr.Zero);
+                        }
 
-                    if ((state[NM.VK_XBUTTON1] & 0x80) != 0)
-                    {
-                        //TODO use sendinput
-                        NM.mouse_event(NM.MOUSEEVENTF_XUP, 0, 0, 0, new UIntPtr(1));
-                        Reset = true;
-                    }
+                        if ((state[NM.VK_XBUTTON1] & 0x80) != 0)
+                        {
+                            NM.mouse_event(NM.MOUSEEVENTF_XUP, 0, 0, 0, new UIntPtr(1));
+                        }
 
-                    if ((state[NM.VK_XBUTTON2] & 0x80) != 0)
-                    {
-                        //TODO use sendinput
-                        NM.mouse_event(NM.MOUSEEVENTF_XUP, 0, 0, 0, new UIntPtr(2));
-                        Reset = true;
+                        if ((state[NM.VK_XBUTTON2] & 0x80) != 0)
+                        {
+                            NM.mouse_event(NM.MOUSEEVENTF_XUP, 0, 0, 0, new UIntPtr(2));
+                        }
                     }
 
                     // 3 is VK_CANCEL
@@ -597,7 +625,6 @@ namespace APE.Language
                     {
                         NM.keybd_event(NM.VK_CANCEL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_CANCEL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-                        Reset = true;
                     }
 
                     // 7+ is non-mouse (apart from 3) and 255 seems to break things so we do till 254
@@ -607,41 +634,30 @@ namespace APE.Language
                         {
                             NM.keybd_event(vk, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                             NM.keybd_event(vk, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-                            Reset = true;
                         }
                     }
 
                     //check for toggle keys
                     if ((state[NM.VK_CAPITAL] & 0x1) != 0)
                     {
-                        //TODO use sendinput
                         NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-                        Reset = true;
                     }
 
                     if ((state[NM.VK_NUMLOCK] & 0x1) != 0)
                     {
-                        //TODO use sendinput
                         NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-                        Reset = true;
                     }
 
                     if ((state[NM.VK_SCROLL] & 0x1) != 0)
                     {
-                        //TODO use sendinput
                         NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-                        Reset = true;
                     }
 
-                    NM.GetKeyState(0);
-
-                    if (Reset)
-                    {
-                        Thread.Sleep(50);
-                    }
+                    //make sure any key / mouse presses are detected
+                    Application.DoEvents();                    
                 }
             }
 
@@ -681,12 +697,34 @@ namespace APE.Language
                 throw new Exception("Failed to get thread for window");
             }
 
-            Stopwatch timer = Stopwatch.StartNew();
-            do
+            if (processId != m_ProcessId)
             {
-                if (IsThreadIdle(processId, threadId))
+                m_ProcessId = processId;
+                m_Process = Process.GetProcessById(processId);
+            }
+            else
+            {
+                m_Process.Refresh();
+            }
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                ProcessThreadCollection threadCollection = m_Process.Threads;
+
+                for (int i = 0; i < threadCollection.Count; i++)
                 {
-                    return true;
+                    if (threadCollection[i].Id == threadId)
+                    {
+                        if (threadCollection[i].ThreadState == System.Diagnostics.ThreadState.Wait)
+                        {
+                            if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
+                            {
+                                return true;
+                            }
+                        }
+                        break;
+                    }
                 }
 
                 if (timer.ElapsedMilliseconds > timeoutMs)
@@ -694,30 +732,9 @@ namespace APE.Language
                     return false;
                 }
 
-                Thread.Sleep(15);
+                Thread.Sleep(0);
+                m_Process.Refresh();
             }
-            while (true);
-        }
-
-        private static bool IsThreadIdle(int processId, int threadId)
-        {
-            ProcessThreadCollection threadCollection = Process.GetProcessById(processId).Threads;
-
-            for (int i = 0; i < threadCollection.Count; i++)
-            {
-                if (threadCollection[i].Id == threadId)
-                {
-                    if (threadCollection[i].ThreadState == System.Diagnostics.ThreadState.Wait)
-                    {
-                        if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
-                        {
-                            return true;
-                        }
-                    }
-                    break;
-                }
-            }
-            return false;
         }
     }
 

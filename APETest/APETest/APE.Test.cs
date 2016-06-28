@@ -231,7 +231,6 @@ namespace APE.Test
             {
                 GUI.WaitForInputIdle(psGrid);
             }
-                
         }
 
         private void button2_Click(object sender, EventArgs e)  //IMS
@@ -245,18 +244,48 @@ namespace APE.Test
             Process p = Process.GetProcessesByName("LzCapstone")[0];
             GUI.AttachToProcess(p);
 
+            //GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
+            //GUIFlexgrid layout = new GUIFlexgrid(IMS, "treeView", new Identifier(Identifiers.Name, "treeView"));
 
 
-            GUIForm execution = new GUIForm("execution form", new Identifier(Identifiers.Name, "frmSingleExecution"));
-            GUIFlexgrid add = new GUIFlexgrid(execution, "add grid", new Identifier(Identifiers.Name, "fgAddGrid"));
-            add.SetCellValue(1, "Counterparty", "ABN Amro");
-            add.SetCellValue(1, "Price", "128.3", "128.3000");
-            add.SetCellValue(1, "Stmp", "True");
-            add.SetCellValue(1, "Trade Date", "16 Jun 2016", "16 Jun 2016");
+
+            GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+
+            GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+
+            entry.SetCellValue(1, "Instrument", "AEGON 5 3/4 12/15/20");
+
+            Debug.WriteLine("");
+
+
+            //for (int i = 0; i < layout.Rows(); i++)
+            //{
+            //    Debug.WriteLine(i.ToString() + " " + layout.IsRowHidden(i).ToString());
+            //}
+
+            //layout.CollapseTreeView();
+            //layout.ExpandNodes("Manual -> Level 1 -> Level 2b");
+            //layout.CollapseNodes("Manual -> Level 1 -> Level 2b");
+            //stepTimer = Stopwatch.StartNew();
+            //layout.ExpandTreeView();
+            //Debug.WriteLine("expand: " + stepTimer.ElapsedMilliseconds.ToString());
+            //stepTimer = Stopwatch.StartNew();
+            //layout.CollapseTreeView();
+            //Debug.WriteLine("collapse: " + stepTimer.ElapsedMilliseconds.ToString());
+
+
+
+
+            //GUIForm execution = new GUIForm("execution form", new Identifier(Identifiers.Name, "frmSingleExecution"));
+            //GUIFlexgrid add = new GUIFlexgrid(execution, "add grid", new Identifier(Identifiers.Name, "fgAddGrid"));
+            //add.SetCellValue(1, "Counterparty", "ABN Amro");
+            //add.SetCellValue(1, "Price", "128.3", "128.3000");
+            //add.SetCellValue(1, "Stmp", "True");
+            //add.SetCellValue(1, "Trade Date", "16 Jun 2016", "16 Jun 2016");
 
             //GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
             //GUIFlexgrid layout = new GUIFlexgrid(IMS, "layout treeview", new Identifier(Identifiers.Name, "treeView"));
-            
+
             ////https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
             ////Debug.WriteLine(System.Text.RegularExpressions.Regex.IsMatch("Orders [Count: 3][Link:]", "Orders [[]Count: [0-9]+[]][[]Link:[]]").ToString());
 
@@ -284,7 +313,7 @@ namespace APE.Test
 
             //Stopwatch foo = Stopwatch.StartNew();
 
-            
+
             //foo.Stop();
             //Debug.WriteLine((foo.ElapsedMilliseconds / entry.Columns()).ToString());
 
@@ -626,7 +655,7 @@ namespace APE.Test
                     statusBarFirstPanel.PollForText("");
                     Stopwatch doo = Stopwatch.StartNew();
                     statusBarFirstPanel.PollForText("");
-                    Debug.WriteLine(doo.ElapsedMilliseconds.ToString());
+                    //Debug.WriteLine(doo.ElapsedMilliseconds.ToString());
 //                    while (ssStatusBar.PanelText(0) != "")
 //                    {
 //                        Thread.Sleep(100);

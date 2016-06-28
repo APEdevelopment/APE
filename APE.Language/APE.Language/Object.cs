@@ -151,6 +151,8 @@ namespace APE.Language
                     GUI.m_APE.DecodeControl(1, out Identity);
                     break;
             }
+
+            Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut);
         }
 
         /// <summary>
@@ -299,26 +301,7 @@ namespace APE.Language
 
         internal void MouseSingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            WaitToBeEnabled();
             Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
-        }
-
-        private void WaitToBeEnabled()
-        {
-            Stopwatch timer = Stopwatch.StartNew();
-            while (true)
-            {
-                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
-                {
-                    throw new Exception(m_DescriptionOfControl + " is not enabled");
-                }
-
-                if (NM.IsWindowEnabled(Identity.Handle))
-                {
-                    break;
-                }
-            }
-            timer.Stop();
         }
 
         /// <summary>
@@ -359,7 +342,6 @@ namespace APE.Language
 
         internal void MouseDoubleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            WaitToBeEnabled();
             Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
@@ -401,7 +383,6 @@ namespace APE.Language
 
         internal void MouseTripleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            WaitToBeEnabled();
             Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
@@ -434,7 +415,6 @@ namespace APE.Language
 
         internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            WaitToBeEnabled();
             Input.MouseDown(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 
@@ -467,7 +447,6 @@ namespace APE.Language
 
         internal void MouseUpInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            WaitToBeEnabled();
             Input.MouseUp(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
         }
 

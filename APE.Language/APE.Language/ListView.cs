@@ -227,7 +227,11 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                // Listview group selecting has issue if the mouse up is recieved to quickly after the mouse down
+                // so sleep a bit between the mouse down and up
+                base.MouseDownInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                Thread.Sleep(32);
+                base.MouseUpInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
                 //wait for all group to be selected
                 bool Selected = false;

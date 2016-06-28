@@ -104,7 +104,8 @@ namespace APE.Language
             string ChildNodeText = SplitNodeText[SplitNodeText.GetUpperBound(0)];
             string CurrentNodeText;
 
-            do
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
             {
                 //Find a row which matches the child node we are after
                 CurrentRow = FindRowInternal(ChildNodeText, Column, CurrentRow);
@@ -116,7 +117,17 @@ namespace APE.Language
 
                 //Check if its parents match the node we are after
                 CurrentNodeText = GetNodePath(CurrentRow, Column);
-            } while (CurrentNodeText != NodeText);
+
+                if (CurrentNodeText == NodeText)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception("Failed to find node row");
+                }
+            }
 
             return CurrentRow;
         }
@@ -135,11 +146,11 @@ namespace APE.Language
             return NodePath;
         }
 
-        private bool IsNode(int Row)
+        private bool IsNode(int rowIndex)
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Row));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "IsNode", MemberTypes.Property);
             GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -148,6 +159,243 @@ namespace APE.Language
             bool RowIsNode = GUI.m_APE.GetValueFromMessage();
 
             return RowIsNode;
+        }
+
+        private bool IsNodeCollapsed(int rowIndex)
+        {
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Node", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Collapsed", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool collapsed = GUI.m_APE.GetValueFromMessage();
+
+            return collapsed;
+        }
+
+        private bool HasNodeGotChildren(int rowIndex)
+        {
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Node", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Children", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int children = GUI.m_APE.GetValueFromMessage();
+
+            if (children > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void ExpandTreeView()
+        {
+            GUI.Log("Fully expand the treeview", LogItemTypeEnum.Action);
+
+            int treeColumnIndex = TreeViewColumn();
+
+            if (treeColumnIndex == -1)
+            {
+                throw new Exception("Flexgrid is not a treeview");
+            }
+
+            for (int rowIndex = 0; rowIndex < Rows(); rowIndex++)
+            {
+                if (IsNode(rowIndex))
+                {
+                    if (HasNodeGotChildren(rowIndex))
+                    {
+                        if (IsNodeCollapsed(rowIndex))
+                        {
+                            SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+
+                            Stopwatch timer = Stopwatch.StartNew();
+                            while (true)
+                            {
+                                if (!IsNodeCollapsed(rowIndex))
+                                {
+                                    break;
+                                }
+
+                                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                                {
+                                    throw new Exception("Failed to expand the flexgrid node");
+                                }
+
+                                Thread.Sleep(15);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void CollapseTreeView()
+        {
+            GUI.Log("Fully collapse the treeview", LogItemTypeEnum.Action);
+
+            int treeColumnIndex = TreeViewColumn();
+
+            if (treeColumnIndex == -1)
+            {
+                throw new Exception("Flexgrid is not a treeview");
+            }
+
+            for (int rowIndex = Rows() -1; rowIndex > -1; rowIndex--)
+            {
+                if (IsNode(rowIndex))
+                {
+                    if (HasNodeGotChildren(rowIndex))
+                    {
+                        if (!IsNodeCollapsed(rowIndex))
+                        {
+                            SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+
+                            Stopwatch timer = Stopwatch.StartNew();
+                            while (true)
+                            {
+                                if (IsNodeCollapsed(rowIndex))
+                                {
+                                    break;
+                                }
+
+                                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                                {
+                                    throw new Exception("Failed to collapse the flexgrid node");
+                                }
+
+                                Thread.Sleep(15);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void ExpandNodes(string nodePath)
+        {
+            GUI.Log("Expand node " + nodePath, LogItemTypeEnum.Action);
+
+            string[] delimiter = { " -> " };
+            string[] nodePathArray = nodePath.Split(delimiter, StringSplitOptions.None);
+
+            int treeColumnIndex = TreeViewColumn();
+            string row = "";
+
+            if (treeColumnIndex == -1)
+            {
+                throw new Exception("Flexgrid is not a treeview");
+            }
+
+            for (int i = 0; i < nodePathArray.GetLength(0); i++)
+            {
+                if (i == 0)
+                {
+                    row = nodePathArray[0];
+                }
+                else
+                {
+                    row += " -> " + nodePathArray[i];
+                }
+                int rowIndex = FindNodeRow(row);
+
+                if (!HasNodeGotChildren(rowIndex))
+                {
+                    throw new Exception("Can not expand node is has no children");
+                }
+
+                if (IsNodeCollapsed(rowIndex))
+                {
+                    SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        if (!IsNodeCollapsed(rowIndex))
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw new Exception("Failed to expand the flexgrid node");
+                        }
+
+                        Thread.Sleep(15);
+                    }
+                }
+            }
+        }
+
+        public void CollapseNodes(string nodePath)
+        {
+            GUI.Log("Collapse node " + nodePath, LogItemTypeEnum.Action);
+
+            string[] delimiter = { " -> " };
+            string[] nodePathArray = nodePath.Split(delimiter, StringSplitOptions.None);
+
+            int treeColumnIndex = TreeViewColumn();
+            string row = "";
+
+            if (treeColumnIndex == -1)
+            {
+                throw new Exception("Flexgrid is not a treeview");
+            }
+
+            for (int i = nodePathArray.GetLength(0) - 1; i > -1; i--)
+            {
+                for (int x = 0; x <= i; x++)
+                {
+                    if (x == 0)
+                    {
+                        row = nodePathArray[0];
+                    }
+                    else
+                    {
+                        row += " -> " + nodePathArray[x];
+                    }
+                }
+                
+                int rowIndex = FindNodeRow(row);
+
+                if (!HasNodeGotChildren(rowIndex))
+                {
+                    throw new Exception("Can not collapse node is has no children");
+                }
+
+                if (!IsNodeCollapsed(rowIndex))
+                {
+                    SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        if (IsNodeCollapsed(rowIndex))
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw new Exception("Failed to collapse the flexgrid node");
+                        }
+
+                        Thread.Sleep(15);
+                    }
+                }
+            }
         }
 
         private int GetNodeParentRow(int Row)
@@ -630,14 +878,20 @@ namespace APE.Language
                     this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
                     break;
                 default:
-                    // Select the cell
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
-                    this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                    // Select the cell if its not selected
+                    if (this.SelectedRow() == row && this.SelectedColumn() == column)
+                    {
+                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemTypeEnum.Action);
+                    }
+                    else
+                    {
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                        this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                    }
 
                     // Put the cell into edit mode
                     GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
                     base.SendKeysInternal("{F2}");
-                    break;
 
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Editor", MemberTypes.Property);
@@ -713,6 +967,7 @@ namespace APE.Language
                                 throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
                         }
                     }
+                    break;
             }
 
             //Check the value was set

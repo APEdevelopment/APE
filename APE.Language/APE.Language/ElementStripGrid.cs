@@ -1154,7 +1154,6 @@ namespace APE.Language
             GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "GetType", MemberTypes.Method);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store6, DataStores.Store7, "Namespace", MemberTypes.Property);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store6, DataStores.Store8, "Name", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetApeTypeFromObject(DataStores.Store5, DataStores.Store6); //Get this to help with debuging
             GUI.m_APE.AddMessageGetValue(DataStores.Store7);
             GUI.m_APE.AddMessageGetValue(DataStores.Store8);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -1401,14 +1400,24 @@ namespace APE.Language
                     // Do nothing special for this type of cell
                     break;
                 default:
-                    // Select the cell
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
-                    this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                    // Select the cell if its not selected
+                    if (this.CursorCellRow() == row && this.CursorCellColumn() == column)
+                    {
+                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemTypeEnum.Action);
+                    }
+                    else
+                    {
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                        this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                    }
 
                     // Put the cell into edit mode
                     GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
                     base.SendKeysInternal("{F2}");
                     Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
+
+                    // Reget the editor type now the cell is in edit mode
+                    editorType = GetEdititorType(row, column);
                     break;
             }
 

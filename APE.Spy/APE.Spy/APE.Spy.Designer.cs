@@ -119,6 +119,7 @@
             this.PropertyListbox.Name = "PropertyListbox";
             this.PropertyListbox.Size = new System.Drawing.Size(251, 455);
             this.PropertyListbox.TabIndex = 0;
+            this.PropertyListbox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PropertyListbox_MouseDown);
             this.PropertyListbox.Resize += new System.EventHandler(this.TreeView_Resize);
             // 
             // ListBoxContextMenuStrip
