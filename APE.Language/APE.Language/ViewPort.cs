@@ -158,13 +158,18 @@ namespace APE
                 NM.SetDoubleClickTime(m_DoubleClickTimer);
             }
 
-            Process CurrentProcess = Process.GetCurrentProcess();
-            if (CurrentProcess.ProcessName.EndsWith(".vshost"))
+            if (Debugger.IsAttached)
             {
+                Process CurrentProcess = Process.GetCurrentProcess();
                 Process VisualStudio = GetParentProcess(CurrentProcess);
+                if (VisualStudio.ProcessName == "msvsmon")
+                {
+                    VisualStudio = GetParentProcess(VisualStudio);
+                }
+
                 if (!NM.SetForegroundWindow(VisualStudio.MainWindowHandle))
                 {
-                    throw new Exception("SetForegroundWindow failed");
+                    throw new Exception("SetForegroundWindow VisualStudio failed");
                 }
 
                 NM.keybd_event(NM.VK_CONTROL, 0x1d, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
