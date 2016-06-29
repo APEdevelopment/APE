@@ -200,6 +200,9 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Expand all nodes in the flexgrid treeview column
+        /// </summary>
         public void ExpandTreeView()
         {
             GUI.Log("Fully expand the treeview", LogItemTypeEnum.Action);
@@ -242,6 +245,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Collapse all nodes in the flexgrid treeview column
+        /// If you need a maximally collapsed grid then call ExpandTreeView before calling CollapseTreeView
+        /// </summary>
         public void CollapseTreeView()
         {
             GUI.Log("Fully collapse the treeview", LogItemTypeEnum.Action);
@@ -284,6 +291,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Expands the specified nodes in the flexgrid treeview column
+        /// </summary>
+        /// <param name="nodePath">Node path to expand delimited by -> for example RULE LIBRARY -> UCITS I -> France</param>
         public void ExpandNodes(string nodePath)
         {
             GUI.Log("Expand node " + nodePath, LogItemTypeEnum.Action);
@@ -339,6 +350,10 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Collapses the specified nodes in the flexgrid treeview column
+        /// </summary>
+        /// <param name="nodePath">Node path to collapse delimited by -> for example RULE LIBRARY -> UCITS I -> France</param>
         public void CollapseNodes(string nodePath)
         {
             GUI.Log("Collapse node " + nodePath, LogItemTypeEnum.Action);
@@ -514,7 +529,7 @@ namespace APE.Language
             int RightColumn = GUI.m_APE.GetValueFromMessage();
             int TopRow = GUI.m_APE.GetValueFromMessage();
             int BottomRow = GUI.m_APE.GetValueFromMessage();
-
+            
             if (Column <= LeftColumn || Column >= RightColumn || Row <= TopRow || Row >= BottomRow)
             {
                 return false;
@@ -1150,11 +1165,8 @@ namespace APE.Language
                 //TODO move mouse over the grid if not in drag mode?
                 GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "ShowCell", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
-                GUI.m_APE.AddMessageGetValue(DataStores.Store1);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                dynamic Ignore = GUI.m_APE.GetValueFromMessage();
             }
         }
 
