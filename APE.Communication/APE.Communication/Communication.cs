@@ -3183,19 +3183,19 @@ namespace APE.Communication
                 switch (PtrMessage->MemberType)
                 {
                     case MemberTypes.Field:
-                        MemberGetterCache.GetFromList(SourceType.TypeHandle, Name, out MemberGetter);
+                        MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
                         if (MemberGetter == null)
                         {
                             MemberGetter = SourceType.DelegateForGetFieldValue(Name);
-                            MemberGetterCache.AddToList(SourceType.TypeHandle, Name, MemberGetter);
+                            MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                         }
                         break;
                     case MemberTypes.Property:
-                        MemberGetterCache.GetFromList(SourceType.TypeHandle, Name, out MemberGetter);
+                        MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
                         if (MemberGetter == null)
                         {
                             MemberGetter = SourceType.DelegateForGetPropertyValue(Name);
-                            MemberGetterCache.AddToList(SourceType.TypeHandle, Name, MemberGetter);
+                            MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                         }
                         break;
                     default:
@@ -3237,7 +3237,7 @@ namespace APE.Communication
         {
             object SourceObject;
             object DestinationObject;
-            bool cache = true;
+            IntPtr datastoreTypeHandle = IntPtr.Zero;
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
 
@@ -3332,7 +3332,11 @@ namespace APE.Communication
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
                         case 19:
-                            cache = false;
+                            if (datastoreTypeHandle != IntPtr.Zero)
+                            {
+                                throw new Exception("Only passing one datastore item as a parameter is supported");
+                            }
+
                             int datastoreNumber = PtrMessage->Parameter.Int32[i];
                             switch (datastoreNumber)
                             {
@@ -3379,12 +3383,13 @@ namespace APE.Communication
                                 default:
                                     throw new Exception("Unsupported SourceStore " + datastoreNumber.ToString());
                             }
+                            datastoreTypeHandle = ParametersType[i].TypeHandle.Value;
                             break;
                         default:
                             throw new Exception("Unsupported System.TypeCode: " + ((int)(PtrMessage->Parameter.TypeCode[i])).ToString());
                     }
                 }
-                if (cache)  //not a datastore type
+                if (datastoreTypeHandle == IntPtr.Zero)  //none of the parameters are a datastore type
                 {
                     ParametersTypeCache.AddToList(PtrMessage->TypeCodeKey, ParametersType);
                 }
@@ -3535,7 +3540,7 @@ namespace APE.Communication
                     switch (PtrMessage->MemberType)
                     {
                         case MemberTypes.Constructor:
-                            ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, out ConstructorInvoker);
+                            ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out ConstructorInvoker);
                             if (ConstructorInvoker == null)
                             {
                                 Type typeContainingConstructor;
@@ -3545,18 +3550,18 @@ namespace APE.Communication
                                     typeContainingConstructor = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == Name);
                                 }
                                 ConstructorInvoker = typeContainingConstructor.DelegateForCreateInstance(ParametersType);
-                                ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, ConstructorInvoker);
+                                ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, ConstructorInvoker);
                             }
                             DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
                             //DestinationObject = ((Control)tempStore0).Invoke((Delegate)ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                             ConstructorInvoker = null;
                             break;
                         case MemberTypes.Field:
-                            MemberGetterCache.GetFromList(SourceType.TypeHandle, Name, out MemberGetter);
+                            MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
                             if (MemberGetter == null)
                             {
                                 MemberGetter = SourceType.DelegateForGetFieldValue(Name);
-                                MemberGetterCache.AddToList(SourceType.TypeHandle, Name, MemberGetter);
+                                MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                             }
                             DestinationObject = ((Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                             MemberGetter = null;
@@ -3564,22 +3569,22 @@ namespace APE.Communication
                         case MemberTypes.Property:
                             if (ParametersType.Length == 0)
                             {
-                                MemberGetterCache.GetFromList(SourceType.TypeHandle, Name, out MemberGetter);
+                                MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
                                 if (MemberGetter == null)
                                 {
                                     MemberGetter = SourceType.DelegateForGetPropertyValue(Name);
-                                    MemberGetterCache.AddToList(SourceType.TypeHandle, Name, MemberGetter);
+                                    MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                                 }
                                 DestinationObject = ((Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                                 MemberGetter = null;
                             }
                             else
                             {
-                                MethodInvokerCache.GetFromList(SourceType.TypeHandle, Name, PtrMessage->TypeCodeKey, out MethodInvoker);
+                                MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
                                 if (MethodInvoker == null)
                                 {
                                     MethodInvoker = SourceType.DelegateForGetIndexer(ParametersType);
-                                    MethodInvokerCache.AddToList(SourceType.TypeHandle, Name, PtrMessage->TypeCodeKey, MethodInvoker);
+                                    MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
                                 }
                                 DestinationObject = ((Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                                 MethodInvoker = null;
@@ -3593,11 +3598,11 @@ namespace APE.Communication
                             }
                             else
                             {
-                                MethodInvokerCache.GetFromList(SourceType.TypeHandle, Name, PtrMessage->TypeCodeKey, out MethodInvoker);
+                                MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
                                 if (MethodInvoker == null)
                                 {
                                     MethodInvoker = SourceType.DelegateForCallMethod(Name, ParametersType);
-                                    MethodInvokerCache.AddToList(SourceType.TypeHandle, Name, PtrMessage->TypeCodeKey, MethodInvoker);
+                                    MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
                                 }
                                 DestinationObject = ((Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                             }

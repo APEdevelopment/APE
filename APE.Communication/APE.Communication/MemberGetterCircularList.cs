@@ -14,27 +14,23 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APE.Communication
 {
     internal class MemberGetterCircularList
     {
-        RuntimeTypeHandle[] m_RunTimeTypeHandle;
+        IntPtr[] m_SourceTypeHandle;
         string[] m_Name;
         Fasterflect.MemberGetter[] m_MemberGetter;
         int m_OldestItemInList;
         int m_ListSize;
 
-        public void AddToList(RuntimeTypeHandle RuntimeTypeHandle, string Name, Fasterflect.MemberGetter MemberGetter)
+        public void AddToList(IntPtr sourceTypeHandle, string name, Fasterflect.MemberGetter memberGetter)
         {
             //Add an item to the list replacing the eldest item
-            m_RunTimeTypeHandle[m_OldestItemInList] = RuntimeTypeHandle;
-            m_Name[m_OldestItemInList] = Name;
-            m_MemberGetter[m_OldestItemInList] = MemberGetter;
+            m_SourceTypeHandle[m_OldestItemInList] = sourceTypeHandle;
+            m_Name[m_OldestItemInList] = name;
+            m_MemberGetter[m_OldestItemInList] = memberGetter;
 
             m_OldestItemInList++;
             if (m_OldestItemInList > m_ListSize - 1)
@@ -43,41 +39,41 @@ namespace APE.Communication
             }
         }
 
-        public void GetFromList(RuntimeTypeHandle RuntimeTypeHandle, string Name, out Fasterflect.MemberGetter MemberGetter)
+        public void GetFromList(IntPtr sourceTypeHandle, string name, out Fasterflect.MemberGetter memberGetter)
         {
             //Search for the item starting at the youngest item in the list
             for (int i = m_OldestItemInList - 1; i >= 0; i--)
             {
-                if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name)
+                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name)
                 {
-                    MemberGetter = m_MemberGetter[i];
+                    memberGetter = m_MemberGetter[i];
                     return;
                 }
             }
 
             for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
             {
-                if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name)
+                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name)
                 {
-                    MemberGetter = m_MemberGetter[i];
+                    memberGetter = m_MemberGetter[i];
                     return;
                 }
             }
 
-            MemberGetter = null;
+            memberGetter = null;
         }
 
-        public MemberGetterCircularList(int Length)
+        public MemberGetterCircularList(int length)
         {
-            if (Length < 1)
+            if (length < 1)
             {
                 throw new Exception("Length must be positive");
             }
 
-            m_ListSize = Length;
-            m_RunTimeTypeHandle = new RuntimeTypeHandle[Length];
-            m_Name = new string[Length];
-            m_MemberGetter = new Fasterflect.MemberGetter[Length];
+            m_ListSize = length;
+            m_SourceTypeHandle = new IntPtr[length];
+            m_Name = new string[length];
+            m_MemberGetter = new Fasterflect.MemberGetter[length];
         }
     }
 }

@@ -14,29 +14,27 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace APE.Communication
 {
     internal class MethodInvokerCircularList
     {
-        RuntimeTypeHandle[] m_RunTimeTypeHandle;
+        IntPtr[] m_SourceTypeHandle;
         string[] m_Name;
         Fasterflect.MethodInvoker[] m_MethodInvoker;
         Int64[] m_TypeCodeKey;
+        IntPtr[] m_DatastoreTypeHandle;
         int m_OldestItemInList;
         int m_ListSize;
 
-        public void AddToList(RuntimeTypeHandle RuntimeTypeHandle, string Name, Int64 TypeCodeKey, Fasterflect.MethodInvoker MethodInvoker)
+        public void AddToList(IntPtr sourceTypeHandle, string name, Int64 typeCodeKey, IntPtr datastoreTypeHandle, Fasterflect.MethodInvoker methodInvoker)
         {
             //Add an item to the list replacing the eldest item
-            m_RunTimeTypeHandle[m_OldestItemInList] = RuntimeTypeHandle;
-            m_Name[m_OldestItemInList] = Name;
-            m_TypeCodeKey[m_OldestItemInList] = TypeCodeKey;
-            m_MethodInvoker[m_OldestItemInList] = MethodInvoker;
+            m_SourceTypeHandle[m_OldestItemInList] = sourceTypeHandle;
+            m_Name[m_OldestItemInList] = name;
+            m_TypeCodeKey[m_OldestItemInList] = typeCodeKey;
+            m_DatastoreTypeHandle[m_OldestItemInList] = datastoreTypeHandle;
+            m_MethodInvoker[m_OldestItemInList] = methodInvoker;
 
             m_OldestItemInList++;
             if (m_OldestItemInList > m_ListSize - 1)
@@ -45,42 +43,43 @@ namespace APE.Communication
             }
         }
 
-        public void GetFromList(RuntimeTypeHandle RuntimeTypeHandle, string Name, Int64 TypeCodeKey, out Fasterflect.MethodInvoker MethodInvoker)
+        public void GetFromList(IntPtr sourceTypeHandle, string name, Int64 typeCodeKey, IntPtr datastoreTypeHandle, out Fasterflect.MethodInvoker methodInvoker)
         {
             //Search for the item starting at the youngest item in the list
             for (int i = m_OldestItemInList - 1; i >= 0; i--)
             {
-                if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name && m_TypeCodeKey[i] == TypeCodeKey)
+                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypeHandle[i] == datastoreTypeHandle)
                 {
-                    MethodInvoker = m_MethodInvoker[i];
+                    methodInvoker = m_MethodInvoker[i];
                     return;
                 }
             }
 
             for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
             {
-                if (m_RunTimeTypeHandle[i].Equals(RuntimeTypeHandle) && m_Name[i] == Name && m_TypeCodeKey[i] == TypeCodeKey)
+                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypeHandle[i] == datastoreTypeHandle)
                 {
-                    MethodInvoker = m_MethodInvoker[i];
+                    methodInvoker = m_MethodInvoker[i];
                     return;
                 }
             }
 
-            MethodInvoker = null;
+            methodInvoker = null;
         }
 
-        public MethodInvokerCircularList(int Length)
+        public MethodInvokerCircularList(int length)
         {
-            if (Length < 1)
+            if (length < 1)
             {
                 throw new Exception("Length must be positive");
             }
 
-            m_ListSize = Length;
-            m_RunTimeTypeHandle = new RuntimeTypeHandle[Length];
-            m_Name = new string[Length];
-            m_MethodInvoker = new Fasterflect.MethodInvoker[Length];
-            m_TypeCodeKey = new Int64[Length];
+            m_ListSize = length;
+            m_SourceTypeHandle = new IntPtr[length];
+            m_Name = new string[length];
+            m_MethodInvoker = new Fasterflect.MethodInvoker[length];
+            m_TypeCodeKey = new Int64[length];
+            m_DatastoreTypeHandle = new IntPtr[length];
         }
     }
 }
