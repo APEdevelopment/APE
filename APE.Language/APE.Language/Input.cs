@@ -708,6 +708,7 @@ namespace APE.Language
             }
 
             Stopwatch timer = Stopwatch.StartNew();
+            int x = 0;
             while (true)
             {
                 ProcessThreadCollection threadCollection = m_Process.Threads;
@@ -720,8 +721,20 @@ namespace APE.Language
                         {
                             if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
                             {
-                                return true;
+                                x++;
+                                if (x == 2) //Wait for it to match twice in a row as sometimes the process will go idle then immediately go not idle
+                                {
+                                    return true;
+                                }
                             }
+                            else
+                            {
+                                x = 0;
+                            }
+                        }
+                        else
+                        {
+                            x = 0;
                         }
                         break;
                     }
