@@ -501,6 +501,16 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Moves the mouse cursor to the middle of the toolstrip object
+        /// </summary>
+        public virtual void MouseMove()
+        {
+            Rectangle bounds = ItemBounds();
+            GUI.Log("Move the mouse over the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            m_ParentToolStrip.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
+        }
+
+        /// <summary>
         /// Gets the toolstrip objects current text
         /// </summary>
         public virtual string Text
