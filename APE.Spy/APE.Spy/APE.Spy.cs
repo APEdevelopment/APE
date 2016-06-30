@@ -513,6 +513,8 @@ namespace APE.Spy
             //Workout the index
             while (true)
             {
+                m_Identity.Index++;
+
                 ControlIdentifier identity = new ControlIdentifier();
                 identity.ParentHandle = m_Identity.ParentHandle;
                 if (m_Identity.Name != "" && m_Identity.Name != null)
@@ -544,8 +546,6 @@ namespace APE.Spy
                     m_Identity.Index = -1;
                     break;
                 }
-
-                m_Identity.Index++;
             }
 
             if (m_Identity.Name != "" && m_Identity.Name != null)
@@ -574,6 +574,9 @@ namespace APE.Spy
                     break;
                 case "GUIStatusBar":
                     AddGUIStatusBarToPropertyListbox();
+                    break;
+                case "GUITitleFrame":
+                    AddGUITitleFrameToPropertyListbox();
                     break;
                 case "GUIElementStripGrid":
                     AddGUIElementStripGridToPropertyListbox();
@@ -705,6 +708,49 @@ namespace APE.Spy
 
                 PropertyListbox.Items.Add("Item Name\t: " + itemName);
                 //PropertyListbox.Items.Add("APESubType\t: " + APESubType);
+                PropertyListbox.Items.Add("");
+            }
+        }
+
+        private void AddGUITitleFrameToPropertyListbox()
+        {
+            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
+            m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            m_APE.AddMessageGetValue(DataStores.Store2);
+            m_APE.SendMessages(APEIPC.EventSet.APE);
+            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int items = m_APE.GetValueFromMessage();
+
+            for (int item = 0; item < items; item++)
+            {
+                m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+                m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
+                m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(m_APE, item));
+                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
+                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
+                m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
+                m_APE.AddMessageGetValue(DataStores.Store3);
+                m_APE.AddMessageGetValue(DataStores.Store5);
+                m_APE.SendMessages(APEIPC.EventSet.APE);
+                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                // Get the value(s) returned MUST be done straight after the WaitForMessages call
+                string itemName = m_APE.GetValueFromMessage();
+                string itemType = m_APE.GetValueFromMessage();
+
+                string APESubType = "";
+
+                switch (itemType)
+                {
+                    case "TitleFrameButton":
+                    case "TitleFrameIconButton":
+                        APESubType = "GUITitleFrameButton";
+                        break;
+                }
+
+                PropertyListbox.Items.Add("Item Name\t: " + itemName);
+                PropertyListbox.Items.Add("APESubType\t: " + APESubType);
                 PropertyListbox.Items.Add("");
             }
         }
