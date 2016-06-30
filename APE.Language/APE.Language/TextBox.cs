@@ -52,7 +52,7 @@ namespace APE.Language
             Stopwatch timer;
             string currentText;
 
-            currentText = GUI.m_APE.GetWindowText(Identity.Handle);
+            currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
             if (currentText == text)
             {
                 GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + text, LogItemTypeEnum.Action);
@@ -62,7 +62,7 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                currentText = GUI.m_APE.GetWindowText(Identity.Handle);
+                currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
 
                 if (currentText != "")
                 {
@@ -83,7 +83,7 @@ namespace APE.Language
                         IntPtr Return;
                         IntPtr Result;
 
-                        currentText = GUI.m_APE.GetWindowText(Identity.Handle);
+                        currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
                         Return = NM.SendMessageTimeout(Identity.Handle, NM.EM_GETSEL, ref start, ref end, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out Result);
                         selectedText = currentText.Substring(start, end);
 
@@ -104,7 +104,7 @@ namespace APE.Language
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    currentText = GUI.m_APE.GetWindowText(Identity.Handle);
+                    currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {

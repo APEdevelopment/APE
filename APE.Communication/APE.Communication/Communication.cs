@@ -2106,6 +2106,7 @@ namespace APE.Communication
             Type theType = null;
             IntPtr Handle = IntPtr.Zero;
             string Name = null;
+            string theText = null;
             bool FoundControl = false;
 
             if (Identifier.ParentHandle == IntPtr.Zero)     //Find toplevel (parent)
@@ -2119,6 +2120,7 @@ namespace APE.Communication
                         Handle = m_Handle;
                         Name = m_Name;
                         theType = TheControl.GetType();
+                        theText = TheControl.Text;
 
                         IntPtr TopLevel = (IntPtr)TheControl.TopLevelControl.GetType().GetProperty("HandleInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(TheControl.TopLevelControl, null);
                         if (TopLevel != Identifier.Handle)
@@ -2195,11 +2197,19 @@ namespace APE.Communication
                                     }
                                 }
 
+                                theText = Form.Text;
                                 if (Identifier.Text != null)
                                 {
-                                    if (!System.Text.RegularExpressions.Regex.IsMatch(GetWindowText(Handle), Identifier.Text))
+                                    if (theText == null)
                                     {
                                         continue;
+                                    }
+                                    else
+                                    {
+                                        if (!System.Text.RegularExpressions.Regex.IsMatch(theText, Identifier.Text))
+                                        {
+                                            continue;
+                                        }
                                     }
                                 }
 
@@ -2260,6 +2270,7 @@ namespace APE.Communication
                         GetHandleAndName(TheControl);
                         Handle = m_Handle;
                         Name = m_Name;
+                        theText = TheControl.Text;
                         theType = TheControl.GetType();
                         FoundControl = true;
                     }
@@ -2299,14 +2310,6 @@ namespace APE.Communication
 
                             if (NM.IsWindowVisible(Handle))
                             {
-                                //if (Identifier.Name != null)
-                                //{
-                                //    if (Name != Identifier.Name)
-                                //    {
-                                //        continue;
-                                //    }
-                                //}
-
                                 if (Identifier.TechnologyType != null)
                                 {
                                     if (GetTechnologyType(theType) != Identifier.TechnologyType)
@@ -2348,22 +2351,6 @@ namespace APE.Communication
                                     }
                                 }
 
-                                if (Identifier.Text != null)
-                                {
-                                    string WindowText = GetWindowText(Handle);
-                                    if (WindowText == null)
-                                    {
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        if (!System.Text.RegularExpressions.Regex.IsMatch(WindowText, Identifier.Text))
-                                        {
-                                            continue;
-                                        }
-                                    }
-                                }
-
                                 if (Identifier.ChildOf != IntPtr.Zero)
                                 {
                                     if (!NM.IsChild(Identifier.ChildOf, Handle))
@@ -2377,6 +2364,22 @@ namespace APE.Communication
                                     if (!NM.IsSibling(Identifier.SiblingOf, Handle))
                                     {
                                         continue;
+                                    }
+                                }
+
+                                theText = Control.Text;
+                                if (Identifier.Text != null)
+                                {
+                                    if (theText == null)
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        if (!System.Text.RegularExpressions.Regex.IsMatch(theText, Identifier.Text))
+                                        {
+                                            continue;
+                                        }
                                     }
                                 }
 
@@ -2399,7 +2402,6 @@ namespace APE.Communication
                         if (FoundControl == false)
                         {
                             WriteLog("");
-                            //Thread.Sleep(m_Sleep);
                             Thread.Sleep(15);
                         }
                     }
@@ -2421,15 +2423,11 @@ namespace APE.Communication
                 NewIdentifier.TypeName = theType.Name;
                 NewIdentifier.ModuleName = theType.Module.Name;
                 NewIdentifier.AssemblyName = theType.Assembly.GetName().Name;
-                NewIdentifier.Index = 1;    //TODO fix this
-                NewIdentifier.Text = GetWindowText(Handle);
+                NewIdentifier.Index = Identifier.Index;
+                NewIdentifier.Text = theText;
                 AddIdentifierMessage(NewIdentifier);
             }
-            //else
-            //{
-            //    //TODO remove this and just return an error, prevent spamming first chance exceptions
-            //    throw new Exception("Failed to find control");
-            //}
+
             return FoundControl;
         }
 
@@ -2817,6 +2815,14 @@ namespace APE.Communication
                     {
                         case "GenericWalker":
                             return "GUIGenericWalker";
+                        default:
+                            return "";
+                    }
+                case "XPExplorerBar":
+                    switch (TypeName)
+                    {
+                        case "Expando":
+                            return "GUIExpando";
                         default:
                             return "";
                     }
@@ -3843,8 +3849,7 @@ namespace APE.Communication
             }
         }
 
-
-        public string GetWindowText(IntPtr Handle)
+        public string GetWindowTextViaWindowMessage(IntPtr Handle)
         {
             IntPtr MessageResult;
             IntPtr SendResult;

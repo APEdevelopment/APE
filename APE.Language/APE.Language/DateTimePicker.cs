@@ -95,7 +95,7 @@ namespace APE.Language
                     throw new Exception("Implement support for date time picker format " + datePickerFormat);
             }
 
-            currentDateText = GUI.m_APE.GetWindowText(Identity.Handle);
+            currentDateText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
             if (currentDateText == formatedDateText)
             {
                 GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + dateText, LogItemTypeEnum.Action);
@@ -136,7 +136,7 @@ namespace APE.Language
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    currentDateText = GUI.m_APE.GetWindowText(Identity.Handle);
+                    currentDateText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {

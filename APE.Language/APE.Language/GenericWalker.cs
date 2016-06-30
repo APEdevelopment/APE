@@ -89,7 +89,7 @@ namespace APE.Language
 
                 GUITextBox textbox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
-                CurrentText = GUI.m_APE.GetWindowText(textboxHandle);
+                CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 
                 if (CurrentText != "")
                 {
@@ -172,7 +172,7 @@ namespace APE.Language
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    CurrentText = GUI.m_APE.GetWindowText(textboxHandle);
+                    CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {

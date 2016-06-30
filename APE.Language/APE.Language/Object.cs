@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Drawing;
 using APE.Communication;
 using NM = APE.Native.NativeMethods;
+using System.Reflection;
 
 namespace APE.Language
 {
@@ -554,14 +555,28 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Gets the windows title bar current text
+        /// Gets the windows current text
         /// </summary>
         public virtual string Text
         {
             get
             {
-                //TODO does this work cross application?
-                return GUI.m_APE.GetWindowText(Identity.Handle);
+                if (Identity.TechnologyType == "Windows Forms (WinForms)")
+                {
+                    //Get the Text property
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Text", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string text = GUI.m_APE.GetValueFromMessage();
+                    return text;
+                }
+                else
+                {
+                    return GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                }
             }
         }
 

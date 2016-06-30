@@ -192,7 +192,7 @@ namespace APE.Language
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    CurrentText = GUI.m_APE.GetWindowText(Identity.Handle);
+                    CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
 
                     if (CurrentText == item)
                     {

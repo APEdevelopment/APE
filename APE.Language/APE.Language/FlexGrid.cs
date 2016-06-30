@@ -90,7 +90,7 @@ namespace APE.Language
                 throw new Exception("Flexgrid is not in edit mode");
             }
 
-            return GUI.m_APE.GetWindowText(EditWindowHandle);
+            return GUI.m_APE.GetWindowTextViaWindowMessage(EditWindowHandle);
         }
 
         private int FindNodeRow(string NodeText)
