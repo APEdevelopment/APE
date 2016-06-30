@@ -72,6 +72,7 @@
     <Compile Include="DateTimePicker.cs" />
     <Compile Include="DockableWindow.cs" />
     <Compile Include="ElementStripGrid.cs" />
+    <Compile Include="Expando.cs" />
     <Compile Include="FlexGrid.cs" />
     <Compile Include="FocusableObject.cs" />
     <Compile Include="Form.cs" />
