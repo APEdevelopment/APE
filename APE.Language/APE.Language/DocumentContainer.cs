@@ -27,6 +27,7 @@ using System.Threading;
 using System.Drawing.Imaging;
 using System.Security.Principal;
 using NM = APE.Native.NativeMethods;
+using System.Collections;
 
 namespace APE.Language
 {
@@ -177,37 +178,61 @@ namespace APE.Language
 
                 if (TabText == Item)
                 {
-                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, Tab));
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "TabBounds", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Width", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store8, "Height", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store7);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store8);
-                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int X = GUI.m_APE.GetValueFromMessage();
-                    int Y = GUI.m_APE.GetValueFromMessage();
-                    int Width = GUI.m_APE.GetValueFromMessage();
-                    int Height = GUI.m_APE.GetValueFromMessage();
-                    
-                    base.MouseSingleClickInternal(X + (Width / 2), Y + (Height / 2), Button, MouseKeyModifier.None);
+                    int rightPadding = RightPadding();
+                    Rectangle leftScrollButton = ScrollButtonBounds(ButtonBounds.Left);
+                    int leftScrollButtonX = leftScrollButton.X + (leftScrollButton.Width / 2);
+                    int leftScrollButtonY = leftScrollButton.Y + (leftScrollButton.Height / 2);
+                    Rectangle rightScrollButton = ScrollButtonBounds(ButtonBounds.Right);
+                    int rightScrollButtonX = rightScrollButton.X + (rightScrollButton.Width / 2);
+                    int rightScrollButtonY = rightScrollButton.Y + (rightScrollButton.Height / 2);
+
+                    int tabX = -1;
+                    int tabY = -1;
+                    int width = this.Width;
+
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        Rectangle tabBounds = GetTabBounds(Tab);
+                        tabX = tabBounds.X + (tabBounds.Width / 2);
+                        tabY = tabBounds.Y + (tabBounds.Height / 2);
+
+                        if (tabX < 5)
+                        {
+                            base.MouseSingleClickInternal(leftScrollButtonX, leftScrollButtonY, MouseButton.Left, MouseKeyModifier.None);
+                        }
+                        else if (tabX > width - rightPadding)
+                        {
+                            base.MouseSingleClickInternal(rightScrollButtonX, rightScrollButtonY, MouseButton.Left, MouseKeyModifier.None);                            
+                        }
+                        else
+                        {
+                            // The centre of the tab can now be clicked
+                            break;
+                        }
+
+                        //Wait for the scroll to finish happening
+                        if (!Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
+                        {
+                            throw new Exception("Window did not go idle within timeout after scrolling");
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw new Exception("Failed to scroll the document container tab into view");
+                        }
+                    }
+
+                    base.MouseSingleClickInternal(tabX, tabY, Button, MouseKeyModifier.None);
 
                     //Wait for the active document to be the tab we selected
                     string ActiveTab;
-                    Stopwatch timer = Stopwatch.StartNew();
+                    timer = Stopwatch.StartNew();
                     do
                     {
                         ActiveTab = ItemActive();
 
-                        if (ActiveTab != TabText)
+                        if (ActiveTab == TabText)
                         {
                             break;
                         }
@@ -227,6 +252,34 @@ namespace APE.Language
             }
 
             throw new Exception("Failed to find DocumentContainer tab");
+        }
+
+        private Rectangle GetTabBounds(int tab)
+        {
+            Rectangle tabBounds = new Rectangle();
+
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, tab));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "TabBounds", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store7, "Width", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store8, "Height", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store7);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store8);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            tabBounds.X = GUI.m_APE.GetValueFromMessage();
+            tabBounds.Y = GUI.m_APE.GetValueFromMessage();
+            tabBounds.Width = GUI.m_APE.GetValueFromMessage();
+            tabBounds.Height = GUI.m_APE.GetValueFromMessage();
+
+            return tabBounds;
         }
 
         /// <summary>
@@ -302,6 +355,63 @@ namespace APE.Language
             }
             while (true);
             timer.Stop();
+        }
+
+        private int RightPadding()
+        {
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "System.Drawing.Point", MemberTypes.Constructor, new Parameter(GUI.m_APE, 10), new Parameter(GUI.m_APE, 10));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store2, "GetLayoutSystemAt", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store1));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "RightPadding", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int padding = GUI.m_APE.GetValueFromMessage();
+
+            return padding;
+        }
+
+        private enum ButtonBounds
+        {
+            Left = 0,
+            Right = 1,
+        }
+        private Rectangle ScrollButtonBounds(ButtonBounds buttonBounds)
+        {
+            Rectangle leftScrollButtonBounds = new Rectangle();
+
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "System.Drawing.Point", MemberTypes.Constructor, new Parameter(GUI.m_APE, 10), new Parameter(GUI.m_APE, 10));
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store2, "GetLayoutSystemAt", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store1));
+            switch (buttonBounds)
+            {
+                case ButtonBounds.Left:
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "LeftScrollButtonBounds", MemberTypes.Property);
+                    break;
+                case ButtonBounds.Right:
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "RightScrollButtonBounds", MemberTypes.Property);
+                    break;
+                default:
+                    throw new Exception("Unsupported button bounds: " + buttonBounds.ToString());
+            }
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "X", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Y", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store6, "Width", MemberTypes.Property);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store7, "Height", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store7);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            leftScrollButtonBounds.X = GUI.m_APE.GetValueFromMessage();
+            leftScrollButtonBounds.Y = GUI.m_APE.GetValueFromMessage();
+            leftScrollButtonBounds.Width = GUI.m_APE.GetValueFromMessage();
+            leftScrollButtonBounds.Height = GUI.m_APE.GetValueFromMessage();
+
+            return leftScrollButtonBounds;
         }
     }
 }
