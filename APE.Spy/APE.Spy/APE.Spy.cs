@@ -34,6 +34,8 @@ namespace APE.Spy
         KeyValuePair<Process, string> m_CurrentAttached = new KeyValuePair<Process, string>(Process.GetCurrentProcess(), "");
         Dictionary<IntPtr, String> ListOfTopLevelWindows;
         APEIPC m_APE;
+        Dictionary<uint, uint> m_Pid;
+        KeyValuePair<Process, string> m_SelectedItem = new KeyValuePair<Process, string>(Process.GetCurrentProcess(), "");
 
         public APESpy()
         {
@@ -54,6 +56,10 @@ namespace APE.Spy
         {
             WinformsProcessesCombobox.Enabled = false;
 
+            m_Pid = new Dictionary<uint, uint>();
+            NM.EnumWindowsProc WindowsGetProcessesCallback = new NM.EnumWindowsProc(EnumProcToGetProcesses);
+            NM.EnumWindows(WindowsGetProcessesCallback, IntPtr.Zero);
+
             Process[] pc = Process.GetProcesses();
 
             ListOfProcesses = new Dictionary<Process, string>();
@@ -63,18 +69,21 @@ namespace APE.Spy
             {
                 if (p.Id != Process.GetCurrentProcess().Id)
                 {
-                    Dictionary<string, string> ProcessModules = Modules.Get(p);
-
-                    foreach(KeyValuePair<string, string> Module in ProcessModules)
+                    if (m_Pid.ContainsKey((uint)p.Id))
                     {
-                        // Does the process reference winforms
-                        if (Module.Value == "System.Windows.Forms" || Module.Value == "System.Windows.Forms.ni")
+                        Dictionary<string, string> ProcessModules = Modules.Get(p);
+
+                        foreach (KeyValuePair<string, string> Module in ProcessModules)
                         {
-                            // Does the process use .NET 4.x
-                            if (Module.Key.Contains(@"\v4.") || Module.Key.Contains(@"\NativeImages_v4."))
+                            // Does the process reference winforms
+                            if (Module.Value == "System.Windows.Forms" || Module.Value == "System.Windows.Forms.ni")
                             {
-                                ListOfProcesses.Add(p, p.ProcessName);
-                                break;
+                                // Does the process use .NET 4.x
+                                if (Module.Key.Contains(@"\v4.") || Module.Key.Contains(@"\NativeImages_v4."))
+                                {
+                                    ListOfProcesses.Add(p, p.ProcessName);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -94,13 +103,6 @@ namespace APE.Spy
                 }
             }
             WinformsProcessesCombobox.Enabled = true;
-
-            BuildTree();
-        }
-
-        private void RefreshButton_Click(object sender, EventArgs e)
-        {
-            RefreshProcesses();   
         }
 
         private void BuildTree()
@@ -116,75 +118,65 @@ namespace APE.Spy
                 PropertyListbox.Items.Clear();
                 m_CurrentAttached = (KeyValuePair<Process, string>)WinformsProcessesCombobox.SelectedItem;
 
-                if (m_CurrentAttached.Key.Id != Process.GetCurrentProcess().Id)
+                if (m_CurrentAttached.Key.HasExited)
                 {
-                    ListOfTopLevelWindows = new Dictionary<IntPtr, string>();
-
-                    NM.EnumWindowsProc WindowsCallback = new NM.EnumWindowsProc(EnumProc);
-
-                    if (m_APE != null)
-                    {
-                        m_APE.RemoveFileMapping();
-                    }
-
-                    if (AppDomainComboBox.Enabled)
-                    {
-                        string NewDomain = AppDomainComboBox.SelectedItem.ToString();
-                        m_APE = new APEIPC(m_CurrentAttached.Key, NewDomain);
-                    }
-                    else
-                    {
-                        m_APE = new APEIPC(m_CurrentAttached.Key);
-                    }
-                    m_APE.TimeOut = 0;
-
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-
-                    NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
+                    WinformsProcessesCombobox.SelectedIndex = 0;
+                    Populate();
                 }
+                else
+                {
+                    if (m_CurrentAttached.Key.Id != Process.GetCurrentProcess().Id)
+                    {
+                        ListOfTopLevelWindows = new Dictionary<IntPtr, string>();
 
+                        NM.EnumWindowsProc WindowsCallback = new NM.EnumWindowsProc(EnumProc);
+
+                        if (m_APE != null)
+                        {
+                            m_APE.RemoveFileMapping();
+                        }
+
+                        if (AppDomainComboBox.Enabled)
+                        {
+                            string NewDomain = AppDomainComboBox.SelectedItem.ToString();
+                            m_APE = new APEIPC(m_CurrentAttached.Key, NewDomain);
+                        }
+                        else
+                        {
+                            m_APE = new APEIPC(m_CurrentAttached.Key);
+                        }
+                        m_APE.TimeOut = 0;
+
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+
+                        NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
+                    }
+                }
                 //restore m_Identity
                 m_Identity = temp;
             }
         }
 
-        private void WinformsProcessesCombobox_SelectedIndexChanged(object sender, EventArgs e)
+        private bool EnumProcToGetProcesses(IntPtr hWnd, IntPtr lParam)
         {
-            BuildTree();
-            m_ControlKey = true;
-            
-            if (m_CurrentAttached.Key.HasExited)
-            {
-                m_CurrentAttached = new KeyValuePair<Process, string>(Process.GetCurrentProcess(), "");
-            }
+            uint Pid;
+            NM.GetWindowThreadProcessId(hWnd, out Pid);
 
-            if (m_CurrentAttached.Key.Id == Process.GetCurrentProcess().Id)
+            if (NM.IsWindowVisible(hWnd))
             {
-                AppDomainComboBox.Items.Clear();
-                AppDomainComboBox.Enabled = false;
-                IdentifyButton.Enabled = false;
-            }
-            else
-            {
-                m_APE.AddMessageGetAppDomains();
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string AppDomains = m_APE.GetValueFromMessage();
-                string[] Separator = { "\t" };
-                string[] AppDomainArray = AppDomains.Split(Separator, StringSplitOptions.None);
-                
-                AppDomainComboBox.Items.Clear();
-                for (int i = 0; i < AppDomainArray.GetLength(0); i++)
+                NM.RECT WindowSize;
+                NM.GetClientRect(hWnd, out WindowSize);
+
+                if (WindowSize.Right > 0)   //If the window has 0 width then ignore it
                 {
-                    AppDomainComboBox.Items.Add(AppDomainArray[i]);
+                    if (!m_Pid.ContainsKey(Pid))
+                    {
+                        m_Pid.Add(Pid, Pid);
+                    }
                 }
-                AppDomainComboBox.SelectedItem = AppDomainComboBox.Items[0];
-
-                AppDomainComboBox.Enabled = true;
-                IdentifyButton.Enabled = true;
             }
+            return true;
         }
 
         private bool EnumProc(IntPtr hWnd, IntPtr lParam)
@@ -275,6 +267,15 @@ namespace APE.Spy
             else
             {
                 PropertyListbox.Items.Clear();
+                if (m_CurrentAttached.Key.HasExited)
+                {
+                    WinformsProcessesCombobox.SelectedIndex = 0;
+                    Populate();
+                }
+                else
+                {
+                    BuildTree();
+                }
             }
         }
 
@@ -288,7 +289,7 @@ namespace APE.Spy
                 IntPtr ParentHandle = new IntPtr(int.Parse(Handles[0]));
                 IntPtr Handle = new IntPtr(int.Parse(Handles[1]));
 
-                if (NM.IsWindow(Handle))
+                if (NM.IsWindow(Handle) && NM.IsWindowVisible(Handle))
                 {
                     if (ParentHandle == IntPtr.Zero)
                     {
@@ -901,6 +902,59 @@ namespace APE.Spy
                 if (item > -1 && PropertyListbox.SelectedIndices.Contains(item) == false)
                 {
                     PropertyListbox.SelectedIndex = item;
+                }
+            }
+        }
+
+        private void WinformsProcessesCombobox_DropDown(object sender, EventArgs e)
+        {
+            RefreshProcesses();
+        }
+
+        private void WinformsProcessesCombobox_DropDownClosed(object sender, EventArgs e)
+        {
+            Populate();
+        }
+
+        private void Populate()
+        {
+            KeyValuePair<Process, string> selectedItem = (KeyValuePair<Process, string>)WinformsProcessesCombobox.SelectedItem;
+            if (selectedItem.Key.Id != m_SelectedItem.Key.Id)
+            {
+                m_SelectedItem = selectedItem;
+                BuildTree();
+                m_ControlKey = true;
+
+                if (m_CurrentAttached.Key.HasExited)
+                {
+                    m_CurrentAttached = new KeyValuePair<Process, string>(Process.GetCurrentProcess(), "");
+                }
+
+                if (m_CurrentAttached.Key.Id == Process.GetCurrentProcess().Id)
+                {
+                    AppDomainComboBox.Items.Clear();
+                    AppDomainComboBox.Enabled = false;
+                    IdentifyButton.Enabled = false;
+                }
+                else
+                {
+                    m_APE.AddMessageGetAppDomains();
+                    m_APE.SendMessages(APEIPC.EventSet.APE);
+                    m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string AppDomains = m_APE.GetValueFromMessage();
+                    string[] Separator = { "\t" };
+                    string[] AppDomainArray = AppDomains.Split(Separator, StringSplitOptions.None);
+
+                    AppDomainComboBox.Items.Clear();
+                    for (int i = 0; i < AppDomainArray.GetLength(0); i++)
+                    {
+                        AppDomainComboBox.Items.Add(AppDomainArray[i]);
+                    }
+                    AppDomainComboBox.SelectedItem = AppDomainComboBox.Items[0];
+
+                    AppDomainComboBox.Enabled = true;
+                    IdentifyButton.Enabled = true;
                 }
             }
         }

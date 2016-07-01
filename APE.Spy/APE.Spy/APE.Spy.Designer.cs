@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.RefreshButton = new System.Windows.Forms.Button();
             this.WinformsProcessesCombobox = new System.Windows.Forms.ComboBox();
             this.LocateButton = new System.Windows.Forms.Button();
             this.WindowTree = new System.Windows.Forms.TreeView();
@@ -50,25 +49,16 @@
             this.ListBoxContextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // RefreshButton
-            // 
-            this.RefreshButton.Location = new System.Drawing.Point(12, 11);
-            this.RefreshButton.Name = "RefreshButton";
-            this.RefreshButton.Size = new System.Drawing.Size(52, 21);
-            this.RefreshButton.TabIndex = 0;
-            this.RefreshButton.Text = "Refresh";
-            this.RefreshButton.UseVisualStyleBackColor = true;
-            this.RefreshButton.Click += new System.EventHandler(this.RefreshButton_Click);
-            // 
             // WinformsProcessesCombobox
             // 
             this.WinformsProcessesCombobox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.WinformsProcessesCombobox.FormattingEnabled = true;
-            this.WinformsProcessesCombobox.Location = new System.Drawing.Point(140, 13);
+            this.WinformsProcessesCombobox.Location = new System.Drawing.Point(63, 11);
             this.WinformsProcessesCombobox.Name = "WinformsProcessesCombobox";
             this.WinformsProcessesCombobox.Size = new System.Drawing.Size(190, 21);
             this.WinformsProcessesCombobox.TabIndex = 1;
-            this.WinformsProcessesCombobox.SelectedIndexChanged += new System.EventHandler(this.WinformsProcessesCombobox_SelectedIndexChanged);
+            this.WinformsProcessesCombobox.DropDown += new System.EventHandler(this.WinformsProcessesCombobox_DropDown);
+            this.WinformsProcessesCombobox.DropDownClosed += new System.EventHandler(this.WinformsProcessesCombobox_DropDownClosed);
             // 
             // LocateButton
             // 
@@ -160,8 +150,9 @@
             // AppDomainComboBox
             // 
             this.AppDomainComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.AppDomainComboBox.Enabled = false;
             this.AppDomainComboBox.FormattingEnabled = true;
-            this.AppDomainComboBox.Location = new System.Drawing.Point(416, 12);
+            this.AppDomainComboBox.Location = new System.Drawing.Point(336, 11);
             this.AppDomainComboBox.Name = "AppDomainComboBox";
             this.AppDomainComboBox.Size = new System.Drawing.Size(190, 21);
             this.AppDomainComboBox.TabIndex = 11;
@@ -170,7 +161,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(88, 17);
+            this.label2.Location = new System.Drawing.Point(10, 15);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(48, 13);
             this.label2.TabIndex = 12;
@@ -179,7 +170,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(348, 17);
+            this.label3.Location = new System.Drawing.Point(266, 15);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 13);
             this.label3.TabIndex = 13;
@@ -187,7 +178,7 @@
             // 
             // aboutButton
             // 
-            this.aboutButton.Location = new System.Drawing.Point(645, 11);
+            this.aboutButton.Location = new System.Drawing.Point(541, 11);
             this.aboutButton.Name = "aboutButton";
             this.aboutButton.Size = new System.Drawing.Size(52, 21);
             this.aboutButton.TabIndex = 14;
@@ -209,7 +200,6 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.LocateButton);
             this.Controls.Add(this.WinformsProcessesCombobox);
-            this.Controls.Add(this.RefreshButton);
             this.Name = "APESpy";
             this.Text = "APE Spy";
             this.Activated += new System.EventHandler(this.ObjectSpy_Activate);
@@ -226,8 +216,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button RefreshButton;
         private System.Windows.Forms.ComboBox WinformsProcessesCombobox;
         private System.Windows.Forms.Button LocateButton;
         private System.Windows.Forms.TreeView WindowTree;
