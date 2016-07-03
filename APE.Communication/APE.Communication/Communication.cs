@@ -21,7 +21,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using Fasterflect;  //[Un]Install-Package fasterflect
 using System.Threading;
-using System.Windows.Forms;
+using WF = System.Windows.Forms;
+using WPF = System.Windows;
 using System.Reflection;
 using System.Diagnostics;
 using System.ComponentModel;
@@ -136,7 +137,9 @@ namespace APE.Communication
         EventWaitHandle m_eventIPC;
         IntPtr m_Handle;
         string m_Name;
-        Control[] m_AllControlsOnForm;
+        string m_Text;
+        private delegate void GetWPFHandleAndNameAndTitleDelegate(WPF.Window theWindow);
+        WF.Control[] m_AllControlsOnForm;
         EventSet Side;
         Process ApeProcess = null;
         Process AUTProcess = null;
@@ -212,7 +215,7 @@ namespace APE.Communication
 
         private bool EnumThreadCallback(IntPtr hWnd, IntPtr lParam)
         {
-            Control FoundControl = Form.FromHandle(hWnd);
+            WF.Control FoundControl = WF.Form.FromHandle(hWnd);
             if (FoundControl != null)
             {
                 if (FoundControl.Visible)
@@ -2014,7 +2017,14 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
         }
 
-        private void GetHandleAndName(Control theControl)
+        private void GetWPFHandleAndNameAndTitle(WPF.Window theWindow)
+        {
+            m_Handle = new WPF.Interop.WindowInteropHelper(theWindow).Handle;
+            m_Name = theWindow.Name;
+            m_Text = theWindow.Title;
+        }
+
+        private void GetHandleAndName(WF.Control theControl)
         {
             m_Handle = IntPtr.Zero;
             m_Name = "";
@@ -2033,10 +2043,10 @@ namespace APE.Communication
         }
 
         //TODO might want to skip this and just get the control directly via Form.FromHandle?
-        private Form FindFormViaHandle(IntPtr FormHandle)
+        private WF.Form FindFormViaHandle(IntPtr FormHandle)
         {
             //Find the form
-            foreach (Form Form in Application.OpenForms)
+            foreach (WF.Form Form in WF.Application.OpenForms)
             {
                 try
                 {
@@ -2054,7 +2064,7 @@ namespace APE.Communication
             return null;
         }
 
-        private void BuildControlArray(Control theControl)
+        private void BuildControlArray(WF.Control theControl)
         {
             if (m_AllControlsOnForm == null)
             {
@@ -2071,7 +2081,7 @@ namespace APE.Communication
             {
                 if (theControl.HasChildren)
                 {
-                    foreach (Control childControl in theControl.Controls)
+                    foreach (WF.Control childControl in theControl.Controls)
                     {
                         BuildControlArray(childControl);
                     }
@@ -2109,7 +2119,7 @@ namespace APE.Communication
             {
                 if (Identifier.Handle != IntPtr.Zero)
                 {
-                    Control TheControl = Form.FromHandle(Identifier.Handle);
+                    WF.Control TheControl = WF.Form.FromHandle(Identifier.Handle);
                     if (TheControl != null)
                     {
                         GetHandleAndName(TheControl);
@@ -2126,6 +2136,27 @@ namespace APE.Communication
 
                         FoundControl = true;
                     }
+                    else
+                    {
+                        WPF.Application wpfApp = WPF.Application.Current;
+                        WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+                        
+                        GetWPFHandleAndNameAndTitleDelegate GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
+
+                        foreach (WPF.Window wpfWindow in wpfWindows)
+                        {
+                            wpfWindow.Dispatcher.Invoke(GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+                            if (Identifier.Handle == m_Handle)
+                            {
+                                Handle = m_Handle;
+                                Name = m_Name;
+                                theText = m_Text;
+                                theType = wpfWindow.GetType();
+                                FoundControl = true;
+                                break;
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -2137,7 +2168,8 @@ namespace APE.Communication
                         try
                         {
                             int CurrentIndex = 0;
-                            foreach (Form Form in Application.OpenForms)
+                            //WinForms
+                            foreach (WF.Form Form in WF.Application.OpenForms)
                             {
                                 theType = Form.GetType();
                                 GetHandleAndName(Form);
@@ -2215,7 +2247,105 @@ namespace APE.Communication
 
                                 if (Identifier.Index > 0)
                                 {
-                                    //TO DO implement index support!
+                                    if (CurrentIndex != Identifier.Index)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                //we have a match
+                                if (NM.IsWindowVisible(Handle))
+                                {
+                                    FoundControl = true;
+                                    break;
+                                }
+                            }
+
+                            //WPF
+                            WPF.Application wpfApp = WPF.Application.Current;
+                            WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+
+                            GetWPFHandleAndNameAndTitleDelegate GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
+
+                            foreach (WPF.Window wpfWindow in wpfWindows)
+                            {
+                                wpfWindow.Dispatcher.Invoke(GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+
+                                theType = wpfWindow.GetType();
+                                Handle = m_Handle;
+                                Name = m_Name;
+                                theText = m_Text;
+
+                                if (Identifier.Name != null)
+                                {
+                                    if (Name != Identifier.Name)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.TechnologyType != null)
+                                {
+                                    if (GetTechnologyType(theType) != Identifier.TechnologyType)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.TypeNameSpace != null)
+                                {
+                                    if (theType.Namespace != Identifier.TypeNameSpace)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.TypeName != null)
+                                {
+                                    if (theType.Name != Identifier.TypeName)
+                                    {
+                                        WriteLog(theType.Name + " != " + Identifier.TypeName);
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.ModuleName != null)
+                                {
+                                    if (theType.Module.Name != Identifier.ModuleName)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.AssemblyName != null)
+                                {
+                                    if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                if (Identifier.Text != null)
+                                {
+                                    if (theText == null)
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        if (!System.Text.RegularExpressions.Regex.IsMatch(theText, Identifier.Text))
+                                        {
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                                CurrentIndex++;
+
+                                WriteLog("found wpf form for " + Name);
+
+                                if (Identifier.Index > 0)
+                                {
                                     if (CurrentIndex != Identifier.Index)
                                     {
                                         continue;
@@ -2259,7 +2389,7 @@ namespace APE.Communication
             {
                 if (Identifier.Handle != IntPtr.Zero)
                 {
-                    Control TheControl = Form.FromHandle(Identifier.Handle);
+                    WF.Control TheControl = WF.Form.FromHandle(Identifier.Handle);
                     
                     if (TheControl != null)
                     {
@@ -2274,8 +2404,8 @@ namespace APE.Communication
                 else
                 {
                     //looking for a control on a form
-                    Form Form = FindFormViaHandle(Identifier.ParentHandle);
-                    Control[] Controls;
+                    WF.Form form = FindFormViaHandle(Identifier.ParentHandle);
+                    WF.Control[] controls;
 
                     //Start polling
                     Stopwatch timer = Stopwatch.StartNew();
@@ -2283,24 +2413,24 @@ namespace APE.Communication
                     {
                         if (Identifier.Name == null)
                         {
-                            foreach (Control Control in Form.Controls)
+                            foreach (WF.Control Control in form.Controls)
                             {
                                 BuildControlArray(Control);
                             }
-                            Controls = m_AllControlsOnForm;
+                            controls = m_AllControlsOnForm;
                             m_AllControlsOnForm = null;
                         }
                         else
                         {
-                            Controls = Form.Controls.Find(Identifier.Name, true);
+                            controls = form.Controls.Find(Identifier.Name, true);
                         }
 
                         int CurrentIndex = 0;
-                        foreach (Control Control in Controls)
+                        foreach (WF.Control control in controls)
                         {
-                            theType = Control.GetType();
+                            theType = control.GetType();
 
-                            GetHandleAndName(Control);
+                            GetHandleAndName(control);
                             Handle = m_Handle;
                             Name = m_Name;
 
@@ -2363,7 +2493,7 @@ namespace APE.Communication
                                     }
                                 }
 
-                                theText = Control.Text;
+                                theText = control.Text;
                                 if (Identifier.Text != null)
                                 {
                                     if (theText == null)
@@ -2430,7 +2560,7 @@ namespace APE.Communication
         unsafe private void Refind(int messageNumber)
         {
             object DestinationObject;
-            Control form;
+            WF.Control form;
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
 
@@ -2460,7 +2590,7 @@ namespace APE.Communication
             else
             {
                 //Find the control on the form
-                DestinationObject = Form.FromHandle(Identifier.Handle);
+                DestinationObject = WF.Form.FromHandle(Identifier.Handle);
             }
 
             switch (PtrMessage->DestinationStore)
@@ -3207,7 +3337,7 @@ namespace APE.Communication
                 Stopwatch timer = Stopwatch.StartNew();
                 while (true)
                 {
-                    ItemFound = ((Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
+                    ItemFound = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                     
                     if (ItemFound == ItemToPollFor)
                     {
@@ -3565,7 +3695,7 @@ namespace APE.Communication
                                 MemberGetter = SourceType.DelegateForGetFieldValue(Name);
                                 MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                             }
-                            DestinationObject = ((Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
+                            DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                             MemberGetter = null;
                             break;
                         case MemberTypes.Property:
@@ -3577,7 +3707,7 @@ namespace APE.Communication
                                     MemberGetter = SourceType.DelegateForGetPropertyValue(Name);
                                     MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                                 }
-                                DestinationObject = ((Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
+                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                                 MemberGetter = null;
                             }
                             else
@@ -3588,7 +3718,7 @@ namespace APE.Communication
                                     MethodInvoker = SourceType.DelegateForGetIndexer(ParametersType);
                                     MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
                                 }
-                                DestinationObject = ((Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                                 MethodInvoker = null;
                             }
                             break;
@@ -3606,7 +3736,7 @@ namespace APE.Communication
                                     MethodInvoker = SourceType.DelegateForCallMethod(Name, ParametersType);
                                     MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
                                 }
-                                DestinationObject = ((Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                             }
                             MethodInvoker = null;
                             break;
