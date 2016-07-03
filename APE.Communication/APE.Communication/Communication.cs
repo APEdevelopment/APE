@@ -14,21 +14,17 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using Fasterflect;  //[Un]Install-Package fasterflect
 using System.Threading;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Management;
 using APE.Domain;
 using NM = APE.Native.NativeMethods;
 using Microsoft.Win32;
@@ -4218,18 +4214,44 @@ namespace APE.Communication
             }
         }
 
-        //TODO set the sleep in the remote apeipc thread!
-        //public int Sleep
-        //{
-        //    get
-        //    {
-        //        return m_Sleep;
-        //    }
-        //    set
-        //    {
-        //        m_Sleep = value;
-        //    }
-        //}
+        private string GetObjectFullTypeName(object obj)
+        {
+            if (Marshal.IsComObject(obj))
+            {
+                IDispatch dispatch = (IDispatch)obj;
+                if (dispatch.GetTypeInfoCount() != 1)
+                {
+                    throw new Exception("Failed to get runtime type information");
+                }
+
+                ITypeInfo typeInfo = dispatch.GetTypeInfo(0, 0);
+
+                ITypeLib typeLib;
+                int index;
+                typeInfo.GetContainingTypeLib(out typeLib, out index);
+
+                string typeLibName = Marshal.GetTypeLibName(typeLib);
+                string typeInfoName = Marshal.GetTypeInfoName(typeInfo);
+
+                return typeLibName + "." + typeInfoName;
+            }
+            else
+            {
+                Type typeObject = obj.GetType();
+                return typeObject.Namespace + "." + typeObject.Name;
+            }
+        }
+
+        [ComImport]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        [Guid("00020400-0000-0000-C000-000000000046")]
+        private interface IDispatch
+        {
+            int GetTypeInfoCount();
+            [return: MarshalAs(UnmanagedType.Interface)]
+            ITypeInfo GetTypeInfo([In, MarshalAs(UnmanagedType.U4)] int iTInfo, [In, MarshalAs(UnmanagedType.U4)] int lcid);
+            void GetIDsOfNames([In] ref Guid riid, [In, MarshalAs(UnmanagedType.LPArray)] string[] rgszNames, [In, MarshalAs(UnmanagedType.U4)] int cNames, [In, MarshalAs(UnmanagedType.U4)] int lcid, [Out, MarshalAs(UnmanagedType.LPArray)] int[] rgDispId);
+        }
     }
 }
 
