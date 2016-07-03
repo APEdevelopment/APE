@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Threading;
 using NM = APE.Native.NativeMethods;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace APE.Spy
 {
@@ -526,7 +527,7 @@ namespace APE.Spy
                 else if (m_Identity.Text != "" && m_Identity.Text != null)
                 {
                     //Use Text as the index key
-                    identity.Text = m_Identity.Text;
+                    identity.Text = Regex.Escape(m_Identity.Text);
                 }
                 else
                 {

@@ -30,6 +30,7 @@ using APE.Domain;
 using NM = APE.Native.NativeMethods;
 using Microsoft.Win32;
 using System.Runtime;
+using System.Text.RegularExpressions;
 
 namespace APE.Communication
 {
@@ -2234,7 +2235,7 @@ namespace APE.Communication
                                     }
                                     else
                                     {
-                                        if (!System.Text.RegularExpressions.Regex.IsMatch(theText, Identifier.Text))
+                                        if (!Regex.IsMatch(theText, Identifier.Text))
                                         {
                                             continue;
                                         }
@@ -2333,7 +2334,7 @@ namespace APE.Communication
                                     }
                                     else
                                     {
-                                        if (!System.Text.RegularExpressions.Regex.IsMatch(theText, Identifier.Text))
+                                        if (!Regex.IsMatch(theText, Identifier.Text))
                                         {
                                             continue;
                                         }
@@ -2502,7 +2503,7 @@ namespace APE.Communication
                                     }
                                     else
                                     {
-                                        if (!System.Text.RegularExpressions.Regex.IsMatch(theText, Identifier.Text))
+                                        if (!Regex.IsMatch(theText, Identifier.Text))
                                         {
                                             continue;
                                         }
