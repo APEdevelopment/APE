@@ -248,9 +248,7 @@ namespace APE.Language
         {
             get
             {
-                StringBuilder ClassName = new StringBuilder(1024);
-                NM.GetClassName(Identity.Handle, ClassName, ClassName.Capacity - 1);
-                return ClassName.ToString();
+                return NM.GetClassName(Identity.Handle);
             }
         }
 

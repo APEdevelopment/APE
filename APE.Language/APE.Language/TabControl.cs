@@ -154,7 +154,6 @@ namespace APE.Language
             // multiline means no scroll button
             if (!multiLine)
             {
-                StringBuilder className = new StringBuilder(256);
                 IntPtr upDownControl = NM.GetWindow(Identity.Handle, NM.GetWindowCmd.GW_CHILD);
 
                 while (true)
@@ -164,9 +163,9 @@ namespace APE.Language
                         break;
                     }
 
-                    NM.GetClassName(upDownControl, className, className.Capacity);
+                    string className = NM.GetClassName(upDownControl);
 
-                    if (className.ToString() == "msctls_updown32")
+                    if (className == "msctls_updown32")
                     {
                         break;
                     }

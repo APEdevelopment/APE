@@ -1071,6 +1071,12 @@ namespace APE.Native
         public static extern IntPtr GetDesktopWindow();
 
         /// Return Type: HWND->HWND__*
+        ///hwndParent: HWND->HWND__*
+        ///ptParentClientCoords: POINT->tagPOINT
+        [DllImport("user32.dll", EntryPoint = "RealChildWindowFromPoint")]
+        public static extern IntPtr RealChildWindowFromPoint([InAttribute()] IntPtr hwndParent, tagPoint ptParentClientCoords);
+
+        /// Return Type: HWND->HWND__*
         ///hWndParent: HWND->HWND__*
         ///Point: POINT->tagPOINT
         [DllImport("user32.dll", EntryPoint = "ChildWindowFromPoint")]
@@ -1337,6 +1343,12 @@ namespace APE.Native
         public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
         [DllImport("user32.dll")]
+        public static extern IntPtr GetMenu(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetSubMenu(IntPtr hMenu, int nPos);
+
+        [DllImport("user32.dll")]
         public static extern int GetMenuItemCount(IntPtr hMenu);
 
         [DllImport("user32.dll")]
@@ -1492,7 +1504,30 @@ namespace APE.Native
         }
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
+        public static string GetClassName(IntPtr hWnd)
+        {
+            StringBuilder className = new StringBuilder(1024);
+            GetClassName(hWnd, className, className.Capacity - 1);
+            return className.ToString();
+        }
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern uint GetWindowModuleFileName(IntPtr hwnd, StringBuilder lpszFileName, uint cchFileNameMax);
+
+        /// <summary>
+        /// Gets the module filename that the window handle belongs to.
+        /// Has to be called from the same process that the window belongs to.
+        /// </summary>
+        /// <param name="hWnd">The window handle to get the module file name for </param>
+        /// <returns></returns>
+        public static string GetWindowModuleFileName(IntPtr hWnd)
+        {
+            StringBuilder fullPath = new StringBuilder(1024);
+            GetWindowModuleFileName(hWnd, fullPath, (uint)fullPath.Capacity - 1);
+            return fullPath.ToString();
+        }
 
         [DllImport("user32.dll")]
         public static extern int GetDlgCtrlID(IntPtr hwndCtl);

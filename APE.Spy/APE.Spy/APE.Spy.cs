@@ -26,6 +26,7 @@ using System.Threading;
 using NM = APE.Native.NativeMethods;
 using System.Xml;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace APE.Spy
 {
@@ -367,17 +368,27 @@ namespace APE.Spy
             while (m_ControlKey == false)
             {
                 Point cursorPosition = Cursor.Position;
+                NM.tagPoint screenLocation;
                 NM.tagPoint Location;
-                Location.x = cursorPosition.X;
-                Location.y = cursorPosition.Y;
+                IntPtr Handle;
+                IntPtr ChildWindow;
+                IntPtr parent = NM.GetDesktopWindow();
+                screenLocation.x = cursorPosition.X;
+                screenLocation.y = cursorPosition.Y;
 
-                IntPtr Handle = NM.WindowFromPoint(Location);
-                NM.ScreenToClient(Handle, ref Location);
-                IntPtr ChildWindow = NM.ChildWindowFromPointEx(Handle, Location, NM.ChildWindowFromPointExFlags.SKIPINVISIBLE);
-
-                if (ChildWindow != IntPtr.Zero)
+                while (true)
                 {
-                    Handle = ChildWindow;
+                    Location = screenLocation;
+                    NM.ScreenToClient(parent, ref Location);
+                    ChildWindow = NM.RealChildWindowFromPoint(parent, Location);
+
+                    if (ChildWindow == IntPtr.Zero || parent == ChildWindow)
+                    {
+                        Handle = parent;
+                        break;
+                    }
+
+                    parent = ChildWindow;
                 }
 
                 uint Pid;
@@ -475,6 +486,16 @@ namespace APE.Spy
                 }
                 //TODO fix this properly
                 m_Identity.TechnologyType = "Windows Native";
+                m_Identity.TypeName = NM.GetClassName(m_Identity.Handle);
+
+                //Get the module filename
+                m_APE.AddMessageGetModuleFileName(m_Identity.Handle);
+                m_APE.SendMessages(APEIPC.EventSet.APE);
+                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                //get the value returned
+                m_Identity.ModuleName = m_APE.GetValueFromMessage();
+                
+                m_Identity.Text = m_APE.GetWindowTextViaWindowMessage(m_Identity.Handle);
                 m_Identity.Index = 1;
             }
         }

@@ -32,7 +32,8 @@ namespace APE.Language
 {
     /// <summary>
     /// Automation class used to automate controls derived from the following:
-    /// LatentZero.Capstone.ComSupport.ResultsGrid.AxLZResultsGrid 
+    /// LatentZero.Capstone.ComSupport.ResultsGrid.AxLZResultsGrid
+    /// AxDRILLDOWNLib.AxLZResultsGrid
     /// </summary>
     public sealed class GUIAxLZResultsGrid : GUIFocusableObject
     {
@@ -55,9 +56,46 @@ namespace APE.Language
         public void CopyToClipboard()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "CopyToClipboard", MemberTypes.Method);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "CopyToClipboard", MemberTypes.Method);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+        }
+
+        /// <summary>
+        /// Returns the number of rows in the grid, including those which are hidden
+        /// </summary>
+        /// <returns>The number of rows</returns>
+        public int Rows()
+        {
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Rows", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int rows = GUI.m_APE.GetValueFromMessage();
+            return rows;
+        }
+
+        /// <summary>
+        /// Returns the number of columns, including those which are hidden
+        /// </summary>
+        /// <returns>The number of columns</returns>
+        public int Columns()
+        {
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Cols", MemberTypes.Property);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int columns = GUI.m_APE.GetValueFromMessage();
+            return columns;
         }
     }
 }

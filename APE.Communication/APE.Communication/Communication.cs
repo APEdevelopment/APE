@@ -15,6 +15,7 @@
 //
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -139,7 +140,14 @@ namespace APE.Communication
         IntPtr m_Handle;
         string m_Name;
         string m_Text;
+
+        private delegate object GetUnderlyingGridFromResultsGridDelegate(object resultsGrid);
+        private GetUnderlyingGridFromResultsGridDelegate m_GetUnderlyingGridFromResultsGridDelegater;
+        private delegate object ConvertTypeDelegate(Type theTyoe, object theObject);
+        private ConvertTypeDelegate m_ConvertTypeDelegater;
         private delegate void GetWPFHandleAndNameAndTitleDelegate(WPF.Window theWindow);
+        private GetWPFHandleAndNameAndTitleDelegate m_GetWPFHandleAndNameAndTitleDelegater;
+
         WF.Control[] m_AllControlsOnForm;
         EventSet Side;
         Process ApeProcess = null;
@@ -1007,6 +1015,40 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, theRect.right));
         }
 
+        public unsafe void GetModuleFilename(int MessageNumber)
+        {
+            //
+            //must be first message
+            if (MessageNumber != 1)
+            {
+                throw new Exception("GetModuleFilename must be first message");
+            }
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
+
+            // p1  = handle
+            IntPtr Handle;
+            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            {
+                Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
+            }
+            else
+            {
+                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+            }
+
+            string fileName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
+
+            //cleanup the message
+            PtrMessage->TypeCodeKey = 0;
+            PtrMessage->NumberOfParameters = 0;
+            PtrMessage->NameOffset = 0;
+            PtrMessage->NameLength = 0;
+            PtrMessage->Action = MessageAction.None;
+
+            AddReturnValue(new Parameter(this, fileName));
+        }
+
         public unsafe void GetListViewGroupRectangle(int MessageNumber)
         {
             //must be first message
@@ -1540,6 +1582,56 @@ namespace APE.Communication
             m_PtrMessageStore->NumberOfMessages++;
         }
 
+        unsafe public void AddMessageGetUnderlyingGridFromResultsGrid(DataStores SourceStore, DataStores DestinationStore)
+        {
+            if (m_DoneFind == false)
+            {
+                throw new Exception("Need to find the control before querying it");
+            }
+
+            if (m_DoneGet == true)
+            {
+                throw new Exception("Can not query control after getting values from it");
+            }
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+
+            PtrMessage->SourceStore = SourceStore;
+            PtrMessage->DestinationStore = DestinationStore;
+            PtrMessage->Action = MessageAction.UnderlyingGridFromResultsGrid;
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        unsafe public void AddMessageConvertType(DataStores SourceStore, DataStores DestinationStore, string typeFullName)
+        {
+            if (m_DoneFind == false)
+            {
+                throw new Exception("Need to find the control before querying it");
+            }
+
+            if (m_DoneGet == true)
+            {
+                throw new Exception("Can not query control after getting values from it");
+            }
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+
+            PtrMessage->SourceStore = SourceStore;
+            PtrMessage->DestinationStore = DestinationStore;
+            PtrMessage->Action = MessageAction.ConvertType;
+            fixed (void* PtrName = typeFullName)
+            {
+                NM.CopyMemory(m_IntPtrMemoryMappedFileViewStringStore + m_StringStoreOffset, (IntPtr)PtrName, (UIntPtr)(typeFullName.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+            }
+
+            PtrMessage->NameOffset = m_StringStoreOffset;
+            PtrMessage->NameLength = typeFullName.Length;
+            m_StringStoreOffset = m_StringStoreOffset + (typeFullName.Length * 2);
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
         unsafe public void AddMessageFindByHandle(DataStores DestinationStore, IntPtr ParentHandle, IntPtr ControlHandle)
         {
             ////debug
@@ -1630,6 +1722,23 @@ namespace APE.Communication
 
             Parameter ControlHandleParam = new Parameter(this, ControlHandle);
             Parameter GroupIDParam = new Parameter(this, GroupID);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        unsafe public void AddMessageGetModuleFileName(IntPtr ControlHandle)
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+
+            PtrMessage->Action = MessageAction.GetModuleFilename;
+
+            Parameter ControlHandleParam = new Parameter(this, ControlHandle);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -2120,6 +2229,7 @@ namespace APE.Communication
             {
                 if (Identifier.Handle != IntPtr.Zero)
                 {
+                    //WinForms
                     WF.Control TheControl = WF.Form.FromHandle(Identifier.Handle);
                     if (TheControl != null)
                     {
@@ -2137,24 +2247,27 @@ namespace APE.Communication
 
                         FoundControl = true;
                     }
-                    else
+                    
+                    if (!FoundControl)
                     {
+                        //WPF
                         WPF.Application wpfApp = WPF.Application.Current;
-                        WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
-                        
-                        GetWPFHandleAndNameAndTitleDelegate GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
-
-                        foreach (WPF.Window wpfWindow in wpfWindows)
+                        if (wpfApp != null)
                         {
-                            wpfWindow.Dispatcher.Invoke(GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
-                            if (Identifier.Handle == m_Handle)
+                            WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+
+                            foreach (WPF.Window wpfWindow in wpfWindows)
                             {
-                                Handle = m_Handle;
-                                Name = m_Name;
-                                theText = m_Text;
-                                theType = wpfWindow.GetType();
-                                FoundControl = true;
-                                break;
+                                wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+                                if (Identifier.Handle == m_Handle)
+                                {
+                                    Handle = m_Handle;
+                                    Name = m_Name;
+                                    theText = m_Text;
+                                    theType = wpfWindow.GetType();
+                                    FoundControl = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -2262,102 +2375,106 @@ namespace APE.Communication
                                 }
                             }
 
-                            //WPF
-                            WPF.Application wpfApp = WPF.Application.Current;
-                            WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                            GetWPFHandleAndNameAndTitleDelegate GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
-
-                            foreach (WPF.Window wpfWindow in wpfWindows)
+                            if (!FoundControl)
                             {
-                                wpfWindow.Dispatcher.Invoke(GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
-
-                                theType = wpfWindow.GetType();
-                                Handle = m_Handle;
-                                Name = m_Name;
-                                theText = m_Text;
-
-                                if (Identifier.Name != null)
+                                //WPF
+                                WPF.Application wpfApp = WPF.Application.Current;
+                                if (wpfApp != null)
                                 {
-                                    if (Name != Identifier.Name)
-                                    {
-                                        continue;
-                                    }
-                                }
+                                    WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
 
-                                if (Identifier.TechnologyType != null)
-                                {
-                                    if (GetTechnologyType(theType) != Identifier.TechnologyType)
+                                    foreach (WPF.Window wpfWindow in wpfWindows)
                                     {
-                                        continue;
-                                    }
-                                }
+                                        wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
 
-                                if (Identifier.TypeNameSpace != null)
-                                {
-                                    if (theType.Namespace != Identifier.TypeNameSpace)
-                                    {
-                                        continue;
-                                    }
-                                }
+                                        theType = wpfWindow.GetType();
+                                        Handle = m_Handle;
+                                        Name = m_Name;
+                                        theText = m_Text;
 
-                                if (Identifier.TypeName != null)
-                                {
-                                    if (theType.Name != Identifier.TypeName)
-                                    {
-                                        WriteLog(theType.Name + " != " + Identifier.TypeName);
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.ModuleName != null)
-                                {
-                                    if (theType.Module.Name != Identifier.ModuleName)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.AssemblyName != null)
-                                {
-                                    if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.Text != null)
-                                {
-                                    if (theText == null)
-                                    {
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        if (!Regex.IsMatch(theText, Identifier.Text))
+                                        if (Identifier.Name != null)
                                         {
-                                            continue;
+                                            if (Name != Identifier.Name)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.TechnologyType != null)
+                                        {
+                                            if (GetTechnologyType(theType) != Identifier.TechnologyType)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.TypeNameSpace != null)
+                                        {
+                                            if (theType.Namespace != Identifier.TypeNameSpace)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.TypeName != null)
+                                        {
+                                            if (theType.Name != Identifier.TypeName)
+                                            {
+                                                WriteLog(theType.Name + " != " + Identifier.TypeName);
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.ModuleName != null)
+                                        {
+                                            if (theType.Module.Name != Identifier.ModuleName)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.AssemblyName != null)
+                                        {
+                                            if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.Text != null)
+                                        {
+                                            if (theText == null)
+                                            {
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                if (!Regex.IsMatch(theText, Identifier.Text))
+                                                {
+                                                    continue;
+                                                }
+                                            }
+                                        }
+
+                                        CurrentIndex++;
+
+                                        WriteLog("found wpf form for " + Name);
+
+                                        if (Identifier.Index > 0)
+                                        {
+                                            if (CurrentIndex != Identifier.Index)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        //we have a match
+                                        if (NM.IsWindowVisible(Handle))
+                                        {
+                                            FoundControl = true;
+                                            break;
                                         }
                                     }
-                                }
-
-                                CurrentIndex++;
-
-                                WriteLog("found wpf form for " + Name);
-
-                                if (Identifier.Index > 0)
-                                {
-                                    if (CurrentIndex != Identifier.Index)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                //we have a match
-                                if (NM.IsWindowVisible(Handle))
-                                {
-                                    FoundControl = true;
-                                    break;
                                 }
                             }
                         }
@@ -2554,7 +2671,7 @@ namespace APE.Communication
                 NewIdentifier.Text = theText;
                 AddIdentifierMessage(NewIdentifier);
             }
-
+            
             return FoundControl;
         }
 
@@ -2904,6 +3021,7 @@ namespace APE.Communication
                             return "";
                     }
                 case "LatentZero.Capstone.ComSupport.ResultsGrid":
+                case "AxDRILLDOWNLib":
                     switch (TypeName)
                     {
                         case "AxLZResultsGrid":
@@ -3366,6 +3484,247 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
         }
 
+        unsafe private void ConvertType(int MessageNumber)
+        {
+            object SourceObject;
+            object DestinationObject;
+            IntPtr datastoreTypeHandle = IntPtr.Zero;
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
+
+            string typeFullName;
+            if (PtrMessage->NameLength == -1)
+            {
+                string Empty = null;
+                typeFullName = Empty;
+            }
+            else
+            {
+                typeFullName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->NameOffset), 0, PtrMessage->NameLength);
+            }
+
+            switch (PtrMessage->SourceStore)
+            {
+                case DataStores.Store0:
+                    SourceObject = tempStore0;
+                    break;
+                case DataStores.Store1:
+                    SourceObject = tempStore1;
+                    break;
+                case DataStores.Store2:
+                    SourceObject = tempStore2;
+                    break;
+                case DataStores.Store3:
+                    SourceObject = tempStore3;
+                    break;
+                case DataStores.Store4:
+                    SourceObject = tempStore4;
+                    break;
+                case DataStores.Store5:
+                    SourceObject = tempStore5;
+                    break;
+                case DataStores.Store6:
+                    SourceObject = tempStore6;
+                    break;
+                case DataStores.Store7:
+                    SourceObject = tempStore7;
+                    break;
+                case DataStores.Store8:
+                    SourceObject = tempStore8;
+                    break;
+                case DataStores.Store9:
+                    SourceObject = tempStore9;
+                    break;
+                default:
+                    throw new Exception("Unsupported SourceStore " + (PtrMessage->SourceStore).ToString());
+            }
+
+            if (SourceObject == null)
+            {
+                DestinationObject = null;
+            }
+            else
+            {
+                //Find the type we want to convert the object to
+                Type theType = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == typeFullName);
+                //setup the delegate parameters
+                object[] convertParameters = { theType, SourceObject };
+                //call the delegate on the correct thread
+                DestinationObject = ((WF.Control)tempStore0).Invoke(m_ConvertTypeDelegater, convertParameters);
+            }
+
+            switch (PtrMessage->DestinationStore)
+            {
+                case DataStores.Store0:
+                    tempStore0 = DestinationObject;
+                    break;
+                case DataStores.Store1:
+                    tempStore1 = DestinationObject;
+                    break;
+                case DataStores.Store2:
+                    tempStore2 = DestinationObject;
+                    break;
+                case DataStores.Store3:
+                    tempStore3 = DestinationObject;
+                    break;
+                case DataStores.Store4:
+                    tempStore4 = DestinationObject;
+                    break;
+                case DataStores.Store5:
+                    tempStore5 = DestinationObject;
+                    break;
+                case DataStores.Store6:
+                    tempStore6 = DestinationObject;
+                    break;
+                case DataStores.Store7:
+                    tempStore7 = DestinationObject;
+                    break;
+                case DataStores.Store8:
+                    tempStore8 = DestinationObject;
+                    break;
+                case DataStores.Store9:
+                    tempStore9 = DestinationObject;
+                    break;
+                default:
+                    throw new Exception("Unsupported DestinationStore " + (PtrMessage->DestinationStore).ToString());
+            }
+
+            //cleanup the message
+            PtrMessage->TypeCodeKey = 0;
+            PtrMessage->NumberOfParameters = 0;
+            PtrMessage->NameOffset = 0;
+            PtrMessage->NameLength = 0;
+            PtrMessage->Action = MessageAction.None;
+        }
+
+        unsafe private void UnderlyingGridFromResultsGrid(int MessageNumber)
+        {
+            object SourceObject;
+            object DestinationObject;
+            IntPtr datastoreTypeHandle = IntPtr.Zero;
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
+
+            string typeFullName;
+            if (PtrMessage->NameLength == -1)
+            {
+                string Empty = null;
+                typeFullName = Empty;
+            }
+            else
+            {
+                typeFullName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->NameOffset), 0, PtrMessage->NameLength);
+            }
+
+            switch (PtrMessage->SourceStore)
+            {
+                case DataStores.Store0:
+                    SourceObject = tempStore0;
+                    break;
+                case DataStores.Store1:
+                    SourceObject = tempStore1;
+                    break;
+                case DataStores.Store2:
+                    SourceObject = tempStore2;
+                    break;
+                case DataStores.Store3:
+                    SourceObject = tempStore3;
+                    break;
+                case DataStores.Store4:
+                    SourceObject = tempStore4;
+                    break;
+                case DataStores.Store5:
+                    SourceObject = tempStore5;
+                    break;
+                case DataStores.Store6:
+                    SourceObject = tempStore6;
+                    break;
+                case DataStores.Store7:
+                    SourceObject = tempStore7;
+                    break;
+                case DataStores.Store8:
+                    SourceObject = tempStore8;
+                    break;
+                case DataStores.Store9:
+                    SourceObject = tempStore9;
+                    break;
+                default:
+                    throw new Exception("Unsupported SourceStore " + (PtrMessage->SourceStore).ToString());
+            }
+
+            if (SourceObject == null)
+            {
+                DestinationObject = null;
+            }
+            else
+            {
+                object[] theParameters = { SourceObject };
+                //call the delegate on the correct thread
+                DestinationObject = ((WF.Control)tempStore0).Invoke(m_GetUnderlyingGridFromResultsGridDelegater, theParameters);
+            }
+
+            switch (PtrMessage->DestinationStore)
+            {
+                case DataStores.Store0:
+                    tempStore0 = DestinationObject;
+                    break;
+                case DataStores.Store1:
+                    tempStore1 = DestinationObject;
+                    break;
+                case DataStores.Store2:
+                    tempStore2 = DestinationObject;
+                    break;
+                case DataStores.Store3:
+                    tempStore3 = DestinationObject;
+                    break;
+                case DataStores.Store4:
+                    tempStore4 = DestinationObject;
+                    break;
+                case DataStores.Store5:
+                    tempStore5 = DestinationObject;
+                    break;
+                case DataStores.Store6:
+                    tempStore6 = DestinationObject;
+                    break;
+                case DataStores.Store7:
+                    tempStore7 = DestinationObject;
+                    break;
+                case DataStores.Store8:
+                    tempStore8 = DestinationObject;
+                    break;
+                case DataStores.Store9:
+                    tempStore9 = DestinationObject;
+                    break;
+                default:
+                    throw new Exception("Unsupported DestinationStore " + (PtrMessage->DestinationStore).ToString());
+            }
+
+            //cleanup the message
+            PtrMessage->TypeCodeKey = 0;
+            PtrMessage->NumberOfParameters = 0;
+            PtrMessage->NameOffset = 0;
+            PtrMessage->NameLength = 0;
+            PtrMessage->Action = MessageAction.None;
+        }
+
+        private object Cast(Type Type, object data)
+        {
+            var DataParam = Expression.Parameter(typeof(object), "data");
+            var Body = Expression.Block(Expression.Convert(Expression.Convert(DataParam, data.GetType()), Type));
+            var Run = Expression.Lambda(Body, DataParam).Compile();
+            var ret = Run.DynamicInvoke(data);
+            return ret;
+        }
+
+        private object GetUnderlyingGridFromResultsGrid(object lzResultsGrid)
+        {
+            //runtime late binding for com uses the dispatch interface but we don't want the default (ILZResultsGrid)
+            //interface we want the ILZGrid interface which means we need to use early binding and cast the object.
+            DRILLDOWNLib.ILZGrid lzResultsGridAsLzGrid = (DRILLDOWNLib.ILZGrid)lzResultsGrid;
+            object theGrid = lzResultsGridAsLzGrid.UnderlyingGrid;
+            return theGrid;
+        }
+
         unsafe private void Reflect(int MessageNumber)
         {
             object SourceObject;
@@ -3661,88 +4020,95 @@ namespace APE.Communication
                     Name = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->NameOffset), 0, PtrMessage->NameLength);
                 }
 
-                //Get the value
-                if (Name == "<Array>")
+                if (Marshal.IsComObject(SourceObject))
                 {
-                    ArrayElementGetter = SourceType.DelegateForGetElement();
-                    DestinationObject = ArrayElementGetter(SourceObject, (int)ParametersObject[0]);
-                    ArrayElementGetter = null;
+                    DestinationObject = SourceObject.GetType().InvokeMember(Name, BindingFlags.InvokeMethod | BindingFlags.GetProperty, null, SourceObject, ParametersObject);
                 }
                 else
                 {
-                    switch (PtrMessage->MemberType)
+                    //Get the value
+                    if (Name == "<Array>")
                     {
-                        case MemberTypes.Constructor:
-                            ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out ConstructorInvoker);
-                            if (ConstructorInvoker == null)
-                            {
-                                Type typeContainingConstructor;
-                                typeContainingConstructor = SourceType.Assembly.GetTypes().FirstOrDefault(x => x.FullName == Name);
-                                if (typeContainingConstructor == null)
+                        ArrayElementGetter = SourceType.DelegateForGetElement();
+                        DestinationObject = ArrayElementGetter(SourceObject, (int)ParametersObject[0]);
+                        ArrayElementGetter = null;
+                    }
+                    else
+                    {
+                        switch (PtrMessage->MemberType)
+                        {
+                            case MemberTypes.Constructor:
+                                ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out ConstructorInvoker);
+                                if (ConstructorInvoker == null)
                                 {
-                                    typeContainingConstructor = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == Name);
+                                    Type typeContainingConstructor;
+                                    typeContainingConstructor = SourceType.Assembly.GetTypes().FirstOrDefault(x => x.FullName == Name);
+                                    if (typeContainingConstructor == null)
+                                    {
+                                        typeContainingConstructor = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == Name);
+                                    }
+                                    ConstructorInvoker = typeContainingConstructor.DelegateForCreateInstance(ParametersType);
+                                    ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, ConstructorInvoker);
                                 }
-                                ConstructorInvoker = typeContainingConstructor.DelegateForCreateInstance(ParametersType);
-                                ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, ConstructorInvoker);
-                            }
-                            DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
-                            //DestinationObject = ((Control)tempStore0).Invoke((Delegate)ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
-                            ConstructorInvoker = null;
-                            break;
-                        case MemberTypes.Field:
-                            MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
-                            if (MemberGetter == null)
-                            {
-                                MemberGetter = SourceType.DelegateForGetFieldValue(Name);
-                                MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
-                            }
-                            DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
-                            MemberGetter = null;
-                            break;
-                        case MemberTypes.Property:
-                            if (ParametersType.Length == 0)
-                            {
+                                DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
+                                //DestinationObject = ((Control)tempStore0).Invoke((Delegate)ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                ConstructorInvoker = null;
+                                break;
+                            case MemberTypes.Field:
                                 MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
                                 if (MemberGetter == null)
                                 {
-                                    MemberGetter = SourceType.DelegateForGetPropertyValue(Name);
+                                    MemberGetter = SourceType.DelegateForGetFieldValue(Name);
                                     MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                                 }
                                 DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                                 MemberGetter = null;
-                            }
-                            else
-                            {
-                                MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
-                                if (MethodInvoker == null)
+                                break;
+                            case MemberTypes.Property:
+                                if (ParametersType.Length == 0)
                                 {
-                                    MethodInvoker = SourceType.DelegateForGetIndexer(ParametersType);
-                                    MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
+                                    MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
+                                    if (MemberGetter == null)
+                                    {
+                                        MemberGetter = SourceType.DelegateForGetPropertyValue(Name);
+                                        MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
+                                    }
+                                    DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
+                                    MemberGetter = null;
                                 }
-                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                else
+                                {
+                                    MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
+                                    if (MethodInvoker == null)
+                                    {
+                                        MethodInvoker = SourceType.DelegateForGetIndexer(ParametersType);
+                                        MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
+                                    }
+                                    DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                    MethodInvoker = null;
+                                }
+                                break;
+                            case MemberTypes.Method:
+                                //Reflection doesn't seem to work on Enums so access it directly
+                                if (SourceType.IsEnum && Name == "ToString")
+                                {
+                                    DestinationObject = SourceObject.ToString();
+                                }
+                                else
+                                {
+                                    MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
+                                    if (MethodInvoker == null)
+                                    {
+                                        MethodInvoker = SourceType.DelegateForCallMethod(Name, ParametersType);
+                                        MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
+                                    }
+                                    DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                }
                                 MethodInvoker = null;
-                            }
-                            break;
-                        case MemberTypes.Method:
-                            //Reflection doesn't seem to work on Enums so access it directly
-                            if (SourceType.IsEnum && Name == "ToString")
-                            {
-                                DestinationObject = SourceObject.ToString();
-                            }
-                            else
-                            {
-                                MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
-                                if (MethodInvoker == null)
-                                {
-                                    MethodInvoker = SourceType.DelegateForCallMethod(Name, ParametersType);
-                                    MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
-                                }
-                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
-                            }
-                            MethodInvoker = null;
-                            break;
-                        default:
-                            throw new Exception("Unsupported member type: " + (PtrMessage->MemberType).ToString());
+                                break;
+                            default:
+                                throw new Exception("Unsupported member type: " + (PtrMessage->MemberType).ToString());
+                        }
                     }
                 }
             }
@@ -3820,6 +4186,10 @@ namespace APE.Communication
                 MouseHookProcedure = new NM.HookProc(MouseHookProc);
                 EnumThreadProcedue = new NM.EnumThread(EnumThreadCallback);
 
+                //setup the delegates
+                m_GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
+                m_ConvertTypeDelegater = new ConvertTypeDelegate(Cast);
+                m_GetUnderlyingGridFromResultsGridDelegater = new GetUnderlyingGridFromResultsGridDelegate(GetUnderlyingGridFromResultsGrid);
                 while (true)
                 {
                     WaitForMessages(EventSet.AUT);
@@ -3867,6 +4237,15 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.ReflectGet:
                                     Reflect(MessageNumber);
+                                    break;
+                                case MessageAction.GetModuleFilename:
+                                    GetModuleFilename(MessageNumber);
+                                    break;
+                                case MessageAction.ConvertType:
+                                    ConvertType(MessageNumber);
+                                    break;
+                                case MessageAction.UnderlyingGridFromResultsGrid:
+                                    UnderlyingGridFromResultsGrid(MessageNumber);
                                     break;
                                 case MessageAction.ReflectPoll:
                                     ReflectPoll(MessageNumber);
