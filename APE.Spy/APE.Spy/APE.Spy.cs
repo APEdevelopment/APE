@@ -196,7 +196,7 @@ namespace APE.Spy
                     if (WindowSize.Right > 0)   //If the window has 0 width then ignore it
                     {
                         TreeNode ParentNode;
-                        GetIdentity(hWnd);
+                        GetIdentity(IntPtr.Zero, hWnd);
                         string APEType = GetAPEType(m_Identity);
                         ListOfTopLevelWindows.Add(hWnd, m_Identity.Name);
                         if (m_Identity.TechnologyType == "Windows Native")
@@ -224,7 +224,7 @@ namespace APE.Spy
             {
                 if (NM.IsWindowVisible(Child))
                 {
-                    GetIdentity(Child);
+                    GetIdentity(RootParent, Child);
                     string APEType = GetAPEType(m_Identity);
 
                     //Name = GetName(RootParent, Child);
@@ -240,7 +240,7 @@ namespace APE.Spy
                     {
                         if (NM.IsWindowVisible(Sibling))
                         {
-                            GetIdentity(Sibling);
+                            GetIdentity(RootParent, Sibling);
                             string APEType = GetAPEType(m_Identity);
 
                             //Name = GetName(RootParent, Sibling);
@@ -261,10 +261,11 @@ namespace APE.Spy
             string[] SplitCharacters = { ":" };
             string[] Handles = WindowTree.SelectedNode.Name.Split(SplitCharacters, StringSplitOptions.None);
 
+            IntPtr Parent = new IntPtr(int.Parse(Handles[0]));
             IntPtr Handle = new IntPtr(int.Parse(Handles[1]));
             if (NM.IsWindow(Handle))
             {
-                PopulatePropertyListbox(Handle);
+                PopulatePropertyListbox(Parent, Handle);
             }
             else
             {
@@ -403,22 +404,15 @@ namespace APE.Spy
 
                     if (m_CurrentAttached.Key.Id == Pid)
                     {
-                        PopulatePropertyListbox(Handle);
+                        PopulatePropertyListbox(NM.GetAncestor(Handle, NM.GetAncestorFlags.GetRoot), Handle);
 
-                        m_Area = Display.GetWindowRectangleDIP(m_Identity.Handle);
-
-                        IntPtr hWindowDC = NM.GetDC(IntPtr.Zero);
-                        IntPtr hRectanglePen = NM.CreatePen(NM.PenStyle.PS_SOLID, 3, (uint)ColorTranslator.ToWin32(Color.Red));
-                        IntPtr hPrevPen = NM.SelectObject(hWindowDC, hRectanglePen);
-                        IntPtr hPrevBrush = NM.SelectObject(hWindowDC, NM.GetStockObject(NM.StockObjects.HOLLOW_BRUSH));
-
-                        NM.Rectangle(hWindowDC, m_Area.left, m_Area.top, m_Area.right, m_Area.bottom);
-
-                        NM.SelectObject(hWindowDC, hPrevPen);
-                        NM.SelectObject(hWindowDC, hPrevBrush);
-                        NM.ReleaseDC(Handle, hWindowDC);
+                        Highlight(Handle);
 
                         OldHandle = Handle;
+                    }
+                    else
+                    {
+                        OldHandle = IntPtr.Zero;
                     }
                 }
 
@@ -451,6 +445,21 @@ namespace APE.Spy
             }
         }
 
+        private void Highlight(IntPtr hWnd)
+        {
+            m_Area = Display.GetWindowRectangleDIP(hWnd);
+
+            IntPtr hWindowDC = NM.GetDC(IntPtr.Zero);
+            IntPtr hRectanglePen = NM.CreatePen(NM.PenStyle.PS_SOLID, 3, (uint)ColorTranslator.ToWin32(Color.Red));
+            IntPtr hPrevPen = NM.SelectObject(hWindowDC, hRectanglePen);
+            IntPtr hPrevBrush = NM.SelectObject(hWindowDC, NM.GetStockObject(NM.StockObjects.HOLLOW_BRUSH));
+
+            NM.Rectangle(hWindowDC, m_Area.left, m_Area.top, m_Area.right, m_Area.bottom);
+
+            NM.SelectObject(hWindowDC, hPrevPen);
+            NM.SelectObject(hWindowDC, hPrevBrush);
+            NM.ReleaseDC(Handle, hWindowDC);
+        }
         private void ObjectSpy_Activate(object sender, System.EventArgs e)
         {
             WindowTree.Focus();
@@ -462,12 +471,16 @@ namespace APE.Spy
             WindowTree.Height = PropertyListbox.Height;
         }
 
-        private void GetIdentity(IntPtr Handle)
+        private void GetIdentity(IntPtr Parent, IntPtr Handle)
         {
             m_Identity = new ControlIdentifier();
 
             try
             {
+                if (Parent != Handle)
+                {
+                    m_Identity.ParentHandle = Parent;
+                }
                 m_Identity.Handle = Handle;
                 m_APE.AddMessageFindByProperty(m_Identity);
                 m_APE.SendMessages(APEIPC.EventSet.APE);
@@ -476,27 +489,24 @@ namespace APE.Spy
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message + "\r\n" + ex.StackTrace.ToArray());
+                Debug.WriteLine("GetIdentity by handle failed " + Parent.ToString() + " " + Handle.ToString() + ": " + ex.Message + "\r\n" + ex.StackTrace.ToArray());
 
-                m_Identity.Handle = Handle;
-                m_Identity.ParentHandle = NM.GetAncestor(Handle, NM.GetAncestorFlags.GetRoot);
-                if (m_Identity.Handle == m_Identity.ParentHandle)
-                {
-                    m_Identity.ParentHandle = IntPtr.Zero;
-                }
-                //TODO fix this properly
-                m_Identity.TechnologyType = "Windows Native";
-                m_Identity.TypeName = NM.GetClassName(m_Identity.Handle);
-
-                //Get the module filename
-                m_APE.AddMessageGetModuleFileName(m_Identity.Handle);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
-                //get the value returned
-                m_Identity.ModuleName = m_APE.GetValueFromMessage();
-                
-                m_Identity.Text = m_APE.GetWindowTextViaWindowMessage(m_Identity.Handle);
-                m_Identity.Index = 1;
+                //if (NM.IsTopLevelWindow(m_Identity.Handle))
+                //{
+                //    IntPtr menu = NM.GetMenu(m_Identity.Handle);
+                //    if (menu == IntPtr.Zero)
+                //    {
+                //        IntPtr contextMenu = NM.GetContextMenu(m_Identity.Handle);
+                //        if (contextMenu != IntPtr.Zero)
+                //        {
+                //            Debug.WriteLine("----- " + NM.GetMenuString(contextMenu, 0, NM.GetMenuFlag.MF_BYPOSITION));
+                //        }
+                //    }
+                //    else
+                //    {
+                //        Debug.WriteLine("----- " + NM.GetMenuString(menu, 0, NM.GetMenuFlag.MF_BYPOSITION));
+                //    }
+                //}                
             }
         }
 
@@ -518,9 +528,9 @@ namespace APE.Spy
             return identity;
         }
 
-        private void PopulatePropertyListbox(IntPtr Handle)
+        private void PopulatePropertyListbox(IntPtr Parent, IntPtr Handle)
         {
-            GetIdentity(Handle);
+            GetIdentity(Parent, Handle);
             string APEType = GetAPEType(m_Identity);
 
             PropertyListbox.Items.Clear();
@@ -534,12 +544,14 @@ namespace APE.Spy
             PropertyListbox.Items.Add("ModuleName\t: " + m_Identity.ModuleName);
 
             //Workout the index
+            m_Identity.Index = 0;
             while (true)
             {
                 m_Identity.Index++;
 
                 ControlIdentifier identity = new ControlIdentifier();
                 identity.ParentHandle = m_Identity.ParentHandle;
+                identity.TechnologyType = m_Identity.TechnologyType;
                 if (m_Identity.Name != "" && m_Identity.Name != null)
                 {
                     //Use Name as the index key
@@ -588,7 +600,7 @@ namespace APE.Spy
 
             PropertyListbox.Items.Add("");
 
-            switch(APEType)
+            switch (APEType)
             {
                 case "GUIToolStrip":
                 case "GUIMenuStrip":
@@ -605,7 +617,7 @@ namespace APE.Spy
                     AddGUIElementStripGridToPropertyListbox();
                     break;
                 default:
-                    switch(m_Identity.TypeName)
+                    switch (m_Identity.TypeName)
                     {
                         case "ToolStripDropDownMenu":
                             AddToolStripDropDownMenuToPropertyListbox();

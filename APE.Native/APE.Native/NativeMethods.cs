@@ -1231,7 +1231,7 @@ namespace APE.Native
 
         // local process hooking
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
-        public delegate bool EnumThread(IntPtr hwnd, IntPtr lParam);
+        public delegate bool EnumWindow(IntPtr hwnd, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "SetWindowsHookEx", CharSet = CharSet.Unicode)]
         public static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hInstance, int threadId);
@@ -1250,7 +1250,12 @@ namespace APE.Native
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool EnumThreadWindows(uint dwThreadId, EnumThread lpfn, IntPtr lParam);
+        public static extern bool EnumThreadWindows(uint dwThreadId, EnumWindow lpfn, IntPtr lParam);
+
+
+        [DllImport("user32.dll", EntryPoint = "EnumChildWindows")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool EnumChildWindows([In] IntPtr hWndParent, EnumWindow lpEnumFunc, IntPtr lParam);
 
         /// Return Type: BOOL
         ///uInterval: UINT->unsigned int
@@ -1333,6 +1338,11 @@ namespace APE.Native
         [DllImport("gdi32.dll")]
         public static extern uint GetPixel(IntPtr hdc, int nXPos, int nYPos);
 
+        /// Return Type: HDC->HDC__*
+        ///hWnd: HWND->HWND__*
+        [DllImport("user32.dll", EntryPoint = "GetWindowDC")]
+        public static extern IntPtr GetWindowDC([In] IntPtr hWnd);
+
         [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hwnd);
 
@@ -1342,8 +1352,34 @@ namespace APE.Native
         [DllImport("user32.dll")]
         public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetMenu(IntPtr hWnd);
+        [DllImport("user32.dll", EntryPoint = "GetMenu")]
+        private static extern IntPtr GetMenuAPI(IntPtr hWnd);
+
+        public static IntPtr GetMenu(IntPtr hWnd)
+        {
+            IntPtr theResult = IntPtr.Zero;
+            if (IsTopLevelWindow(hWnd))
+            {
+                theResult = GetMenuAPI(hWnd);
+            }
+            return theResult;
+        }
+
+        private const int MN_GETHMENU = 0x1E1;
+
+        public static IntPtr GetContextMenu(IntPtr hWnd)
+        {
+            IntPtr theResult = IntPtr.Zero;
+            if (IsTopLevelWindow(hWnd))
+            {
+                IntPtr theReturn = SendMessageTimeout(hWnd, MN_GETHMENU, IntPtr.Zero, IntPtr.Zero, SendMessageTimeoutFlags.SMTO_ABORTIFHUNG, 30, out theResult);
+                if (theReturn == IntPtr.Zero)
+                {
+                    throw new Exception("SendMessageTimeout failed, does the window exists?");
+                }
+            }
+            return theResult;
+        }
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetSubMenu(IntPtr hMenu, int nPos);
@@ -1355,7 +1391,14 @@ namespace APE.Native
         public static extern bool GetMenuItemRect(IntPtr hWnd, IntPtr hMenu, uint uItem, out RECT lprcItem);
 
         [DllImport("user32.dll")]
-        public static extern int GetMenuString(IntPtr hMenu, uint uIDItem, [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder lpString, int nMaxCount, GetMenuFlag uFlag);
+        private static extern int GetMenuString(IntPtr hMenu, uint uIDItem, [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder lpString, int nMaxCount, GetMenuFlag uFlag);
+
+        public static string GetMenuString(IntPtr hMenu, uint uIDItem, GetMenuFlag uFlag)
+        {
+            StringBuilder menuString = new StringBuilder(1024);
+            GetMenuString(hMenu, uIDItem, menuString, menuString.Capacity - 1, uFlag);
+            return menuString.ToString();
+        }
 
         [DllImport("user32.dll")]
         public static extern GetMenuStateMask GetMenuState(IntPtr hMenu, uint uId, GetMenuFlag uFlags);
@@ -1379,6 +1422,16 @@ namespace APE.Native
             MF_HILITE = 0x00000080,
             MF_OWNERDRAW = 0x00000100,
             MF_SEPARATOR = 0x00000800
+        }
+
+        public static bool IsTopLevelWindow(IntPtr Window)
+        {
+            WindowStyles Style = (WindowStyles)(long)GetWindowLongPtr(Window, GWL.GWL_STYLE);
+
+            // WS_OVERLAPPED and WS_POPUP indicate a top level window.
+            // WS_OVERLAPPED constant is 0, it does not make a good mask.  But all
+            // WS_OVERLAPPED windows MUST have a caption so use WS_CAPTION instead.
+            return Style.HasFlag(WindowStyles.WS_CAPTION) || Style.HasFlag(WindowStyles.WS_POPUP);
         }
 
         public const int LVM_FIRST = 0x1000;
@@ -1414,6 +1467,12 @@ namespace APE.Native
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool BringWindowToTop(IntPtr hWnd);
+
+        /// Return Type: BOOL->int
+        ///hWndLock: HWND->HWND__*
+        [DllImport("user32.dll", EntryPoint = "LockWindowUpdate")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool LockWindowUpdate([In] IntPtr hWndLock);
 
         [DllImport("user32.dll")]
         public static extern Boolean RedrawWindow(IntPtr hWnd, IntPtr lpRectUpdate, IntPtr hrgnUpdate, RedrawWindowFlags RedrawWindowFlags);

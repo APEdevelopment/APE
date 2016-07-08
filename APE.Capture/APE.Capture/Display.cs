@@ -118,16 +118,6 @@ namespace APE.Capture
             ScreenCapture(FileName, IntPtr.Zero);
         }
 
-        private static bool IsTopLevelWindow(IntPtr Window)
-        {
-            NM.WindowStyles Style = (NM.WindowStyles)(long)NM.GetWindowLongPtr(Window, NM.GWL.GWL_STYLE);
-
-            // WS_OVERLAPPED and WS_POPUP indicate a top level window.
-            // WS_OVERLAPPED constant is 0, it does not make a good mask.  But all
-            // WS_OVERLAPPED windows MUST have a caption so use WS_CAPTION instead.
-            return Style.HasFlag(NM.WindowStyles.WS_CAPTION) || Style.HasFlag(NM.WindowStyles.WS_POPUP);
-        }
-
         public static NM.tagRect GetWindowRectangleDIP(IntPtr Window)
         {
             int Adjustment = 1;
@@ -135,7 +125,7 @@ namespace APE.Capture
             string WindowState = "";
             NM.tagRect ControlRect;
             bool desktopWindowManagerEnabled;
-            bool topLevelWindow = IsTopLevelWindow(Window);
+            bool topLevelWindow = NM.IsTopLevelWindow(Window);
 
             if (topLevelWindow)
             {
@@ -239,7 +229,7 @@ namespace APE.Capture
             else
             {
                 NM.tagRect WindowRect;
-                if (NativeVersion.IsWindowsVistaOrHigher && IsTopLevelWindow(Window))
+                if (NativeVersion.IsWindowsVistaOrHigher && NM.IsTopLevelWindow(Window))
                 {
                     bool DWMEnabled;
 
@@ -333,7 +323,7 @@ namespace APE.Capture
             else
             {
                 NM.tagRect WindowRect;
-                if (NativeVersion.IsWindowsVistaOrHigher && IsTopLevelWindow(m_VideoCaptureWindow))
+                if (NativeVersion.IsWindowsVistaOrHigher && NM.IsTopLevelWindow(m_VideoCaptureWindow))
                 {
                     bool DWMEnabled;
 

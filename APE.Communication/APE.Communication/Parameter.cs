@@ -77,7 +77,6 @@ namespace APE.Communication
         ReflectPoll = 18,
         ConvertType = 19,
         UnderlyingGridFromResultsGrid = 20,
-        GetModuleFilename = 21,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

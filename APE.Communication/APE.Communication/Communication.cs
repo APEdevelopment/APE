@@ -32,6 +32,7 @@ using NM = APE.Native.NativeMethods;
 using Microsoft.Win32;
 using System.Runtime;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace APE.Communication
 {
@@ -77,10 +78,9 @@ namespace APE.Communication
         internal int m_StringStoreOffset;
 
         private NM.HookProc MouseHookProcedure;
-        private NM.EnumThread EnumThreadProcedue;
+        private NM.EnumWindow EnumThreadProcedue;
         private int m_hMouseHook = 0;
         private IntPtr m_HookWindow;
-        private IntPtr ContextMenuStrip;
 
         private bool m_WM_LBUTTONDOWN = false;
         private bool m_WM_LBUTTONUP = false;
@@ -141,6 +141,8 @@ namespace APE.Communication
         string m_Name;
         string m_Text;
 
+        private delegate string GetTextDelegate(WF.Control theControl);
+        private GetTextDelegate m_GetTextDelegater;
         private delegate object GetUnderlyingGridFromResultsGridDelegate(object resultsGrid);
         private GetUnderlyingGridFromResultsGridDelegate m_GetUnderlyingGridFromResultsGridDelegater;
         private delegate object ConvertTypeDelegate(Type theTyoe, object theObject);
@@ -148,7 +150,7 @@ namespace APE.Communication
         private delegate void GetWPFHandleAndNameAndTitleDelegate(WPF.Window theWindow);
         private GetWPFHandleAndNameAndTitleDelegate m_GetWPFHandleAndNameAndTitleDelegater;
 
-        WF.Control[] m_AllControlsOnForm;
+        List<IntPtr> m_AllControls;
         EventSet Side;
         Process ApeProcess = null;
         Process AUTProcess = null;
@@ -224,17 +226,9 @@ namespace APE.Communication
 
         private bool EnumThreadCallback(IntPtr hWnd, IntPtr lParam)
         {
-            WF.Control FoundControl = WF.Form.FromHandle(hWnd);
-            if (FoundControl != null)
+            if (NM.IsWindowVisible(hWnd))
             {
-                if (FoundControl.Visible)
-                {
-                    if (FoundControl.GetType().Name == "ContextMenuStrip")
-                    {
-                        ContextMenuStrip = hWnd;
-                        return false;
-                    }
-                }
+                m_AllControls.Add(hWnd);
             }
             return true;
         }
@@ -852,10 +846,24 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
 
             //Find it
-            ContextMenuStrip = IntPtr.Zero;
+            m_AllControls = new List<IntPtr>();
             NM.EnumThreadWindows((uint)NM.GetWindowThreadProcessId(Handle, IntPtr.Zero), EnumThreadProcedue, IntPtr.Zero);
 
-            AddReturnValue(new Parameter(this, ContextMenuStrip));
+            foreach (IntPtr hWnd in m_AllControls)
+            {
+                if (NM.IsWindowVisible(hWnd))
+                {
+                    WF.Control FoundControl = WF.Control.FromHandle(hWnd);
+                    if (FoundControl != null)
+                    {
+                        if (FoundControl.GetType().Name == "ContextMenuStrip")
+                        {
+                            AddReturnValue(new Parameter(this, hWnd));
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         public unsafe void GetTitleBarItemRectangle(int MessageNumber)
@@ -1013,40 +1021,6 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, theRect.left));
             AddReturnValue(new Parameter(this, theRect.bottom));
             AddReturnValue(new Parameter(this, theRect.right));
-        }
-
-        public unsafe void GetModuleFilename(int MessageNumber)
-        {
-            //
-            //must be first message
-            if (MessageNumber != 1)
-            {
-                throw new Exception("GetModuleFilename must be first message");
-            }
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-            // p1  = handle
-            IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
-            {
-                Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
-            }
-            else
-            {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
-            string fileName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-
-            AddReturnValue(new Parameter(this, fileName));
         }
 
         public unsafe void GetListViewGroupRectangle(int MessageNumber)
@@ -1729,45 +1703,6 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageGetModuleFileName(IntPtr ControlHandle)
-        {
-            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
-            FirstMessageInitialise();
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->Action = MessageAction.GetModuleFilename;
-
-            Parameter ControlHandleParam = new Parameter(this, ControlHandle);
-
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
-            m_DoneQuery = true;
-            m_DoneGet = true;
-        }
-
-        //unsafe public void AddMessageMouseClick(IntPtr Handle, MouseButton Button, Boolean Down, Boolean Up, int Clicks, bool ControlKey, bool ShiftKey)
-        //{
-        //    FirstMessage();
-
-        //    Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-        //    PtrMessage->Action = MessageAction.MouseClick;
-
-        //    param HandleParam = new param(this, Handle);
-        //    param ButtonParam = new param(this, (int)Button);
-        //    param DownParam = new param(this, Down);
-        //    param UpParam = new param(this, Up);
-        //    param ClicksParam = new param(this, Clicks);
-        //    param ControlKeyParam = new param(this, ControlKey);
-        //    param ShiftKeyParam = new param(this, ShiftKey);
-
-        //    m_PtrMessageStore->NumberOfMessages++;
-        //    m_DoneFind = true;
-        //    m_DoneQuery = true;
-        //    m_DoneGet = true;
-        //}
-
         unsafe public void AddMessageAddMouseHook(IntPtr Handle)
         {
             FirstMessageInitialise();
@@ -2152,53 +2087,6 @@ namespace APE.Communication
             }
         }
 
-        //TODO might want to skip this and just get the control directly via Form.FromHandle?
-        private WF.Form FindFormViaHandle(IntPtr FormHandle)
-        {
-            //Find the form
-            foreach (WF.Form Form in WF.Application.OpenForms)
-            {
-                try
-                {
-                    GetHandleAndName(Form);
-                    if (m_Handle == FormHandle)
-                    {
-                        return Form;
-                    }
-                }
-                catch
-                {
-                }
-            }
-
-            return null;
-        }
-
-        private void BuildControlArray(WF.Control theControl)
-        {
-            if (m_AllControlsOnForm == null)
-            {
-                Array.Resize(ref m_AllControlsOnForm, 1);
-            }
-            else
-            {
-                Array.Resize(ref m_AllControlsOnForm, m_AllControlsOnForm.Length + 1);
-            }
-
-            m_AllControlsOnForm[m_AllControlsOnForm.GetUpperBound(0)] = theControl;
-
-            if (theControl.IsHandleCreated)
-            {
-                if (theControl.HasChildren)
-                {
-                    foreach (WF.Control childControl in theControl.Controls)
-                    {
-                        BuildControlArray(childControl);
-                    }
-                }
-            }
-        }
-
         private static object theLock = new object();
 
         private static void WriteLog(string Line)
@@ -2229,50 +2117,61 @@ namespace APE.Communication
             {
                 if (Identifier.Handle != IntPtr.Zero)
                 {
-                    //WinForms
-                    WF.Control TheControl = WF.Form.FromHandle(Identifier.Handle);
-                    if (TheControl != null)
+                    if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                     {
-                        GetHandleAndName(TheControl);
-                        Handle = m_Handle;
-                        Name = m_Name;
-                        theType = TheControl.GetType();
-                        theText = TheControl.Text;
-
-                        IntPtr TopLevel = (IntPtr)TheControl.TopLevelControl.GetType().GetProperty("HandleInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(TheControl.TopLevelControl, null);
-                        if (TopLevel != Identifier.Handle)
+                        //WinForms
+                        WF.Control TheControl = WF.Control.FromHandle(Identifier.Handle);
+                        if (TheControl != null)
                         {
-                            Identifier.ParentHandle = TopLevel;
-                        }                    
-
-                        FoundControl = true;
+                            GetHandleAndName(TheControl);
+                            Handle = m_Handle;
+                            Name = m_Name;
+                            theType = TheControl.GetType();
+                            object[] parameters = { TheControl };
+                            theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
+                            FoundControl = true;
+                        }
                     }
-                    
+
                     if (!FoundControl)
                     {
-                        //WPF
-                        WPF.Application wpfApp = WPF.Application.Current;
-                        if (wpfApp != null)
+                        if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
                         {
-                            WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                            foreach (WPF.Window wpfWindow in wpfWindows)
+                            //WPF
+                            WPF.Application wpfApp = WPF.Application.Current;
+                            if (wpfApp != null)
                             {
-                                wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
-                                if (Identifier.Handle == m_Handle)
+                                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+
+                                foreach (WPF.Window wpfWindow in wpfWindows)
                                 {
-                                    Handle = m_Handle;
-                                    Name = m_Name;
-                                    theText = m_Text;
-                                    theType = wpfWindow.GetType();
-                                    FoundControl = true;
-                                    break;
+                                    wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+                                    if (Identifier.Handle == m_Handle)
+                                    {
+                                        Handle = m_Handle;
+                                        Name = m_Name;
+                                        theText = m_Text;
+                                        theType = wpfWindow.GetType();
+                                        FoundControl = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+
+                    if (!FoundControl)
+                    {
+                        if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
+                        {
+                            //Native
+                            Handle = Identifier.Handle;
+                            theText = GetWindowTextViaWindowMessage(Identifier.Handle);
+                            FoundControl = true;
+                        }
+                    }
                 }
-                else
+                else    //Look form without having its handle
                 {
                     //Start polling
                     Stopwatch timer = Stopwatch.StartNew();
@@ -2282,115 +2181,341 @@ namespace APE.Communication
                         try
                         {
                             int CurrentIndex = 0;
-                            //WinForms
-                            foreach (WF.Form Form in WF.Application.OpenForms)
+                            
+                            m_AllControls = new List<IntPtr>();
+                            //0 for the thread seems to enumerate all threads
+                            NM.EnumThreadWindows(0, EnumThreadProcedue, IntPtr.Zero);
+
+                            foreach (IntPtr hWnd in m_AllControls)
                             {
-                                theType = Form.GetType();
-                                GetHandleAndName(Form);
-                                Handle = m_Handle;
-                                Name = Form.Name;
-
-                                if (Identifier.Name != null)
+                                if (NM.IsWindowVisible(hWnd))
                                 {
-                                    if (Name != Identifier.Name)
+                                    if (Identifier.TechnologyType == "Windows Forms (WinForms)")
                                     {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.TechnologyType != null)
-                                {
-                                    if (GetTechnologyType(theType) != Identifier.TechnologyType)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.TypeNameSpace != null)
-                                {
-                                    if (theType.Namespace != Identifier.TypeNameSpace)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.TypeName != null)
-                                {
-                                    if (theType.Name != Identifier.TypeName)
-                                    {
-                                        WriteLog(theType.Name + " != " + Identifier.TypeName);
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.ModuleName != null)
-                                {
-                                    if (theType.Module.Name != Identifier.ModuleName)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.AssemblyName != null)
-                                {
-                                    if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                theText = Form.Text;
-                                if (Identifier.Text != null)
-                                {
-                                    if (theText == null)
-                                    {
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        if (!Regex.IsMatch(theText, Identifier.Text))
+                                        //WinForms
+                                        WF.Control form = WF.Control.FromHandle(hWnd);
+                                        if (form != null)
                                         {
-                                            continue;
+                                            theType = form.GetType();
+                                            GetHandleAndName(form);
+                                            Handle = m_Handle;
+                                            Name = m_Name;
+
+                                            if (Identifier.Name != null)
+                                            {
+                                                if (Name != Identifier.Name)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.TypeNameSpace != null)
+                                            {
+                                                if (theType.Namespace != Identifier.TypeNameSpace)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.TypeName != null)
+                                            {
+                                                if (theType.Name != Identifier.TypeName)
+                                                {
+                                                    WriteLog(theType.Name + " != " + Identifier.TypeName);
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.ModuleName != null)
+                                            {
+                                                if (theType.Module.Name != Identifier.ModuleName)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.AssemblyName != null)
+                                            {
+                                                if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            object[] parameters = { form };
+                                            theText = (string)form.Invoke(m_GetTextDelegater, parameters);
+                                            if (Identifier.Text != null)
+                                            {
+                                                if (theText == null)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    if (!Regex.IsMatch(theText, Identifier.Text))
+                                                    {
+                                                        continue;
+                                                    }
+                                                }
+                                            }
+
+                                            CurrentIndex++;
+
+                                            WriteLog("found form for " + Name);
+
+                                            if (Identifier.Index > 0)
+                                            {
+                                                if (CurrentIndex != Identifier.Index)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            //we have a match
+                                            FoundControl = true;
+                                            break;
                                         }
                                     }
-                                }
 
-                                CurrentIndex++;
-
-                                WriteLog("found form for " + Name);
-
-                                if (Identifier.Index > 0)
-                                {
-                                    if (CurrentIndex != Identifier.Index)
+                                    if (Identifier.TechnologyType == "Windows Native")
                                     {
-                                        continue;
-                                    }
-                                }
+                                        //Windows Native
+                                        Handle = hWnd;
 
-                                //we have a match
-                                if (NM.IsWindowVisible(Handle))
-                                {
-                                    FoundControl = true;
-                                    break;
+                                        if (Identifier.TypeName != null)
+                                        {
+                                            string theTypeName = NM.GetClassName(Handle);
+                                            if (theTypeName != Identifier.TypeName)
+                                            {
+                                                WriteLog(theTypeName + " != " + Identifier.TypeName);
+                                                continue;
+                                            }
+                                        }
+                                        
+                                        if (Identifier.ModuleName != null)
+                                        {
+                                            string theModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
+                                            if (theModuleName != Identifier.ModuleName)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        theText = GetWindowTextViaWindowMessage(Handle);
+                                        if (Identifier.Text != null)
+                                        {
+                                            if (theText == null)
+                                            {
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                if (!Regex.IsMatch(theText, Identifier.Text))
+                                                {
+                                                    continue;
+                                                }
+                                            }
+                                        }
+
+                                        CurrentIndex++;
+
+                                        WriteLog("found form for " + Name);
+
+                                        if (Identifier.Index > 0)
+                                        {
+                                            if (CurrentIndex != Identifier.Index)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        //we have a match
+                                        FoundControl = true;
+                                        break;
+                                    }
                                 }
                             }
 
                             if (!FoundControl)
                             {
-                                //WPF
-                                WPF.Application wpfApp = WPF.Application.Current;
-                                if (wpfApp != null)
+                                if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
                                 {
-                                    WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                                    foreach (WPF.Window wpfWindow in wpfWindows)
+                                    //WPF
+                                    WPF.Application wpfApp = WPF.Application.Current;
+                                    if (wpfApp != null)
                                     {
-                                        wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+                                        WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
 
-                                        theType = wpfWindow.GetType();
+                                        foreach (WPF.Window wpfWindow in wpfWindows)
+                                        {
+                                            wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+
+                                            theType = wpfWindow.GetType();
+                                            Handle = m_Handle;
+                                            Name = m_Name;
+                                            theText = m_Text;
+
+                                            if (Identifier.Name != null)
+                                            {
+                                                if (Name != Identifier.Name)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.TypeNameSpace != null)
+                                            {
+                                                if (theType.Namespace != Identifier.TypeNameSpace)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.TypeName != null)
+                                            {
+                                                if (theType.Name != Identifier.TypeName)
+                                                {
+                                                    WriteLog(theType.Name + " != " + Identifier.TypeName);
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.ModuleName != null)
+                                            {
+                                                if (theType.Module.Name != Identifier.ModuleName)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.AssemblyName != null)
+                                            {
+                                                if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.Text != null)
+                                            {
+                                                if (theText == null)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                {
+                                                    if (!Regex.IsMatch(theText, Identifier.Text))
+                                                    {
+                                                        continue;
+                                                    }
+                                                }
+                                            }
+
+                                            CurrentIndex++;
+
+                                            WriteLog("found wpf form for " + Name);
+
+                                            if (Identifier.Index > 0)
+                                            {
+                                                if (CurrentIndex != Identifier.Index)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            //we have a match
+                                            if (NM.IsWindowVisible(Handle))
+                                            {
+                                                FoundControl = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            if (ex.Message == "Collection was modified; enumeration operation may not execute.")
+                            {
+                                //Ignore
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+
+                        WriteLog("done find form loop for " + Name);
+
+                        if (FoundControl == false)
+                        {
+                            WriteLog("");
+                            Thread.Sleep(15);
+                        }
+                    }
+                    while (FoundControl == false && timer.ElapsedMilliseconds < m_TimeOut);
+                    timer.Stop();
+                }
+            }
+            else    //find child
+            {
+                if (Identifier.Handle != IntPtr.Zero)
+                {
+                    //WinForms
+                    if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
+                    {
+                        WF.Control TheControl = WF.Control.FromHandle(Identifier.Handle);
+
+                        if (TheControl != null)
+                        {
+                            GetHandleAndName(TheControl);
+                            Handle = m_Handle;
+                            Name = m_Name;
+                            object[] parameters = { TheControl };
+                            theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
+                            theType = TheControl.GetType();
+                            FoundControl = true;
+                        }
+                    }
+
+                    if (!FoundControl)
+                    {
+                        if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
+                        {
+                            //Native
+                            Handle = Identifier.Handle;
+                            theText = GetWindowTextViaWindowMessage(Identifier.Handle);
+                            FoundControl = true;
+                        }
+                    }
+                }
+                else    //Look for a child without having its handle
+                {
+                    //Start polling
+                    Stopwatch timer = Stopwatch.StartNew();
+                    do
+                    {
+                        int CurrentIndex = 0;
+
+                        m_AllControls = new List<IntPtr>();
+                        //Build a list of all the visible child windows of the parent form
+                        NM.EnumChildWindows(Identifier.ParentHandle, EnumThreadProcedue, IntPtr.Zero);
+
+                        foreach (IntPtr hWnd in m_AllControls)
+                        {
+                            if (NM.IsWindowVisible(hWnd))
+                            {
+                                if (Identifier.TechnologyType == "Windows Forms (WinForms)")
+                                {
+                                    //WinForms
+                                    WF.Control control = WF.Control.FromHandle(hWnd);
+                                    if (control != null)
+                                    {
+                                        GetHandleAndName(control);
                                         Handle = m_Handle;
                                         Name = m_Name;
-                                        theText = m_Text;
+                                        theType = control.GetType();
 
                                         if (Identifier.Name != null)
                                         {
@@ -2441,6 +2566,24 @@ namespace APE.Communication
                                             }
                                         }
 
+                                        if (Identifier.ChildOf != IntPtr.Zero)
+                                        {
+                                            if (!NM.IsChild(Identifier.ChildOf, Handle))
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.SiblingOf != IntPtr.Zero)
+                                        {
+                                            if (!NM.IsSibling(Identifier.SiblingOf, Handle))
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        object[] parameters = { control };
+                                        theText = (string)control.Invoke(m_GetTextDelegater, parameters);
                                         if (Identifier.Text != null)
                                         {
                                             if (theText == null)
@@ -2458,8 +2601,6 @@ namespace APE.Communication
 
                                         CurrentIndex++;
 
-                                        WriteLog("found wpf form for " + Name);
-
                                         if (Identifier.Index > 0)
                                         {
                                             if (CurrentIndex != Identifier.Index)
@@ -2469,181 +2610,79 @@ namespace APE.Communication
                                         }
 
                                         //we have a match
-                                        if (NM.IsWindowVisible(Handle))
+                                        FoundControl = true;
+                                        break;
+
+                                    }
+                                }
+
+                                if (Identifier.TechnologyType == "Windows Native")
+                                {
+                                    //Windows Native
+                                    Handle = hWnd;
+
+                                    if (Identifier.TypeName != null)
+                                    {
+                                        string theTypeName = NM.GetClassName(Handle);
+                                        if (theTypeName != Identifier.TypeName)
                                         {
-                                            FoundControl = true;
-                                            break;
+                                            WriteLog(theTypeName + " != " + Identifier.TypeName);
+                                            continue;
                                         }
                                     }
-                                }
-                            }
-                        }
-                        catch (InvalidOperationException ex)
-                        {
-                            if (ex.Message == "Collection was modified; enumeration operation may not execute.")
-                            {
-                                //Ignore
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
 
-                        WriteLog("done find form loop for " + Name);
-
-                        if (FoundControl == false)
-                        {
-                            WriteLog("");
-                            //Thread.Sleep(m_Sleep);
-                            Thread.Sleep(15);
-                        }
-                    }
-                    while (FoundControl == false && timer.ElapsedMilliseconds < m_TimeOut);
-                    timer.Stop();
-                }
-            }
-            else    //find child
-            {
-                if (Identifier.Handle != IntPtr.Zero)
-                {
-                    WF.Control TheControl = WF.Form.FromHandle(Identifier.Handle);
-                    
-                    if (TheControl != null)
-                    {
-                        GetHandleAndName(TheControl);
-                        Handle = m_Handle;
-                        Name = m_Name;
-                        theText = TheControl.Text;
-                        theType = TheControl.GetType();
-                        FoundControl = true;
-                    }
-                }
-                else
-                {
-                    //looking for a control on a form
-                    WF.Form form = FindFormViaHandle(Identifier.ParentHandle);
-                    WF.Control[] controls;
-
-                    //Start polling
-                    Stopwatch timer = Stopwatch.StartNew();
-                    do
-                    {
-                        if (Identifier.Name == null)
-                        {
-                            foreach (WF.Control Control in form.Controls)
-                            {
-                                BuildControlArray(Control);
-                            }
-                            controls = m_AllControlsOnForm;
-                            m_AllControlsOnForm = null;
-                        }
-                        else
-                        {
-                            controls = form.Controls.Find(Identifier.Name, true);
-                        }
-
-                        int CurrentIndex = 0;
-                        foreach (WF.Control control in controls)
-                        {
-                            theType = control.GetType();
-
-                            GetHandleAndName(control);
-                            Handle = m_Handle;
-                            Name = m_Name;
-
-                            if (NM.IsWindowVisible(Handle))
-                            {
-                                if (Identifier.TechnologyType != null)
-                                {
-                                    if (GetTechnologyType(theType) != Identifier.TechnologyType)
+                                    if (Identifier.ModuleName != null)
                                     {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.TypeNameSpace != null)
-                                {
-                                    if (theType.Namespace != Identifier.TypeNameSpace)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.TypeName != null)
-                                {
-                                    if (theType.Name != Identifier.TypeName)
-                                    {
-                                        WriteLog(theType.Name + " != " + Identifier.TypeName);
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.ModuleName != null)
-                                {
-                                    if (theType.Module.Name != Identifier.ModuleName)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.AssemblyName != null)
-                                {
-                                    if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.ChildOf != IntPtr.Zero)
-                                {
-                                    if (!NM.IsChild(Identifier.ChildOf, Handle))
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                if (Identifier.SiblingOf != IntPtr.Zero)
-                                {
-                                    if (!NM.IsSibling(Identifier.SiblingOf, Handle))
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                theText = control.Text;
-                                if (Identifier.Text != null)
-                                {
-                                    if (theText == null)
-                                    {
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        if (!Regex.IsMatch(theText, Identifier.Text))
+                                        string theModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
+                                        if (theModuleName != Identifier.ModuleName)
                                         {
                                             continue;
                                         }
                                     }
-                                }
 
-                                CurrentIndex++;
-
-                                if (Identifier.Index > 0)
-                                {
-                                    if (CurrentIndex != Identifier.Index)
+                                    theText = GetWindowTextViaWindowMessage(Handle);
+                                    if (Identifier.Text != null)
                                     {
-                                        continue;
+                                        if (theText == null)
+                                        {
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            if (!Regex.IsMatch(theText, Identifier.Text))
+                                            {
+                                                continue;
+                                            }
+                                        }
                                     }
-                                }
 
-                                //we have a match
-                                FoundControl = true;
-                                break;
+                                    CurrentIndex++;
+
+                                    WriteLog("found form for " + Name);
+
+                                    if (Identifier.Index > 0)
+                                    {
+                                        if (CurrentIndex != Identifier.Index)
+                                        {
+                                            continue;
+                                        }
+                                    }
+
+                                    //we have a match
+                                    FoundControl = true;
+                                    break;
+                                }
                             }
                         }
 
-                        if (FoundControl == false)
+                        if (!FoundControl)
+                        {
+                            if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
+                            {
+                            }
+                        }
+
+                        if (!FoundControl)
                         {
                             WriteLog("");
                             Thread.Sleep(15);
@@ -2663,10 +2702,18 @@ namespace APE.Communication
                 NewIdentifier.Handle = Handle;
                 NewIdentifier.Name = Name;
                 NewIdentifier.TechnologyType = GetTechnologyType(theType);
-                NewIdentifier.TypeNameSpace = theType.Namespace;
-                NewIdentifier.TypeName = theType.Name;
-                NewIdentifier.ModuleName = theType.Module.Name;
-                NewIdentifier.AssemblyName = theType.Assembly.GetName().Name;
+                if (NewIdentifier.TechnologyType == "Windows Native")
+                {
+                    NewIdentifier.TypeName = NM.GetClassName(Identifier.Handle);
+                    NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
+                }
+                else
+                {
+                    NewIdentifier.TypeNameSpace = theType.Namespace;
+                    NewIdentifier.TypeName = theType.Name;
+                    NewIdentifier.ModuleName = theType.Module.Name;
+                    NewIdentifier.AssemblyName = theType.Assembly.GetName().Name;
+                }
                 NewIdentifier.Index = Identifier.Index;
                 NewIdentifier.Text = theText;
                 AddIdentifierMessage(NewIdentifier);
@@ -2677,38 +2724,25 @@ namespace APE.Communication
 
         unsafe private void Refind(int messageNumber)
         {
-            object DestinationObject;
-            WF.Control form;
+            object DestinationObject = null;
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
 
             ControlIdentifier Identifier;
             DecodeControl(messageNumber, out Identifier);
 
-            IntPtr FormHandle;
-            //Refind the control by handle
-            if (Identifier.ParentHandle == IntPtr.Zero)
+            //WinForms
+            if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
             {
-                //We are searching for a form
-                FormHandle = Identifier.Handle;
-            }
-            else
-            {
-                //We are searching for a contol on a form
-                FormHandle = Identifier.ParentHandle;
+                DestinationObject = WF.Control.FromHandle(Identifier.Handle);
             }
 
-            //Find the form
-            form = FindFormViaHandle(FormHandle);
-            
-            if (Identifier.ParentHandle == IntPtr.Zero)
+            if (DestinationObject == null)
             {
-                DestinationObject = form;
-            }
-            else
-            {
-                //Find the control on the form
-                DestinationObject = WF.Form.FromHandle(Identifier.Handle);
+                if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                {
+                    //WPF TODO
+                }
             }
 
             switch (PtrMessage->DestinationStore)
@@ -3725,6 +3759,11 @@ namespace APE.Communication
             return theGrid;
         }
 
+        private string GetText(WF.Control theControl)
+        {
+            return theControl.Text;
+        }
+
         unsafe private void Reflect(int MessageNumber)
         {
             object SourceObject;
@@ -4184,12 +4223,15 @@ namespace APE.Communication
 
                 // Create an instance of hook procedures
                 MouseHookProcedure = new NM.HookProc(MouseHookProc);
-                EnumThreadProcedue = new NM.EnumThread(EnumThreadCallback);
+                EnumThreadProcedue = new NM.EnumWindow(EnumThreadCallback);
 
                 //setup the delegates
                 m_GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
                 m_ConvertTypeDelegater = new ConvertTypeDelegate(Cast);
                 m_GetUnderlyingGridFromResultsGridDelegater = new GetUnderlyingGridFromResultsGridDelegate(GetUnderlyingGridFromResultsGrid);
+                m_GetTextDelegater = new GetTextDelegate(GetText);
+
+                //Process all the messages
                 while (true)
                 {
                     WaitForMessages(EventSet.AUT);
@@ -4237,9 +4279,6 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.ReflectGet:
                                     Reflect(MessageNumber);
-                                    break;
-                                case MessageAction.GetModuleFilename:
-                                    GetModuleFilename(MessageNumber);
                                     break;
                                 case MessageAction.ConvertType:
                                     ConvertType(MessageNumber);
@@ -4395,7 +4434,7 @@ namespace APE.Communication
                 theType = theType.BaseType;
             }
 
-            return null;
+            return "Windows Native";
         }
 
         unsafe private void AddReturnValue(Parameter p0)

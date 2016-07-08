@@ -511,7 +511,13 @@ namespace APE.Language
             return !Visible;
         }
 
-        public bool IsCellVisible(int Row, int Column)
+        /// <summary>
+        /// Determines if the specified cell is currently viewable without scrolling
+        /// </summary>
+        /// <param name="row">The row index of the cell to check</param>
+        /// <param name="column">The column index of the cell to check</param>
+        /// <returns>True if the cell is visible without scrolling otherwise false</returns>
+        public bool IsCellVisible(int row, int column)
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "LeftCol", MemberTypes.Property);
@@ -525,12 +531,12 @@ namespace APE.Language
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int LeftColumn = GUI.m_APE.GetValueFromMessage();
-            int RightColumn = GUI.m_APE.GetValueFromMessage();
-            int TopRow = GUI.m_APE.GetValueFromMessage();
-            int BottomRow = GUI.m_APE.GetValueFromMessage();
+            int leftColumn = GUI.m_APE.GetValueFromMessage();
+            int rightColumn = GUI.m_APE.GetValueFromMessage();
+            int topRow = GUI.m_APE.GetValueFromMessage();
+            int bottomRow = GUI.m_APE.GetValueFromMessage();
             
-            if (Column <= LeftColumn || Column >= RightColumn || Row <= TopRow || Row >= BottomRow)
+            if (column <= leftColumn || column >= rightColumn || row <= topRow || row >= bottomRow)
             {
                 return false;
             }
@@ -1307,17 +1313,11 @@ namespace APE.Language
             return CellRectangle;
         }
 
-        //TODO if there is a treeview column, use that, otherwise use first visible
         public int FindRow(string Row)
         {
             int ColumnNumber = FirstVisibleColumn();
-            int StartAtRow = 0;//FixedRows();
+            int StartAtRow = 0; //FixedRows();
             return FindRow(Row, ColumnNumber, StartAtRow);
-        }
-
-        public int FindRow(int Row)
-        {
-            return Row;
         }
 
         public int FindRow(string Row, string Column)
@@ -1331,11 +1331,6 @@ namespace APE.Language
         {
             int ColumnNumber = FindColumn(Column);
             return FindRow(Row, ColumnNumber, StartAtRow);
-        }
-
-        public int FindRow(int Row, string Column)
-        {
-            return Row;
         }
 
         public int FindRow(string Row, int Column, int StartAtRow)
@@ -1376,16 +1371,6 @@ namespace APE.Language
             } while (IsRowHidden(CurrentRow));
            
             return CurrentRow;
-        }
-
-        public int FindRow(int Row, int Column)
-        {
-            return Row;
-        }
-
-        public int FindColumn(int Column)
-        {
-            return Column;
         }
 
         public int FindColumn(string Column)

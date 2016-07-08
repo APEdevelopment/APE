@@ -109,49 +109,15 @@ namespace APE.Language
                 }
             }
 
-            switch (Identity.TechnologyType)
+            if (Identity.TechnologyType == null)
             {
-                case "Windows Native":
-                    if (Identity.Handle == IntPtr.Zero)
-                    {
-                        Stopwatch timer = Stopwatch.StartNew();
-                        do
-                        {
-                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                            {
-                                throw new Exception("Failed to find native control");
-                            }
-
-                            Identity.Handle = NM.FindWindow(null, Identity.Text);
-
-                            if (Identity.Handle != IntPtr.Zero)
-                            {
-                                if (NM.IsWindowVisible(Identity.Handle))
-                                {
-                                    break;
-                                }
-                            }
-
-                            Thread.Sleep(15);
-                        }
-                        while (true);
-                    }
-                    else
-                    {
-                        if (!NM.IsWindowVisible(Identity.Handle))
-                        {
-                            throw new Exception("Failed to find native control");
-                        }
-                    }
-                    break;
-                default:
-                    GUI.m_APE.AddMessageFindByProperty(Identity);
-                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-
-                    GUI.m_APE.DecodeControl(1, out Identity);
-                    break;
+                Identity.TechnologyType = "Windows Forms (WinForms)";
             }
+
+            GUI.m_APE.AddMessageFindByProperty(Identity);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.DecodeControl(1, out Identity);
 
             Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut);
         }
