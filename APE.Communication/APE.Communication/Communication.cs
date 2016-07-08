@@ -141,6 +141,8 @@ namespace APE.Communication
         string m_Name;
         string m_Text;
 
+        private bool m_WPF = false;
+
         private delegate string GetTextDelegate(WF.Control theControl);
         private GetTextDelegate m_GetTextDelegater;
         private delegate object GetUnderlyingGridFromResultsGridDelegate(object resultsGrid);
@@ -400,11 +402,11 @@ namespace APE.Communication
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public unsafe APEIPC(int APEPID, string AppDomainToLoadInto)
+        public unsafe APEIPC(int APEPID, string AppDomainToLoadInto, bool WPF)
         {
             try
             {
-                Thread myThread = new Thread(() => DecodeMessage(APEPID, AppDomainToLoadInto));
+                Thread myThread = new Thread(() => DecodeMessage(APEPID, AppDomainToLoadInto, WPF));
                 myThread.SetApartmentState(ApartmentState.STA);
                 myThread.IsBackground = true;
                 myThread.Start();
@@ -2101,6 +2103,122 @@ namespace APE.Communication
             */
         }
 
+        unsafe private void wpfFindFormByHandle(IntPtr Handle, ref string Name, ref string theText, ref Type theType, ref bool foundControl)
+        {
+            WPF.Application wpfApp = WPF.Application.Current;
+            if (wpfApp != null)
+            {
+                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+
+                foreach (WPF.Window wpfWindow in wpfWindows)
+                {
+                    wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+                    if (Handle == m_Handle)
+                    {
+                        Name = m_Name;
+                        theText = m_Text;
+                        theType = wpfWindow.GetType();
+                        foundControl = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        unsafe private void wpfFindFormByIdentifier(ControlIdentifier Identifier, ref IntPtr Handle, ref string Name, ref string theText, ref Type theType, ref int CurrentIndex, ref bool foundControl)
+        {
+            WPF.Application wpfApp = WPF.Application.Current;
+            if (wpfApp != null)
+            {
+                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+
+                foreach (WPF.Window wpfWindow in wpfWindows)
+                {
+                    wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+
+                    theType = wpfWindow.GetType();
+                    Handle = m_Handle;
+                    Name = m_Name;
+                    theText = m_Text;
+
+                    if (Identifier.Name != null)
+                    {
+                        if (Name != Identifier.Name)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (Identifier.TypeNameSpace != null)
+                    {
+                        if (theType.Namespace != Identifier.TypeNameSpace)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (Identifier.TypeName != null)
+                    {
+                        if (theType.Name != Identifier.TypeName)
+                        {
+                            WriteLog(theType.Name + " != " + Identifier.TypeName);
+                            continue;
+                        }
+                    }
+
+                    if (Identifier.ModuleName != null)
+                    {
+                        if (theType.Module.Name != Identifier.ModuleName)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (Identifier.AssemblyName != null)
+                    {
+                        if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (Identifier.Text != null)
+                    {
+                        if (theText == null)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            if (!Regex.IsMatch(theText, Identifier.Text))
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+                    CurrentIndex++;
+
+                    WriteLog("found wpf form for " + Name);
+
+                    if (Identifier.Index > 0)
+                    {
+                        if (CurrentIndex != Identifier.Index)
+                        {
+                            continue;
+                        }
+                    }
+
+                    //we have a match
+                    if (NM.IsWindowVisible(Handle))
+                    {
+                        foundControl = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         unsafe private bool Find(int messageNumber)
         {
             ControlIdentifier Identifier;
@@ -2135,27 +2253,12 @@ namespace APE.Communication
 
                     if (!FoundControl)
                     {
-                        if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                        if (m_WPF)  //Only look for WPF forms if the application has WPF loaded
                         {
-                            //WPF
-                            WPF.Application wpfApp = WPF.Application.Current;
-                            if (wpfApp != null)
+                            if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
                             {
-                                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                                foreach (WPF.Window wpfWindow in wpfWindows)
-                                {
-                                    wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
-                                    if (Identifier.Handle == m_Handle)
-                                    {
-                                        Handle = m_Handle;
-                                        Name = m_Name;
-                                        theText = m_Text;
-                                        theType = wpfWindow.GetType();
-                                        FoundControl = true;
-                                        break;
-                                    }
-                                }
+                                Handle = Identifier.Handle;
+                                wpfFindFormByHandle(Handle, ref Name, ref theText, ref theType, ref FoundControl);
                             }
                         }
                     }
@@ -2338,98 +2441,11 @@ namespace APE.Communication
 
                             if (!FoundControl)
                             {
-                                if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
+                                if (m_WPF)  //Only look for WPF forms if the application has WPF loaded
                                 {
-                                    //WPF
-                                    WPF.Application wpfApp = WPF.Application.Current;
-                                    if (wpfApp != null)
+                                    if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
                                     {
-                                        WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                                        foreach (WPF.Window wpfWindow in wpfWindows)
-                                        {
-                                            wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
-
-                                            theType = wpfWindow.GetType();
-                                            Handle = m_Handle;
-                                            Name = m_Name;
-                                            theText = m_Text;
-
-                                            if (Identifier.Name != null)
-                                            {
-                                                if (Name != Identifier.Name)
-                                                {
-                                                    continue;
-                                                }
-                                            }
-
-                                            if (Identifier.TypeNameSpace != null)
-                                            {
-                                                if (theType.Namespace != Identifier.TypeNameSpace)
-                                                {
-                                                    continue;
-                                                }
-                                            }
-
-                                            if (Identifier.TypeName != null)
-                                            {
-                                                if (theType.Name != Identifier.TypeName)
-                                                {
-                                                    WriteLog(theType.Name + " != " + Identifier.TypeName);
-                                                    continue;
-                                                }
-                                            }
-
-                                            if (Identifier.ModuleName != null)
-                                            {
-                                                if (theType.Module.Name != Identifier.ModuleName)
-                                                {
-                                                    continue;
-                                                }
-                                            }
-
-                                            if (Identifier.AssemblyName != null)
-                                            {
-                                                if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
-                                                {
-                                                    continue;
-                                                }
-                                            }
-
-                                            if (Identifier.Text != null)
-                                            {
-                                                if (theText == null)
-                                                {
-                                                    continue;
-                                                }
-                                                else
-                                                {
-                                                    if (!Regex.IsMatch(theText, Identifier.Text))
-                                                    {
-                                                        continue;
-                                                    }
-                                                }
-                                            }
-
-                                            CurrentIndex++;
-
-                                            WriteLog("found wpf form for " + Name);
-
-                                            if (Identifier.Index > 0)
-                                            {
-                                                if (CurrentIndex != Identifier.Index)
-                                                {
-                                                    continue;
-                                                }
-                                            }
-
-                                            //we have a match
-                                            if (NM.IsWindowVisible(Handle))
-                                            {
-                                                FoundControl = true;
-                                                break;
-                                            }
-                                        }
+                                        wpfFindFormByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
                                     }
                                 }
                             }
@@ -4197,13 +4213,14 @@ namespace APE.Communication
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        unsafe public void DecodeMessage(int APEPID, string AppDomainToLoadInto)
+        unsafe public void DecodeMessage(int APEPID, string AppDomainToLoadInto, bool WPF)
         {
             try
             {
                 string AUTProcessId = Process.GetCurrentProcess().Id.ToString();
                 string APEProcessId = APEPID.ToString();
 
+                m_WPF = WPF;
                 m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, APEProcessId + "_String_" + AppDomainToLoadInto + "_" + AUTProcessId);
                 m_IntPtrMemoryMappedFileViewStringStore = NM.MapViewOfFile(m_HandleMemoryMappedFileStringStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)StringSpaceBytes);
                 m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), APEProcessId + "_Message_" + AppDomainToLoadInto + "_" + AUTProcessId);

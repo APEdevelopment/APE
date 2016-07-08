@@ -22,6 +22,7 @@ using System.Reflection;
 using System.IO;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Linq;
 
 namespace APE.Loader
 {
@@ -72,7 +73,18 @@ namespace APE.Loader
                     throw new Exception("Failed to find the appdomain " + AppDomainToLoadInto);
                 }
 
-                appDom.CreateInstanceFrom(APEPath + @"\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto }, null, null);
+                bool WPF;
+                Assembly assemblyWPF = appDom.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "WindowsBase");
+                if (assemblyWPF == null)
+                {
+                    WPF = false;
+                }
+                else
+                {
+                    WPF = true;
+                }
+
+                appDom.CreateInstanceFrom(APEPath + @"\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto, WPF }, null, null);
 
                 return 0;
             }
