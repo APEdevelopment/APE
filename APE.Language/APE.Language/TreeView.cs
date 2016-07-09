@@ -371,6 +371,14 @@ namespace APE.Language
 
                 NM.GetClientRect(Identity.Handle, out ClientRect);
 
+                if (Top == 0)
+                {
+                    if (Bottom > ClientRect.bottom)
+                    {
+                        Bottom = ClientRect.bottom;
+                    }
+                }
+
                 if (Left < 0 || Top < 0 || Bottom > ClientRect.bottom)
                 {
                     // Go round again
@@ -498,6 +506,14 @@ namespace APE.Language
 
                 NM.GetClientRect(Identity.Handle, out ClientRect);
 
+                if (Top == 0)
+                {
+                    if (Bottom > ClientRect.bottom)
+                    {
+                        Bottom = ClientRect.bottom;
+                    }
+                }
+                
                 if (Left < 0 || Top < 0 || Bottom > ClientRect.bottom)
                 {
                     // Go round again
