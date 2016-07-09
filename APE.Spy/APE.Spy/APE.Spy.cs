@@ -167,10 +167,10 @@ namespace APE.Spy
 
             if (NM.IsWindowVisible(hWnd))
             {
-                NM.RECT WindowSize;
+                NM.tagRect WindowSize;
                 NM.GetClientRect(hWnd, out WindowSize);
 
-                if (WindowSize.Right > 0)   //If the window has 0 width then ignore it
+                if (WindowSize.right > 0)   //If the window has 0 width then ignore it
                 {
                     if (!m_Pid.ContainsKey(Pid))
                     {
@@ -190,10 +190,10 @@ namespace APE.Spy
             {
                 if (NM.IsWindowVisible(hWnd))
                 {
-                    NM.RECT WindowSize;
+                    NM.tagRect WindowSize;
                     NM.GetClientRect(hWnd, out WindowSize);
 
-                    if (WindowSize.Right > 0)   //If the window has 0 width then ignore it
+                    if (WindowSize.right > 0)   //If the window has 0 width then ignore it
                     {
                         TreeNode ParentNode;
                         GetIdentity(IntPtr.Zero, hWnd);

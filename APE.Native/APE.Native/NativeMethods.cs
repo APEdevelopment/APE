@@ -27,6 +27,9 @@ namespace APE.Native
     {
         public const int EM_GETSEL = 0x00B0;
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool SetProcessDPIAware();
+
         [DllImport("kernel32.dll", EntryPoint = "OpenProcess", SetLastError = true)]
         public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
 
@@ -1132,11 +1135,11 @@ namespace APE.Native
         public struct TITLEBARINFOEX
         {
             public int cbSize;
-            public RECT rcTitleBar;
+            public tagRect rcTitleBar;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = CCHILDREN_TITLEBAR + 1)]
             public StateSystem[] rgstate;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = CCHILDREN_TITLEBAR + 1)]
-            public RECT[] rgrect;
+            public tagRect[] rgrect;
         }
 
         public enum TitleBarStateElement : int
@@ -1388,7 +1391,7 @@ namespace APE.Native
         public static extern int GetMenuItemCount(IntPtr hMenu);
 
         [DllImport("user32.dll")]
-        public static extern bool GetMenuItemRect(IntPtr hWnd, IntPtr hMenu, uint uItem, out RECT lprcItem);
+        public static extern bool GetMenuItemRect(IntPtr hWnd, IntPtr hMenu, uint uItem, out tagRect lprcItem);
 
         [DllImport("user32.dll")]
         private static extern int GetMenuString(IntPtr hMenu, uint uIDItem, [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder lpString, int nMaxCount, GetMenuFlag uFlag);
@@ -1545,23 +1548,6 @@ namespace APE.Native
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsWindowVisible(IntPtr hWnd);
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
@@ -1620,7 +1606,7 @@ namespace APE.Native
             public IntPtr hwndMenuOwner;
             public IntPtr hwndMoveSize;
             public IntPtr hwndCaret;
-            public RECT rcCaret;
+            public tagRect rcCaret;
         }
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -2791,7 +2777,7 @@ namespace APE.Native
         public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ComboBoxMessages Msg, IntPtr wParam, string lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, ref RECT lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
+        public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, ref tagRect lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
 
         [DllImport("User32.dll")]
         public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int pid);

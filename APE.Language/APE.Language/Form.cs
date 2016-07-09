@@ -83,11 +83,11 @@ namespace APE.Language
                         throw new Exception("Can not close the window as the close button is in state '" + State.ToString() + "'");
                     }
 
-                    NM.RECT WindowRect;
+                    NM.tagRect WindowRect;
                     NM.GetWindowRect(Identity.Handle, out WindowRect);
 
-                    int X = Left + ((Right - Left) / 2) - WindowRect.Left;
-                    int Y = Top + ((Bottom - Top) / 2) - WindowRect.Top;
+                    int X = Left + ((Right - Left) / 2) - WindowRect.left;
+                    int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
                     Input.Block(Identity.ParentHandle, Identity.Handle);
                     try
@@ -169,11 +169,11 @@ namespace APE.Language
                         throw new Exception("Can not maximise the window as the maximise button is in state '" + State.ToString() + "'");
                     }
 
-                    NM.RECT WindowRect;
+                    NM.tagRect WindowRect;
                     NM.GetWindowRect(Identity.Handle, out WindowRect);
 
-                    int X = Left + ((Right - Left) / 2) - WindowRect.Left;
-                    int Y = Top + ((Bottom - Top) / 2) - WindowRect.Top;
+                    int X = Left + ((Right - Left) / 2) - WindowRect.left;
+                    int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
                     Input.Block(Identity.ParentHandle, Identity.Handle);
                     try
@@ -257,11 +257,11 @@ namespace APE.Language
                         throw new Exception("Can not minimise the window as the minimised button is in state '" + State.ToString() + "'");
                     }
 
-                    NM.RECT WindowRect;
+                    NM.tagRect WindowRect;
                     NM.GetWindowRect(Identity.Handle, out WindowRect);
 
-                    int X = Left + ((Right - Left) / 2) - WindowRect.Left;
-                    int Y = Top + ((Bottom - Top) / 2) - WindowRect.Top;
+                    int X = Left + ((Right - Left) / 2) - WindowRect.left;
+                    int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
                     Input.Block(Identity.ParentHandle, Identity.Handle);
                     try
@@ -390,11 +390,11 @@ namespace APE.Language
                             throw new Exception("Can not restore the window as the restore button is in state '" + State.ToString() + "'");
                         }
 
-                        NM.RECT WindowRect;
+                        NM.tagRect WindowRect;
                         NM.GetWindowRect(Identity.Handle, out WindowRect);
 
-                        int X = Left + ((Right - Left) / 2) - WindowRect.Left;
-                        int Y = Top + ((Bottom - Top) / 2) - WindowRect.Top;
+                        int X = Left + ((Right - Left) / 2) - WindowRect.left;
+                        int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
                         Input.Block(Identity.ParentHandle, Identity.Handle);
                         try
@@ -445,7 +445,7 @@ namespace APE.Language
         public void Move(int DestinationUpperLeftX, int DestinationUpperLeftY)
         {
             //TODO get the titlebar left and click there
-            Move(33, 10, DestinationUpperLeftX, DestinationUpperLeftY);
+            Move(60, 10, DestinationUpperLeftX, DestinationUpperLeftY);
         }
 
         /// <summary>
@@ -459,14 +459,14 @@ namespace APE.Language
         {
             GUI.Log("Move the " + m_DescriptionOfControl + " window to " + DestinationUpperLeftX.ToString() + ", " + DestinationUpperLeftY.ToString(), LogItemTypeEnum.Action);
 
-            NM.RECT WindowRect;
+            NM.tagRect WindowRect;
             NM.GetWindowRect(Identity.Handle, out WindowRect);
 
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
                 base.MouseDownInternal(MouseDownX, MouseDownY, MouseButton.Left, MouseKeyModifier.None);
-                base.MouseUpInternal(DestinationUpperLeftX + MouseDownX - WindowRect.Left, DestinationUpperLeftY + MouseDownY - WindowRect.Top, MouseButton.Left, MouseKeyModifier.None);
+                base.MouseUpInternal(DestinationUpperLeftX + MouseDownX - WindowRect.left, DestinationUpperLeftY + MouseDownY - WindowRect.top, MouseButton.Left, MouseKeyModifier.None);
             }
             finally
             {

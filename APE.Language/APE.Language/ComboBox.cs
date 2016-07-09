@@ -146,7 +146,7 @@ namespace APE.Language
 
                 IntPtr MessageResult;
                 IntPtr SendResult;
-                NM.RECT ItemRect = new NM.RECT();
+                NM.tagRect ItemRect = new NM.tagRect();
 
                 //Locate the rect of the item
                 SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
@@ -155,11 +155,11 @@ namespace APE.Language
                     throw new Exception("Failed to access the combobox");
                 }
 
-                NM.RECT ClientRect;
+                NM.tagRect ClientRect;
                 NM.GetClientRect(ListBox, out ClientRect);
 
                 //scroll the item into view if needed
-                if (((ItemRect.Bottom - ItemRect.Top) / 2) + ItemRect.Top > ClientRect.Bottom || ((ItemRect.Bottom - ItemRect.Top) / 2) + ItemRect.Top < ClientRect.Top)
+                if (((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top > ClientRect.bottom || ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top < ClientRect.top)
                 {
                     SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                     if (SendResult == IntPtr.Zero || MessageResult.ToInt64() == NM.LB_ERR)  //Failed
@@ -180,7 +180,7 @@ namespace APE.Language
                 try
                 {
                     Identity.Handle = ListBox;
-                    base.MouseSingleClickInternal(-1, ((ItemRect.Bottom - ItemRect.Top) / 2) + ItemRect.Top, MouseButton.Left, MouseKeyModifier.None);
+                    base.MouseSingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
                 }
                 finally
                 {

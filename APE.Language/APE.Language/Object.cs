@@ -455,9 +455,9 @@ namespace APE.Language
         {
             get
             {
-                NM.RECT WindowSize;
+                NM.tagRect WindowSize;
                 NM.GetClientRect(Identity.Handle, out WindowSize);
-                return WindowSize.Bottom;
+                return WindowSize.bottom;
             }
         }
 
@@ -490,9 +490,9 @@ namespace APE.Language
         {
             get
             {
-                NM.RECT WindowSize;
+                NM.tagRect WindowSize;
                 NM.GetWindowRect(Identity.Handle, out WindowSize);
-                return WindowSize.Left;
+                return WindowSize.left;
             }
         }
 
@@ -551,9 +551,9 @@ namespace APE.Language
         {
             get
             {
-                NM.RECT WindowSize;
+                NM.tagRect WindowSize;
                 NM.GetWindowRect(Identity.Handle, out WindowSize);
-                return WindowSize.Top;
+                return WindowSize.top;
             }
         }
 
@@ -586,9 +586,9 @@ namespace APE.Language
         {
             get
             {
-                NM.RECT WindowSize;
+                NM.tagRect WindowSize;
                 NM.GetClientRect(Identity.Handle, out WindowSize);
-                return WindowSize.Right;
+                return WindowSize.right;
             }
         }
 

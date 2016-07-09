@@ -925,38 +925,38 @@ namespace APE.Communication
             {
                 case NM.TitleBarStateElement.TitleBar:
                     State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.TitleBar];
-                    Top = tbi.rcTitleBar.Top;
-                    Left = tbi.rcTitleBar.Left;
-                    Bottom = tbi.rcTitleBar.Bottom;
-                    Right = tbi.rcTitleBar.Right;
+                    Top = tbi.rcTitleBar.top;
+                    Left = tbi.rcTitleBar.left;
+                    Bottom = tbi.rcTitleBar.bottom;
+                    Right = tbi.rcTitleBar.right;
                     break;
                 case NM.TitleBarStateElement.Minimize:
                     State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Minimize];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].Top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].Left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].Bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].Right;
+                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].top;
+                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].left;
+                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].bottom;
+                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].right;
                     break;
                 case NM.TitleBarStateElement.Maximize:
                     State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Maximize];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].Top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].Left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].Bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].Right;
+                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].top;
+                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].left;
+                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].bottom;
+                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].right;
                     break;
                 case NM.TitleBarStateElement.Help:
                     State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Help];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Help].Top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Help].Left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Help].Bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Help].Right;
+                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Help].top;
+                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Help].left;
+                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Help].bottom;
+                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Help].right;
                     break;
                 case NM.TitleBarStateElement.Close:
                     State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Close];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Close].Top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Close].Left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Close].Bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Close].Right;
+                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Close].top;
+                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Close].left;
+                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Close].bottom;
+                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Close].right;
                     break;
                 default:
                     throw new Exception("Unknown titlebar element: " + Item.ToString());

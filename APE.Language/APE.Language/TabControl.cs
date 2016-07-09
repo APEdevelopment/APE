@@ -176,12 +176,12 @@ namespace APE.Language
                 if (upDownControl != IntPtr.Zero)
                 {
                     // work out if we need to scroll the tab into view
-                    NM.RECT scrollButtonsRect;
-                    NM.RECT tabRect;
+                    NM.tagRect scrollButtonsRect;
+                    NM.tagRect tabRect;
                     NM.GetClientRect(Identity.Handle, out tabRect);
                     NM.GetClientRect(upDownControl, out scrollButtonsRect);
 
-                    width = tabRect.Right - scrollButtonsRect.Right;
+                    width = tabRect.right - scrollButtonsRect.right;
 
                     GUIButton scrollTabButton = new GUIButton(m_ParentForm, "Scroll button", new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.Handle, upDownControl));
 
@@ -195,7 +195,7 @@ namespace APE.Language
                         else if (tabRectangle.X > width)
                         {
                             GUI.Log("Click " + m_DescriptionOfControl + " right button", LogItemTypeEnum.Action);
-                            scrollTabButton.MouseSingleClickInternal(scrollButtonsRect.Right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
+                            scrollTabButton.MouseSingleClickInternal(scrollButtonsRect.right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
                         }
                         else
                         {
