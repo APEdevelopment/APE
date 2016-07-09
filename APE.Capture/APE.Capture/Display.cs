@@ -181,10 +181,10 @@ namespace APE.Capture
                     ScreenScalingFactor = (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
                 }
 
-                ControlRect.left = (int)((float)(ControlRect.left + Adjustment) * ScreenScalingFactor);
-                ControlRect.top = (int)((float)(ControlRect.top + Adjustment) * ScreenScalingFactor);
-                ControlRect.right = (int)((float)(ControlRect.right - Adjustment) * ScreenScalingFactor);
-                ControlRect.bottom = (int)((float)(ControlRect.bottom - Adjustment) * ScreenScalingFactor);
+                ControlRect.left = (int)(Math.Round((float)(ControlRect.left + Adjustment) * ScreenScalingFactor));
+                ControlRect.top = (int)(Math.Round((float)(ControlRect.top + Adjustment) * ScreenScalingFactor));
+                ControlRect.right = (int)(Math.Round((float)(ControlRect.right - Adjustment) * ScreenScalingFactor));
+                ControlRect.bottom = (int)(Math.Round((float)(ControlRect.bottom - Adjustment) * ScreenScalingFactor));
             }
 
             return ControlRect;
