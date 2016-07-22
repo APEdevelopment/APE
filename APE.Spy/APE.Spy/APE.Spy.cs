@@ -911,7 +911,10 @@ namespace APE.Spy
             {
                 string[] Separators = { "\t: " };
                 string[] Item = SelectedItem.Split(Separators, StringSplitOptions.None);
-                Clipboard.SetText(Item[1]);
+                if (Item[1] != "")
+                {
+                    Clipboard.SetText(Item[1]);
+                }
             }
         }
 
