@@ -38,6 +38,7 @@ namespace APE.Spy
         APEIPC m_APE;
         Dictionary<uint, uint> m_Pid;
         KeyValuePair<Process, string> m_SelectedItem = new KeyValuePair<Process, string>(Process.GetCurrentProcess(), "");
+        string m_ObjectCodeLocator = "";
 
         public APESpy()
         {
@@ -583,20 +584,46 @@ namespace APE.Spy
                 }
             }
 
+            string mainLocatorText = "";
+            string indexLocatorText = "";
+            string parentLocatorText = "";
+
             if (m_Identity.Name != "" && m_Identity.Name != null)
             {
                 PropertyListbox.Items.Add("Index (by Name)\t: " + m_Identity.Index);
+                mainLocatorText = ", new Identifier(Identifiers.Name, \"" + m_Identity.Name + "\")";
             }
             else if (m_Identity.Text != "" && m_Identity.Text != null)
             {
                 PropertyListbox.Items.Add("Index (by Text)\t: " + m_Identity.Index);
+                mainLocatorText = ", new Identifier(Identifiers.Text, \"" + Regex.Escape(m_Identity.Text) + "\")";
             }
             else
             {
                 PropertyListbox.Items.Add("Index (by Type)\t: " + m_Identity.Index);
+                mainLocatorText = ", new Identifier(Identifiers.TypeName, \"" + m_Identity.TypeName + "\")";
+            }
+
+            if (m_Identity.Index > 1)
+            {
+                indexLocatorText = ", new Identifier(Identifiers.Index, \"" + m_Identity.Index + "\")";
+            }
+
+            if (m_Identity.ParentHandle != IntPtr.Zero)
+            {
+                parentLocatorText = "$parentForm$, ";
             }
 
             PropertyListbox.Items.Add("APEType\t\t: " + APEType);
+
+            if (APEType == "")
+            {
+                m_ObjectCodeLocator = "";
+            }
+            else
+            {
+                m_ObjectCodeLocator = APEType + " $name$ = new " + APEType + "(" + parentLocatorText + "$friendlyName$" + mainLocatorText + indexLocatorText + ");";
+            }
 
             PropertyListbox.Items.Add("");
 
@@ -918,6 +945,14 @@ namespace APE.Spy
             }
         }
 
+        private void generateObjectCodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (m_ObjectCodeLocator != "")
+            {
+                Clipboard.SetText(m_ObjectCodeLocator);
+            }
+        }
+
         private void AppDomainComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (AppDomainComboBox.Enabled)
@@ -992,6 +1027,27 @@ namespace APE.Spy
 
                     AppDomainComboBox.Enabled = true;
                     IdentifyButton.Enabled = true;
+                }
+            }
+        }
+
+        private void ListBoxContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (PropertyListbox.Items.Count == 0)
+            {
+                copyToolStripMenuItem.Enabled = false;
+                generateLocatorCodeToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                copyToolStripMenuItem.Enabled = true;
+                if (m_ObjectCodeLocator == "")
+                {
+                    generateLocatorCodeToolStripMenuItem.Enabled = false;
+                }
+                else
+                {
+                    generateLocatorCodeToolStripMenuItem.Enabled = true;
                 }
             }
         }

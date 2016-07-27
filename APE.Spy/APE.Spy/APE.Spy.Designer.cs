@@ -35,7 +35,8 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.PropertyListbox = new System.Windows.Forms.ListBox();
             this.ListBoxContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.Copy = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateLocatorCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.IdentifyButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.AppDomainComboBox = new System.Windows.Forms.ComboBox();
@@ -115,16 +116,25 @@
             // ListBoxContextMenuStrip
             // 
             this.ListBoxContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Copy});
+            this.copyToolStripMenuItem,
+            this.generateLocatorCodeToolStripMenuItem});
             this.ListBoxContextMenuStrip.Name = "ListBoxContextMenuStrip";
-            this.ListBoxContextMenuStrip.Size = new System.Drawing.Size(103, 26);
+            this.ListBoxContextMenuStrip.Size = new System.Drawing.Size(196, 70);
+            this.ListBoxContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ListBoxContextMenuStrip_Opening);
             // 
-            // Copy
+            // copyToolStripMenuItem
             // 
-            this.Copy.Name = "Copy";
-            this.Copy.Size = new System.Drawing.Size(102, 22);
-            this.Copy.Text = "Copy";
-            this.Copy.Click += new System.EventHandler(this.Copy_Click);
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.copyToolStripMenuItem.Text = "Copy";
+            this.copyToolStripMenuItem.Click += new System.EventHandler(this.Copy_Click);
+            // 
+            // generateLocatorCodeToolStripMenuItem
+            // 
+            this.generateLocatorCodeToolStripMenuItem.Name = "generateLocatorCodeToolStripMenuItem";
+            this.generateLocatorCodeToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.generateLocatorCodeToolStripMenuItem.Text = "Generate Locator Code";
+            this.generateLocatorCodeToolStripMenuItem.Click += new System.EventHandler(this.generateObjectCodeToolStripMenuItem_Click);
             // 
             // IdentifyButton
             // 
@@ -224,11 +234,12 @@
         private System.Windows.Forms.Button IdentifyButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ContextMenuStrip ListBoxContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem Copy;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ComboBox AppDomainComboBox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button aboutButton;
+        private System.Windows.Forms.ToolStripMenuItem generateLocatorCodeToolStripMenuItem;
     }
 }
 
