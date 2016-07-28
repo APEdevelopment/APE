@@ -545,6 +545,7 @@ namespace APE.Spy
             PropertyListbox.Items.Add("ModuleName\t: " + m_Identity.ModuleName);
 
             //Workout the index
+            Guid notUsed;
             m_Identity.Index = 0;
             while (true)
             {
@@ -553,7 +554,7 @@ namespace APE.Spy
                 ControlIdentifier identity = new ControlIdentifier();
                 identity.ParentHandle = m_Identity.ParentHandle;
                 identity.TechnologyType = m_Identity.TechnologyType;
-                if (m_Identity.Name != "" && m_Identity.Name != null)
+                if (m_Identity.Name != "" && m_Identity.Name != null && Guid.TryParse(m_Identity.Name, out notUsed) == false)
                 {
                     //Use Name as the index key
                     identity.Name = m_Identity.Name;
@@ -588,7 +589,7 @@ namespace APE.Spy
             string indexLocatorText = "";
             string parentLocatorText = "";
 
-            if (m_Identity.Name != "" && m_Identity.Name != null)
+            if (m_Identity.Name != "" && m_Identity.Name != null && Guid.TryParse(m_Identity.Name, out notUsed) == false)
             {
                 PropertyListbox.Items.Add("Index (by Name)\t: " + m_Identity.Index);
                 mainLocatorText = ", new Identifier(Identifiers.Name, \"" + m_Identity.Name + "\")";
