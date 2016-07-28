@@ -256,18 +256,28 @@ namespace APE.Language
         /// <param name="process">The process to attach to</param>
         public static void AttachToProcess(Process process)
         {
+            AttachToProcess(process, "DefaultDomain");
+        }
+
+        /// <summary>
+        /// Attaches APE to the specified process so it can automate it
+        /// </summary>
+        /// <param name="process">The process to attach to</param>
+        /// <param name="domain">The domain in the process to attach to</param>
+        public static void AttachToProcess(Process process, string domain)
+        {
             Log("Attached to process [" + process.ProcessName + "]", LogItemTypeEnum.ApeContext);
             process.WaitForInputIdle();
 
-            //Instead of m_APE.RemoveFileMapping we could do a
-            //m_APE = null;
+            //Instead of GUI.m_APE.RemoveFileMapping we could do a
+            //GUI.m_APE = null;
             //GC.Collect();
             //GC.WaitForPendingFinalizers();
-            if (m_APE != null)
+            if (GUI.m_APE != null)
             {
-                m_APE.RemoveFileMapping();
+                GUI.m_APE.RemoveFileMapping();
             }
-            m_APE = new APEIPC(process);
+            GUI.m_APE = new APEIPC(process, domain);
             m_AttachedProcess = process;
         }
 
