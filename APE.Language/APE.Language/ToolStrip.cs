@@ -572,10 +572,10 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Saves the image of the toolstrip object to the specified filename
+        /// Gets the image of the toolstrip object
         /// </summary>
-        /// <param name="filename">File name to save the image to</param>
-        public virtual void SaveImage(string filename)
+        /// <returns></returns>
+        public virtual Image Image()
         {
             UpdateIndex();
 
@@ -583,18 +583,12 @@ namespace APE.Language
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
             GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Image", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Save", MemberTypes.Method, new Parameter(GUI.m_APE, filename));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic height = GUI.m_APE.GetValueFromMessage();
-
-            if (height == null)
-            {
-                throw new Exception(m_DescriptionOfControl + " does not have an image");
-            }
+            Image itemImage = GUI.m_APE.GetValueFromMessage();
+            return itemImage;
         }
 
         internal Rectangle ItemBounds()

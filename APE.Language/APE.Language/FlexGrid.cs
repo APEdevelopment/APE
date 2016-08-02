@@ -134,12 +134,12 @@ namespace APE.Language
 
         private string GetNodePath(int Row, int Column)
         {
-            string NodePath = GetCellValue(Row, Column, CellProperty.TextDisplay);
+            string NodePath = GetCellValue(Row, Column, CellProperty.DataDisplay);
             int CurrentRow = GetNodeParentRow(Row);
 
             while (CurrentRow > -1)
             {
-                NodePath = GetCellValue(CurrentRow, Column, CellProperty.TextDisplay) + " -> " + NodePath;
+                NodePath = GetCellValue(CurrentRow, Column, CellProperty.DataDisplay) + " -> " + NodePath;
                 CurrentRow = GetNodeParentRow(CurrentRow);
             } 
 
@@ -879,7 +879,7 @@ namespace APE.Language
             }
 
             // Check if the cell is already set to the correct value
-            string CurrentValue = this.GetCellValue(row, column, CellProperty.TextDisplay);
+            string CurrentValue = this.GetCellValue(row, column, CellProperty.DataDisplay);
 
             if (CurrentValue == expectedValue)
             {
@@ -995,7 +995,7 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             do
             {
-                CurrentValue = this.GetCellValue(row, column, CellProperty.TextDisplay);
+                CurrentValue = this.GetCellValue(row, column, CellProperty.DataDisplay);
 
                 if (CurrentValue == expectedValue)
                 {
@@ -1038,12 +1038,48 @@ namespace APE.Language
             return CellRangeClip;
         }
 
+        //public string GetColumnType(int col)
+        //{
+        //    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property); ;
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, col));
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "DataType", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Namespace", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Name", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store4);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store5);
+        //    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+        //    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+        //    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+        //    string columnTypeNamespace = GUI.m_APE.GetValueFromMessage();
+        //    string columnTypeName = GUI.m_APE.GetValueFromMessage();
+        //    return columnTypeNamespace + "." + columnTypeName;
+        //}
+
+        //public string GetColumnFormat(int col)
+        //{
+        //    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property); ;
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, col));
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Format", MemberTypes.Property);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+        //    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+        //    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+        //    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+        //    string format = GUI.m_APE.GetValueFromMessage();
+        //    return format;
+        //}
+
         public enum CellProperty
         {
-            TextDisplay,
+            DataDisplay,
             BackColor,
             ForeColor,
             DataType,
+            CheckBox,
+            Image,
+            BackgroundImage,
+            //Clip, //Removed as should use GetCellRangeClip if you want the clip
         }
 
         public dynamic GetCellValue(string rowText, string columnText, CellProperty property)
@@ -1069,7 +1105,7 @@ namespace APE.Language
         {
             switch (property)
             {
-                case CellProperty.TextDisplay:
+                case CellProperty.DataDisplay:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "DataDisplay", MemberTypes.Property);
@@ -1084,22 +1120,26 @@ namespace APE.Language
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "BackColor", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store4);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    Color CellBackColor = GUI.m_APE.GetValueFromMessage();
+                    string backColourName = GUI.m_APE.GetValueFromMessage();
+                    Color CellBackColor = Color.FromName(backColourName);
                     return CellBackColor;
                 case CellProperty.ForeColor:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ForeColor", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store4);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    Color CellForeColor = GUI.m_APE.GetValueFromMessage();
+                    string foreColourName = GUI.m_APE.GetValueFromMessage();
+                    Color CellForeColor = Color.FromName(foreColourName);
                     return CellForeColor;
                 case CellProperty.DataType:
                     GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -1116,46 +1156,79 @@ namespace APE.Language
                     string cellTypeNamespace = GUI.m_APE.GetValueFromMessage();
                     string cellTypeName = GUI.m_APE.GetValueFromMessage();
                     return cellTypeNamespace + "." + cellTypeName;
+                case CellProperty.CheckBox:
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Checkbox", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string checkboxState = GUI.m_APE.GetValueFromMessage();
+                    return checkboxState;
+                case CellProperty.Image:
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Image", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    Image image = GUI.m_APE.GetValueFromMessage();
+                    return image;
+                case CellProperty.BackgroundImage:
+                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
+                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "BackgroundImage", MemberTypes.Property);
+                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    Image backgroundImage = GUI.m_APE.GetValueFromMessage();
+                    return backgroundImage;
                 default:
                     throw new Exception("Implement support for getting cell property " + property.ToString());
             }
         }
 
-        public string GetCellCheck(string Row, string Column)
-        {
-            int RowNumber = FindRow(Row);
-            int ColumnNumber = FindColumn(Column);
+        //public string GetCellCheck(string Row, string Column)
+        //{
+        //    int RowNumber = FindRow(Row);
+        //    int ColumnNumber = FindColumn(Column);
 
-            return GetCellCheck(RowNumber, ColumnNumber);
-        }
+        //    return GetCellCheck(RowNumber, ColumnNumber);
+        //}
 
-        public string GetCellCheck(int Row, string Column)
-        {
-            int ColumnNumber = FindColumn(Column);
+        //public string GetCellCheck(int Row, string Column)
+        //{
+        //    int ColumnNumber = FindColumn(Column);
 
-            return GetCellCheck(Row, ColumnNumber);
-        }
+        //    return GetCellCheck(Row, ColumnNumber);
+        //}
 
-        public string GetCellCheck(string Row, int Column)
-        {
-            int RowNumber = FindRow(Row);
+        //public string GetCellCheck(string Row, int Column)
+        //{
+        //    int RowNumber = FindRow(Row);
 
-            return GetCellCheck(RowNumber, Column);
-        }
+        //    return GetCellCheck(RowNumber, Column);
+        //}
 
-        public string GetCellCheck(int Row, int Column)
-        {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellCheck", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string Checked = GUI.m_APE.GetValueFromMessage();
+        ////TODO replace with getcellvalue?
+        //public string GetCellCheck(int Row, int Column)
+        //{
+        //    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetCellCheck", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+        //    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
+        //    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+        //    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+        //    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+        //    string Checked = GUI.m_APE.GetValueFromMessage();
 
-            return Checked;
-        }
+        //    return Checked;
+        //}
 
         public void Show(string Row, string Column)
         {

@@ -49,49 +49,35 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Saves the image of the picturebox to the specified file
+        /// Gets the image of the picturebox
         /// </summary>
-        /// <param name="filename">Filename including path to save the image to</param>
-        public void Save(string filename)
+        /// <returns>The image</returns>
+        public Image Image()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Image", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Save", MemberTypes.Method, new Parameter(GUI.m_APE, filename));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic Height = GUI.m_APE.GetValueFromMessage();
-
-            if (Height == null)
-            {
-                throw new Exception("PictureBox does not have an image set");
-            }
+            Image theImage = GUI.m_APE.GetValueFromMessage();
+            return theImage;
         }
 
         /// <summary>
-        /// Saves the background image of the picturebox to the specified file
+        /// Gets the background image of the picturebox
         /// </summary>
-        /// <param name="filename">Filename including path to save the background image to</param>
-        public void SaveBackground(string filename)
+        /// <returns>The background image</returns>
+        public Image BackgroundImage()
         {
             GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "BackgroundImage", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Save", MemberTypes.Method, new Parameter(GUI.m_APE, filename));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
             GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic Height = GUI.m_APE.GetValueFromMessage();
-
-            if (Height == null)
-            {
-                throw new Exception("PictureBox does not have an background image set");
-            }
+            Image theBackgroundImage = GUI.m_APE.GetValueFromMessage();
+            return theBackgroundImage;
         }
-
-        //TODO get the image back via the mmf, should be better performance than using the disk
     }
 }

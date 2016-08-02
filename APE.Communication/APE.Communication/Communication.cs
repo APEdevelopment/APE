@@ -33,6 +33,7 @@ using Microsoft.Win32;
 using System.Runtime;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace APE.Communication
 {
@@ -472,13 +473,13 @@ namespace APE.Communication
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
 
             // p1  = TimeOut
-            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)TypeCode.UInt32)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)ApeTypeCode.UInt32)
             {
                 m_TimeOut = PtrMessage->Parameter.UInt32[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.UInt32 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.UInt32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             //cleanup the message
@@ -501,13 +502,13 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             //cleanup the message
@@ -546,13 +547,13 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             //cleanup the message
@@ -600,13 +601,13 @@ namespace APE.Communication
 
             // p1 = Generation
             int generation;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)ApeTypeCode.Int32)
             {
                 generation = PtrMessage->Parameter.Int32[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Int32 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             //cleanup the message
@@ -650,35 +651,35 @@ namespace APE.Communication
 
             // p1 = MouseButton
             MouseButton Button;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)ApeTypeCode.Int32)
             {
                 Button = (MouseButton)PtrMessage->Parameter.Int32[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Int32 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             // p2 = MouseDown
             bool MouseDown;
-            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)TypeCode.Boolean)
+            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)ApeTypeCode.Boolean)
             {
                 MouseDown = PtrMessage->Parameter.Boolean[1];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Boolean got System.TypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
+                throw new Exception("Expected ApeTypeCode.Boolean got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
             }
 
             // p3 = FirstClick
             bool FirstClick;
-            if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)TypeCode.Boolean)
+            if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)ApeTypeCode.Boolean)
             {
                 FirstClick = PtrMessage->Parameter.Boolean[2];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Boolean got System.TypeCode." + (PtrMessage->Parameter.TypeCode[2]).ToString());
+                throw new Exception("Expected ApeTypeCode.Boolean got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[2]).ToString());
             }
 
             //cleanup the message
@@ -831,13 +832,13 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             //cleanup the message
@@ -880,24 +881,24 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             // p2  = TitleBarStateElement
             NM.TitleBarStateElement Item;
-            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)ApeTypeCode.Int32)
             {
                 Item = (NM.TitleBarStateElement)PtrMessage->Parameter.Int32[1];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Int32 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
+                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
             }
 
             //cleanup the message
@@ -982,24 +983,24 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             // p2  = Index
             int Index;
-            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)ApeTypeCode.Int32)
             {
                 Index = PtrMessage->Parameter.Int32[1];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Int32 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
+                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
             }
 
             NM.tagRect theRect = new NM.tagRect();
@@ -1037,24 +1038,24 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             // p2  = Group
             int GroupID;
-            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)ApeTypeCode.Int32)
             {
                 GroupID = PtrMessage->Parameter.Int32[1];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.Int32 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
+                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
             }
 
             NM.tagRect theRect = new NM.tagRect();
@@ -1134,6 +1135,7 @@ namespace APE.Communication
             }
         }
 
+        //TODO remove all of these as we are compiling debug only so nothing will be inlined
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         unsafe public dynamic GetValueFromMessage()
         {
@@ -1145,43 +1147,43 @@ namespace APE.Communication
 
             switch ((int)PtrMessage->Parameter.TypeCode[parameter])
             {
-                case (int)TypeCode.Boolean:
+                case (int)ApeTypeCode.Boolean:
                     returnValue = PtrMessage->Parameter.Boolean[parameter];
                     break;
-                case (int)TypeCode.Char:
+                case (int)ApeTypeCode.Char:
                     returnValue = PtrMessage->Parameter.Char[parameter];
                     break;
-                case (int)TypeCode.SByte:
+                case (int)ApeTypeCode.SByte:
                     returnValue = PtrMessage->Parameter.SByte[parameter];
                     break;
-                case (int)TypeCode.Byte:
+                case (int)ApeTypeCode.Byte:
                     returnValue = PtrMessage->Parameter.Byte[parameter];
                     break;
-                case (int)TypeCode.Int16:
+                case (int)ApeTypeCode.Int16:
                     returnValue = PtrMessage->Parameter.Int16[parameter];
                     break;
-                case (int)TypeCode.UInt16:
+                case (int)ApeTypeCode.UInt16:
                     returnValue = PtrMessage->Parameter.UInt16[parameter];
                     break;
-                case (int)TypeCode.Int32:
+                case (int)ApeTypeCode.Int32:
                     returnValue = PtrMessage->Parameter.Int32[parameter];
                     break;
-                case (int)TypeCode.UInt32:
+                case (int)ApeTypeCode.UInt32:
                     returnValue = PtrMessage->Parameter.UInt32[parameter];
                     break;
-                case (int)TypeCode.Int64:
+                case (int)ApeTypeCode.Int64:
                     returnValue = PtrMessage->Parameter.Int64[parameter];
                     break;
-                case (int)TypeCode.UInt64:
+                case (int)ApeTypeCode.UInt64:
                     returnValue = PtrMessage->Parameter.UInt64[parameter];
                     break;
-                case (int)TypeCode.Single:
+                case (int)ApeTypeCode.Single:
                     returnValue = PtrMessage->Parameter.Single[parameter];
                     break;
-                case (int)TypeCode.Double:
+                case (int)ApeTypeCode.Double:
                     returnValue = PtrMessage->Parameter.Double[parameter];
                     break;
-                case (int)TypeCode.Decimal:
+                case (int)ApeTypeCode.Decimal:
                     int[] DecimalBits = new int[4];
                     DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[parameter];
                     DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[parameter];
@@ -1189,10 +1191,10 @@ namespace APE.Communication
                     DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[parameter];
                     returnValue = new decimal(DecimalBits);
                     break;
-                case (int)TypeCode.DateTime:
+                case (int)ApeTypeCode.DateTime:
                     returnValue = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[parameter]);
                     break;
-                case (int)TypeCode.String:
+                case (int)ApeTypeCode.String:
                     if (PtrMessage->Parameter.StringLength[parameter] == -1)
                     {
                         string Empty = null;
@@ -1203,14 +1205,31 @@ namespace APE.Communication
                         returnValue = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[parameter]), 0, PtrMessage->Parameter.StringLength[parameter]);
                     }
                     break;
-                case 17:
+                case (int)ApeTypeCode.IntPtr:
                     returnValue = new IntPtr(PtrMessage->Parameter.IntPtr[parameter]);
                     break;
-                case (int)TypeCode.Empty:
+                case (int)ApeTypeCode.Empty:
                     returnValue = null;
                     break;
+                case (int)ApeTypeCode.Image:
+                    if (PtrMessage->Parameter.StringLength[parameter] == -1)
+                    {
+                        Image Empty = null;
+                        returnValue = Empty;
+                    }
+                    else
+                    {
+                        byte[] imageAsByteArray = new byte[PtrMessage->Parameter.StringLength[parameter]];
+                        fixed (void* PtrByteArray = imageAsByteArray)
+                        {
+                            NM.CopyMemory((IntPtr)PtrByteArray, m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[parameter], (UIntPtr)(imageAsByteArray.Length));
+                        }
+
+                        returnValue = Image.FromStream(new MemoryStream(imageAsByteArray));
+                    }
+                    break;
                 default:
-                    throw new Exception("Unsupported System.TypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
+                    throw new Exception("Unsupported ApeTypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
             }
 
             //cleanup the message
@@ -1224,7 +1243,7 @@ namespace APE.Communication
         }
 
         //TODO is worth doing this 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe public void GetValueFromMessage(int messageNumber, out string value)
         {
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
@@ -1913,23 +1932,23 @@ namespace APE.Communication
             Identifier = new ControlIdentifier();
 
             // p1  = Parent handle
-            if ((PtrMessage->Parameter.TypeCode[0]) == 17)//(Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Identifier.ParentHandle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
             // p2  = Handle
-            if ((PtrMessage->Parameter.TypeCode[1]) == 17)//(Int32)TypeCode.Int32)
+            if ((PtrMessage->Parameter.TypeCode[1]) == (int)ApeTypeCode.IntPtr)
             {
                 Identifier.Handle = (IntPtr)PtrMessage->Parameter.IntPtr[1];
             }
             else
             {
-                throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
+                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
             }
 
             if (PtrMessage->NumberOfParameters > 2)
@@ -1937,122 +1956,122 @@ namespace APE.Communication
                 // p3  = Name
                 if (PtrMessage->Parameter.StringLength[2] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.Name = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[2]), 0, PtrMessage->Parameter.StringLength[2]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[2])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[2])).ToString());
                     }
                 }
 
                 // p4  = Technology Type (Winforms, WPF, etc)
                 if (PtrMessage->Parameter.StringLength[3] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[3]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[3]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.TechnologyType = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[3]), 0, PtrMessage->Parameter.StringLength[3]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[3])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[3])).ToString());
                     }
                 }
 
                 // p5  = Type Namespace
                 if (PtrMessage->Parameter.StringLength[4] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[4]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[4]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.TypeNameSpace = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[4]), 0, PtrMessage->Parameter.StringLength[4]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[4])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[4])).ToString());
                     }
                 }
 
                 // p6  = Type Name
                 if (PtrMessage->Parameter.StringLength[5] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[5]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[5]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.TypeName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[5]), 0, PtrMessage->Parameter.StringLength[5]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[5])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[5])).ToString());
                     }
                 }
 
                 // p7  = Module Name
                 if (PtrMessage->Parameter.StringLength[6] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[6]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[6]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.ModuleName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[6]), 0, PtrMessage->Parameter.StringLength[6]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[6])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[6])).ToString());
                     }
                 }
 
                 // p8  = Assembly Name
                 if (PtrMessage->Parameter.StringLength[7] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[7]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[7]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.AssemblyName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[7]), 0, PtrMessage->Parameter.StringLength[7]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[7])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[7])).ToString());
                     }
                 }
 
                 // p9  = Index
-                if ((PtrMessage->Parameter.TypeCode[8]) == (Int32)TypeCode.Int32)
+                if ((PtrMessage->Parameter.TypeCode[8]) == (Int32)ApeTypeCode.Int32)
                 {
                     Identifier.Index = PtrMessage->Parameter.Int32[8];
                 }
                 else
                 {
-                    throw new Exception("Expected System.TypeCode." + TypeCode.Int32.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[8])).ToString());
+                    throw new Exception("Expected ApeTypeCode." + ApeTypeCode.Int32.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[8])).ToString());
                 }
 
                 // p10 = Text
                 if (PtrMessage->Parameter.StringLength[9] > 0)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[9]) == (Int32)TypeCode.String)
+                    if ((PtrMessage->Parameter.TypeCode[9]) == (Int32)ApeTypeCode.String)
                     {
                         Identifier.Text = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[9]), 0, PtrMessage->Parameter.StringLength[9]);
                     }
                     else
                     {
-                        throw new Exception("Expected System.TypeCode." + TypeCode.String.ToString() + " got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[9])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + TypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[9])).ToString());
                     }
                 }
 
                 // p11 = ChildOf
-                if ((PtrMessage->Parameter.TypeCode[10]) == 17)
+                if ((PtrMessage->Parameter.TypeCode[10]) == (int)ApeTypeCode.IntPtr)
                 {
                     Identifier.ChildOf = (IntPtr)PtrMessage->Parameter.IntPtr[10];
                 }
                 else
                 {
-                    throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[10])).ToString());
+                    throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[10])).ToString());
                 }
 
                 // p12 = SiblingOf
-                if ((PtrMessage->Parameter.TypeCode[11]) == 17)
+                if ((PtrMessage->Parameter.TypeCode[11]) == (int)ApeTypeCode.IntPtr)
                 {
                     Identifier.SiblingOf = (IntPtr)PtrMessage->Parameter.IntPtr[11];
                 }
                 else
                 {
-                    throw new Exception("Expected System.TypeCode.17 got System.TypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[11])).ToString());
+                    throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[11])).ToString());
                 }
             }
 
@@ -2841,10 +2860,10 @@ namespace APE.Communication
 
             //store the important parts of the message so we can cleanup
             int Parameters = PtrMessage->NumberOfParameters;
-            TypeCode ParameterTypeCode = TypeCode.Empty;
+            ApeTypeCode ParameterTypeCode = ApeTypeCode.Empty;
             if (Parameters == 1)
             {
-                ParameterTypeCode = (TypeCode)PtrMessage->Parameter.TypeCode[0];
+                ParameterTypeCode = (ApeTypeCode)PtrMessage->Parameter.TypeCode[0];
             }
 
             //cleanup the message
@@ -2861,10 +2880,10 @@ namespace APE.Communication
                 //TO DO add rest of switch
                 switch (ParameterTypeCode)
                 {
-                    case TypeCode.Int32:
+                    case ApeTypeCode.Int32:
                         AddReturnValue(new Parameter(this, (Int32)SourceObject));
                         break;
-                    case TypeCode.String:
+                    case ApeTypeCode.String:
                         AddReturnValue(new Parameter(this, (string)SourceObject));
                         break;
                     default:
@@ -2877,8 +2896,8 @@ namespace APE.Communication
                 if (SourceObject == null)
                 {
                     PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-                    PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)TypeCode.Empty;
-                    PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanTypeCodeEnumMax) + (int)TypeCode.Empty);
+                    PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Empty;
+                    PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Empty);
                     PtrMessage->NumberOfParameters++;
                     m_PtrMessageStore->NumberOfMessages++;
                 }
@@ -3357,43 +3376,43 @@ namespace APE.Communication
 
             switch ((int)PtrMessage->Parameter.TypeCode[0])
             {
-                case (int)TypeCode.Boolean:
+                case (int)ApeTypeCode.Boolean:
                     ItemToPollFor = PtrMessage->Parameter.Boolean[0];
                     break;
-                case (int)TypeCode.Char:
+                case (int)ApeTypeCode.Char:
                     ItemToPollFor = PtrMessage->Parameter.Char[0];
                     break;
-                case (int)TypeCode.SByte:
+                case (int)ApeTypeCode.SByte:
                     ItemToPollFor = PtrMessage->Parameter.SByte[0];
                     break;
-                case (int)TypeCode.Byte:
+                case (int)ApeTypeCode.Byte:
                     ItemToPollFor = PtrMessage->Parameter.Byte[0];
                     break;
-                case (int)TypeCode.Int16:
+                case (int)ApeTypeCode.Int16:
                     ItemToPollFor = PtrMessage->Parameter.Int16[0];
                     break;
-                case (int)TypeCode.UInt16:
+                case (int)ApeTypeCode.UInt16:
                     ItemToPollFor = PtrMessage->Parameter.UInt16[0];
                     break;
-                case (int)TypeCode.Int32:
+                case (int)ApeTypeCode.Int32:
                     ItemToPollFor = PtrMessage->Parameter.Int32[0];
                     break;
-                case (int)TypeCode.UInt32:
+                case (int)ApeTypeCode.UInt32:
                     ItemToPollFor = PtrMessage->Parameter.UInt32[0];
                     break;
-                case (int)TypeCode.Int64:
+                case (int)ApeTypeCode.Int64:
                     ItemToPollFor = PtrMessage->Parameter.Int64[0];
                     break;
-                case (int)TypeCode.UInt64:
+                case (int)ApeTypeCode.UInt64:
                     ItemToPollFor = PtrMessage->Parameter.UInt64[0];
                     break;
-                case (int)TypeCode.Single:
+                case (int)ApeTypeCode.Single:
                     ItemToPollFor = PtrMessage->Parameter.Single[0];
                     break;
-                case (int)TypeCode.Double:
+                case (int)ApeTypeCode.Double:
                     ItemToPollFor = PtrMessage->Parameter.Double[0];
                     break;
-                case (int)TypeCode.Decimal:
+                case (int)ApeTypeCode.Decimal:
                     int[] DecimalBits = new int[4];
                     DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[0];
                     DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[0];
@@ -3401,10 +3420,10 @@ namespace APE.Communication
                     DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[0];
                     ItemToPollFor = new decimal(DecimalBits);
                     break;
-                case (int)TypeCode.DateTime:
+                case (int)ApeTypeCode.DateTime:
                     ItemToPollFor = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[0]);
                     break;
-                case (int)TypeCode.String:
+                case (int)ApeTypeCode.String:
                     ItemToPollFor = m_TypeString;
                     if (PtrMessage->Parameter.StringLength[0] == -1)
                     {
@@ -3416,11 +3435,11 @@ namespace APE.Communication
                         ItemToPollFor = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[0]), 0, PtrMessage->Parameter.StringLength[0]);
                     }
                     break;
-                case 17:
+                case (int)ApeTypeCode.IntPtr:
                     ItemToPollFor = new IntPtr(PtrMessage->Parameter.IntPtr[0]);
                     break;
                 default:
-                    throw new Exception("Unsupported System.TypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
+                    throw new Exception("Unsupported ApeTypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
             }
 
             Type SourceType;
@@ -3801,55 +3820,55 @@ namespace APE.Communication
                 {
                     switch ((int)PtrMessage->Parameter.TypeCode[i])
                     {
-                        case (int)TypeCode.Boolean:
+                        case (int)ApeTypeCode.Boolean:
                             ParametersType[i] = m_TypeBoolean;
                             ParametersObject[i] = PtrMessage->Parameter.Boolean[i];
                             break;
-                        case (int)TypeCode.Char:
+                        case (int)ApeTypeCode.Char:
                             ParametersType[i] = m_TypeChar;
                             ParametersObject[i] = PtrMessage->Parameter.Char[i];
                             break;
-                        case (int)TypeCode.SByte:
+                        case (int)ApeTypeCode.SByte:
                             ParametersType[i] = m_TypeSByte;
                             ParametersObject[i] = PtrMessage->Parameter.SByte[i];
                             break;
-                        case (int)TypeCode.Byte:
+                        case (int)ApeTypeCode.Byte:
                             ParametersType[i] = m_TypeByte;
                             ParametersObject[i] = PtrMessage->Parameter.Byte[i];
                             break;
-                        case (int)TypeCode.Int16:
+                        case (int)ApeTypeCode.Int16:
                             ParametersType[i] = m_TypeInt16;
                             ParametersObject[i] = PtrMessage->Parameter.Int16[i];
                             break;
-                        case (int)TypeCode.UInt16:
+                        case (int)ApeTypeCode.UInt16:
                             ParametersType[i] = m_TypeUInt16;
                             ParametersObject[i] = PtrMessage->Parameter.UInt16[i];
                             break;
-                        case (int)TypeCode.Int32:
+                        case (int)ApeTypeCode.Int32:
                             ParametersType[i] = m_TypeInt32;
                             ParametersObject[i] = PtrMessage->Parameter.Int32[i];
                             break;
-                        case (int)TypeCode.UInt32:
+                        case (int)ApeTypeCode.UInt32:
                             ParametersType[i] = m_TypeUInt32;
                             ParametersObject[i] = PtrMessage->Parameter.UInt32[i];
                             break;
-                        case (int)TypeCode.Int64:
+                        case (int)ApeTypeCode.Int64:
                             ParametersType[i] = m_TypeInt64;
                             ParametersObject[i] = PtrMessage->Parameter.Int64[i];
                             break;
-                        case (int)TypeCode.UInt64:
+                        case (int)ApeTypeCode.UInt64:
                             ParametersType[i] = m_TypeUInt64;
                             ParametersObject[i] = PtrMessage->Parameter.UInt64[i];
                             break;
-                        case (int)TypeCode.Single:
+                        case (int)ApeTypeCode.Single:
                             ParametersType[i] = m_TypeSingle;
                             ParametersObject[i] = PtrMessage->Parameter.Single[i];
                             break;
-                        case (int)TypeCode.Double:
+                        case (int)ApeTypeCode.Double:
                             ParametersType[i] = m_TypeDouble;
                             ParametersObject[i] = PtrMessage->Parameter.Double[i];
                             break;
-                        case (int)TypeCode.Decimal:
+                        case (int)ApeTypeCode.Decimal:
                             ParametersType[i] = m_TypeDecimal;
                             int[] DecimalBits = new int[4];
                             DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[i];
@@ -3858,11 +3877,11 @@ namespace APE.Communication
                             DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[i];
                             ParametersObject[i] = new decimal(DecimalBits);
                             break;
-                        case (int)TypeCode.DateTime:
+                        case (int)ApeTypeCode.DateTime:
                             ParametersType[i] = m_TypeDateTime;
                             ParametersObject[i] = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[i]);
                             break;
-                        case (int)TypeCode.String:
+                        case (int)ApeTypeCode.String:
                             ParametersType[i] = m_TypeString;
                             if (PtrMessage->Parameter.StringLength[i] == -1)
                             {
@@ -3874,11 +3893,11 @@ namespace APE.Communication
                                 ParametersObject[i] = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
                             }
                             break;
-                        case 17:
+                        case (int)ApeTypeCode.IntPtr:
                             ParametersType[i] = m_TypeIntPtr;
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
-                        case 19:
+                        case (int)ApeTypeCode.DataStore:
                             if (datastoreTypeHandle != IntPtr.Zero)
                             {
                                 throw new Exception("Only passing one datastore item as a parameter is supported");
@@ -3933,7 +3952,7 @@ namespace APE.Communication
                             datastoreTypeHandle = ParametersType[i].TypeHandle.Value;
                             break;
                         default:
-                            throw new Exception("Unsupported System.TypeCode: " + ((int)(PtrMessage->Parameter.TypeCode[i])).ToString());
+                            throw new Exception("Unsupported ApeTypeCode: " + ((int)(PtrMessage->Parameter.TypeCode[i])).ToString());
                     }
                 }
                 if (datastoreTypeHandle == IntPtr.Zero)  //none of the parameters are a datastore type
@@ -3947,43 +3966,43 @@ namespace APE.Communication
                 {
                     switch ((int)PtrMessage->Parameter.TypeCode[i])
                     {
-                        case (int)TypeCode.Boolean:
+                        case (int)ApeTypeCode.Boolean:
                             ParametersObject[i] = PtrMessage->Parameter.Boolean[i];
                             break;
-                        case (int)TypeCode.Char:
+                        case (int)ApeTypeCode.Char:
                             ParametersObject[i] = PtrMessage->Parameter.Char[i];
                             break;
-                        case (int)TypeCode.SByte:
+                        case (int)ApeTypeCode.SByte:
                             ParametersObject[i] = PtrMessage->Parameter.SByte[i];
                             break;
-                        case (int)TypeCode.Byte:
+                        case (int)ApeTypeCode.Byte:
                             ParametersObject[i] = PtrMessage->Parameter.Byte[i];
                             break;
-                        case (int)TypeCode.Int16:
+                        case (int)ApeTypeCode.Int16:
                             ParametersObject[i] = PtrMessage->Parameter.Int16[i];
                             break;
-                        case (int)TypeCode.UInt16:
+                        case (int)ApeTypeCode.UInt16:
                             ParametersObject[i] = PtrMessage->Parameter.UInt16[i];
                             break;
-                        case (int)TypeCode.Int32:
+                        case (int)ApeTypeCode.Int32:
                             ParametersObject[i] = PtrMessage->Parameter.Int32[i];
                             break;
-                        case (int)TypeCode.UInt32:
+                        case (int)ApeTypeCode.UInt32:
                             ParametersObject[i] = PtrMessage->Parameter.UInt32[i];
                             break;
-                        case (int)TypeCode.Int64:
+                        case (int)ApeTypeCode.Int64:
                             ParametersObject[i] = PtrMessage->Parameter.Int64[i];
                             break;
-                        case (int)TypeCode.UInt64:
+                        case (int)ApeTypeCode.UInt64:
                             ParametersObject[i] = PtrMessage->Parameter.UInt64[i];
                             break;
-                        case (int)TypeCode.Single:
+                        case (int)ApeTypeCode.Single:
                             ParametersObject[i] = PtrMessage->Parameter.Single[i];
                             break;
-                        case (int)TypeCode.Double:
+                        case (int)ApeTypeCode.Double:
                             ParametersObject[i] = PtrMessage->Parameter.Double[i];
                             break;
-                        case (int)TypeCode.Decimal:
+                        case (int)ApeTypeCode.Decimal:
                             int[] DecimalBits = new int[4];
                             DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[i];
                             DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[i];
@@ -3991,10 +4010,10 @@ namespace APE.Communication
                             DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[i];
                             ParametersObject[i] = new decimal(DecimalBits);
                             break;
-                        case (int)TypeCode.DateTime:
+                        case (int)ApeTypeCode.DateTime:
                             ParametersObject[i] = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[i]);
                             break;
-                        case (int)TypeCode.String:
+                        case (int)ApeTypeCode.String:
                             ParametersType[i] = m_TypeString;
                             if (PtrMessage->Parameter.StringLength[i] == -1)
                             {
@@ -4006,11 +4025,11 @@ namespace APE.Communication
                                 ParametersObject[i] = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
                             }
                             break;
-                        case 17:
+                        case (int)ApeTypeCode.IntPtr:
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
                         default:
-                            throw new Exception("Unsupported System.TypeCode: " + ((int)PtrMessage->Parameter.TypeCode[i]).ToString());
+                            throw new Exception("Unsupported ApeTypeCode: " + ((int)PtrMessage->Parameter.TypeCode[i]).ToString());
                     }
                 }
             }
