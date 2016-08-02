@@ -1135,8 +1135,6 @@ namespace APE.Communication
             }
         }
 
-        //TODO remove all of these as we are compiling debug only so nothing will be inlined
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         unsafe public dynamic GetValueFromMessage()
         {
             m_MessageNumber++;
@@ -1145,7 +1143,7 @@ namespace APE.Communication
             int parameter = 0;
             dynamic returnValue;
 
-            switch ((int)PtrMessage->Parameter.TypeCode[parameter])
+            switch (PtrMessage->Parameter.TypeCode[parameter])
             {
                 case (int)ApeTypeCode.Boolean:
                     returnValue = PtrMessage->Parameter.Boolean[parameter];
@@ -1229,7 +1227,7 @@ namespace APE.Communication
                     }
                     break;
                 default:
-                    throw new Exception("Unsupported ApeTypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
+                    throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[parameter].ToString());
             }
 
             //cleanup the message
@@ -1242,8 +1240,6 @@ namespace APE.Communication
             return returnValue;
         }
 
-        //TODO is worth doing this 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe public void GetValueFromMessage(int messageNumber, out string value)
         {
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
@@ -1267,7 +1263,6 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         unsafe public void SendMessages(EventSet WhoIsSending)
         {
             if (WhoIsSending == EventSet.APE)
@@ -1770,7 +1765,6 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         unsafe private void FirstMessageInitialise()
         {
             m_MessageNumber = 0;
@@ -3952,7 +3946,7 @@ namespace APE.Communication
                             datastoreTypeHandle = ParametersType[i].TypeHandle.Value;
                             break;
                         default:
-                            throw new Exception("Unsupported ApeTypeCode: " + ((int)(PtrMessage->Parameter.TypeCode[i])).ToString());
+                            throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[i].ToString());
                     }
                 }
                 if (datastoreTypeHandle == IntPtr.Zero)  //none of the parameters are a datastore type
@@ -4029,7 +4023,7 @@ namespace APE.Communication
                             ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
                             break;
                         default:
-                            throw new Exception("Unsupported ApeTypeCode: " + ((int)PtrMessage->Parameter.TypeCode[i]).ToString());
+                            throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[i].ToString());
                     }
                 }
             }
