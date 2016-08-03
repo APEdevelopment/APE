@@ -68,7 +68,7 @@ namespace APE.Communication
         Store9 = 9,
     }
 
-    public class APEIPC
+    public partial class APEIPC
     {
         private const int ERROR_ALREADY_EXISTS = 183;
         private const int StringSpaceBytes = 1048576;
@@ -83,22 +83,12 @@ namespace APE.Communication
         private int m_hMouseHook = 0;
         private IntPtr m_HookWindow;
 
-        private bool m_WM_LBUTTONDOWN = false;
-        private bool m_WM_LBUTTONUP = false;
-        private bool m_WM_LBUTTONDBLCLK = false;
-        private bool m_WM_RBUTTONDOWN = false;
-        private bool m_WM_RBUTTONUP = false;
-        private bool m_WM_RBUTTONDBLCLK = false;
-        private bool m_WM_MBUTTONDOWN = false;
-        private bool m_WM_MBUTTONUP = false;
-        private bool m_WM_MBUTTONDBLCLK = false;
-
         //Memory Map File for IPC for message value types
         private IntPtr m_HandleMemoryMappedFileMessageStore;
-        internal IntPtr m_IntPtrMemoryMappedFileViewMessageStore;
-        internal unsafe MessageStore* m_PtrMessageStore;
+        private IntPtr m_IntPtrMemoryMappedFileViewMessageStore;
+        private unsafe MessageStore* m_PtrMessageStore;
 
-        internal unsafe int m_SizeOfMessage = sizeof(Message);
+        private unsafe int m_SizeOfMessage = sizeof(Message);
         private ParametersTypeCircularList ParametersTypeCache = new ParametersTypeCircularList(3);    //3 is optimal here as there are only a couple of very frequently used types
         private MemberGetterCircularList MemberGetterCache = new MemberGetterCircularList(10);
         private MethodInvokerCircularList MethodInvokerCache = new MethodInvokerCircularList(10);
@@ -407,18 +397,17 @@ namespace APE.Communication
         {
             try
             {
-                Thread myThread = new Thread(() => DecodeMessage(APEPID, AppDomainToLoadInto, WPF));
+                Thread myThread = new Thread(() => ProcessMessages(APEPID, AppDomainToLoadInto, WPF));
                 myThread.SetApartmentState(ApartmentState.STA);
                 myThread.IsBackground = true;
                 myThread.Start();
             }
             catch (Exception ex)
             {
-                TextWriter log = File.AppendText(@"C:\critical.log");
+                TextWriter log = File.AppendText(Environment.GetEnvironmentVariable("TEMP") + @"\APE_Critical.log");
                 log.WriteLine(DateTime.Now.ToString() + "\t" + ex.Message);
                 log.WriteLine(DateTime.Now.ToString() + "\t" + ex.StackTrace);
                 log.Close();
-
                 throw;
             }
         }
@@ -490,134 +479,18 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
         }
 
-        private unsafe void AddMouseHook(int MessageNumber)
+        private unsafe void GarbageCollect(Message* ptrMessage, int messageNumber)
         {
             //must be first message
-            if (MessageNumber != 1)
-            {
-                throw new Exception("AddMouseHook must be first message");
-            }
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-            // p1  = handle
-            IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
-            {
-                Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-
-            int ThreadID = NM.GetWindowThreadProcessId(Handle, IntPtr.Zero);
-            m_HookWindow = Handle;
-
-            // Add the mouse hook
-            WriteLog("Adding Mouse hook");
-            m_hMouseHook = NM.SetWindowsHookEx(NM.WH_MOUSE, MouseHookProcedure, IntPtr.Zero, ThreadID);
-            if (m_hMouseHook == 0)
-            {
-                throw new Exception("SetWindowsHookEx Failed");
-            }
-            WriteLog("Added Mouse hook");
-
-            ClearMouseState();
-        }
-
-        private unsafe void RemoveMouseHook(int MessageNumber)
-        {
-            bool Return = false;
-
-            //must be first message
-            if (MessageNumber == 1)
-            {
-                throw new Exception("RemoveMouseHook must not be the first message");
-            }
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-            // p1  = handle
-            IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
-            {
-                Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-
-            // remove the hook
-            WriteLog("Removing Mouse hook");
-            Return = NM.UnhookWindowsHookEx(m_hMouseHook);
-            if (!Return)
-            {
-                throw new Exception("UnhookWindowsHookEx Failed for Mouse hook");
-            }
-            m_hMouseHook = 0;
-            WriteLog("Removed Mouse hook");
-
-            ClearMouseState();
-        }
-
-        private void ClearMouseState()
-        {
-            m_WM_LBUTTONDBLCLK = false;
-            m_WM_LBUTTONDOWN = false;
-            m_WM_LBUTTONUP = false;
-            m_WM_RBUTTONDBLCLK = false;
-            m_WM_RBUTTONDOWN = false;
-            m_WM_RBUTTONUP = false;
-            m_WM_MBUTTONDBLCLK = false;
-            m_WM_MBUTTONDOWN = false;
-            m_WM_MBUTTONUP = false;
-        }
-
-        private unsafe void GarbageCollect(int MessageNumber)
-        {
-            //must be first message
-            if (MessageNumber != 1)
+            if (messageNumber != 1)
             {
                 throw new Exception("GarbageCollect must be first message");
             }
 
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
+            int generation = GetParameterInt32(ptrMessage, 0);
+            CleanUpMessage(ptrMessage);
 
-            // p1 = Generation
-            int generation;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)ApeTypeCode.Int32)
-            {
-                generation = PtrMessage->Parameter.Int32[0];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-
-            //// Make sure the the logs are all flushed
+            //// Make sure the the logs are all flushed.
             //Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             //for (int i = 0; i < allAssemblies.Count(); i++)
             //{
@@ -637,186 +510,6 @@ namespace APE.Communication
             GC.WaitForPendingFinalizers();
 
             Thread.Sleep(150);  //A small sleep after GC seems to make the performance timings more accurate
-        }
-
-        private unsafe void WaitForMouseState(int MessageNumber)
-        {
-            //must be first message
-            if (MessageNumber != 1)
-            {
-                throw new Exception("WaitForMouseState must be first message");
-            }
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-            // p1 = MouseButton
-            MouseButton Button;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (Int32)ApeTypeCode.Int32)
-            {
-                Button = (MouseButton)PtrMessage->Parameter.Int32[0];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
-            // p2 = MouseDown
-            bool MouseDown;
-            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)ApeTypeCode.Boolean)
-            {
-                MouseDown = PtrMessage->Parameter.Boolean[1];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.Boolean got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
-            }
-
-            // p3 = FirstClick
-            bool FirstClick;
-            if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)ApeTypeCode.Boolean)
-            {
-                FirstClick = PtrMessage->Parameter.Boolean[2];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.Boolean got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[2]).ToString());
-            }
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-
-            Stopwatch timer = Stopwatch.StartNew();
-
-            if (MouseDown)
-            {
-                WriteLog("Waiting on " + Button.ToString() + " mouse down");
-            }
-            else
-            {
-                WriteLog("Waiting on " + Button.ToString() + " mouse up");
-            }
-
-            bool done = false;
-            while (!done)
-            {
-                switch (Button)
-                {
-                    case MouseButton.Left:
-                        if (MouseDown)
-                        {
-                            if (FirstClick)
-                            {
-                                if (m_WM_LBUTTONDOWN)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (m_WM_LBUTTONDOWN || m_WM_LBUTTONDBLCLK)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (m_WM_LBUTTONUP)
-                            {
-                                timer.Stop();
-                                return;
-                            }
-                        }
-                        break;
-                    case MouseButton.Right:
-                        if (MouseDown)
-                        {
-                            if (FirstClick)
-                            {
-                                if (m_WM_RBUTTONDOWN)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (m_WM_RBUTTONDOWN || m_WM_RBUTTONDBLCLK)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (m_WM_RBUTTONUP)
-                            {
-                                timer.Stop();
-                                return;
-                            }
-                        }
-                        break;
-                    case MouseButton.Middle:
-                        if (MouseDown)
-                        {
-                            if (FirstClick)
-                            {
-                                if (m_WM_MBUTTONDOWN)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (m_WM_MBUTTONDOWN || m_WM_MBUTTONDBLCLK)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (m_WM_MBUTTONUP)
-                            {
-                                timer.Stop();
-                                return;
-                            }
-                        }
-                        break;
-                }
-
-                if (!done)
-                {
-                    Thread.Yield();
-                }
-
-                if (timer.ElapsedMilliseconds > m_TimeOut)
-                {
-                    timer.Stop();
-                    if (MouseDown)
-                    {
-                        throw new Exception("Failed to find " + Button.ToString() + " mouse down");
-                    }
-                    else
-                    {
-                        throw new Exception("Failed to find " + Button.ToString() + " mouse up");
-                    }
-
-                }
-            }
-
-            ClearMouseState();
-
-            WriteLog("Mouse State done");
         }
 
         public unsafe void GetContextMenuStrip(int MessageNumber)
@@ -1719,36 +1412,6 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageAddMouseHook(IntPtr Handle)
-        {
-            FirstMessageInitialise();
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->Action = MessageAction.AddMouseHook;
-
-            Parameter HandleParam = new Parameter(this, Handle);
-
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
-            m_DoneQuery = true;
-            m_DoneGet = true;
-        }
-
-        unsafe public void AddMessageRemoveMouseHook(IntPtr Handle)
-        {
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->Action = MessageAction.RemoveMouseHook;
-
-            Parameter HandleParam = new Parameter(this, Handle);
-
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
-            m_DoneQuery = true;
-            m_DoneGet = true;
-        }
-
         unsafe public void AddMessageGetContextMenuStrip(IntPtr Handle)
         {
             FirstMessageInitialise();
@@ -1784,24 +1447,6 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.GarbageCollect;
 
             Parameter generationParam = new Parameter(this, generation);
-
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
-            m_DoneQuery = true;
-            m_DoneGet = true;
-        }
-
-        unsafe public void AddMessageWaitForMouseState(MouseButton Button, Boolean MouseDown, Boolean FirstClick)
-        {
-            FirstMessageInitialise();
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->Action = MessageAction.WaitForMouseState;
-
-            Parameter ButtonParam = new Parameter(this, (int)Button);
-            Parameter MouseDownParam = new Parameter(this, MouseDown);
-            Parameter FirstClickParam = new Parameter(this, FirstClick);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -2109,7 +1754,7 @@ namespace APE.Communication
             /*
             lock (theLock)    // Needed as WriteLog is used in callbacks which are async
             {
-                TextWriter log = File.AppendText(@"C:\debug.log");
+                TextWriter log = File.AppendText(Environment.GetEnvironmentVariable("TEMP") + @"\APE_Debug.log");
                 log.WriteLine(DateTime.Now.ToString() + "\t" + Line);
                 log.Close();
             }
@@ -4223,205 +3868,6 @@ namespace APE.Communication
             PtrMessage->NameOffset = 0;
             PtrMessage->NameLength = 0;
             PtrMessage->Action = MessageAction.None;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        unsafe public void DecodeMessage(int APEPID, string AppDomainToLoadInto, bool WPF)
-        {
-            try
-            {
-                string AUTProcessId = Process.GetCurrentProcess().Id.ToString();
-                string APEProcessId = APEPID.ToString();
-
-                m_WPF = WPF;
-                m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, APEProcessId + "_String_" + AppDomainToLoadInto + "_" + AUTProcessId);
-                m_IntPtrMemoryMappedFileViewStringStore = NM.MapViewOfFile(m_HandleMemoryMappedFileStringStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)StringSpaceBytes);
-                m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), APEProcessId + "_Message_" + AppDomainToLoadInto + "_" + AUTProcessId);
-                m_IntPtrMemoryMappedFileViewMessageStore = NM.MapViewOfFile(m_HandleMemoryMappedFileMessageStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)sizeof(MessageStore));
-                m_PtrMessageStore = (MessageStore*)m_IntPtrMemoryMappedFileViewMessageStore.ToPointer();
-
-                m_eventIPC = new EventWaitHandle(false, EventResetMode.AutoReset, APEProcessId + "_EventIPC_" + AppDomainToLoadInto + "_" + AUTProcessId);
-
-                Side = EventSet.AUT;
-                try
-                {
-                    ApeProcess = Process.GetProcessById(APEPID);
-                }
-                catch
-                {
-                }
-
-                // Create an instance of hook procedures
-                MouseHookProcedure = new NM.HookProc(MouseHookProc);
-                EnumThreadProcedue = new NM.EnumWindow(EnumThreadCallback);
-
-                //setup the delegates
-                m_GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
-                m_ConvertTypeDelegater = new ConvertTypeDelegate(Cast);
-                m_GetUnderlyingGridFromResultsGridDelegater = new GetUnderlyingGridFromResultsGridDelegate(GetUnderlyingGridFromResultsGrid);
-                m_GetTextDelegater = new GetTextDelegate(GetText);
-
-                //Process all the messages
-                while (true)
-                {
-                    WaitForMessages(EventSet.AUT);
-                    if (m_Abort)
-                    {
-                        RemoveFileMapping();
-                        break;
-                    }
-
-                    bool Result = true;
-                    string ResultText = "";
-
-                    try
-                    {
-                        int NumberOfMessages = m_PtrMessageStore->NumberOfMessages;
-                        m_PtrMessageStore->NumberOfMessages = 0;
-                        m_StringStoreOffset = 0;
-
-                        for (int MessageNumber = 1; MessageNumber <= NumberOfMessages; MessageNumber++)
-                        {
-                            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-                            WriteLog("Processing message " + PtrMessage->Action.ToString());
-                            //get the message action:
-                            switch (PtrMessage->Action)
-                            {
-                                case MessageAction.RemoveFileMapping:
-                                    RemoveFileMapping();
-                                    return;
-                                case MessageAction.GetListViewGroupRectangle:
-                                    GetListViewGroupRectangle(MessageNumber);
-                                    break;
-                                case MessageAction.GetListViewItemRectangle:
-                                    GetListViewItemRectangle(MessageNumber);
-                                    break;
-                                case MessageAction.Find:
-                                    Result = Find(MessageNumber);
-                                    if (!Result)
-                                    {
-                                        ResultText = "Failed to find control";
-                                    }
-                                    break;
-                                case MessageAction.Refind:
-                                    Refind(MessageNumber);
-                                    break;
-                                case MessageAction.ReflectGet:
-                                    Reflect(MessageNumber);
-                                    break;
-                                case MessageAction.ConvertType:
-                                    ConvertType(MessageNumber);
-                                    break;
-                                case MessageAction.UnderlyingGridFromResultsGrid:
-                                    UnderlyingGridFromResultsGrid(MessageNumber);
-                                    break;
-                                case MessageAction.ReflectPoll:
-                                    ReflectPoll(MessageNumber);
-                                    break;
-                                case MessageAction.GetResult:
-                                    GetResult(MessageNumber);
-                                    break;
-                                case MessageAction.AddMouseHook:
-                                    AddMouseHook(MessageNumber);
-                                    break;
-                                case MessageAction.RemoveMouseHook:
-                                    RemoveMouseHook(MessageNumber);
-                                    break;
-                                case MessageAction.WaitForMouseState:
-                                    WaitForMouseState(MessageNumber);
-                                    break;
-                                case MessageAction.SetTimeOuts:
-                                    SetTimeOuts(MessageNumber);
-                                    break;
-                                case MessageAction.GetTitleBarItemRectangle:
-                                    GetTitleBarItemRectangle(MessageNumber);
-                                    break;
-                                case MessageAction.GarbageCollect:
-                                    GarbageCollect(MessageNumber);
-                                    break;
-                                case MessageAction.GetContextMenuStrip:
-                                    GetContextMenuStrip(MessageNumber);
-                                    break;
-                                case MessageAction.GetAppDomains:
-                                    GetAppDomains(MessageNumber);
-                                    break;
-                                case MessageAction.GetRecognisedType:
-                                    GetRecognisedType(MessageNumber);
-                                    break;
-                                case MessageAction.GetApeTypeFromType:
-                                    GetApeTypeFromType(MessageNumber);
-                                    break;
-                                case MessageAction.GetApeTypeFromObject:
-                                    GetApeTypeFromObject(MessageNumber);
-                                    break;
-                                default:
-                                    throw new Exception("Unknown action for message " + MessageNumber.ToString() + " : " + PtrMessage->Action.ToString());
-                            }
-
-                            if (!Result)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (Result)
-                        {
-                            AddResultMessage(MessageResult.Success);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Result = false;
-                        ResultText = ex.GetType().Name + " " + ex.Message + "\r\n" + ex.StackTrace;
-                    }
-
-                    if (!Result)
-                    {
-                        //clean up all the messages
-                        for (int MessageNumber = 1; MessageNumber <= MessageStore.MaxMessages; MessageNumber++)
-                        {
-                            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-                            PtrMessage->TypeCodeKey = 0;
-                            PtrMessage->NumberOfParameters = 0;
-                            PtrMessage->NameOffset = 0;
-                            PtrMessage->NameLength = 0;
-                            PtrMessage->Action = MessageAction.None;
-                        }
-
-                        m_PtrMessageStore->NumberOfMessages = 0;
-                        m_StringStoreOffset = 0;
-
-                        AddResultMessage(MessageResult.Failure, ResultText);
-                    }
-
-                    //clear the data stores so we don't hold any references to objects in the AUT
-                    //which would stop them being garbage collected
-                    tempStore0 = null;
-                    tempStore1 = null;
-                    tempStore2 = null;
-                    tempStore3 = null;
-                    tempStore4 = null;
-                    tempStore5 = null;
-                    tempStore6 = null;
-                    tempStore7 = null;
-                    tempStore8 = null;
-                    tempStore9 = null;
-
-                    //send back our response
-                    SendMessages(EventSet.AUT);
-                }
-            }
-            catch (Exception ex)
-            {
-                TextWriter log = File.AppendText(@"C:\critical.log");
-                log.WriteLine(DateTime.Now.ToString() + "\t" + ex.Message);
-                log.WriteLine(DateTime.Now.ToString() + "\t" + ex.StackTrace);
-                log.Close();
-
-                throw;
-            }
         }
 
         public string GetWindowTextViaWindowMessage(IntPtr Handle)

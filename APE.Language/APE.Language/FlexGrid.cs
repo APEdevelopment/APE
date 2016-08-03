@@ -15,15 +15,11 @@
 //
 using System;
 using System.Drawing;
-using System.Text;
 using System.Reflection;
-using APE.Capture;
 using APE.Communication;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using NM = APE.Native.NativeMethods;
-using System.Windows.Forms;
 
 namespace APE.Language
 {
@@ -1012,6 +1008,28 @@ namespace APE.Language
             while (true);
 
             return true;
+        }
+
+        public string GetCellRangeBackColour(string row1, string column1, string row2, string column2)
+        {
+            int RowNumber1 = FindRow(row1);
+            int ColumnNumber1 = FindColumn(column1);
+            int RowNumber2 = FindRow(row2);
+            int ColumnNumber2 = FindColumn(column2);
+
+            return GetCellRangeBackColour(RowNumber1, ColumnNumber1, RowNumber2, ColumnNumber2);
+        }
+
+        public string GetCellRangeBackColour(int row1, int column1, int row2, int column2)
+        {
+            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetCellRangeBackColour(DataStores.Store0, DataStores.Store1, row1, column1, row2, column2);
+            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string cellRangeBackColour = GUI.m_APE.GetValueFromMessage();
+            return cellRangeBackColour;
         }
 
         public string GetCellRangeClip(string Row1, string Column1, string Row2, string Column2)

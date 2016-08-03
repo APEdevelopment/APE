@@ -65,8 +65,11 @@
   <ItemGroup>
     <Compile Include="Communication.cs" />
     <Compile Include="ConstructorInvokerCircularList.cs" />
+    <Compile Include="Core.cs" />
+    <Compile Include="FlexgridHelper.cs" />
     <Compile Include="MemberGetterCircularList.cs" />
     <Compile Include="MethodInvokerCircularList.cs" />
+    <Compile Include="MouseHelper.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParametersTypeCircularList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

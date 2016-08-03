@@ -82,13 +82,13 @@ namespace APE.Language
     
                 ClickCommon(ParentHandle, Handle, X, Y);
                 
-                GUI.m_APE.AddMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
@@ -98,8 +98,8 @@ namespace APE.Language
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
-                GUI.m_APE.AddMessageRemoveMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddQueryMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
@@ -133,32 +133,32 @@ namespace APE.Language
 
                 ClickCommon(ParentHandle, Handle, X, Y);
 
-                GUI.m_APE.AddMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
-                GUI.m_APE.AddMessageRemoveMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
+                GUI.m_APE.AddQueryMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
@@ -190,44 +190,44 @@ namespace APE.Language
 
                 ClickCommon(ParentHandle, Handle, X, Y);
 
-                GUI.m_APE.AddMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
-                GUI.m_APE.AddMessageRemoveMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
+                GUI.m_APE.AddQueryMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
@@ -258,13 +258,13 @@ namespace APE.Language
 
                 ClickCommon(ParentHandle, Handle, X, Y);
 
-                GUI.m_APE.AddMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
 
                 GUI.m_APE.MouseClick((APEIPC.MouseButton)Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
                 GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                 GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
             }
@@ -329,7 +329,7 @@ namespace APE.Language
 
                 if (Handle == ActualParent)
                 {
-                    GUI.m_APE.AddMessageAddMouseHook(Handle);
+                    GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 }
@@ -338,7 +338,7 @@ namespace APE.Language
 
                 if (Handle == ActualParent)
                 {
-                    GUI.m_APE.AddMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                    GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
                     GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
                     GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
                 }

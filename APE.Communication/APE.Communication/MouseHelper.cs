@@ -1,0 +1,301 @@
+﻿using System;
+using NM = APE.Native.NativeMethods;
+using System.Diagnostics;
+using System.Threading;
+
+namespace APE.Communication
+{
+    /// <summary>
+    /// This partial class provides some in process helper methods to improve reliability of mouse input to the AUT
+    /// </summary>
+    public partial class APEIPC
+    {
+        private bool m_WM_LBUTTONDOWN = false;
+        private bool m_WM_LBUTTONUP = false;
+        private bool m_WM_LBUTTONDBLCLK = false;
+        private bool m_WM_RBUTTONDOWN = false;
+        private bool m_WM_RBUTTONUP = false;
+        private bool m_WM_RBUTTONDBLCLK = false;
+        private bool m_WM_MBUTTONDOWN = false;
+        private bool m_WM_MBUTTONUP = false;
+        private bool m_WM_MBUTTONDBLCLK = false;
+
+        /// <summary>
+        /// Resets all the mouse window message variables back to false
+        /// </summary>
+        private void ClearMouseState()
+        {
+            m_WM_LBUTTONDBLCLK = false;
+            m_WM_LBUTTONDOWN = false;
+            m_WM_LBUTTONUP = false;
+            m_WM_RBUTTONDBLCLK = false;
+            m_WM_RBUTTONDOWN = false;
+            m_WM_RBUTTONUP = false;
+            m_WM_MBUTTONDBLCLK = false;
+            m_WM_MBUTTONDOWN = false;
+            m_WM_MBUTTONUP = false;
+        }
+
+        /// <summary>
+        /// Calls into the AUT to add a mouse hook to capture mouse events on the thread belonging to the specified window
+        /// </summary>
+        /// <param name="handle">A handle to the window of the thread you want to hook</param>
+        unsafe public void AddFirstMessageAddMouseHook(IntPtr handle)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->Action = MessageAction.AddMouseHook;
+
+            Parameter handleParameter = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Gets the parameters from the message then adds a mouse hook to the specified thread
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        /// <param name="messageNumber">The message number</param>
+        private unsafe void AddMouseHook(Message* ptrMessage, int messageNumber)
+        {
+            if (messageNumber != 1)
+            {
+                throw new Exception("AddMouseHook must be the first message");
+            }
+
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+            CleanUpMessage(ptrMessage);
+
+            int threadId = NM.GetWindowThreadProcessId(handle, IntPtr.Zero);
+            m_HookWindow = handle;
+
+            // Add the mouse hook
+            WriteLog("Adding Mouse hook");
+            m_hMouseHook = NM.SetWindowsHookEx(NM.WH_MOUSE, MouseHookProcedure, IntPtr.Zero, threadId);
+            if (m_hMouseHook == 0)
+            {
+                throw new Exception("SetWindowsHookEx Failed");
+            }
+            WriteLog("Added Mouse hook");
+
+            ClearMouseState();
+        }
+
+        /// <summary>
+        /// Calls into the AUT to remove a previously added mouse hook on the thread belonging to the specified window
+        /// </summary>
+        /// <param name="handle">A handle to the window of the thread you want to remove the hook from</param>
+        unsafe public void AddQueryMessageRemoveMouseHook(IntPtr handle)
+        {
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->Action = MessageAction.RemoveMouseHook;
+
+            Parameter handleParameter = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Gets the parameters from the message then removes the mouse hook on the specified thread
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        /// <param name="MessageNumber">The message number</param>
+        private unsafe void RemoveMouseHook(Message* ptrMessage, int MessageNumber)
+        {
+            if (MessageNumber == 1)
+            {
+                throw new Exception("RemoveMouseHook must not be the first message");
+            }
+
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0); ;
+            CleanUpMessage(ptrMessage);
+
+            // Remove the hook
+            WriteLog("Removing Mouse hook");
+            bool returnValue = NM.UnhookWindowsHookEx(m_hMouseHook);
+            if (!returnValue)
+            {
+                throw new Exception("UnhookWindowsHookEx Failed for Mouse hook");
+            }
+            m_hMouseHook = 0;
+            WriteLog("Removed Mouse hook");
+
+            ClearMouseState();
+        }
+
+        /// <summary>
+        /// Calls into the AUT to wait for a previously hooked thread to recieve the desired mouse messages
+        /// </summary>
+        /// <param name="button">The mouse button to wait for</param>
+        /// <param name="mouseDown">Whether the button should be down or up</param>
+        /// <param name="firstClick">Whether the click to wait for is the first click or not</param>
+        unsafe public void AddFirstMessageWaitForMouseState(MouseButton button, bool mouseDown, bool firstClick)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->Action = MessageAction.WaitForMouseState;
+
+            Parameter buttonParameter = new Parameter(this, (int)button);
+            Parameter mouseDownParameter = new Parameter(this, mouseDown);
+            Parameter firstClickParameter = new Parameter(this, firstClick);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Gets the parameters from the message then waits for the desired mouse messages to arrive
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        /// <param name="messageNumber">The message number</param>
+        private unsafe void WaitForMouseState(Message* ptrMessage, int messageNumber)
+        {
+            if (messageNumber != 1)
+            {
+                throw new Exception("WaitForMouseState must be the first message");
+            }
+
+            MouseButton button = (MouseButton)GetParameterInt32(ptrMessage, 0);
+            bool mouseDown = GetParameterBoolean(ptrMessage, 1);
+            bool firstClick = GetParameterBoolean(ptrMessage, 2);
+            CleanUpMessage(ptrMessage);
+            Stopwatch timer = Stopwatch.StartNew();
+
+            if (mouseDown)
+            {
+                WriteLog("Waiting on " + button.ToString() + " mouse down");
+            }
+            else
+            {
+                WriteLog("Waiting on " + button.ToString() + " mouse up");
+            }
+
+            bool done = false;
+            while (!done)
+            {
+                switch (button)
+                {
+                    case MouseButton.Left:
+                        if (mouseDown)
+                        {
+                            if (firstClick)
+                            {
+                                if (m_WM_LBUTTONDOWN)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                if (m_WM_LBUTTONDOWN || m_WM_LBUTTONDBLCLK)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (m_WM_LBUTTONUP)
+                            {
+                                timer.Stop();
+                                return;
+                            }
+                        }
+                        break;
+                    case MouseButton.Right:
+                        if (mouseDown)
+                        {
+                            if (firstClick)
+                            {
+                                if (m_WM_RBUTTONDOWN)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                if (m_WM_RBUTTONDOWN || m_WM_RBUTTONDBLCLK)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (m_WM_RBUTTONUP)
+                            {
+                                timer.Stop();
+                                return;
+                            }
+                        }
+                        break;
+                    case MouseButton.Middle:
+                        if (mouseDown)
+                        {
+                            if (firstClick)
+                            {
+                                if (m_WM_MBUTTONDOWN)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                if (m_WM_MBUTTONDOWN || m_WM_MBUTTONDBLCLK)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (m_WM_MBUTTONUP)
+                            {
+                                timer.Stop();
+                                return;
+                            }
+                        }
+                        break;
+                }
+
+                if (!done)
+                {
+                    Thread.Yield();
+                }
+
+                if (timer.ElapsedMilliseconds > m_TimeOut)
+                {
+                    timer.Stop();
+                    if (mouseDown)
+                    {
+                        throw new Exception("Failed to find " + button.ToString() + " mouse down");
+                    }
+                    else
+                    {
+                        throw new Exception("Failed to find " + button.ToString() + " mouse up");
+                    }
+
+                }
+            }
+
+            ClearMouseState();
+
+            WriteLog("Mouse State done");
+        }
+    }
+}
