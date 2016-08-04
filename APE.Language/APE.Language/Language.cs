@@ -159,15 +159,15 @@ namespace APE.Language
         /// <summary>
         /// The left mouse button
         /// </summary>
-        Left = 0,
+        Left = APEIPC.MouseButton.Left,
         /// <summary>
         /// The right mouse button
         /// </summary>
-        Right = 1,
+        Right = APEIPC.MouseButton.Right,
         /// <summary>
         /// The middle mouse button
         /// </summary>
-        Middle = 2,
+        Middle = APEIPC.MouseButton.Middle,
     }
 
     /// <summary>
@@ -322,9 +322,9 @@ namespace APE.Language
         /// <param name="generation"></param>
         public static void GarbageCollect(int generation)
         {
-            m_APE.AddMessageGarbageCollect(generation);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageGarbageCollect(generation);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -609,24 +609,24 @@ namespace APE.Language
             int Y;
             
             //Get visible, enabled and bounds
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store5, "Bounds", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "Width", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store7, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store8, "X", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store9, "Y", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store7);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store8);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store9);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "Bounds", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Width", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Height", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store8, "X", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store9, "Y", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
             Visible = GUI.m_APE.GetValueFromMessage();
             Enabled = GUI.m_APE.GetValueFromMessage();
@@ -666,13 +666,13 @@ namespace APE.Language
             bool HasDropDown;
 
             //check we have a drop down
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "HasDropDown", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDown", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
             HasDropDown = GUI.m_APE.GetValueFromMessage();
 
@@ -682,14 +682,14 @@ namespace APE.Language
             }
 
             //get the dropdown and its handle
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "DropDown", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DropDown", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
             return (IntPtr)GUI.m_APE.GetValueFromMessage();
         }
@@ -699,25 +699,25 @@ namespace APE.Language
             int Items;
 
             //Get the number of items on the menustrip
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
             Items = GUI.m_APE.GetValueFromMessage();
 
             //Loop through looking for the item we want
             for (int Item = 0; Item < Items; Item++)
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
                 string ItemText = GUI.m_APE.GetValueFromMessage();
 

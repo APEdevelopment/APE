@@ -17,9 +17,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using Fasterflect;  //[Un]Install-Package fasterflect
 using System.Threading;
 using WF = System.Windows.Forms;
@@ -78,11 +76,6 @@ namespace APE.Communication
         internal IntPtr m_IntPtrMemoryMappedFileViewStringStore;
         internal int m_StringStoreOffset;
 
-        private NM.HookProc MouseHookProcedure;
-        private NM.EnumWindow EnumThreadProcedue;
-        private int m_hMouseHook = 0;
-        private IntPtr m_HookWindow;
-
         //Memory Map File for IPC for message value types
         private IntPtr m_HandleMemoryMappedFileMessageStore;
         private IntPtr m_IntPtrMemoryMappedFileViewMessageStore;
@@ -136,12 +129,11 @@ namespace APE.Communication
 
         private delegate string GetTextDelegate(WF.Control theControl);
         private GetTextDelegate m_GetTextDelegater;
-        private delegate object GetUnderlyingGridFromResultsGridDelegate(object resultsGrid);
-        private GetUnderlyingGridFromResultsGridDelegate m_GetUnderlyingGridFromResultsGridDelegater;
         private delegate object ConvertTypeDelegate(Type theTyoe, object theObject);
         private ConvertTypeDelegate m_ConvertTypeDelegater;
         private delegate void GetWPFHandleAndNameAndTitleDelegate(WPF.Window theWindow);
         private GetWPFHandleAndNameAndTitleDelegate m_GetWPFHandleAndNameAndTitleDelegater;
+        private NM.EnumWindow EnumThreadProcedue;
 
         List<IntPtr> m_AllControls;
         EventSet Side;
@@ -168,55 +160,6 @@ namespace APE.Communication
             Failure = 2,
         }
 
-        [Flags]
-        public enum MouseKeyModifier : int
-        {
-            Control = 2,
-            Shift = 4,
-        }
-
-        public enum MouseButton : int
-        {
-            Left = 0,
-            Right = 1,
-            Middle = 2,
-        }
-
-        public enum EventSet : byte
-        {
-            APE = 0,
-            AUT = 1,
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        internal struct MessageStore
-        {
-            internal const int MaxMessages = 20;
-
-            public Message Message0;
-            public Message Message1;
-            public Message Message2;
-            public Message Message3;
-            public Message Message4;
-            public Message Message5;
-            public Message Message6;
-            public Message Message7;
-            public Message Message8;
-            public Message Message9;
-            public Message Message10;
-            public Message Message11;
-            public Message Message12;
-            public Message Message13;
-            public Message Message14;
-            public Message Message15;
-            public Message Message16;
-            public Message Message17;
-            public Message Message18;
-            public Message Message19;
-            public byte NumberOfMessages;
-            public EventSet LastWake;
-        }
-
         private bool EnumThreadCallback(IntPtr hWnd, IntPtr lParam)
         {
             if (NM.IsWindowVisible(hWnd))
@@ -224,100 +167,6 @@ namespace APE.Communication
                 m_AllControls.Add(hWnd);
             }
             return true;
-        }
-
-        public int MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
-        {
-            if (nCode < 0)
-            {
-                return NM.CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
-            }
-            else
-            {
-                NM.MouseHookStruct MyMouseHookStruct = (NM.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(NM.MouseHookStruct));
-
-                if (MyMouseHookStruct.hwnd == m_HookWindow)
-                {
-                    if (nCode == NM.HC_ACTION)
-                    {
-                        switch (wParam.ToInt32())
-                        {
-                            case NM.WM_LBUTTONDOWN:
-                                WriteLog("Left Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_LBUTTONDOWN = true;
-                                break;
-                            case NM.WM_NCLBUTTONDOWN:
-                                WriteLog("NCLeft Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_LBUTTONDOWN = true;
-                                break;
-                            case NM.WM_LBUTTONUP:
-                                WriteLog("Left Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_LBUTTONUP = true;
-                                break;
-                            case NM.WM_NCLBUTTONUP:
-                                WriteLog("NCLeft Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_LBUTTONUP = true;
-                                break;
-                            case NM.WM_LBUTTONDBLCLK:
-                                WriteLog("Left Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_LBUTTONDBLCLK = true;
-                                break;
-                            case NM.WM_NCLBUTTONDBLCLK:
-                                WriteLog("NCLeft Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_LBUTTONDBLCLK = true;
-                                break;
-                            case NM.WM_RBUTTONDOWN:
-                                WriteLog("Right Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_RBUTTONDOWN = true;
-                                break;
-                            case NM.WM_NCRBUTTONDOWN:
-                                WriteLog("NCRight Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_RBUTTONDOWN = true;
-                                break;
-                            case NM.WM_RBUTTONUP:
-                                WriteLog("Right Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_RBUTTONUP = true;
-                                break;
-                            case NM.WM_NCRBUTTONUP:
-                                WriteLog("NCRight Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_RBUTTONUP = true;
-                                break;
-                            case NM.WM_RBUTTONDBLCLK:
-                                WriteLog("Right Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_RBUTTONDBLCLK = true;
-                                break;
-                            case NM.WM_NCRBUTTONDBLCLK:
-                                WriteLog("NCRight Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_RBUTTONDBLCLK = true;
-                                break;
-                            case NM.WM_MBUTTONDOWN:
-                                WriteLog("Middle Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_MBUTTONDOWN = true;
-                                break;
-                            case NM.WM_NCMBUTTONDOWN:
-                                WriteLog("NCMiddle Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_MBUTTONDOWN = true;
-                                break;
-                            case NM.WM_MBUTTONUP:
-                                WriteLog("Middle Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                break;
-                            case NM.WM_NCMBUTTONUP:
-                                WriteLog("NCMiddle Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_MBUTTONUP = true;
-                                break;
-                            case NM.WM_MBUTTONDBLCLK:
-                                WriteLog("Middle Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_MBUTTONDBLCLK = true;
-                                break;
-                            case NM.WM_NCMBUTTONDBLCLK:
-                                WriteLog("NCMiddle Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
-                                m_WM_MBUTTONDBLCLK = true;
-                                break;
-                        }
-                    }
-                }
-                return NM.CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
-            }
         }
 
         public unsafe APEIPC(Process AUTProcess)
@@ -421,7 +270,7 @@ namespace APE.Communication
                 {
                     if (!AUTProcess.HasExited)
                     {
-                        this.AddMessageRemoveFileMapping();
+                        this.AddFirstMessageRemoveFileMapping();
                         this.SendMessages(EventSet.APE);
                     }
                 }
@@ -933,28 +782,29 @@ namespace APE.Communication
             return returnValue;
         }
 
-        unsafe public void GetValueFromMessage(int messageNumber, out string value)
-        {
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
-            int parameter = 0;
+        //TODO is it worth doing to avoid dynamic for performance?
+        //unsafe public void GetValueFromMessage(int messageNumber, out string value)
+        //{
+        //    Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
+        //    int parameter = 0;
 
-            if (PtrMessage->Parameter.StringLength[parameter] == -1)
-            {
-                string Empty = null;
-                value = Empty;
-            }
-            else
-            {
-                value = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[parameter]), 0, PtrMessage->Parameter.StringLength[parameter]);
-            }
+        //    if (PtrMessage->Parameter.StringLength[parameter] == -1)
+        //    {
+        //        string Empty = null;
+        //        value = Empty;
+        //    }
+        //    else
+        //    {
+        //        value = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[parameter]), 0, PtrMessage->Parameter.StringLength[parameter]);
+        //    }
 
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-        }
+        //    //cleanup the message
+        //    PtrMessage->TypeCodeKey = 0;
+        //    PtrMessage->NumberOfParameters = 0;
+        //    PtrMessage->NameOffset = 0;
+        //    PtrMessage->NameLength = 0;
+        //    PtrMessage->Action = MessageAction.None;
+        //}
 
         unsafe public void SendMessages(EventSet WhoIsSending)
         {
@@ -1047,7 +897,7 @@ namespace APE.Communication
             m_PtrMessageStore->LastWake = WhoIsWaiting;
         }
 
-        unsafe public void AddMessageGetValue(DataStores SourceStore)
+        unsafe public void AddRetrieveMessageGetValue(DataStores SourceStore)
         {
             m_MessageNumber = 0;
 
@@ -1073,39 +923,39 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        //TODO remove this?
-        unsafe public void AddMessageGetValue(DataStores SourceStore, int TypeCode)
-        {
-            m_MessageNumber = 0;
+        //TODO Is it worth doing this, it would avoid using dynamic for improved performance
+        //unsafe public void AddRetrieveMessageGetValue(DataStores SourceStore, int TypeCode)
+        //{
+        //    m_MessageNumber = 0;
 
-            if (m_DoneFind == false)
-            {
-                throw new Exception("Need to find the control before getting a value");
-            }
+        //    if (m_DoneFind == false)
+        //    {
+        //        throw new Exception("Need to find the control before getting a value");
+        //    }
 
-            if (m_DoneQuery == false)
-            {
-                throw new Exception("Need to query a control before getting a value");
-            }
+        //    if (m_DoneQuery == false)
+        //    {
+        //        throw new Exception("Need to query a control before getting a value");
+        //    }
 
-            //add a result request
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+        //    //add a result request
+        //    Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
-            PtrMessage->Action = MessageAction.GetResult;
+        //    PtrMessage->Action = MessageAction.GetResult;
 
-            PtrMessage->SourceStore = SourceStore;
-            PtrMessage->DestinationStore = SourceStore;
-            PtrMessage->NameOffset = -1;
-            PtrMessage->NameLength = -1;
+        //    PtrMessage->SourceStore = SourceStore;
+        //    PtrMessage->DestinationStore = SourceStore;
+        //    PtrMessage->NameOffset = -1;
+        //    PtrMessage->NameLength = -1;
 
-            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = TypeCode;
-            PtrMessage->NumberOfParameters++;
+        //    PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = TypeCode;
+        //    PtrMessage->NumberOfParameters++;
 
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneGet = true;
-        }
+        //    m_PtrMessageStore->NumberOfMessages++;
+        //    m_DoneGet = true;
+        //}
 
-        unsafe public void AddMessageFindByProperty(ControlIdentifier Identifier)
+        unsafe public void AddFirstMessageFindByProperty(ControlIdentifier Identifier)
         {
             FirstMessageInitialise();
 
@@ -1163,7 +1013,7 @@ namespace APE.Communication
             m_DoneQuery = true;
         }
 
-        unsafe private void AddMessageSetTimeOuts()
+        unsafe private void AddFirstMessageSetTimeOuts()
         {
             FirstMessageInitialise();
 
@@ -1179,7 +1029,7 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageRemoveFileMapping()
+        unsafe public void AddFirstMessageRemoveFileMapping()
         {
             FirstMessageInitialise();
 
@@ -1195,7 +1045,7 @@ namespace APE.Communication
         unsafe public void AddResultMessage(MessageResult Result)
         {
             Message* PtrMessage = (Message*)(this.m_IntPtrMemoryMappedFileViewMessageStore + (this.m_PtrMessageStore->NumberOfMessages * this.m_SizeOfMessage));
-            WriteLog("setting result message " + m_PtrMessageStore->NumberOfMessages.ToString() + " to " + Result.ToString() + " parameter " + PtrMessage->NumberOfParameters.ToString());
+            DebugLogging.WriteLog("setting result message " + m_PtrMessageStore->NumberOfMessages.ToString() + " to " + Result.ToString() + " parameter " + PtrMessage->NumberOfParameters.ToString());
 
             // This should be the last message returned
             Parameter p;
@@ -1208,7 +1058,7 @@ namespace APE.Communication
 
         unsafe public void AddResultMessage(MessageResult Result, string Message)
         {
-            WriteLog("setting result message " + m_PtrMessageStore->NumberOfMessages.ToString() + " to " + Result.ToString());
+            DebugLogging.WriteLog("setting result message " + m_PtrMessageStore->NumberOfMessages.ToString() + " to " + Result.ToString());
 
             // This should be the last message returned
             Parameter p;
@@ -1265,27 +1115,6 @@ namespace APE.Communication
             m_PtrMessageStore->NumberOfMessages++;
         }
 
-        unsafe public void AddMessageGetUnderlyingGridFromResultsGrid(DataStores SourceStore, DataStores DestinationStore)
-        {
-            if (m_DoneFind == false)
-            {
-                throw new Exception("Need to find the control before querying it");
-            }
-
-            if (m_DoneGet == true)
-            {
-                throw new Exception("Can not query control after getting values from it");
-            }
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->SourceStore = SourceStore;
-            PtrMessage->DestinationStore = DestinationStore;
-            PtrMessage->Action = MessageAction.UnderlyingGridFromResultsGrid;
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneQuery = true;
-        }
-
         unsafe public void AddMessageConvertType(DataStores SourceStore, DataStores DestinationStore, string typeFullName)
         {
             if (m_DoneFind == false)
@@ -1315,7 +1144,7 @@ namespace APE.Communication
             m_DoneQuery = true;
         }
 
-        unsafe public void AddMessageFindByHandle(DataStores DestinationStore, IntPtr ParentHandle, IntPtr ControlHandle)
+        unsafe public void AddFirstMessageFindByHandle(DataStores DestinationStore, IntPtr ParentHandle, IntPtr ControlHandle)
         {
             ////debug
             //Message* PtrMessage;
@@ -1341,7 +1170,7 @@ namespace APE.Communication
             m_DoneFind = true;
         }
 
-        unsafe public void AddMessageGetAppDomains()
+        unsafe public void AddFirstMessageGetAppDomains()
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
@@ -1356,7 +1185,7 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageGetTitleBarItemRectangle(IntPtr Handle, NM.TitleBarStateElement Item)
+        unsafe public void AddFirstMessageGetTitleBarItemRectangle(IntPtr Handle, NM.TitleBarStateElement Item)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
@@ -1375,7 +1204,7 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageGetListViewItemRectangle(IntPtr ControlHandle, int ItemIndex)
+        unsafe public void AddFirstMessageGetListViewItemRectangle(IntPtr ControlHandle, int ItemIndex)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
@@ -1394,7 +1223,7 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageGetListViewGroupRectangle(IntPtr ControlHandle, int GroupID)
+        unsafe public void AddFirstMessageGetListViewGroupRectangle(IntPtr ControlHandle, int GroupID)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
@@ -1412,7 +1241,7 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessageGetContextMenuStrip(IntPtr Handle)
+        unsafe public void AddFirstMessageGetContextMenuStrip(IntPtr Handle)
         {
             FirstMessageInitialise();
 
@@ -1438,7 +1267,7 @@ namespace APE.Communication
             m_DoneGet = false;
         }
 
-        unsafe public void AddMessageGarbageCollect(int generation)
+        unsafe public void AddFirstMessageGarbageCollect(int generation)
         {
             FirstMessageInitialise();
 
@@ -1483,7 +1312,7 @@ namespace APE.Communication
             m_DoneQuery = true;
         }
 
-        unsafe public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType)
+        unsafe public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType)
         {
             if (m_DoneFind == false)
             {
@@ -1515,54 +1344,54 @@ namespace APE.Communication
             //Debug.Listeners[0].WriteLine("\t AddMessageQueryMember Message: " + (m_PtrMessageStore->NumberOfMessages - 1).ToString() + " Parameters: " + PtrMessage->NumberOfParameters.ToString());
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6, Parameter p7)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6, Parameter p7)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6, Parameter p7, Parameter p8)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6, Parameter p7, Parameter p8)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        public void AddMessageQueryMember(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6, Parameter p7, Parameter p8, Parameter p9)
+        public void AddQueryMessageReflect(DataStores SourceStore, DataStores DestinationStore, string Name, MemberTypes MemberType, Parameter p0, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Parameter p6, Parameter p7, Parameter p8, Parameter p9)
         {
-            AddMessageQueryMember(SourceStore, DestinationStore, Name, MemberType);
+            AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
         unsafe public void DecodeControl(int messageNumber, out ControlIdentifier Identifier)
@@ -1738,27 +1567,13 @@ namespace APE.Communication
             {
                 if (theControl.IsHandleCreated)   //if it doesnt have a handle it can't be visible so ignore it
                 {
-                    m_Handle = (IntPtr)theControl.GetType().GetProperty("HandleInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(theControl, null);
+                    m_Handle = (IntPtr)theControl.GetType().GetProperty("HandleInternal", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(theControl, null);
                     m_Name = theControl.Name;
                 }
             }
             catch
             {
             }
-        }
-
-        private static object theLock = new object();
-
-        private static void WriteLog(string Line)
-        {
-            /*
-            lock (theLock)    // Needed as WriteLog is used in callbacks which are async
-            {
-                TextWriter log = File.AppendText(Environment.GetEnvironmentVariable("TEMP") + @"\APE_Debug.log");
-                log.WriteLine(DateTime.Now.ToString() + "\t" + Line);
-                log.Close();
-            }
-            */
         }
 
         unsafe private void wpfFindFormByHandle(IntPtr Handle, ref string Name, ref string theText, ref Type theType, ref bool foundControl)
@@ -1819,7 +1634,7 @@ namespace APE.Communication
                     {
                         if (theType.Name != Identifier.TypeName)
                         {
-                            WriteLog(theType.Name + " != " + Identifier.TypeName);
+                            DebugLogging.WriteLog(theType.Name + " != " + Identifier.TypeName);
                             continue;
                         }
                     }
@@ -1857,7 +1672,7 @@ namespace APE.Communication
 
                     CurrentIndex++;
 
-                    WriteLog("found wpf form for " + Name);
+                    DebugLogging.WriteLog("found wpf form for " + Name);
 
                     if (Identifier.Index > 0)
                     {
@@ -1982,7 +1797,7 @@ namespace APE.Communication
                                             {
                                                 if (theType.Name != Identifier.TypeName)
                                                 {
-                                                    WriteLog(theType.Name + " != " + Identifier.TypeName);
+                                                    DebugLogging.WriteLog(theType.Name + " != " + Identifier.TypeName);
                                                     continue;
                                                 }
                                             }
@@ -2022,7 +1837,7 @@ namespace APE.Communication
 
                                             CurrentIndex++;
 
-                                            WriteLog("found form for " + Name);
+                                            DebugLogging.WriteLog("found form for " + Name);
 
                                             if (Identifier.Index > 0)
                                             {
@@ -2048,7 +1863,7 @@ namespace APE.Communication
                                             string theTypeName = NM.GetClassName(Handle);
                                             if (theTypeName != Identifier.TypeName)
                                             {
-                                                WriteLog(theTypeName + " != " + Identifier.TypeName);
+                                                DebugLogging.WriteLog(theTypeName + " != " + Identifier.TypeName);
                                                 continue;
                                             }
                                         }
@@ -2080,7 +1895,7 @@ namespace APE.Communication
 
                                         CurrentIndex++;
 
-                                        WriteLog("found form for " + Name);
+                                        DebugLogging.WriteLog("found form for " + Name);
 
                                         if (Identifier.Index > 0)
                                         {
@@ -2120,11 +1935,11 @@ namespace APE.Communication
                             }
                         }
 
-                        WriteLog("done find form loop for " + Name);
+                        DebugLogging.WriteLog("done find form loop for " + Name);
 
                         if (FoundControl == false)
                         {
-                            WriteLog("");
+                            DebugLogging.WriteLog("");
                             Thread.Sleep(15);
                         }
                     }
@@ -2219,7 +2034,7 @@ namespace APE.Communication
                                         {
                                             if (theType.Name != Identifier.TypeName)
                                             {
-                                                WriteLog(theType.Name + " != " + Identifier.TypeName);
+                                                DebugLogging.WriteLog(theType.Name + " != " + Identifier.TypeName);
                                                 continue;
                                             }
                                         }
@@ -2300,7 +2115,7 @@ namespace APE.Communication
                                         string theTypeName = NM.GetClassName(Handle);
                                         if (theTypeName != Identifier.TypeName)
                                         {
-                                            WriteLog(theTypeName + " != " + Identifier.TypeName);
+                                            DebugLogging.WriteLog(theTypeName + " != " + Identifier.TypeName);
                                             continue;
                                         }
                                     }
@@ -2332,7 +2147,7 @@ namespace APE.Communication
 
                                     CurrentIndex++;
 
-                                    WriteLog("found form for " + Name);
+                                    DebugLogging.WriteLog("found form for " + Name);
 
                                     if (Identifier.Index > 0)
                                     {
@@ -2358,7 +2173,7 @@ namespace APE.Communication
 
                         if (!FoundControl)
                         {
-                            WriteLog("");
+                            DebugLogging.WriteLog("");
                             Thread.Sleep(15);
                         }
                     }
@@ -2512,38 +2327,38 @@ namespace APE.Communication
             PtrMessage->NameLength = 0;
             PtrMessage->Action = MessageAction.None;
 
-            //TODO is it worth doing this?
-            if (Parameters == 1)
+            if (SourceObject == null)
             {
-                //fast (explicit casting) 
-                //TO DO add rest of switch
-                switch (ParameterTypeCode)
-                {
-                    case ApeTypeCode.Int32:
-                        AddReturnValue(new Parameter(this, (Int32)SourceObject));
-                        break;
-                    case ApeTypeCode.String:
-                        AddReturnValue(new Parameter(this, (string)SourceObject));
-                        break;
-                    default:
-                        throw new Exception("Unsupported typecode: " + PtrMessage->Parameter.TypeCode[0].ToString());
-                }
+                PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+                PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Empty;
+                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Empty);
+                PtrMessage->NumberOfParameters++;
+                m_PtrMessageStore->NumberOfMessages++;
             }
             else
             {
-                //slow
-                if (SourceObject == null)
-                {
-                    PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-                    PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Empty;
-                    PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Empty);
-                    PtrMessage->NumberOfParameters++;
-                    m_PtrMessageStore->NumberOfMessages++;
-                }
-                else
-                {
-                    AddReturnValue(new Parameter(this, (dynamic)SourceObject));
-                }
+                //TODO is it worth doing to avoid dynamic for performance?
+                //if (Parameters == 1)
+                //{
+                //    //fast (explicit casting) 
+                //    //TO DO add rest of switch
+                //    switch (ParameterTypeCode)
+                //    {
+                //        case ApeTypeCode.Int32:
+                //            AddReturnValue(new Parameter(this, (int)SourceObject));
+                //            break;
+                //        case ApeTypeCode.String:
+                //            AddReturnValue(new Parameter(this, (string)SourceObject));
+                //            break;
+                //        default:
+                //            throw new Exception("Unsupported typecode: " + PtrMessage->Parameter.TypeCode[0].ToString());
+                //    }
+                //}
+                //else
+                //{
+                //slow due to the use of dynamic
+                AddReturnValue(new Parameter(this, (dynamic)SourceObject));
+                //}
             }
         }
 
@@ -3013,7 +2828,7 @@ namespace APE.Communication
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
 
-            switch ((int)PtrMessage->Parameter.TypeCode[0])
+            switch (PtrMessage->Parameter.TypeCode[0])
             {
                 case (int)ApeTypeCode.Boolean:
                     ItemToPollFor = PtrMessage->Parameter.Boolean[0];
@@ -3164,7 +2979,7 @@ namespace APE.Communication
                 Stopwatch timer = Stopwatch.StartNew();
                 while (true)
                 {
-                    ItemFound = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
+                    ItemFound = ((WF.Control)tempStore0).Invoke(MemberGetter, SourceObject.WrapIfValueType());
                     
                     if (ItemFound == ItemToPollFor)
                     {
@@ -3305,116 +3120,6 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
         }
 
-        unsafe private void UnderlyingGridFromResultsGrid(int MessageNumber)
-        {
-            object SourceObject;
-            object DestinationObject;
-            IntPtr datastoreTypeHandle = IntPtr.Zero;
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-            string typeFullName;
-            if (PtrMessage->NameLength == -1)
-            {
-                string Empty = null;
-                typeFullName = Empty;
-            }
-            else
-            {
-                typeFullName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->NameOffset), 0, PtrMessage->NameLength);
-            }
-
-            switch (PtrMessage->SourceStore)
-            {
-                case DataStores.Store0:
-                    SourceObject = tempStore0;
-                    break;
-                case DataStores.Store1:
-                    SourceObject = tempStore1;
-                    break;
-                case DataStores.Store2:
-                    SourceObject = tempStore2;
-                    break;
-                case DataStores.Store3:
-                    SourceObject = tempStore3;
-                    break;
-                case DataStores.Store4:
-                    SourceObject = tempStore4;
-                    break;
-                case DataStores.Store5:
-                    SourceObject = tempStore5;
-                    break;
-                case DataStores.Store6:
-                    SourceObject = tempStore6;
-                    break;
-                case DataStores.Store7:
-                    SourceObject = tempStore7;
-                    break;
-                case DataStores.Store8:
-                    SourceObject = tempStore8;
-                    break;
-                case DataStores.Store9:
-                    SourceObject = tempStore9;
-                    break;
-                default:
-                    throw new Exception("Unsupported SourceStore " + (PtrMessage->SourceStore).ToString());
-            }
-
-            if (SourceObject == null)
-            {
-                DestinationObject = null;
-            }
-            else
-            {
-                object[] theParameters = { SourceObject };
-                //call the delegate on the correct thread
-                DestinationObject = ((WF.Control)tempStore0).Invoke(m_GetUnderlyingGridFromResultsGridDelegater, theParameters);
-            }
-
-            switch (PtrMessage->DestinationStore)
-            {
-                case DataStores.Store0:
-                    tempStore0 = DestinationObject;
-                    break;
-                case DataStores.Store1:
-                    tempStore1 = DestinationObject;
-                    break;
-                case DataStores.Store2:
-                    tempStore2 = DestinationObject;
-                    break;
-                case DataStores.Store3:
-                    tempStore3 = DestinationObject;
-                    break;
-                case DataStores.Store4:
-                    tempStore4 = DestinationObject;
-                    break;
-                case DataStores.Store5:
-                    tempStore5 = DestinationObject;
-                    break;
-                case DataStores.Store6:
-                    tempStore6 = DestinationObject;
-                    break;
-                case DataStores.Store7:
-                    tempStore7 = DestinationObject;
-                    break;
-                case DataStores.Store8:
-                    tempStore8 = DestinationObject;
-                    break;
-                case DataStores.Store9:
-                    tempStore9 = DestinationObject;
-                    break;
-                default:
-                    throw new Exception("Unsupported DestinationStore " + (PtrMessage->DestinationStore).ToString());
-            }
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-        }
-
         private object Cast(Type Type, object data)
         {
             var DataParam = Expression.Parameter(typeof(object), "data");
@@ -3422,15 +3127,6 @@ namespace APE.Communication
             var Run = Expression.Lambda(Body, DataParam).Compile();
             var ret = Run.DynamicInvoke(data);
             return ret;
-        }
-
-        private object GetUnderlyingGridFromResultsGrid(object lzResultsGrid)
-        {
-            //runtime late binding for com uses the dispatch interface but we don't want the default (ILZResultsGrid)
-            //interface we want the ILZGrid interface which means we need to use early binding and cast the object.
-            DRILLDOWNLib.ILZGrid lzResultsGridAsLzGrid = (DRILLDOWNLib.ILZGrid)lzResultsGrid;
-            object theGrid = lzResultsGridAsLzGrid.UnderlyingGrid;
-            return theGrid;
         }
 
         private string GetText(WF.Control theControl)
@@ -3764,7 +3460,7 @@ namespace APE.Communication
                                     ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, ConstructorInvoker);
                                 }
                                 DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
-                                //DestinationObject = ((Control)tempStore0).Invoke((Delegate)ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                //DestinationObject = ((Control)tempStore0).Invoke(ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                                 ConstructorInvoker = null;
                                 break;
                             case MemberTypes.Field:
@@ -3774,7 +3470,7 @@ namespace APE.Communication
                                     MemberGetter = SourceType.DelegateForGetFieldValue(Name);
                                     MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                                 }
-                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
+                                DestinationObject = ((WF.Control)tempStore0).Invoke(MemberGetter, SourceObject.WrapIfValueType());
                                 MemberGetter = null;
                                 break;
                             case MemberTypes.Property:
@@ -3797,7 +3493,7 @@ namespace APE.Communication
                                         MethodInvoker = SourceType.DelegateForGetIndexer(ParametersType);
                                         MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
                                     }
-                                    DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                    DestinationObject = ((WF.Control)tempStore0).Invoke(MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                                     MethodInvoker = null;
                                 }
                                 break;
@@ -3815,7 +3511,7 @@ namespace APE.Communication
                                         MethodInvoker = SourceType.DelegateForCallMethod(Name, ParametersType);
                                         MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
                                     }
-                                    DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                                    DestinationObject = ((WF.Control)tempStore0).Invoke(MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                                 }
                                 MethodInvoker = null;
                                 break;
@@ -3918,311 +3614,6 @@ namespace APE.Communication
             m_PtrMessageStore->NumberOfMessages++;
         }
 
-        private NM.KEYBDINPUT CreateKeyboardInput(NM.VirtualKeyShort wVK, NM.ScanCodeShort wScan, NM.KEYEVENTF dwFlags, uint time, UIntPtr dwExtraInfo)
-        {
-            NM.KEYBDINPUT Result = new NM.KEYBDINPUT();
-
-            Result.wVk = wVK;
-            Result.wScan = wScan;
-            Result.dwFlags = dwFlags;
-            Result.time = time;
-            Result.dwExtraInfo = dwExtraInfo;
-
-            return Result;
-        }
-
-        private NM.MOUSEINPUT CreateMouseInput(int x, int y, uint data, uint time, NM.MOUSEEVENTF flag)
-        {
-            NM.MOUSEINPUT Result = new NM.MOUSEINPUT();
-            double dx = ((double)x * GetNormaliseFactor(Direction.HORIZONTAL));
-            double dy = ((double)y * GetNormaliseFactor(Direction.VERTICAL));
-
-            Result.dx = Convert.ToInt32(dx);
-            Result.dy = Convert.ToInt32(dy);
-            Result.mouseData = data;
-            Result.time = time;
-            Result.dwFlags = flag;
-
-            //MessageBox.Show(dx.ToString() + " " + Result.dx.ToString() + " " + dy.ToString() + " " + Result.dy.ToString());
-            return Result;
-        }
-
-        private enum Direction : int
-        {
-            VERTICAL = 1,
-            HORIZONTAL = 0
-        }
-
-        private double GetNormaliseFactor(Direction Axis)
-        {
-            switch (Axis)
-            {
-                case Direction.HORIZONTAL:
-                    return (double)65535 / NM.GetSystemMetrics(NM.SystemMetric.SM_CXSCREEN);
-                case Direction.VERTICAL:
-                    return (double)65535 / NM.GetSystemMetrics(NM.SystemMetric.SM_CYSCREEN);
-            }
-            return 0;
-        }
-
-        public void MouseClick(MouseButton Button, Boolean Down, Boolean Up, int Clicks, bool ControlKey, bool ShiftKey)
-        {
-            NM.INPUT[] inputEvent = null;
-            int Events = 0;
-
-            if (Clicks != 1)
-            {
-                if (!Up)
-                {
-                    throw new Exception("Can only single click when using MouseDown");
-                }
-
-                if (!Down)
-                {
-                    throw new Exception("Can only single click when using MouseUp");
-                }
-            }
-
-            if (Down)
-            {
-                if (ControlKey)
-                {
-                    Events++;
-                    Array.Resize(ref inputEvent, Events);
-                    inputEvent[inputEvent.GetUpperBound(0)].type = NM.INPUT_TYPE.INPUT_KEYBOARD;
-                    inputEvent[inputEvent.GetUpperBound(0)].U.ki = CreateKeyboardInput(NM.VirtualKeyShort.CONTROL, NM.ScanCodeShort.CONTROL, NM.KEYEVENTF.NONE, 0, UIntPtr.Zero);
-                }
-
-                if (ShiftKey)
-                {
-                    Events++;
-                    Array.Resize(ref inputEvent, Events);
-                    inputEvent[inputEvent.GetUpperBound(0)].type = NM.INPUT_TYPE.INPUT_KEYBOARD;
-                    inputEvent[inputEvent.GetUpperBound(0)].U.ki = CreateKeyboardInput(NM.VirtualKeyShort.SHIFT, NM.ScanCodeShort.SHIFT, NM.KEYEVENTF.NONE, 0, UIntPtr.Zero);
-                }
-            }
-
-            //TODO pass in the x and y and set the absolute flag so we are 100% clicking in the right place
-            for (int i = 0; i < Clicks; i++)
-            {
-                if (Down)
-                {
-                    Events++;
-                    Array.Resize(ref inputEvent, Events);
-                    inputEvent[inputEvent.Length - 1].type = NM.INPUT_TYPE.INPUT_MOUSE;
-
-                    switch (Button)
-                    {
-                        case MouseButton.Left:
-                            inputEvent[inputEvent.GetUpperBound(0)].U.mi = CreateMouseInput(0, 0, 0, 0, NM.MOUSEEVENTF.LEFTDOWN);
-                            break;
-                        case MouseButton.Right:
-                            inputEvent[inputEvent.GetUpperBound(0)].U.mi = CreateMouseInput(0, 0, 0, 0, NM.MOUSEEVENTF.RIGHTDOWN);
-                            break;
-                        case MouseButton.Middle:
-                            inputEvent[inputEvent.GetUpperBound(0)].U.mi = CreateMouseInput(0, 0, 0, 0, NM.MOUSEEVENTF.MIDDLEDOWN);
-                            break;
-                    }
-                }
-
-                if (Up)
-                {
-                    Events++;
-                    Array.Resize(ref inputEvent, Events);
-                    inputEvent[inputEvent.GetUpperBound(0)].type = NM.INPUT_TYPE.INPUT_MOUSE;
-
-                    switch (Button)
-                    {
-                        case MouseButton.Left:
-                            inputEvent[inputEvent.GetUpperBound(0)].U.mi = CreateMouseInput(0, 0, 0, 0, NM.MOUSEEVENTF.LEFTUP);
-                            break;
-                        case MouseButton.Right:
-                            inputEvent[inputEvent.GetUpperBound(0)].U.mi = CreateMouseInput(0, 0, 0, 0, NM.MOUSEEVENTF.RIGHTUP);
-                            break;
-                        case MouseButton.Middle:
-                            inputEvent[inputEvent.GetUpperBound(0)].U.mi = CreateMouseInput(0, 0, 0, 0, NM.MOUSEEVENTF.MIDDLEUP);
-                            break;
-                    }
-                }
-            }
-
-            if (Up)
-            {
-                if (ControlKey)
-                {
-                    Events++;
-                    Array.Resize(ref inputEvent, Events);
-                    inputEvent[inputEvent.GetUpperBound(0)].type = NM.INPUT_TYPE.INPUT_KEYBOARD;
-                    inputEvent[inputEvent.GetUpperBound(0)].U.ki = CreateKeyboardInput(NM.VirtualKeyShort.CONTROL, NM.ScanCodeShort.CONTROL, NM.KEYEVENTF.KEYUP, 0, UIntPtr.Zero);
-                }
-
-                if (ShiftKey)
-                {
-                    Events++;
-                    Array.Resize(ref inputEvent, Events);
-                    inputEvent[inputEvent.GetUpperBound(0)].type = NM.INPUT_TYPE.INPUT_KEYBOARD;
-                    inputEvent[inputEvent.GetUpperBound(0)].U.ki = CreateKeyboardInput(NM.VirtualKeyShort.SHIFT, NM.ScanCodeShort.SHIFT, NM.KEYEVENTF.KEYUP, 0, UIntPtr.Zero);
-                }
-            }
-
-            NM.SendInput((uint)inputEvent.Length, inputEvent, NM.INPUT.Size);
-        }
-
-        private const int MoveSize = 4;
-
-        public NM.tagPoint MouseMove(IntPtr Handle, int x, int y, bool PerformCheck = true)
-        {
-            NM.tagRect WindowRect;
-            NM.GetWindowRect(Handle, out WindowRect);
-
-            NM.tagRect ClientRect;
-            NM.GetClientRect(Handle, out ClientRect);
-
-            //TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
-
-            int xOffset;
-            if (x == -1)
-            {
-                xOffset = ClientRect.right / 2;
-            }
-            else
-            {
-                xOffset = x;
-            }
-
-            int yOffset;
-            if (y == -1)
-            {
-                yOffset = ClientRect.bottom / 2;
-            }
-            else
-            {
-                yOffset = y;
-            }
-
-            //Convert the window area to screen point
-            NM.tagPoint thePoint;
-            thePoint.x = WindowRect.left + xOffset;
-            thePoint.y = WindowRect.top + yOffset;
-
-            if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
-            {
-                throw new Exception("coordinate appears to be offscreen");
-            }
-
-            if (PerformCheck)
-            {
-                IntPtr ChildHandle;
-
-                thePoint.x = xOffset + WindowRect.left;
-                thePoint.y = yOffset + WindowRect.top;
-
-                ChildHandle = NM.WindowFromPoint(thePoint);
-
-                //Make sure we are inside the controls window area
-                if (Handle != ChildHandle)
-                {
-                    throw new Exception("Coordinates are not inside the controls area");
-                }
-            }
-
-            //Get the current mouse location
-            NM.tagPoint currentPoint;
-            NM.GetCursorPos(out currentPoint);
-
-            //X direction
-            int DirectionX;
-            if (currentPoint.x <= WindowRect.left + xOffset)
-            {
-                DirectionX = 1;     //right
-            }
-            else
-            {
-                DirectionX = -1;    //left
-            }
-
-            //Y direction
-            int DirectionY;
-            if (currentPoint.y <= WindowRect.top + yOffset)
-            {
-                DirectionY = 1;     //down
-            }
-            else
-            {
-                DirectionY = -1;    //up
-            }
-
-            int MoveX = currentPoint.x;
-            int MoveY = currentPoint.y;
-
-            while (MoveX != WindowRect.left + xOffset || MoveY != WindowRect.top + yOffset)
-            {
-                if (MoveX != WindowRect.left + xOffset)
-                {
-                    if (DirectionX == 1)
-                    {
-                        if (MoveX + MoveSize > WindowRect.left + xOffset)
-                        {
-                            MoveX = MoveX + 1;
-                        }
-                        else
-                        {
-                            MoveX = MoveX + MoveSize;
-                        }
-                    }
-                    else
-                    {
-                        if (MoveX - MoveSize < WindowRect.left + xOffset)
-                        {
-                            MoveX = MoveX - 1;
-                        }
-                        else
-                        {
-                            MoveX = MoveX - MoveSize;
-                        }
-                    }
-                }
-
-                if (MoveY != WindowRect.top + yOffset)
-                {
-                    if (DirectionY == 1)
-                    {
-                        if (MoveY + MoveSize > WindowRect.top + yOffset)
-                        {
-                            MoveY = MoveY + 1;
-                        }
-                        else
-                        {
-                            MoveY = MoveY + MoveSize;
-                        }
-                    }
-                    else
-                    {
-                        if (MoveY - MoveSize < WindowRect.top + yOffset)
-                        {
-                            MoveY = MoveY - 1;
-                        }
-                        else
-                        {
-                            MoveY = MoveY - MoveSize;
-                        }
-                    }
-                }
-
-                MoveMouse(MoveX, MoveY);
-            }
-
-            return thePoint;
-        }
-
-        private void MoveMouse(int x, int y)
-        {
-            NM.INPUT[] MouseEvent = new NM.INPUT[1];
-            MouseEvent[0].type = NM.INPUT_TYPE.INPUT_MOUSE;
-            MouseEvent[0].U.mi = CreateMouseInput(x, y, 0, 0, NM.MOUSEEVENTF.ABSOLUTE | NM.MOUSEEVENTF.MOVE);
-            NM.SendInput((uint)MouseEvent.Length, MouseEvent, Marshal.SizeOf(MouseEvent[0].GetType()));
-        }
-
         public uint TimeOut
         {
             get
@@ -4233,49 +3624,10 @@ namespace APE.Communication
             {
                 m_TimeOut = value;
 
-                AddMessageSetTimeOuts();
-                SendMessages(APEIPC.EventSet.APE);
-                WaitForMessages(APEIPC.EventSet.APE);
+                AddFirstMessageSetTimeOuts();
+                SendMessages(EventSet.APE);
+                WaitForMessages(EventSet.APE);
             }
-        }
-
-        private string GetObjectFullTypeName(object obj)
-        {
-            if (Marshal.IsComObject(obj))
-            {
-                IDispatch dispatch = (IDispatch)obj;
-                if (dispatch.GetTypeInfoCount() != 1)
-                {
-                    throw new Exception("Failed to get runtime type information");
-                }
-
-                ITypeInfo typeInfo = dispatch.GetTypeInfo(0, 0);
-
-                ITypeLib typeLib;
-                int index;
-                typeInfo.GetContainingTypeLib(out typeLib, out index);
-
-                string typeLibName = Marshal.GetTypeLibName(typeLib);
-                string typeInfoName = Marshal.GetTypeInfoName(typeInfo);
-
-                return typeLibName + "." + typeInfoName;
-            }
-            else
-            {
-                Type typeObject = obj.GetType();
-                return typeObject.Namespace + "." + typeObject.Name;
-            }
-        }
-
-        [ComImport]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        [Guid("00020400-0000-0000-C000-000000000046")]
-        private interface IDispatch
-        {
-            int GetTypeInfoCount();
-            [return: MarshalAs(UnmanagedType.Interface)]
-            ITypeInfo GetTypeInfo([In, MarshalAs(UnmanagedType.U4)] int iTInfo, [In, MarshalAs(UnmanagedType.U4)] int lcid);
-            void GetIDsOfNames([In] ref Guid riid, [In, MarshalAs(UnmanagedType.LPArray)] string[] rgszNames, [In, MarshalAs(UnmanagedType.U4)] int cNames, [In, MarshalAs(UnmanagedType.U4)] int lcid, [Out, MarshalAs(UnmanagedType.LPArray)] int[] rgDispId);
         }
     }
 }

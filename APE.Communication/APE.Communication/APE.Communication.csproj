@@ -36,18 +36,6 @@
       <HintPath>..\..\APE\packages\fasterflect.2.1.3\lib\net40\Fasterflect.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Interop.DRILLDOWNLib">
-      <HintPath>.\Interop.DRILLDOWNLib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="Interop.LZFLEXGRIDLib">
-      <HintPath>.\Interop.LZFLEXGRIDLib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
-    <Reference Include="Interop.SentinelMessageObject">
-      <HintPath>.\Interop.SentinelMessageObject.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -63,9 +51,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComHelper.cs" />
     <Compile Include="Communication.cs" />
     <Compile Include="ConstructorInvokerCircularList.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="DebugLogging.cs" />
     <Compile Include="FlexgridHelper.cs" />
     <Compile Include="MemberGetterCircularList.cs" />
     <Compile Include="MethodInvokerCircularList.cs" />
@@ -73,6 +63,7 @@
     <Compile Include="Parameter.cs" />
     <Compile Include="ParametersTypeCircularList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SentinelGridsHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

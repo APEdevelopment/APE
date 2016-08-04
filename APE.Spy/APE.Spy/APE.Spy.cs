@@ -483,9 +483,9 @@ namespace APE.Spy
                     m_Identity.ParentHandle = Parent;
                 }
                 m_Identity.Handle = Handle;
-                m_APE.AddMessageFindByProperty(m_Identity);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddFirstMessageFindByProperty(m_Identity);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 m_APE.DecodeControl(1, out m_Identity);
             }
             catch (Exception ex)
@@ -515,9 +515,9 @@ namespace APE.Spy
         {
             try
             {
-                m_APE.AddMessageFindByProperty(identity);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddFirstMessageFindByProperty(identity);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 m_APE.DecodeControl(1, out identity);
             }
             catch (Exception ex)
@@ -663,25 +663,25 @@ namespace APE.Spy
             m_Identity.ParentHandle = NM.GetAncestor(m_Identity.Handle, NM.GetAncestorFlags.GetRootOwner);
 
             //Get the number of items on the menustrip
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            m_APE.AddMessageGetValue(DataStores.Store2);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
             Items = m_APE.GetValueFromMessage();
 
             //Loop through all items
             for (int Item = 0; Item < Items; Item++)
             {
-                m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-                m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, Item));
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
-                m_APE.AddMessageGetValue(DataStores.Store3);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+                m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, Item));
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
                 string ItemText = m_APE.GetValueFromMessage();
 
@@ -693,11 +693,11 @@ namespace APE.Spy
 
         private void AddGUIElementStripGridToPropertyListbox()
         {
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
-            m_APE.AddMessageGetValue(DataStores.Store1);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string ColumnInfoXML = m_APE.GetValueFromMessage();
 
@@ -719,21 +719,21 @@ namespace APE.Spy
 
             PropertyListbox.Items.Add("Title Rows\t: " + (maxLevels + 1).ToString());
 
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NumRows", MemberTypes.Property);
-            m_APE.AddMessageGetValue(DataStores.Store1);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NumRows", MemberTypes.Property);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int Rows = m_APE.GetValueFromMessage();
 
             PropertyListbox.Items.Add("Rows\t\t: " + (Rows + maxLevels + 1).ToString());
 
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NumFrozenRows", MemberTypes.Method);
-            m_APE.AddMessageGetValue(DataStores.Store1);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NumFrozenRows", MemberTypes.Method);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int FixedRows = m_APE.GetValueFromMessage();
 
@@ -742,27 +742,27 @@ namespace APE.Spy
 
         private void AddGUIStatusBarToPropertyListbox()
         {
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-            m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            m_APE.AddMessageGetValue(DataStores.Store2);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
+            m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int items = m_APE.GetValueFromMessage();
 
             for (int item = 0; item < items; item++)
             {
-                m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-                m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-                m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, item));
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
-                m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
-                m_APE.AddMessageGetValue(DataStores.Store3);
-                m_APE.AddMessageGetValue(DataStores.Store5);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+                m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, item));
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
+                m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string itemName = m_APE.GetValueFromMessage();
                 string itemType = m_APE.GetValueFromMessage();
@@ -777,27 +777,27 @@ namespace APE.Spy
 
         private void AddGUITitleFrameToPropertyListbox()
         {
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
-            m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            m_APE.AddMessageGetValue(DataStores.Store2);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
+            m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int items = m_APE.GetValueFromMessage();
 
             for (int item = 0; item < items; item++)
             {
-                m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-                m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
-                m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(m_APE, item));
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
-                m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
-                m_APE.AddMessageGetValue(DataStores.Store3);
-                m_APE.AddMessageGetValue(DataStores.Store5);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+                m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
+                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(m_APE, item));
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
+                m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string itemName = m_APE.GetValueFromMessage();
                 string itemType = m_APE.GetValueFromMessage();
@@ -820,27 +820,27 @@ namespace APE.Spy
 
         private void AddGUIToolStripToPropertyListbox()
         {
-            m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            m_APE.AddMessageGetValue(DataStores.Store2);
-            m_APE.SendMessages(APEIPC.EventSet.APE);
-            m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int items = m_APE.GetValueFromMessage();
 
             for (int item = 0; item < items; item++)
             {
-                m_APE.AddMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-                m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, item));
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
-                m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
-                m_APE.AddMessageQueryMember(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
-                m_APE.AddMessageGetValue(DataStores.Store3);
-                m_APE.AddMessageGetValue(DataStores.Store5);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
+                m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, item));
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
+                m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string itemName = m_APE.GetValueFromMessage();
                 string itemType = m_APE.GetValueFromMessage();
@@ -897,14 +897,14 @@ namespace APE.Spy
 
             if (Identity.TechnologyType == "Windows Forms (WinForms)")
             {
-                m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 m_APE.AddMessageGetRecognisedType(DataStores.Store0, DataStores.Store1);
                 m_APE.AddMessageGetApeTypeFromObject(DataStores.Store0, DataStores.Store2);
                 m_APE.AddMessageGetApeTypeFromType(DataStores.Store1, DataStores.Store3);
-                m_APE.AddMessageGetValue(DataStores.Store2);
-                m_APE.AddMessageGetValue(DataStores.Store3);
-                m_APE.SendMessages(APEIPC.EventSet.APE);
-                m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                m_APE.SendMessages(EventSet.APE);
+                m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call;
                 string APEDirectType = m_APE.GetValueFromMessage();
                 string APEBaseType = m_APE.GetValueFromMessage();
@@ -1011,9 +1011,9 @@ namespace APE.Spy
                 }
                 else
                 {
-                    m_APE.AddMessageGetAppDomains();
-                    m_APE.SendMessages(APEIPC.EventSet.APE);
-                    m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    m_APE.AddFirstMessageGetAppDomains();
+                    m_APE.SendMessages(EventSet.APE);
+                    m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     string AppDomains = m_APE.GetValueFromMessage();
                     string[] Separator = { "\t" };

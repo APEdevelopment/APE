@@ -88,18 +88,18 @@ namespace APE.Language
             int Top;
             int Right;
             int Bottom;
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetItemRectangle", MemberTypes.Method, new Parameter(GUI.m_APE, Index));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store4, "Right", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store5, "Bottom", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetItemRectangle", MemberTypes.Method, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Right", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Bottom", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
             Left = GUI.m_APE.GetValueFromMessage();
             Top = GUI.m_APE.GetValueFromMessage();
@@ -117,8 +117,8 @@ namespace APE.Language
                 //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "TopIndex", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
                 //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store2, "TopIndex", MemberTypes.);
                 //GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                //GUI.m_APE.SendMessages(EventSet.APE);
+                //GUI.m_APE.WaitForMessages(EventSet.APE);
                 ////get the values returned
                 //int CurrentIndex = GUI.m_APE.GetValueFromMessage();
                 IntPtr SendResult;
@@ -132,18 +132,18 @@ namespace APE.Language
                 //Wait for animation to finish
                 //base.WaitForAnimation(Identity.Handle, false);
 
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetItemRectangle", MemberTypes.Method, new Parameter(GUI.m_APE, Index));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store4, "Right", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store5, "Bottom", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetItemRectangle", MemberTypes.Method, new Parameter(GUI.m_APE, Index));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Right", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
                 Left = GUI.m_APE.GetValueFromMessage();
                 Top = GUI.m_APE.GetValueFromMessage();
@@ -159,11 +159,11 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             do
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "SelectedIndex", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedIndex", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 SelectedIndex = GUI.m_APE.GetValueFromMessage();
 
@@ -181,11 +181,11 @@ namespace APE.Language
         private int ItemIndex(string Item)
         {
             //Get the index
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, Item));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, Item));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int Index = GUI.m_APE.GetValueFromMessage();
 
