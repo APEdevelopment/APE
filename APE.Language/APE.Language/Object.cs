@@ -114,9 +114,9 @@ namespace APE.Language
                 Identity.TechnologyType = "Windows Forms (WinForms)";
             }
 
-            GUI.m_APE.AddMessageFindByProperty(Identity);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByProperty(Identity);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             GUI.m_APE.DecodeControl(1, out Identity);
 
             Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut);
@@ -180,8 +180,8 @@ namespace APE.Language
             //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "ContextMenuStrip", MemberTypes.Property);
             //GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
             //GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            //GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            //GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            //GUI.m_APE.SendMessages(EventSet.APE);
+            //GUI.m_APE.WaitForMessages(EventSet.APE);
             ////get the values returned
             //ContextMenuHandle = GUI.m_APE.GetValueFromMessage();
 
@@ -194,9 +194,9 @@ namespace APE.Language
                 }
 
                 //Get the ContextMenuStrip handle
-                GUI.m_APE.AddMessageGetContextMenuStrip(Control);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageGetContextMenuStrip(Control);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
                 ContextMenuHandle = GUI.m_APE.GetValueFromMessage();
 
@@ -225,7 +225,7 @@ namespace APE.Language
         /// <param name="Y">How far from the top edge of the control to move the mouse</param>
         public void MouseMove(int X, int Y)
         {
-            GUI.m_APE.MouseMove(Identity.Handle, X, Y);
+            Input.MouseMove(Identity.Handle, X, Y);
         }
 
         /// <summary>
@@ -528,11 +528,11 @@ namespace APE.Language
                 if (Identity.TechnologyType == "Windows Forms (WinForms)")
                 {
                     //Get the Text property
-                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Text", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Text", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     string text = GUI.m_APE.GetValueFromMessage();
                     return text;

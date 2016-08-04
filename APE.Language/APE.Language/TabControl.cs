@@ -52,11 +52,11 @@ namespace APE.Language
         /// <returns>The number of tabs</returns>
         public int Count()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "TabCount", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabCount", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int tabCount = GUI.m_APE.GetValueFromMessage();
 
@@ -90,13 +90,13 @@ namespace APE.Language
         /// <returns>The text of the tab</returns>
         public string TabText(int tabIndex)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string tabText = GUI.m_APE.GetValueFromMessage();
 
@@ -239,12 +239,12 @@ namespace APE.Language
 
         private string SelectedTabText()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "SelectedTab", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Text", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedTab", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Text", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string selectedTabText = GUI.m_APE.GetValueFromMessage();
 
@@ -253,11 +253,11 @@ namespace APE.Language
 
         private bool MultiLine()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Multiline", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Multiline", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             bool multiLine = GUI.m_APE.GetValueFromMessage();
 
@@ -266,18 +266,18 @@ namespace APE.Language
 
         private Rectangle TabRectangle(int tabIndex)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int x = GUI.m_APE.GetValueFromMessage();
             int y = GUI.m_APE.GetValueFromMessage();

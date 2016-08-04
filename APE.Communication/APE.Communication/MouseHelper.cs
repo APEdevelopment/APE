@@ -2,6 +2,7 @@
 using NM = APE.Native.NativeMethods;
 using System.Diagnostics;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace APE.Communication
 {
@@ -20,6 +21,37 @@ namespace APE.Communication
         private bool m_WM_MBUTTONUP = false;
         private bool m_WM_MBUTTONDBLCLK = false;
 
+        private NM.HookProc MouseHookProcedure;
+        private int m_hMouseHook = 0;
+        private IntPtr m_HookWindow;
+
+        /// <summary>
+        /// The mouse button to press or release while performing a mouse action
+        /// </summary>
+        public enum MouseButton : int
+        {
+            /// <summary>
+            /// The left mouse button
+            /// </summary>
+            Left = 0,
+            /// <summary>
+            /// The right mouse button
+            /// </summary>
+            Right = 1,
+            /// <summary>
+            /// The middle mouse button
+            /// </summary>
+            Middle = 2,
+        }
+
+        /// <summary>
+        /// Initialise the mouse helper hooks for use
+        /// </summary>
+        private void SetupmouseHelperHooks()
+        {
+            MouseHookProcedure = new NM.HookProc(MouseHookProc);
+        }
+        
         /// <summary>
         /// Resets all the mouse window message variables back to false
         /// </summary>
@@ -74,13 +106,13 @@ namespace APE.Communication
             m_HookWindow = handle;
 
             // Add the mouse hook
-            WriteLog("Adding Mouse hook");
+            DebugLogging.WriteLog("Adding Mouse hook");
             m_hMouseHook = NM.SetWindowsHookEx(NM.WH_MOUSE, MouseHookProcedure, IntPtr.Zero, threadId);
             if (m_hMouseHook == 0)
             {
                 throw new Exception("SetWindowsHookEx Failed");
             }
-            WriteLog("Added Mouse hook");
+            DebugLogging.WriteLog("Added Mouse hook");
 
             ClearMouseState();
         }
@@ -105,10 +137,10 @@ namespace APE.Communication
         /// Gets the parameters from the message then removes the mouse hook on the specified thread
         /// </summary>
         /// <param name="ptrMessage">A pointer to the message</param>
-        /// <param name="MessageNumber">The message number</param>
-        private unsafe void RemoveMouseHook(Message* ptrMessage, int MessageNumber)
+        /// <param name="messageNumber">The message number</param>
+        private unsafe void RemoveMouseHook(Message* ptrMessage, int messageNumber)
         {
-            if (MessageNumber == 1)
+            if (messageNumber == 1)
             {
                 throw new Exception("RemoveMouseHook must not be the first message");
             }
@@ -117,14 +149,14 @@ namespace APE.Communication
             CleanUpMessage(ptrMessage);
 
             // Remove the hook
-            WriteLog("Removing Mouse hook");
+            DebugLogging.WriteLog("Removing Mouse hook");
             bool returnValue = NM.UnhookWindowsHookEx(m_hMouseHook);
             if (!returnValue)
             {
                 throw new Exception("UnhookWindowsHookEx Failed for Mouse hook");
             }
             m_hMouseHook = 0;
-            WriteLog("Removed Mouse hook");
+            DebugLogging.WriteLog("Removed Mouse hook");
 
             ClearMouseState();
         }
@@ -172,11 +204,11 @@ namespace APE.Communication
 
             if (mouseDown)
             {
-                WriteLog("Waiting on " + button.ToString() + " mouse down");
+                DebugLogging.WriteLog("Waiting on " + button.ToString() + " mouse down");
             }
             else
             {
-                WriteLog("Waiting on " + button.ToString() + " mouse up");
+                DebugLogging.WriteLog("Waiting on " + button.ToString() + " mouse up");
             }
 
             bool done = false;
@@ -295,7 +327,108 @@ namespace APE.Communication
 
             ClearMouseState();
 
-            WriteLog("Mouse State done");
+            DebugLogging.WriteLog("Mouse State done");
+        }
+
+        /// <summary>
+        /// Callback that is called after the mouse hook has been installed when the thread recieves a mouse message
+        /// </summary>
+        /// <param name="nCode">A code that the hook procedure uses to determine how to process the message</param>
+        /// <param name="wParam">The identifier of the mouse message</param>
+        /// <param name="lParam">A pointer to a MOUSEHOOKSTRUCT structure</param>
+        /// <returns>Value returned by CallNextHookEx</returns>
+        public int MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode < 0)
+            {
+                return NM.CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
+            }
+            else
+            {
+                NM.MouseHookStruct MyMouseHookStruct = (NM.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(NM.MouseHookStruct));
+
+                if (MyMouseHookStruct.hwnd == m_HookWindow)
+                {
+                    if (nCode == NM.HC_ACTION)
+                    {
+                        switch (wParam.ToInt32())
+                        {
+                            case NM.WM_LBUTTONDOWN:
+                                DebugLogging.WriteLog("Left Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_LBUTTONDOWN = true;
+                                break;
+                            case NM.WM_NCLBUTTONDOWN:
+                                DebugLogging.WriteLog("NCLeft Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_LBUTTONDOWN = true;
+                                break;
+                            case NM.WM_LBUTTONUP:
+                                DebugLogging.WriteLog("Left Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_LBUTTONUP = true;
+                                break;
+                            case NM.WM_NCLBUTTONUP:
+                                DebugLogging.WriteLog("NCLeft Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_LBUTTONUP = true;
+                                break;
+                            case NM.WM_LBUTTONDBLCLK:
+                                DebugLogging.WriteLog("Left Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_LBUTTONDBLCLK = true;
+                                break;
+                            case NM.WM_NCLBUTTONDBLCLK:
+                                DebugLogging.WriteLog("NCLeft Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_LBUTTONDBLCLK = true;
+                                break;
+                            case NM.WM_RBUTTONDOWN:
+                                DebugLogging.WriteLog("Right Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_RBUTTONDOWN = true;
+                                break;
+                            case NM.WM_NCRBUTTONDOWN:
+                                DebugLogging.WriteLog("NCRight Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_RBUTTONDOWN = true;
+                                break;
+                            case NM.WM_RBUTTONUP:
+                                DebugLogging.WriteLog("Right Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_RBUTTONUP = true;
+                                break;
+                            case NM.WM_NCRBUTTONUP:
+                                DebugLogging.WriteLog("NCRight Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_RBUTTONUP = true;
+                                break;
+                            case NM.WM_RBUTTONDBLCLK:
+                                DebugLogging.WriteLog("Right Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_RBUTTONDBLCLK = true;
+                                break;
+                            case NM.WM_NCRBUTTONDBLCLK:
+                                DebugLogging.WriteLog("NCRight Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_RBUTTONDBLCLK = true;
+                                break;
+                            case NM.WM_MBUTTONDOWN:
+                                DebugLogging.WriteLog("Middle Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_MBUTTONDOWN = true;
+                                break;
+                            case NM.WM_NCMBUTTONDOWN:
+                                DebugLogging.WriteLog("NCMiddle Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_MBUTTONDOWN = true;
+                                break;
+                            case NM.WM_MBUTTONUP:
+                                DebugLogging.WriteLog("Middle Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                break;
+                            case NM.WM_NCMBUTTONUP:
+                                DebugLogging.WriteLog("NCMiddle Up " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_MBUTTONUP = true;
+                                break;
+                            case NM.WM_MBUTTONDBLCLK:
+                                DebugLogging.WriteLog("Middle Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_MBUTTONDBLCLK = true;
+                                break;
+                            case NM.WM_NCMBUTTONDBLCLK:
+                                DebugLogging.WriteLog("NCMiddle Double " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
+                                m_WM_MBUTTONDBLCLK = true;
+                                break;
+                        }
+                    }
+                }
+                return NM.CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
+            }
         }
     }
 }

@@ -55,11 +55,11 @@ namespace APE.Language
         {
             get
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Minimum", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Minimum", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 int minimum = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 
@@ -74,11 +74,11 @@ namespace APE.Language
         {
             get
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Maximum", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Maximum", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 int maximum = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 
@@ -93,11 +93,11 @@ namespace APE.Language
         {
             get
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Value", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Value", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 int value = GUI.m_APE.GetValueFromMessage();     //Could be a null so we use dynamic
 

@@ -54,15 +54,15 @@ namespace APE.Language
 
         private IntPtr GetRootNode(string NodeText)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetNodeCount", MemberTypes.Method, new Parameter(GUI.m_APE, false));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store2, "ShowPlusMinus", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store3, "CheckBoxes", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store1);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetNodeCount", MemberTypes.Method, new Parameter(GUI.m_APE, false));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "ShowPlusMinus", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "CheckBoxes", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int ChildNodes = GUI.m_APE.GetValueFromMessage();
             m_ShowPlusMinus = GUI.m_APE.GetValueFromMessage();
@@ -79,15 +79,15 @@ namespace APE.Language
             for (int ChildItem = 0; ChildItem < ChildNodes; ChildItem++)
             {
                 // Get the text of the root node
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Nodes", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "Handle", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Nodes", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Handle", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string Text = GUI.m_APE.GetValueFromMessage();
                 IntPtr NewNodeHandle = GUI.m_APE.GetValueFromMessage();
@@ -103,28 +103,28 @@ namespace APE.Language
 
         private IntPtr GetChildNode(IntPtr Node, string NodeText)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "GetNodeCount", MemberTypes.Method, new Parameter(GUI.m_APE, false));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "GetNodeCount", MemberTypes.Method, new Parameter(GUI.m_APE, false));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int ChildNodes = GUI.m_APE.GetValueFromMessage();
 
             for (int ChildItem = 0; ChildItem < ChildNodes; ChildItem++)
             {
                 // Get the text of the child node
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Text", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Handle", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Text", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Handle", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string Text = GUI.m_APE.GetValueFromMessage();
                 IntPtr NewNodeHandle = GUI.m_APE.GetValueFromMessage();
@@ -154,12 +154,12 @@ namespace APE.Language
             NM.tagRect ClientRect = new NM.tagRect();
 
             // check if already expanded
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "IsExpanded", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "IsExpanded", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             bool IsExpanded = GUI.m_APE.GetValueFromMessage();
 
@@ -171,20 +171,20 @@ namespace APE.Language
             for (int i = 0; i < 2; i++)
             {
                 // Get bounds
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "EnsureVisible", MemberTypes.Method);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store7);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "EnsureVisible", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 Left = GUI.m_APE.GetValueFromMessage();
                 Top = GUI.m_APE.GetValueFromMessage();
@@ -257,12 +257,12 @@ namespace APE.Language
             do
             {
                 // Get if expanded
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "IsExpanded", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "IsExpanded", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 IsNowExpanded = GUI.m_APE.GetValueFromMessage();
 
@@ -287,13 +287,13 @@ namespace APE.Language
                 do
                 {
                     // Get bounds
-                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Bounds", MemberTypes.Property);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Bottom", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Bounds", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Bottom", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
                     Bottom = GUI.m_APE.GetValueFromMessage();
 
@@ -329,12 +329,12 @@ namespace APE.Language
             if (Button == MouseButton.Left)
             {
                 // Get state and bounds
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "IsSelected", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "IsSelected", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 IsSelected = GUI.m_APE.GetValueFromMessage();
 
@@ -349,20 +349,20 @@ namespace APE.Language
             do
             {
                 // Get state and bounds
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "EnsureVisible", MemberTypes.Method);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store7);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "EnsureVisible", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 Left = GUI.m_APE.GetValueFromMessage();
                 Top = GUI.m_APE.GetValueFromMessage();
@@ -411,12 +411,12 @@ namespace APE.Language
                 do
                 {
                     // Get if selected
-                    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "IsSelected", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                    GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "IsSelected", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
                     IsNowSelected = GUI.m_APE.GetValueFromMessage();
 
@@ -463,12 +463,12 @@ namespace APE.Language
 
             // Check for if its already in the correct state
             // Get state and bounds
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Checked", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Checked", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             IsChecked = GUI.m_APE.GetValueFromMessage();
 
@@ -484,20 +484,20 @@ namespace APE.Language
             do
             {
                 // Get state and bounds
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "EnsureVisible", MemberTypes.Method);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store7);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "EnsureVisible", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 Left = GUI.m_APE.GetValueFromMessage();
                 Top = GUI.m_APE.GetValueFromMessage();
@@ -558,12 +558,12 @@ namespace APE.Language
             do
             {
                 // Get the checked state
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Checked", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Checked", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 IsNowChecked = GUI.m_APE.GetValueFromMessage();
 

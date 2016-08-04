@@ -51,35 +51,35 @@ namespace APE.Language
         /// <param name="item">The text to set the text portion of the TextValueWithTypeControl to</param>
         public void Select(string item)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "PopupControlHelper", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "InternalList", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Count", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "PopupControlHelper", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "InternalList", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Count", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
             int count = GUI.m_APE.GetValueFromMessage();
 
             for (int itemIndex = 0; itemIndex < count; itemIndex++)
             {
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "PopupControlHelper", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "InternalList", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Text", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Bounds", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store6, "Left", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store7, "Top", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store8, "Right", MemberTypes.Property);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store5, DataStores.Store9, "Bottom", MemberTypes.Property);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store7);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store8);
-                GUI.m_APE.AddMessageGetValue(DataStores.Store9);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "PopupControlHelper", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "InternalList", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Text", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Bounds", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Top", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store8, "Right", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store9, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call;
                 string textOfitem = GUI.m_APE.GetValueFromMessage();
                 int Left = GUI.m_APE.GetValueFromMessage();

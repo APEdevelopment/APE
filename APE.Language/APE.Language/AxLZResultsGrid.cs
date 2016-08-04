@@ -88,11 +88,11 @@ namespace APE.Language
         /// </summary>
         public void CopyToClipboard()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "CopyToClipboard", MemberTypes.Method);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "CopyToClipboard", MemberTypes.Method);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
         }
 
         /// <summary>
@@ -113,13 +113,13 @@ namespace APE.Language
         /// <returns>True or False</returns>
         public bool IsRowHidden(int row)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "RowHidden", MemberTypes.Property, new Parameter(GUI.m_APE, row));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "RowHidden", MemberTypes.Property, new Parameter(GUI.m_APE, row));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             bool hidden = GUI.m_APE.GetValueFromMessage();
             return hidden;
@@ -142,13 +142,13 @@ namespace APE.Language
         /// <param name="column">Column index to check if hidden</param>
         public bool IsColumnHidden(int column)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ColHidden", MemberTypes.Property, new Parameter(GUI.m_APE, column));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ColHidden", MemberTypes.Property, new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             bool hidden = GUI.m_APE.GetValueFromMessage();
             return hidden;
@@ -162,19 +162,19 @@ namespace APE.Language
         /// <returns>True if the cell is visible without scrolling otherwise false</returns>
         public bool IsCellVisible(int row, int column)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "LeftCol", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store4, "RightCol", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store5, "TopRow", MemberTypes.Property);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store6, "BottomRow", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store5);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store6);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "LeftCol", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "RightCol", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "TopRow", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store6, "BottomRow", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int leftColumn = GUI.m_APE.GetValueFromMessage();
             int rightColumn = GUI.m_APE.GetValueFromMessage();
@@ -231,13 +231,13 @@ namespace APE.Language
         /// <returns>The selected row index</returns>
         public int SelectedRow()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "RowSel", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "RowSel", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int SelectedRow = GUI.m_APE.GetValueFromMessage();
             return SelectedRow;
@@ -249,13 +249,13 @@ namespace APE.Language
         /// <returns>The selected column index</returns>
         public int SelectedColumn()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ColSel", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ColSel", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int SelectedColumn = GUI.m_APE.GetValueFromMessage();
             return SelectedColumn;
@@ -267,13 +267,13 @@ namespace APE.Language
         /// <returns>The number of fixed rows</returns>
         public int FixedRows()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "FixedRows", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "FixedRows", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int FixedRows = GUI.m_APE.GetValueFromMessage();
             return FixedRows;
@@ -285,13 +285,13 @@ namespace APE.Language
         /// <returns>The number of fixed columns</returns>
         public int FixedColumns()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "FixedCols", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "FixedCols", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int FixedColumns = GUI.m_APE.GetValueFromMessage();
             return FixedColumns;
@@ -303,13 +303,13 @@ namespace APE.Language
         /// <returns>The number of frozen columns</returns>
         public int FrozenColumns()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "FrozenCols", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "FrozenCols", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int FrozenColumns = GUI.m_APE.GetValueFromMessage();
             return FrozenColumns;
@@ -321,13 +321,13 @@ namespace APE.Language
         /// <returns>The number of rows</returns>
         public int Rows()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Rows", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int rows = GUI.m_APE.GetValueFromMessage();
             return rows;
@@ -339,13 +339,13 @@ namespace APE.Language
         /// <returns>The number of columns</returns>
         public int Columns()
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Cols", MemberTypes.Property);
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cols", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int columns = GUI.m_APE.GetValueFromMessage();
             return columns;
@@ -363,13 +363,13 @@ namespace APE.Language
 
         public string GetCellValue(int row, int column, VSFlexgridCellPropertySettings property)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, (int)property), new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column), new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, (int)property), new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column), new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string value = GUI.m_APE.GetValueFromMessage();
             return value;
@@ -378,13 +378,13 @@ namespace APE.Language
 
         public int ColumnWidth(int column)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "ColWidth", MemberTypes.Property, new Parameter(GUI.m_APE, column));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ColWidth", MemberTypes.Property, new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int widthTwips = GUI.m_APE.GetValueFromMessage();
             return widthTwips;
@@ -408,13 +408,13 @@ namespace APE.Language
 
         public string GetCellRangeClip(int Row1, int Col1, int Row2, int Col2)
         {
-            GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, (int)VSFlexgridCellPropertySettings.flexcpText), new Parameter(GUI.m_APE, Row1), new Parameter(GUI.m_APE, Col1), new Parameter(GUI.m_APE, Row2), new Parameter(GUI.m_APE, Col2));
-            GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-            GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, (int)VSFlexgridCellPropertySettings.flexcpText), new Parameter(GUI.m_APE, Row1), new Parameter(GUI.m_APE, Col1), new Parameter(GUI.m_APE, Row2), new Parameter(GUI.m_APE, Col2));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string CellRangeClip = GUI.m_APE.GetValueFromMessage();
             return CellRangeClip;
@@ -463,13 +463,13 @@ namespace APE.Language
             do
             {
                 CurrentRow++;
-                GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-                GUI.m_APE.AddMessageGetUnderlyingGridFromResultsGrid(DataStores.Store1, DataStores.Store2);
-                GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "FindRow", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, CurrentRow), new Parameter(GUI.m_APE, Column), new Parameter(GUI.m_APE, true), new Parameter(GUI.m_APE, true));
-                GUI.m_APE.AddMessageGetValue(DataStores.Store3);
-                GUI.m_APE.SendMessages(APEIPC.EventSet.APE);
-                GUI.m_APE.WaitForMessages(APEIPC.EventSet.APE);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "FindRow", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, CurrentRow), new Parameter(GUI.m_APE, Column), new Parameter(GUI.m_APE, true), new Parameter(GUI.m_APE, true));
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 CurrentRow = GUI.m_APE.GetValueFromMessage();
 

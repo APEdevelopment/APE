@@ -9,6 +9,12 @@ using NM = APE.Native.NativeMethods;
 
 namespace APE.Communication
 {
+    public enum EventSet : byte
+    {
+        APE = 0,
+        AUT = 1,
+    }
+
     internal enum ApeTypeCode : int
     {
         Empty = 0,          // Null reference
@@ -58,8 +64,13 @@ namespace APE.Communication
         GetApeTypeFromObject = 17,
         ReflectPoll = 18,
         ConvertType = 19,
-        UnderlyingGridFromResultsGrid = 20,
-        FlexgridGetCellRangeBackColour = 21,
+        SentinelGridsGetUnderlyingGrid = 20,
+        FlexgridGetCellRangeBackColourName = 21,
+        FlexgridGetCellRangeForeColourName = 22,
+        FlexgridGetCellRangeDataType = 23,
+        FlexgridGetCellRangeCheckBox = 24,
+        FlexgridGetCellRangeImage = 25,
+        FlexgridGetCellRangeBackgroundImage = 26,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -80,6 +91,35 @@ namespace APE.Communication
 
     public partial class APEIPC
     {
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        internal struct MessageStore
+        {
+            internal const int MaxMessages = 20;
+
+            public Message Message0;
+            public Message Message1;
+            public Message Message2;
+            public Message Message3;
+            public Message Message4;
+            public Message Message5;
+            public Message Message6;
+            public Message Message7;
+            public Message Message8;
+            public Message Message9;
+            public Message Message10;
+            public Message Message11;
+            public Message Message12;
+            public Message Message13;
+            public Message Message14;
+            public Message Message15;
+            public Message Message16;
+            public Message Message17;
+            public Message Message18;
+            public Message Message19;
+            public byte NumberOfMessages;
+            public EventSet LastWake;
+        }
+
         /// <summary>
         /// When an instance of APEIPC is created in the AUT a new thread is created with this method as the thread start point
         /// </summary>
@@ -112,15 +152,15 @@ namespace APE.Communication
                 {
                 }
 
-                // Create an instance of hook procedures
-                MouseHookProcedure = new NM.HookProc(MouseHookProc);
+                // Setup the hook procedures
+                SetupmouseHelperHooks();
                 EnumThreadProcedue = new NM.EnumWindow(EnumThreadCallback);
 
-                //setup the delegates
+                // Setup the delegates
                 m_GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
                 m_ConvertTypeDelegater = new ConvertTypeDelegate(Cast);
-                m_GetUnderlyingGridFromResultsGridDelegater = new GetUnderlyingGridFromResultsGridDelegate(GetUnderlyingGridFromResultsGrid);
                 m_GetTextDelegater = new GetTextDelegate(GetText);
+                SetupSentinelGridsHelperDelegates();
                 SetupFlexgridHelperDelegates();
 
                 //Process all the messages
@@ -146,7 +186,7 @@ namespace APE.Communication
                         {
                             Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
 
-                            WriteLog("Processing message " + ptrMessage->Action.ToString());
+                            DebugLogging.WriteLog("Processing message " + ptrMessage->Action.ToString());
                             //get the message action:
                             switch (ptrMessage->Action)
                             {
@@ -175,8 +215,8 @@ namespace APE.Communication
                                 case MessageAction.ConvertType:
                                     ConvertType(messageNumber);
                                     break;
-                                case MessageAction.UnderlyingGridFromResultsGrid:
-                                    UnderlyingGridFromResultsGrid(messageNumber);
+                                case MessageAction.SentinelGridsGetUnderlyingGrid:
+                                    SentinelGridsGetUnderlyingGrid(ptrMessage);
                                     break;
                                 case MessageAction.ReflectPoll:
                                     ReflectPoll(messageNumber);
@@ -217,8 +257,15 @@ namespace APE.Communication
                                 case MessageAction.GetApeTypeFromObject:
                                     GetApeTypeFromObject(messageNumber);
                                     break;
-                                case MessageAction.FlexgridGetCellRangeBackColour:
-                                    FlexgridGetCellRangeBackColour(ptrMessage);
+                                // Flexgrid helper methods
+                                case MessageAction.FlexgridGetCellRangeBackColourName:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.BackColourName);
+                                    break;
+                                case MessageAction.FlexgridGetCellRangeForeColourName:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.ForeColourName);
+                                    break;
+                                case MessageAction.FlexgridGetCellRangeDataType:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.DataType);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
