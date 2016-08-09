@@ -649,7 +649,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of fixed rows, that is a row which doesn't scroll, in the grid
+        /// Returns the number of fixed rows, that is a row which makes up the header of the grid
         /// </summary>
         /// <returns>The number of fixed rows</returns>
         public int FixedRows()
@@ -664,6 +664,23 @@ namespace APE.Language
             int FixedRows = GUI.m_APE.GetValueFromMessage();
 
             return FixedRows;
+        }
+
+        /// <summary>
+        /// Returns the number of frozen rows, that is a row which doesn't scroll, in the grid
+        /// </summary>
+        /// <returns>The number of frozen rows</returns>
+        public int FrozenRows()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Frozen", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int frozenRows = GUI.m_APE.GetValueFromMessage();
+            return frozenRows;
         }
 
         /// <summary>
