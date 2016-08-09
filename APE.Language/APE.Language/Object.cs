@@ -171,7 +171,7 @@ namespace APE.Language
         {
             //TODO implement support for ContextMenu (as well as the ContextMenuStrip thats currently implemented)
 
-            dynamic ContextMenuHandle;
+            IntPtr contextMenuHandle = IntPtr.Zero;
 
             //If all controls set the contextmenu / contextmenustrip property we could find it using the below
             //but some don't so we use an alternative method to find them
@@ -183,7 +183,7 @@ namespace APE.Language
             //GUI.m_APE.SendMessages(EventSet.APE);
             //GUI.m_APE.WaitForMessages(EventSet.APE);
             ////get the values returned
-            //ContextMenuHandle = GUI.m_APE.GetValueFromMessage();
+            //contextMenuHandle = GUI.m_APE.GetValueFromMessage();
 
             Stopwatch timer = Stopwatch.StartNew();
             do
@@ -198,13 +198,13 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
-                ContextMenuHandle = GUI.m_APE.GetValueFromMessage();
+                contextMenuHandle = GUI.m_APE.GetValueFromMessage();
 
                 Thread.Sleep(15);
             }
-            while (ContextMenuHandle == null || ContextMenuHandle == IntPtr.Zero);
+            while (contextMenuHandle == IntPtr.Zero);
 
-            return ContextMenuHandle;
+            return contextMenuHandle;
         }
 
         /// <summary>

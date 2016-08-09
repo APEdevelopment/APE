@@ -180,6 +180,7 @@ namespace APE.Language
         internal static ViewPort m_ViewPort;
         private static Thread m_threadViewPort;
         private static bool m_IsElevatedAdmin = false;
+        private static int m_MsTimeOut = 30;
 
         /// <summary>
         /// Delegate method to provide custom logging
@@ -273,12 +274,15 @@ namespace APE.Language
             //GUI.m_APE = null;
             //GC.Collect();
             //GC.WaitForPendingFinalizers();
-            if (GUI.m_APE != null)
+            if (m_APE != null)
             {
-                GUI.m_APE.RemoveFileMapping();
+                m_APE.RemoveFileMapping();
             }
-            GUI.m_APE = new APEIPC(process, domain);
+            m_APE = new APEIPC(process, domain);
             m_AttachedProcess = process;
+
+            //Set the default timeout
+            SetTimeOut(m_MsTimeOut);
         }
 
         /// <summary>
@@ -296,7 +300,11 @@ namespace APE.Language
         /// <param name="msTimeOut"></param>
         public static void SetTimeOut(int msTimeOut)
         {
-            m_APE.TimeOut = (uint)msTimeOut;
+            m_MsTimeOut = msTimeOut;
+            if (m_APE != null)
+            {
+                m_APE.TimeOut = (uint)msTimeOut;
+            }
         }
 
         /// <summary>
@@ -305,7 +313,7 @@ namespace APE.Language
         /// <returns></returns>
         public static int GetTimeOut()
         {
-            return (int)m_APE.TimeOut;
+            return m_MsTimeOut;
         }
 
         /// <summary>

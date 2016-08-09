@@ -140,7 +140,7 @@ namespace APE.Communication
         Process ApeProcess = null;
         Process AUTProcess = null;
         bool m_Abort = false;
-        uint m_TimeOut = 30000;         //timeout default 30 seconds
+        uint m_TimeOut = 0;
         //int m_Sleep = 62;               //sleep time ms best to use one of the following values rounded down (or a multiple)
         //15.625
         //31.25
@@ -363,11 +363,10 @@ namespace APE.Communication
 
         public unsafe void GetContextMenuStrip(int MessageNumber)
         {
-
             //must be first message
             if (MessageNumber != 1)
             {
-                throw new Exception("GetListViewItemRectangle must be first message");
+                throw new Exception("GetContextMenuStrip must be first message");
             }
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
@@ -390,10 +389,10 @@ namespace APE.Communication
             PtrMessage->NameLength = 0;
             PtrMessage->Action = MessageAction.None;
 
-            //Find it
             m_AllControls = new List<IntPtr>();
             NM.EnumThreadWindows((uint)NM.GetWindowThreadProcessId(Handle, IntPtr.Zero), EnumThreadProcedue, IntPtr.Zero);
 
+            IntPtr contextMenuStrip = IntPtr.Zero;
             foreach (IntPtr hWnd in m_AllControls)
             {
                 if (NM.IsWindowVisible(hWnd))
@@ -403,12 +402,13 @@ namespace APE.Communication
                     {
                         if (FoundControl.GetType().Name == "ContextMenuStrip")
                         {
-                            AddReturnValue(new Parameter(this, hWnd));
+                            contextMenuStrip = hWnd;
                             break;
                         }
                     }
                 }
             }
+            AddReturnValue(new Parameter(this, contextMenuStrip));
         }
 
         public unsafe void GetTitleBarItemRectangle(int MessageNumber)
