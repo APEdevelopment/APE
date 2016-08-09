@@ -561,8 +561,9 @@ namespace APE.Spy
                 }
                 else if (m_Identity.Text != "" && m_Identity.Text != null)
                 {
-                    //Use Text as the index key
+                    //Use Typename and Text as the index key
                     identity.Text = Regex.Escape(m_Identity.Text);
+                    identity.TypeName = m_Identity.TypeName;
                 }
                 else
                 {
@@ -596,8 +597,9 @@ namespace APE.Spy
             }
             else if (m_Identity.Text != "" && m_Identity.Text != null)
             {
-                PropertyListbox.Items.Add("Index (by Text)\t: " + m_Identity.Index);
-                mainLocatorText = ", new Identifier(Identifiers.Text, \"" + Regex.Escape(m_Identity.Text) + "\")";
+                PropertyListbox.Items.Add("Index (by Text and\t: " + m_Identity.Index);
+                PropertyListbox.Items.Add(" TypeName)");
+                mainLocatorText = ", new Identifier(Identifiers.Text, \"" + Regex.Escape(m_Identity.Text) + "\"), new Identifier(Identifiers.TypeName, \"" + m_Identity.TypeName + "\")";
             }
             else
             {
