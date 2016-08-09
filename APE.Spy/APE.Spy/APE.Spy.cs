@@ -356,6 +356,7 @@ namespace APE.Spy
         private void IdentifyButton_Click(object sender, EventArgs e)
         {
             IdentifyButton.Enabled = false;
+            WinformsProcessesCombobox.Enabled = false;
             label1.Text = "Move the mouse cursor over the desired window and then press the control key";
 
             //install hotkey hook for control key
@@ -443,6 +444,7 @@ namespace APE.Spy
                 NM.UnregisterHotKey(this.Handle, 1);
                 label1.Text = "";
                 IdentifyButton.Enabled = true;
+                WinformsProcessesCombobox.Enabled = true;
             }
         }
 
