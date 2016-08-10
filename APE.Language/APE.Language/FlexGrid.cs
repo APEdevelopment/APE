@@ -146,7 +146,7 @@ namespace APE.Language
 
                 if (CurrentRow == -1)
                 {
-                    throw new Exception("Failed to find child node");
+                    break;
                 }
 
                 //Check if its parents match the node we are after
