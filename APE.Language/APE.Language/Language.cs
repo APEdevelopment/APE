@@ -303,7 +303,10 @@ namespace APE.Language
             m_MsTimeOut = msTimeOut;
             if (m_APE != null)
             {
-                m_APE.TimeOut = (uint)msTimeOut;
+                if (!m_AttachedProcess.HasExited)
+                {
+                    m_APE.TimeOut = (uint)msTimeOut;
+                }
             }
         }
 
