@@ -543,7 +543,7 @@ namespace APE.Language
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_ParentToolStrip.m_ParentForm.Handle, m_ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
-            GUI.m_APE.AddMessagePollMember(DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, Text));
+            GUI.m_APE.AddMessagePollMember(DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, Text), new Parameter(GUI.m_APE, true));
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
         }

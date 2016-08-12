@@ -1283,7 +1283,7 @@ namespace APE.Communication
             m_DoneGet = true;
         }
 
-        unsafe public void AddMessagePollMember(DataStores SourceStore, string Name, MemberTypes MemberType, Parameter ItemToPollFor)
+        unsafe public void AddMessagePollMember(DataStores SourceStore, string Name, MemberTypes MemberType, Parameter ItemToPollFor, Parameter unsafeCrossThread)
         {
             if (m_DoneFind == false)
             {
@@ -2896,6 +2896,8 @@ namespace APE.Communication
                     throw new Exception("Unsupported ApeTypeCode: " + ((int)PtrMessage->Parameter.TypeCode).ToString());
             }
 
+            bool unsafeCrossThread = GetParameterBoolean(PtrMessage, 1);
+
             Type SourceType;
             string Name;
             Fasterflect.MemberGetter MemberGetter;
@@ -2979,7 +2981,14 @@ namespace APE.Communication
                 Stopwatch timer = Stopwatch.StartNew();
                 while (true)
                 {
-                    ItemFound = ((WF.Control)tempStore0).Invoke(MemberGetter, SourceObject.WrapIfValueType());
+                    if (unsafeCrossThread)
+                    {
+                        ItemFound = MemberGetter(SourceObject.WrapIfValueType());
+                    }
+                    else
+                    {
+                        ItemFound = ((WF.Control)tempStore0).Invoke(MemberGetter, SourceObject.WrapIfValueType());
+                    }
                     
                     if (ItemFound == ItemToPollFor)
                     {
