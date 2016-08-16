@@ -74,13 +74,14 @@ namespace APE.Language
             m_MouseDown = false;
             uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
             Block(ParentHandle, Handle);
+            
+            TimerResolution.SetMaxTimerResolution();
+            NM.SetDoubleClickTime(1);
+    
+            ClickCommon(ParentHandle, Handle, X, Y);
+
             try
             {
-                TimerResolution.SetMaxTimerResolution();
-                NM.SetDoubleClickTime(1);
-    
-                ClickCommon(ParentHandle, Handle, X, Y);
-                
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -134,12 +135,13 @@ namespace APE.Language
 
             m_MouseDown = false;
             Block(ParentHandle, Handle);
+            
+            TimerResolution.SetMaxTimerResolution();
+
+            ClickCommon(ParentHandle, Handle, X, Y);
+
             try
             {
-                TimerResolution.SetMaxTimerResolution();
-
-                ClickCommon(ParentHandle, Handle, X, Y);
-
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -199,12 +201,13 @@ namespace APE.Language
 
             m_MouseDown = false;
             Block(ParentHandle, Handle);
+            
+            TimerResolution.SetMaxTimerResolution();
+
+            ClickCommon(ParentHandle, Handle, X, Y);
+
             try
             {
-                TimerResolution.SetMaxTimerResolution();
-
-                ClickCommon(ParentHandle, Handle, X, Y);
-
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -817,17 +820,28 @@ namespace APE.Language
 
             if (PerformCheck)
             {
-                IntPtr ChildHandle;
-
-                thePoint.x = xOffset + WindowRect.left;
-                thePoint.y = yOffset + WindowRect.top;
-
-                ChildHandle = NM.WindowFromPoint(thePoint);
-
-                //Make sure we are inside the controls window area
-                if (Handle != ChildHandle)
+                Stopwatch timer = Stopwatch.StartNew();
+                while (true)
                 {
-                    throw new Exception("Coordinates are not inside the controls area");
+                    IntPtr ChildHandle;
+
+                    thePoint.x = xOffset + WindowRect.left;
+                    thePoint.y = yOffset + WindowRect.top;
+
+                    ChildHandle = NM.WindowFromPoint(thePoint);
+
+                    //Make sure we are inside the controls window area
+                    if (Handle == ChildHandle)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                        {
+                            throw new Exception("Coordinates are not inside the controls area");
+                        }
+                    }
                 }
             }
 
