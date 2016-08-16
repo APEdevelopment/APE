@@ -121,14 +121,17 @@ namespace APE.Communication
         /// Calls into the AUT to remove a previously added mouse hook on the thread belonging to the specified window
         /// </summary>
         /// <param name="handle">A handle to the window of the thread you want to remove the hook from</param>
-        unsafe public void AddQueryMessageRemoveMouseHook(IntPtr handle)
+        unsafe public void AddFirstMessageRemoveMouseHook(IntPtr handle)
         {
+            FirstMessageInitialise();
+
             Message* ptrMessage = GetPointerToNextMessage();
             ptrMessage->Action = MessageAction.RemoveMouseHook;
 
             Parameter handleParameter = new Parameter(this, handle);
 
             m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
             m_DoneQuery = true;
             m_DoneGet = true;
         }
@@ -140,9 +143,9 @@ namespace APE.Communication
         /// <param name="messageNumber">The message number</param>
         private unsafe void RemoveMouseHook(Message* ptrMessage, int messageNumber)
         {
-            if (messageNumber == 1)
+            if (messageNumber != 1)
             {
-                throw new Exception("RemoveMouseHook must not be the first message");
+                throw new Exception("RemoveMouseHook must be the first message");
             }
 
             IntPtr handle = GetParameterIntPtr(ptrMessage, 0); ;
@@ -183,7 +186,7 @@ namespace APE.Communication
             m_DoneQuery = true;
             m_DoneGet = true;
         }
-
+        
         /// <summary>
         /// Gets the parameters from the message then waits for the desired mouse messages to arrive
         /// </summary>
@@ -211,121 +214,126 @@ namespace APE.Communication
                 DebugLogging.WriteLog("Waiting on " + button.ToString() + " mouse up");
             }
 
-            bool done = false;
-            while (!done)
+            try
             {
-                switch (button)
+                bool done = false;
+                while (!done)
                 {
-                    case MouseButton.Left:
-                        if (mouseDown)
-                        {
-                            if (firstClick)
-                            {
-                                if (m_WM_LBUTTONDOWN)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (m_WM_LBUTTONDOWN || m_WM_LBUTTONDBLCLK)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (m_WM_LBUTTONUP)
-                            {
-                                timer.Stop();
-                                return;
-                            }
-                        }
-                        break;
-                    case MouseButton.Right:
-                        if (mouseDown)
-                        {
-                            if (firstClick)
-                            {
-                                if (m_WM_RBUTTONDOWN)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (m_WM_RBUTTONDOWN || m_WM_RBUTTONDBLCLK)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (m_WM_RBUTTONUP)
-                            {
-                                timer.Stop();
-                                return;
-                            }
-                        }
-                        break;
-                    case MouseButton.Middle:
-                        if (mouseDown)
-                        {
-                            if (firstClick)
-                            {
-                                if (m_WM_MBUTTONDOWN)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                if (m_WM_MBUTTONDOWN || m_WM_MBUTTONDBLCLK)
-                                {
-                                    timer.Stop();
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (m_WM_MBUTTONUP)
-                            {
-                                timer.Stop();
-                                return;
-                            }
-                        }
-                        break;
-                }
-
-                if (!done)
-                {
-                    Thread.Yield();
-                }
-
-                if (timer.ElapsedMilliseconds > m_TimeOut)
-                {
-                    timer.Stop();
-                    if (mouseDown)
+                    switch (button)
                     {
-                        throw new Exception("Failed to find " + button.ToString() + " mouse down");
-                    }
-                    else
-                    {
-                        throw new Exception("Failed to find " + button.ToString() + " mouse up");
+                        case MouseButton.Left:
+                            if (mouseDown)
+                            {
+                                if (firstClick)
+                                {
+                                    if (m_WM_LBUTTONDOWN)
+                                    {
+                                        timer.Stop();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    if (m_WM_LBUTTONDOWN || m_WM_LBUTTONDBLCLK)
+                                    {
+                                        timer.Stop();
+                                        return;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (m_WM_LBUTTONUP)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                            break;
+                        case MouseButton.Right:
+                            if (mouseDown)
+                            {
+                                if (firstClick)
+                                {
+                                    if (m_WM_RBUTTONDOWN)
+                                    {
+                                        timer.Stop();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    if (m_WM_RBUTTONDOWN || m_WM_RBUTTONDBLCLK)
+                                    {
+                                        timer.Stop();
+                                        return;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (m_WM_RBUTTONUP)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                            break;
+                        case MouseButton.Middle:
+                            if (mouseDown)
+                            {
+                                if (firstClick)
+                                {
+                                    if (m_WM_MBUTTONDOWN)
+                                    {
+                                        timer.Stop();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    if (m_WM_MBUTTONDOWN || m_WM_MBUTTONDBLCLK)
+                                    {
+                                        timer.Stop();
+                                        return;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (m_WM_MBUTTONUP)
+                                {
+                                    timer.Stop();
+                                    return;
+                                }
+                            }
+                            break;
                     }
 
+                    if (!done)
+                    {
+                        Thread.Yield();
+                    }
+
+                    if (timer.ElapsedMilliseconds > m_TimeOut)
+                    {
+                        timer.Stop();
+                        if (mouseDown)
+                        {
+                            throw new Exception("Failed to find " + button.ToString() + " mouse down");
+                        }
+                        else
+                        {
+                            throw new Exception("Failed to find " + button.ToString() + " mouse up");
+                        }
+
+                    }
                 }
             }
-
-            ClearMouseState();
+            finally
+            {
+                ClearMouseState();
+            }
 
             DebugLogging.WriteLog("Mouse State done");
         }

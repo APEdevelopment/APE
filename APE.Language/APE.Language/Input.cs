@@ -98,21 +98,29 @@ namespace APE.Language
                 MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
                 GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
-                GUI.m_APE.AddQueryMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
             catch
             {
-                NM.SetDoubleClickTime(DoubleClickTimer);        //Reset double click timer
-                Reset();    //Reset the mouse blocking
+                NM.SetDoubleClickTime(DoubleClickTimer);    //Reset double click timer
+                Reset();                                    //Reset the mouse blocking
                 throw;
             }
             finally
             {
-                TimerResolution.UnsetMaxTimerResolution();
-                NM.SetDoubleClickTime(DoubleClickTimer);
-                Unblock();
+                try
+                {
+                    GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                finally
+                {
+                    TimerResolution.UnsetMaxTimerResolution();
+                    NM.SetDoubleClickTime(DoubleClickTimer);
+                    Unblock();
+                }
             }
         }
 
@@ -157,7 +165,6 @@ namespace APE.Language
                 MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
                 GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
-                GUI.m_APE.AddQueryMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
@@ -168,8 +175,17 @@ namespace APE.Language
             }
             finally
             {
-                TimerResolution.UnsetMaxTimerResolution();
-                Unblock();
+                try
+                {
+                    GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                finally
+                {
+                    TimerResolution.UnsetMaxTimerResolution();
+                    Unblock();
+                }
             }
         }
 
@@ -226,7 +242,6 @@ namespace APE.Language
                 MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
                 GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
-                GUI.m_APE.AddQueryMessageRemoveMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
@@ -237,8 +252,17 @@ namespace APE.Language
             }
             finally
             {
-                TimerResolution.UnsetMaxTimerResolution();
-                Unblock();
+                try
+                {
+                    GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                finally
+                {
+                    TimerResolution.UnsetMaxTimerResolution();
+                    Unblock();
+                }
             }
         }
 
