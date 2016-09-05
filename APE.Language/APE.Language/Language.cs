@@ -180,7 +180,7 @@ namespace APE.Language
         internal static ViewPort m_ViewPort;
         private static Thread m_threadViewPort;
         private static bool m_IsElevatedAdmin = false;
-        private static int m_MsTimeOut = 30;
+        private static int m_MsTimeOut = 30000;
 
         /// <summary>
         /// Delegate method to provide custom logging

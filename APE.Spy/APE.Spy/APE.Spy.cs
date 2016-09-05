@@ -112,53 +112,50 @@ namespace APE.Spy
         {
             LocateButton.Enabled = false;
 
-            if (WinformsProcessesCombobox.Enabled)
+            //store a temp copy of m_Identity
+            ControlIdentifier temp = m_Identity;
+
+            WindowTree.Nodes.Clear();
+            PropertyListbox.Items.Clear();
+            m_CurrentAttached = (KeyValuePair<Process, string>)WinformsProcessesCombobox.SelectedItem;
+
+            if (m_CurrentAttached.Key.HasExited)
             {
-                //store a temp copy of m_Identity
-                ControlIdentifier temp = m_Identity;
-
-                WindowTree.Nodes.Clear();
-                PropertyListbox.Items.Clear();
-                m_CurrentAttached = (KeyValuePair<Process, string>)WinformsProcessesCombobox.SelectedItem;
-
-                if (m_CurrentAttached.Key.HasExited)
-                {
-                    WinformsProcessesCombobox.SelectedIndex = 0;
-                    Populate();
-                }
-                else
-                {
-                    if (m_CurrentAttached.Key.Id != Process.GetCurrentProcess().Id)
-                    {
-                        ListOfTopLevelWindows = new Dictionary<IntPtr, string>();
-
-                        NM.EnumWindowsProc WindowsCallback = new NM.EnumWindowsProc(EnumProc);
-
-                        if (m_APE != null)
-                        {
-                            m_APE.RemoveFileMapping();
-                        }
-
-                        if (AppDomainComboBox.Enabled)
-                        {
-                            string NewDomain = AppDomainComboBox.SelectedItem.ToString();
-                            m_APE = new APEIPC(m_CurrentAttached.Key, NewDomain);
-                        }
-                        else
-                        {
-                            m_APE = new APEIPC(m_CurrentAttached.Key);
-                        }
-                        m_APE.TimeOut = 0;
-
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
-
-                        NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
-                    }
-                }
-                //restore m_Identity
-                m_Identity = temp;
+                WinformsProcessesCombobox.SelectedIndex = 0;
+                Populate();
             }
+            else
+            {
+                if (m_CurrentAttached.Key.Id != Process.GetCurrentProcess().Id)
+                {
+                    ListOfTopLevelWindows = new Dictionary<IntPtr, string>();
+
+                    NM.EnumWindowsProc WindowsCallback = new NM.EnumWindowsProc(EnumProc);
+
+                    if (m_APE != null)
+                    {
+                        m_APE.RemoveFileMapping();
+                    }
+
+                    if (AppDomainComboBox.Enabled)
+                    {
+                        string NewDomain = AppDomainComboBox.SelectedItem.ToString();
+                        m_APE = new APEIPC(m_CurrentAttached.Key, NewDomain);
+                    }
+                    else
+                    {
+                        m_APE = new APEIPC(m_CurrentAttached.Key);
+                    }
+                    m_APE.TimeOut = 0;
+
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+
+                    NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
+                }
+            }
+            //restore m_Identity
+            m_Identity = temp;
         }
 
         private bool EnumProcToGetProcesses(IntPtr hWnd, IntPtr lParam)

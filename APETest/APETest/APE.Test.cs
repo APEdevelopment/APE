@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.IO;
 using System.Net.Mail;
+using System.Drawing;
 using APE.Language;
 using APE.Capture;
 
@@ -240,22 +241,422 @@ namespace APE.Test
             Stopwatch stepTimer;
             stepTimer = Stopwatch.StartNew();
 
+            string text = "";
+            Image image = null;
 
-            Process p = Process.GetProcessesByName("LzCapstone")[0];
+            //////IMS
+            //Process p = Process.GetProcessesByName("LzCapstone")[0];
+            //GUI.AttachToProcess(p);
+            //GUI.SetTimeOut(5000);
+
+
+
+
+            //GUIForm splash = new GUIForm("splash screen", new Identifier(Identifiers.Name, "SplashScreenForm"));
+            //GUIPictureBox splashPicturebox = new GUIPictureBox(splash, "picture box", new Identifier(Identifiers.Name, "picSplash"));
+
+            //Image ook1 = splashPicturebox.Image();
+            //Image ook2 = splashPicturebox.BackgroundImage();
+            //ook2.Save(@"C:\splash.bmp");
+
+
+            //Sentinel
+            Process p = Process.GetProcessesByName("LzSentinel")[0];
             GUI.AttachToProcess(p);
+            GUIForm Sentinel = new GUIForm("sentinel form", new Identifier(Identifiers.Name, "CapstoneContainer"));
 
-            //GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
+            GUIFlexgrid today = new GUIFlexgrid(Sentinel, "sentinel today", new Identifier(Identifiers.Name, "vfgStats"));
+
+            for (int x = 0; x < 1000; x++)
+            {
+                today.Select("Overrides -> New", 0, MouseButton.Left, CellClickLocation.CentreOfCell);
+            }
+            
+
+
+            //
+            //
+            //
+            //GUIForm CheckSecuritiesForm = new GUIForm("check securities form", new Identifier(Identifiers.Text, "Check Securities"));
+            //GUIAxLZResultsGrid resultsGrid = new GUIAxLZResultsGrid(CheckSecuritiesForm, "results grid", new Identifier(Identifiers.Name, ""), new Identifier(Identifiers.TypeNameSpace, "LatentZero.Capstone.ComSupport.ResultsGrid"), new Identifier(Identifiers.TypeName, "AxLZResultsGrid"));
+
+
             //GUIFlexgrid layout = new GUIFlexgrid(IMS, "treeView", new Identifier(Identifiers.Name, "treeView"));
+            //GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+            //GUIAxLZResultsGrid resultsGrid = new GUIAxLZResultsGrid(ASA, "lzcResultsGrid", new Identifier(Identifiers.Name, "lzcResultsGrid"));
 
 
+            //GUIForm me = new GUIForm("IMS form", new Identifier(Identifiers.Name, "frmMultiExecution"));
+            //GUIFlexgrid ms = new GUIFlexgrid(me, "fgEditor", new Identifier(Identifiers.Name, "fgEditor"));
 
-            GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+            //int cols = ms.Columns();
+            //int rows = ms.Rows();
 
-            GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+            //Stopwatch timer = Stopwatch.StartNew();
+            //for (int x = 0; x < rows; x++)
+            //{
+            //    for (int y = 0; y < cols; y++)
+            //    {
+            //        text = ms.GetCellCheck(x, y);
+            //    }
+            //}
+            //Debug.WriteLine((rows * cols).ToString() + " = " + timer.ElapsedMilliseconds.ToString());
+            //Debug.WriteLine(text);
 
-            entry.SetCellValue(1, "Instrument", "AEGON 5 3/4 12/15/20");
+            //timer = Stopwatch.StartNew();
+            //text = ms.GetCellRangeClip(0, 0, rows - 1, cols - 1);
+            //Debug.WriteLine((rows * cols).ToString() + " = " + timer.ElapsedMilliseconds.ToString());
+            ////Debug.WriteLine(text);
+
+            //GUIForm mr = new GUIForm("IMS form", new Identifier(Identifiers.Name, "frmMultiRelease"));
+            //GUIFlexgrid ml = new GUIFlexgrid(mr, "treeView", new Identifier(Identifiers.Name, "fgMarketListInfo"));
+            //text = ml.GetCellValue(0, 0, GUIFlexgrid.CellProperty.TextDisplay);
+            //Debug.WriteLine("= " + text);
+            //text = ml.GetCellValue(1, 0, GUIFlexgrid.CellProperty.TextDisplay);
+            //Debug.WriteLine("= " + text);
+            //string ook = ml.GetCellValue(1, 0, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("= " + ook.ToString());
+            //string typ = ml.GetColumnType(0);
+            //Debug.WriteLine("= " + typ);
+            //string format = ml.GetColumnFormat(0);
+            //Debug.WriteLine("= " + format);
+            //GUIForm sr = new GUIForm("sr", new Identifier(Identifiers.Name, "frmSingleRelease"));
+            //GUIFlexgrid st = new GUIFlexgrid(sr, "fgGrid", new Identifier(Identifiers.Name, "fgGrid"));
+            //int columns = st.Columns();
+            //text = st.GetCellValue(0, columns - 1, GUIFlexgrid.CellProperty.TextDisplay);
+            //Debug.WriteLine("= " + text);
+            //text = st.GetCellValue(1, columns - 1, GUIFlexgrid.CellProperty.TextDisplay);
+            //Debug.WriteLine("= " + text);
+
+            //int col;
+            ////GUIForm se = new GUIForm("se", new Identifier(Identifiers.Name, "frmSingleExecution"));
+            ////GUIFlexgrid st = new GUIFlexgrid(se, "fgAddGrid", new Identifier(Identifiers.Name, "fgAddGrid"));
+            ////GUIFlexgrid ag = new GUIFlexgrid(se, "fgAmendGrid", new Identifier(Identifiers.Name, "fgAmendGrid"));
+            ////int columns = st.Columns();
+            //Stopwatch timer = Stopwatch.StartNew();
+            //GUIForm IMS = new GUIForm("IMS form", new Identifier(Identifiers.Name, "CapstoneContainer"));
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+
+            //GUIForm ASA = new GUIForm("ASA", new Identifier(Identifiers.Name, "SimpleContainer"));
+            //GUIAxLZResultsGrid sentinelGrid = new GUIAxLZResultsGrid(ASA, "sentinel grid", new Identifier(Identifiers.Name, "lzcResultsGrid"));
+
+
+            //timer = Stopwatch.StartNew();
+            //Debug.WriteLine(sentinelGrid.Columns().ToString());
+            //Debug.WriteLine("columns time: " + timer.ElapsedMilliseconds.ToString());
+
+            //timer = Stopwatch.StartNew();
+            //GUIForm sr = new GUIForm("single release", new Identifier(Identifiers.Name, "frmSingleRelease"));
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+            //timer = Stopwatch.StartNew();
+            //GUIFlexgrid addamend = new GUIFlexgrid(sr, "add / amend grid", new Identifier(Identifiers.Name, "fgGrid"));
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+            //timer = Stopwatch.StartNew();
+            //GUIFlexgrid al = new GUIFlexgrid(sr, "alloc control grid", new Identifier(Identifiers.Name, "fgData"));
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+            //timer = Stopwatch.StartNew();
+            //string backColours1 = addamend.GetCellRange(0, 0, addamend.Rows() - 1, addamend.Columns() - 1, CellProperty.BackColourName);
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+            ////Clipboard.SetDataObject(backColours, true, 2,100);
+
+            //timer = Stopwatch.StartNew();
+            //string DataDisplay1 = addamend.GetCellRange(0, 0, addamend.Rows() - 1, addamend.Columns() - 1, CellProperty.TextDisplay);
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+
+            //timer = Stopwatch.StartNew();
+            //string backColours = al.GetCellRange(0, 0, al.Rows() - 1, al.Columns() - 1, CellProperty.BackColourName);
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+            ////Clipboard.SetDataObject(backColours, true, 2,100);
+
+            //timer = Stopwatch.StartNew();
+            //string DataDisplay = al.GetCellRange(0, 0, al.Rows() - 1, al.Columns() - 1, CellProperty.TextDisplay);
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+            //timer = Stopwatch.StartNew();
+            //col = st.FindColumn("Counterparty");
+            //col = st.FindColumn("Stmp");
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("add row 0 TD = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("add row 1 TD = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("ame row 0 TD = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("add row 0 CB = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("add row 1 CB = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("ame row 0 CB = " + text);
+
+            //Debug.WriteLine("");
+
+            //image = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.Image);
+            //if (image == null)
+            //{
+            //    Debug.WriteLine("add row 0 IM = ");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("add row 0 IM = " + image.ToString());
+            //    image.Save(@"C:\expand.bmp");
+            //}
+
+            //image = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.Image);
+            //if (image == null)
+            //{
+            //    Debug.WriteLine("add row 1 IM = ");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("add row 1 IM = " + text.ToString());
+            //}
+
+            //image = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.Image);
+            //if (image == null)
+            //{
+            //    Debug.WriteLine("ame row 0 IM = ");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("ame row 0 IM = " + text.ToString());
+            //    image.Save(@"C:\counterparty.bmp");
+            //}
+
+            //Debug.WriteLine("");
+
+            //image = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackgroundImage);
+            //if (image == null)
+            //{
+            //    Debug.WriteLine("add row 0 BI = ");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("add row 0 BI = " + image.ToString());
+            //}
+            //image = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.BackgroundImage);
+            //if (image == null)
+            //{
+            //    Debug.WriteLine("add row 1 BI = ");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("add row 1 BI = " + image.ToString());
+            //}
+            //image = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackgroundImage);
+            //if (image == null)
+            //{
+            //    Debug.WriteLine("ame row 0 BI = ");
+            //}
+            //else
+            //{
+            //    Debug.WriteLine("ame row 0 BI = " + image.ToString());
+            //    image.Save(@"C:\oooooooook.bmp");
+            //}
 
             Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("add row 0 CB = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("add row 1 CB = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("ame row 0 CB = " + text);
+
+            //Debug.WriteLine("");
+
+
+            //col = st.FindColumn("Whs");
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("add row 0 TD = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("add row 1 TD = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("ame row 0 TD = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("add row 0 CB = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("add row 1 CB = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("ame row 0 CB = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.Image).ToString();
+            //Debug.WriteLine("add row 0 Im = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.Image).ToString();
+            //Debug.WriteLine("add row 1 Im = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.Image).ToString();
+            //Debug.WriteLine("ame row 0 Im = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackgroundImage).ToString();
+            //Debug.WriteLine("add row 0 BI = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.BackgroundImage).ToString();
+            //Debug.WriteLine("add row 1 BI = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackgroundImage).ToString();
+            //Debug.WriteLine("ame row 0 BI = " + text);
+
+            //Debug.WriteLine("");
+
+            //col = st.FindColumn("Counterparty");
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("add row 0 TD = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("add row 1 TD = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.DataDisplay);
+            //Debug.WriteLine("ame row 0 TD = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("add row 0 CB = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("add row 1 CB = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.CheckBox);
+            //Debug.WriteLine("ame row 0 CB = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.Image).ToString();
+            //Debug.WriteLine("add row 0 Im = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.Image).ToString();
+            //Debug.WriteLine("add row 1 Im = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.Image).ToString();
+            //Debug.WriteLine("ame row 0 Im = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackgroundImage).ToString();
+            //Debug.WriteLine("add row 0 BI = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.BackgroundImage).ToString();
+            //Debug.WriteLine("add row 1 BI = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackgroundImage).ToString();
+            //Debug.WriteLine("ame row 0 BI = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.ForeColor).Name;
+            //Debug.WriteLine("add row 0 FC = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.ForeColor).Name;
+            //Debug.WriteLine("add row 1 FC = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.ForeColor).Name;
+            //Debug.WriteLine("ame row 0 FC = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackColor).Name;
+            //Debug.WriteLine("add row 0 BC = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.BackColor).Name;
+            //Debug.WriteLine("add row 1 BC = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.BackColor).Name;
+            //Debug.WriteLine("ame row 0 BC = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("add row 0 CB = " + text);
+            //text = st.GetCellValue(1, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("add row 1 CB = " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("ame row 0 CB = " + text);
+
+            //Debug.WriteLine("");
+
+            //text = st.GetCellCheck(0, "Stmp");
+            //Debug.WriteLine("= " + text);
+            //text = st.GetCellCheck(1, "Stmp");
+            //Debug.WriteLine("= " + text);
+            //text = ag.GetCellCheck(0, col);
+            //Debug.WriteLine("= " + text);
+
+            //text = st.GetCellValue(0, "Stmp", GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("= " + text);
+            //text = st.GetCellValue(1, "Stmp", GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("= " + text);
+            //text = ag.GetCellValue(0, col, GUIFlexgrid.CellProperty.Clip);
+            //Debug.WriteLine("= " + text);
+
+            //resultsGrid.CopyToClipboard();
+            //Debug.WriteLine(resultsGrid.Rows().ToString());
+            //Debug.WriteLine(resultsGrid.Columns().ToString());
+            //Debug.WriteLine(resultsGrid.FirstVisibleColumn().ToString());
+
+            ////for (int i = resultsGrid.FirstVisibleColumn(); i < resultsGrid.Columns(); i++)
+            //for (int i = 0; i < resultsGrid.Columns(); i++)
+            //{
+            //    //if (!resultsGrid.IsColumnHidden(i))
+            //    //{
+            //        Debug.WriteLine(resultsGrid.GetCellValue(0, i, GUIAxLZResultsGrid.VSFlexgridCellPropertySettings.flexcpTextDisplay));
+            //        //Debug.WriteLine(resultsGrid.GetCellRangeClip(0, i, 0, i) + " " + resultsGrid.ColumnWidth(i).ToString());
+            //    //}
+            //}
+
+            //Debug.WriteLine(resultsGrid.GetCellRangeClip(0, 0, 5, resultsGrid.Columns() - 1));
+
+
+
+            //GUIAxLZResultsGrid res = new GUIAxLZResultsGrid(ASA, "lzcResultsGrid", new Identifier(Identifiers.Name, "faddcdb9-0d32-46b6-941a-57a7784bc2ff"));
+            //GUIAxLZResultsGrid res = new GUIAxLZResultsGrid(ASA, "lzcResultsGrid", new Identifier(Identifiers.Name, "lzcResultsGrid"));
+            //Stopwatch timer = Stopwatch.StartNew();
+            //res.foo2();
+            //Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+
+
+
+            //Debug.WriteLine("done");
+
+
+            ////GUIFlexgrid grid = new GUIFlexgrid(Sentinel, "treeView", new Identifier(Identifiers.Name, "vfgTree"));
+            ////GUIFlexgrid grid = new GUIFlexgrid(Sentinel, "treeView", new Identifier(Identifiers.Name, "vfgRuleGrid"));
+
+            //GUIDocumentContainer dc = new GUIDocumentContainer(Sentinel, "dc", new Identifier(Identifiers.TypeName, "DocumentContainer"));
+
+            //dc.ItemSelect("monitor dooooooooooooooooooooooooooooooooo csdddddddddddddddc");
+            //dc.ItemSelect("Sentinel Today");
+            //dc.ItemSelect("monitor dooooooooooooooooooooooooooooooooo csdddddddddddddddc");
+            //dc.ItemSelect("Sentinel Today");
+
+            //GUITitleFrame tf = new GUITitleFrame(Sentinel, "TitleFrame", new Identifier(Identifiers.Name, "TitleFrame"));
+            //Debug.WriteLine(tf.CanMaximise().ToString());
+            //Debug.WriteLine(tf.IsMaximised().ToString());
+
+            //GUITitleFrameButton max = tf.GetButton(" titleframe min max button", new Identifier(Identifiers.Name, "MinMax"));
+            //Debug.WriteLine(max.ToolTipText);
+            //max.MouseSingleClick(MouseButton.Left);
+            //Debug.WriteLine(tf.IsMaximised().ToString());
+            //Thread.Sleep(1000);
+            //max.MouseSingleClick(MouseButton.Left);
+            //Thread.Sleep(1000);
+            //Debug.WriteLine("st: " + tf.Subtitle());
+            //max.MouseMove();
+            //Debug.WriteLine("st: " + tf.Subtitle());
+
+            //GUIExpando xp = new GUIExpando(Sentinel, "Expando", new Identifier(Identifiers.Name, "ScreenSwitcherControl"));
+            //xp.Collapse();
+            //xp.Expand();
+
+            //grid.ExpandTreeView();
+            //grid.CollapseTreeView();
+
+            //GUIForm ASA = new GUIForm("ASA form", new Identifier(Identifiers.Name, "SimpleContainer"));
+
+            //GUIElementStripGrid entry = new GUIElementStripGrid(ASA, "entry strip", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 2));
+
+            //entry.SetCellValue(1, "Instrument", "AEGON 5 3/4 12/15/20");
+
+            //Debug.WriteLine("");
 
 
             //for (int i = 0; i < layout.Rows(); i++)
@@ -763,7 +1164,6 @@ namespace APE.Test
 
             for (int x = 0; x < int.Parse(textBox1.Text); x++)
             {
-
                 Process p;
 
                 // close any running sentinels
