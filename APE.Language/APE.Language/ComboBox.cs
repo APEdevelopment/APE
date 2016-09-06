@@ -77,9 +77,14 @@ namespace APE.Language
         {
             Stopwatch timer;
 
+            //Check if its already selected
+            if (this.Text == item)
+            {
+                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + item, LogItemTypeEnum.Action);
+                return;
+            }
+            
             GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
-
-            //TODO check if already set (no need to set it again)
 
             //Get the style
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);

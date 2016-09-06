@@ -608,7 +608,7 @@ namespace APE.Spy
 
             if (m_Identity.Index > 1)
             {
-                indexLocatorText = ", new Identifier(Identifiers.Index, \"" + m_Identity.Index + "\")";
+                indexLocatorText = ", new Identifier(Identifiers.Index, " + m_Identity.Index + ")";
             }
 
             if (m_Identity.ParentHandle != IntPtr.Zero)

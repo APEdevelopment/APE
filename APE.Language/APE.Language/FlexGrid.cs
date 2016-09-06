@@ -934,7 +934,7 @@ namespace APE.Language
 
             if (CurrentValue == expectedValue)
             {
-                GUI.Log("Ensure the cell is set to " + expectedValue, LogItemTypeEnum.Action);
+                GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemTypeEnum.Action);
                 return false;
             }
 
@@ -1049,6 +1049,14 @@ namespace APE.Language
                 CurrentValue = this.GetCellValue(row, column, CellProperty.TextDisplay);
 
                 if (CurrentValue == expectedValue)
+                {
+                    break;
+                }
+
+                // If the form it belongs to isn't enabled then there is likely a modal form displayed
+                // so exit the loop so the code can continue (its up to the caller to validate the
+                // value is set in these cases)
+                if (!m_ParentForm.IsEnabled)
                 {
                     break;
                 }

@@ -2556,7 +2556,7 @@ namespace APE.Communication
                     switch (TypeName)
                     {
                         case "WalkerControl":
-                            return "GUIWalkerControl";
+                            return "GUIGenericWalker";
                         default:
                             return "";
                     }
