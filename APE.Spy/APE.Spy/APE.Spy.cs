@@ -624,7 +624,7 @@ namespace APE.Spy
             }
             else
             {
-                m_ObjectCodeLocator = APEType + " $name$ = new " + APEType + "(" + parentLocatorText + "$friendlyName$" + mainLocatorText + indexLocatorText + ");";
+                m_ObjectCodeLocator = APEType.TrimEnd(new char[] { '*' }) + " $name$ = new " + APEType.TrimEnd(new char[] { '*' }) + "(" + parentLocatorText + "$friendlyName$" + mainLocatorText + indexLocatorText + ");";
             }
 
             PropertyListbox.Items.Add("");

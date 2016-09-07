@@ -256,7 +256,7 @@ namespace APE.Language
                     {
                         if (IsNodeCollapsed(rowIndex))
                         {
-                            SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+                            SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell, MouseKeyModifier.None);
 
                             Stopwatch timer = Stopwatch.StartNew();
                             while (true)
@@ -302,7 +302,7 @@ namespace APE.Language
                     {
                         if (!IsNodeCollapsed(rowIndex))
                         {
-                            SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+                            SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell, MouseKeyModifier.None);
 
                             Stopwatch timer = Stopwatch.StartNew();
                             while (true)
@@ -363,7 +363,7 @@ namespace APE.Language
 
                 if (IsNodeCollapsed(rowIndex))
                 {
-                    SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+                    SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell, MouseKeyModifier.None);
 
                     Stopwatch timer = Stopwatch.StartNew();
                     while (true)
@@ -426,7 +426,7 @@ namespace APE.Language
 
                 if (!IsNodeCollapsed(rowIndex))
                 {
-                    SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell);
+                    SelectInternal(rowIndex, treeColumnIndex, MouseButton.Left, CellClickLocation.ExpandCollapseIconOfCell, MouseKeyModifier.None);
 
                     Stopwatch timer = Stopwatch.StartNew();
                     while (true)
@@ -947,7 +947,7 @@ namespace APE.Language
                 case "System.Boolean":  //checkbox
                     // Click on the checkbox
                     GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
-                    this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                    this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     break;
                 default:
                     // Select the cell if its not selected
@@ -958,7 +958,7 @@ namespace APE.Language
                     else
                     {
                         GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
-                        this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell);
+                        this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     }
 
                     // Put the cell into edit mode
@@ -1279,60 +1279,161 @@ namespace APE.Language
             }
         }
 
-        public void Show(string Row, string Column)
+        /// <summary>
+        /// Scrolls the specified cell into view
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnText">Column text of the cell delimited by -> for example Order -> Id</param>
+        public void Show(string rowIndex, string columnText)
         {
-            int RowNumber = FindRow(Row);
-            int ColumnNumber = FindColumn(Column);
+            int RowNumber = FindRow(rowIndex);
+            int ColumnNumber = FindColumn(columnText);
             Show(RowNumber, ColumnNumber);
         }
 
-        public void Show(int Row, int Column)
+        /// <summary>
+        /// Scrolls the specified cell into view
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        public void Show(int rowIndex, int columnIndex)
         {
-            if (!IsCellVisible(Row, Column))
+            if (!IsCellVisible(rowIndex, columnIndex))
             {
                 //TODO move mouse over the grid if not in drag mode?
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ShowCell", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, Column));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ShowCell", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
         }
 
-        public void Select(string Row, string Column, MouseButton Button, CellClickLocation LocationInCell)
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void Select(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
         {
-            int RowNumber = FindRow(Row);
-            int ColumnNumber = FindColumn(Column);
+            int RowNumber = FindRow(rowText);
+            int ColumnNumber = FindColumn(columnText);
 
-            GUI.Log("Single " + Button.ToString() + " click on " + m_DescriptionOfControl + " row " + Row + " column " + Column, LogItemTypeEnum.Action);
-            SelectInternal(RowNumber, ColumnNumber, Button, LocationInCell);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+            SelectInternal(RowNumber, ColumnNumber, button, locationInCell, MouseKeyModifier.None);
         }
 
-        public void Select(int Row, string Column, MouseButton Button, CellClickLocation LocationInCell)
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void Select(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            int ColumnNumber = FindColumn(Column);
+            int RowNumber = FindRow(rowText);
+            int ColumnNumber = FindColumn(columnText);
 
-            GUI.Log("Single " + Button.ToString() + " click on " + m_DescriptionOfControl + " row " + Row.ToString() + " column " + Column, LogItemTypeEnum.Action);
-            SelectInternal(Row, ColumnNumber, Button, LocationInCell);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+            SelectInternal(RowNumber, ColumnNumber, button, locationInCell, keyModifier);
         }
 
-        public void Select(string Row, int Column, MouseButton Button, CellClickLocation LocationInCell)
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void Select(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
         {
-            int RowNumber = FindRow(Row);
+            int ColumnNumber = FindColumn(columnText);
 
-            GUI.Log("Single " + Button.ToString() + " click on " + m_DescriptionOfControl + " row " + Row + " column " + Column.ToString(), LogItemTypeEnum.Action);
-            SelectInternal(RowNumber, Column, Button, LocationInCell);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
+            SelectInternal(rowIndex, ColumnNumber, button, locationInCell, MouseKeyModifier.None);
         }
 
-        public void Select(int Row, int Column, MouseButton Button, CellClickLocation LocationInCell)
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void Select(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Single " + Button.ToString() + " click on " + m_DescriptionOfControl + " row " + Row.ToString() + " column " + Column.ToString(), LogItemTypeEnum.Action);
-            SelectInternal(Row, Column, Button, LocationInCell);
+            int ColumnNumber = FindColumn(columnText);
+
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
+            SelectInternal(rowIndex, ColumnNumber, button, locationInCell, keyModifier);
         }
 
-        private void SelectInternal(int Row, int Column, MouseButton Button, CellClickLocation LocationInCell)
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
-            Point Location = GetLocationInCell(Row, Column, LocationInCell);
-            base.MouseSingleClickInternal(Location.X, Location.Y, Button, MouseKeyModifier.None);
+            int RowNumber = FindRow(rowText);
+
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            SelectInternal(RowNumber, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int RowNumber = FindRow(rowText);
+
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            SelectInternal(RowNumber, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Selects the specified cell by scrolling it into view and clicking on it
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        private void SelectInternal(int row, int column, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(row, column, locationInCell);
+            base.MouseSingleClickInternal(Location.X, Location.Y, button, keyModifier);
         }
 
         public void MouseMove(int Row, int Column, CellClickLocation LocationInCell)
