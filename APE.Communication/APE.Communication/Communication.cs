@@ -2129,6 +2129,22 @@ namespace APE.Communication
                                         }
                                     }
 
+                                    if (Identifier.ChildOf != IntPtr.Zero)
+                                    {
+                                        if (!NM.IsChild(Identifier.ChildOf, Handle))
+                                        {
+                                            continue;
+                                        }
+                                    }
+
+                                    if (Identifier.SiblingOf != IntPtr.Zero)
+                                    {
+                                        if (!NM.IsSibling(Identifier.SiblingOf, Handle))
+                                        {
+                                            continue;
+                                        }
+                                    }
+
                                     theText = GetWindowTextViaWindowMessage(Handle);
                                     if (Identifier.Text != null)
                                     {
@@ -2147,7 +2163,7 @@ namespace APE.Communication
 
                                     CurrentIndex++;
 
-                                    DebugLogging.WriteLog("found form for " + Name);
+                                    DebugLogging.WriteLog("found native child control " + Name);
 
                                     if (Identifier.Index > 0)
                                     {

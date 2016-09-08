@@ -219,6 +219,17 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// The description of the control
+        /// </summary>
+        public string Description
+        {
+            get
+            {
+                return m_DescriptionOfControl;
+            }
+        }
+
+        /// <summary>
         /// Moves the mouse cursor to the specified position relative to the control
         /// </summary>
         /// <param name="X">How far from the left edge of the control to move the mouse</param>

@@ -268,6 +268,20 @@ namespace APE.Language
         public static void AttachToProcess(Process process, string domain)
         {
             Log("Attached to process [" + process.ProcessName + "]", LogItemTypeEnum.ApeContext);
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (process.MainWindowHandle != IntPtr.Zero)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GetTimeOut())
+                {
+                    throw new Exception("Failed to locate process main window within timeout");
+                }
+            }
             process.WaitForInputIdle();
 
             //Instead of GUI.m_APE.RemoveFileMapping we could do a

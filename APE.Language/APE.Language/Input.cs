@@ -65,6 +65,8 @@ namespace APE.Language
 
         public static void MouseSingleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            bool hooked = false;
+
             WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
@@ -74,18 +76,18 @@ namespace APE.Language
             m_MouseDown = false;
             uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
             Block(ParentHandle, Handle);
-            
-            TimerResolution.SetMaxTimerResolution();
-            NM.SetDoubleClickTime(1);
-    
-            ClickCommon(ParentHandle, Handle, X, Y);
-
             try
             {
+                TimerResolution.SetMaxTimerResolution();
+                NM.SetDoubleClickTime(1);
+                
+                ClickCommon(ParentHandle, Handle, X, Y);
+
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
-                
+                hooked = true;
+
                 MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
                 GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
@@ -112,9 +114,12 @@ namespace APE.Language
             {
                 try
                 {
-                    GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
                 }
                 finally
                 {
@@ -127,6 +132,8 @@ namespace APE.Language
 
         public static void MouseDoubleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            bool hooked = false;
+
             WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
@@ -134,17 +141,18 @@ namespace APE.Language
             }
 
             m_MouseDown = false;
-            Block(ParentHandle, Handle);
-            
-            TimerResolution.SetMaxTimerResolution();
-
-            ClickCommon(ParentHandle, Handle, X, Y);
-
             try
             {
+                Block(ParentHandle, Handle);
+                
+                TimerResolution.SetMaxTimerResolution();
+
+                ClickCommon(ParentHandle, Handle, X, Y);
+
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
+                hooked = true;
 
                 MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
                 
@@ -179,9 +187,12 @@ namespace APE.Language
             {
                 try
                 {
-                    GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
                 }
                 finally
                 {
@@ -193,6 +204,8 @@ namespace APE.Language
 
         public static void MouseTripleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            bool hooked = false;
+
             WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
@@ -200,17 +213,18 @@ namespace APE.Language
             }
 
             m_MouseDown = false;
-            Block(ParentHandle, Handle);
-            
-            TimerResolution.SetMaxTimerResolution();
-
-            ClickCommon(ParentHandle, Handle, X, Y);
-
             try
             {
+                Block(ParentHandle, Handle);
+                
+                TimerResolution.SetMaxTimerResolution();
+
+                ClickCommon(ParentHandle, Handle, X, Y);
+
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
+                hooked = true;
 
                 MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
@@ -257,9 +271,12 @@ namespace APE.Language
             {
                 try
                 {
-                    GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
                 }
                 finally
                 {
@@ -271,6 +288,8 @@ namespace APE.Language
 
         public static void MouseDown(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
+            bool hooked = false;
+
             WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
@@ -287,6 +306,7 @@ namespace APE.Language
                 GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
+                hooked = true;
 
                 MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
 
@@ -301,14 +321,28 @@ namespace APE.Language
             }
             finally
             {
-                TimerResolution.UnsetMaxTimerResolution();
-                Unblock();
-                m_MouseDown = true;
+                try
+                {
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+                }
+                finally
+                {
+                    TimerResolution.UnsetMaxTimerResolution();
+                    Unblock();
+                    m_MouseDown = true;
+                }
             }
         }
 
         public static void MouseUp(IntPtr ParentHandle, IntPtr Handle, int x, int y, MouseButton Button, MouseKeyModifier Keys)
         {
+            bool hooked = false;
+
             WaitToBeVisibleAndEnabled(Handle);
             Block(ParentHandle, Handle);
             try
@@ -358,6 +392,7 @@ namespace APE.Language
                     GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
+                    hooked = true;
                 }
 
                 MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
@@ -376,9 +411,21 @@ namespace APE.Language
             }
             finally
             {
-                TimerResolution.UnsetMaxTimerResolution();
-                Unblock();
-                m_MouseDown = false;
+                try
+                {
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+                }
+                finally
+                {
+                    TimerResolution.UnsetMaxTimerResolution();
+                    Unblock();
+                    m_MouseDown = false;
+                }
             }
         }
 

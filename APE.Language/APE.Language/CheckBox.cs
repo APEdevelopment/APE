@@ -111,6 +111,36 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Checks the checkbox
+        /// </summary>
+        public void Check()
+        {
+            if (GetState() == true)
+            {
+                GUI.Log("Ensure " + m_DescriptionOfControl + " is checked", LogItemTypeEnum.Action);
+            }
+            else
+            {
+                this.MouseSingleClick(MouseButton.Left);
+            }
+        }
+
+        /// <summary>
+        /// Unchecks the checkbox
+        /// </summary>
+        public void Uncheck()
+        {
+            if (GetState() == false)
+            {
+                GUI.Log("Ensure " + m_DescriptionOfControl + " is unchecked", LogItemTypeEnum.Action);
+            }
+            else
+            {
+                this.MouseSingleClick(MouseButton.Left);
+            }
+        }
+
         private bool GetState()
         {
             //Get the number of items
