@@ -38,6 +38,7 @@ namespace APE.Communication
 
         private NM.HookProc MouseHookProcedure;
         private int m_hMouseHook = 0;
+        private IntPtr m_MouseHookThread = IntPtr.Zero;
         private IntPtr m_HookWindow;
 
         /// <summary>
@@ -122,10 +123,16 @@ namespace APE.Communication
 
             // Add the mouse hook
             DebugLogging.WriteLog("Adding Mouse hook");
+            IntPtr m_MouseHookThread = NM.OpenThread(NM.ThreadAccess.QUERY_INFORMATION, false, (uint)threadId);
+            if (m_MouseHookThread == IntPtr.Zero)
+            {
+                throw new Exception("SetWindowsHookEx failed to open the thread");
+            }
+
             m_hMouseHook = NM.SetWindowsHookEx(NM.WH_MOUSE, MouseHookProcedure, IntPtr.Zero, threadId);
             if (m_hMouseHook == 0)
             {
-                throw new Exception("SetWindowsHookEx Failed");
+                throw new Exception("SetWindowsHookEx failed to add mouse hook");
             }
             DebugLogging.WriteLog("Added Mouse hook");
 
@@ -158,25 +165,49 @@ namespace APE.Communication
         /// <param name="messageNumber">The message number</param>
         private unsafe void RemoveMouseHook(Message* ptrMessage, int messageNumber)
         {
-            if (messageNumber != 1)
+            try
             {
-                throw new Exception("RemoveMouseHook must be the first message");
+                if (messageNumber != 1)
+                {
+                    throw new Exception("RemoveMouseHook must be the first message");
+                }
+
+                IntPtr handle = GetParameterIntPtr(ptrMessage, 0); ;
+                CleanUpMessage(ptrMessage);
+
+                // Remove the hook
+                DebugLogging.WriteLog("Removing Mouse hook");
+                bool returnValue = NM.UnhookWindowsHookEx(m_hMouseHook);
+                if (!returnValue)
+                {
+                    bool ignoreFailedToUnhook = false;
+
+                    //check to see if the thread has exited (in which case you cant unhook it)
+                    uint exitCode;
+                    if (NM.GetExitCodeThread(m_MouseHookThread, out exitCode))
+                    {
+                        // If the thread isn't active
+                        if (exitCode != NM.STILL_ACTIVE)
+                        {
+                            // Ignore the failed unhook
+                            ignoreFailedToUnhook = true;
+                        }
+                    }
+
+                    if (!ignoreFailedToUnhook)
+                    {
+                        throw new Exception("UnhookWindowsHookEx Failed for Mouse hook");
+                    }
+                }
             }
-
-            IntPtr handle = GetParameterIntPtr(ptrMessage, 0); ;
-            CleanUpMessage(ptrMessage);
-
-            // Remove the hook
-            DebugLogging.WriteLog("Removing Mouse hook");
-            bool returnValue = NM.UnhookWindowsHookEx(m_hMouseHook);
-            if (!returnValue)
+            finally
             {
-                throw new Exception("UnhookWindowsHookEx Failed for Mouse hook");
+                m_hMouseHook = 0;
+                ClearMouseState();
+                NM.CloseHandle(m_MouseHookThread);
+                DebugLogging.WriteLog("Removed Mouse hook");
             }
-            m_hMouseHook = 0;
-            DebugLogging.WriteLog("Removed Mouse hook");
-
-            ClearMouseState();
+           
         }
 
         /// <summary>

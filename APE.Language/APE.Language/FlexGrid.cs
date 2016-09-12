@@ -1400,14 +1400,14 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>
-        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
         /// <param name="columnIndex">The column index of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            int rowIndex = FindRow(rowText);
+            int rowIndex = FindRow(rowText, columnIndex);
 
             GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
@@ -1583,51 +1583,88 @@ namespace APE.Language
             return CellRectangle;
         }
 
-        public int FindRow(string Row)
+        /// <summary>
+        /// Returns the rows index of the specified value in the first visible column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the first visible column</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText)
         {
-            int ColumnNumber = FirstVisibleColumn();
-            int StartAtRow = 0; //FixedRows();
-            return FindRow(Row, ColumnNumber, StartAtRow);
+            int columnIndex = FirstVisibleColumn();
+            int startAtRow = 0; //FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
-        public int FindRow(string Row, string Column)
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, string columnText)
         {
-            int ColumnNumber = FindColumn(Column);
-            int StartAtRow = 0;//FixedRows();
-            return FindRow(Row, ColumnNumber, StartAtRow);
+            int columnIndex = FindColumn(columnText);
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
-        public int FindRow(string Row, string Column, int StartAtRow)
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
+        /// <param name="startAtRow">The row to start the search at</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, string columnText, int startAtRow)
         {
-            int ColumnNumber = FindColumn(Column);
-            return FindRow(Row, ColumnNumber, StartAtRow);
+            int columnIndex = FindColumn(columnText);
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
-        public int FindRow(string Row, int Column, int StartAtRow)
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnIndex">The column to look for the value in</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, int columnIndex)
         {
-            int CurrentRow = StartAtRow;
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
+        }
+
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnIndex">The column to look for the value in</param>
+        /// <param name="startAtRow">The row to start the search at</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, int columnIndex, int startAtRow)
+        {
+            int rowIndex;
 
             if (IsTreeView())
             {
-                CurrentRow = FindNodeRow(Row);
+                rowIndex = FindNodeRow(rowText);
             }
             else
             {
-                CurrentRow = FindRowInternal(Row, Column, StartAtRow);
+                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
             }
 
-            return CurrentRow;
+            return rowIndex;
         }
 
-        private int FindRowInternal(string Row, int Column, int StartAtRow)
+        private int FindRowInternal(string rowText, int columnIndex, int startAtRow)
         {
-            int CurrentRow = StartAtRow - 1;
+            int CurrentRow = startAtRow - 1;
 
             do
             {
                 CurrentRow++;
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindRow", MemberTypes.Method, new Parameter(GUI.m_APE, Row), new Parameter(GUI.m_APE, CurrentRow), new Parameter(GUI.m_APE, Column), new Parameter(GUI.m_APE, true), new Parameter(GUI.m_APE, true), new Parameter(GUI.m_APE, false));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowText), new Parameter(GUI.m_APE, CurrentRow), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, true), new Parameter(GUI.m_APE, true), new Parameter(GUI.m_APE, false));
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);

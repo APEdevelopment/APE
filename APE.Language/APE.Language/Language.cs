@@ -279,7 +279,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GetTimeOut())
                 {
-                    throw new Exception("Failed to locate process main window within timeout");
+                    throw new Exception("Failed to locate process main window within " + GetTimeOut() + "ms timeout");
                 }
             }
             process.WaitForInputIdle();
@@ -296,7 +296,7 @@ namespace APE.Language
             m_AttachedProcess = process;
 
             //Set the default timeout
-            SetTimeOut(m_MsTimeOut);
+            SetTimeOut(GetTimeOut());
         }
 
         /// <summary>

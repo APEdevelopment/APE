@@ -744,43 +744,80 @@ namespace APE.Language
         /// <summary>
         /// Returns the rows index of the specified value in the first visible column
         /// </summary>
-        /// <param name="row">The value to look for</param>
+        /// <param name="rowText">The value to look for in the first visible column</param>
         /// <returns>The index of the row</returns>
-        public int FindRow(string row)
+        public int FindRow(string rowText)
         {
             //TODO if there is a treeview column, use that, otherwise use first visible
             int columnIndex = this.FirstVisibleColumn();
-            return FindRowEx(row, columnIndex);
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
         /// <summary>
         /// Returns the rows index of the specified value in the specified column
         /// </summary>
-        /// <param name="row">The value to look for</param>
-        /// <param name="column">The column to look for the value in delimited by -> for example Order -> Id</param>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
         /// <returns>The index of the row</returns>
-        public int FindRowEx(string row, string column)
+        public int FindRow(string rowText, string columnText)
         {
-            int columnIndex = this.FindColumn(column);
-            return FindRowEx(row, columnIndex);
+            int columnIndex = this.FindColumn(columnText);
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
         /// <summary>
         /// Returns the rows index of the specified value in the specified column
         /// </summary>
-        /// <param name="row">The value to look for</param>
-        /// <param name="column">The column to look for the value in</param>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
+        /// <param name="startAtRow">The row to start the search at</param>
         /// <returns>The index of the row</returns>
-        public int FindRowEx(string row, int column)
+        public int FindRow(string rowText, string columnText, int startAtRow)
         {
-            string columnText = this.GetCellRange(0, column, this.Rows() - 1 , column);
+            int columnIndex = this.FindColumn(columnText);
+            return FindRow(rowText, columnIndex, startAtRow);
+        }
+
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnIndex">The column to look for the value in</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, int columnIndex)
+        {
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
+        }
+
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnIndex">The column to look for the value in</param>
+        /// <param name="startAtRow">The row to start the search at</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, int columnIndex, int startAtRow)
+        {
+            //TODO treeview
+            int rowIndex;
+            rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+            return rowIndex;
+            
+        }
+
+        private int FindRowInternal(string rowText, int columnIndex, int startAtRow)
+        {
+            string columnText = this.GetCellRange(0, columnIndex, this.Rows() - 1, columnIndex);
 
             char[] separator = { '\r' };
             string[] columnArray = columnText.Split(separator);
 
-            for (int rowIndex = 0; rowIndex < columnArray.GetLength(0); rowIndex++)
+            for (int rowIndex = startAtRow; rowIndex < columnArray.GetLength(0); rowIndex++)
             {
-                if (row == columnArray[rowIndex])
+                if (rowText == columnArray[rowIndex])
                 {
                     return rowIndex;
                 }
@@ -962,34 +999,34 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>
-        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
         /// <param name="columnText">The column text of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
         {
-            int RowNumber = FindRow(rowText);
-            int ColumnNumber = FindColumn(columnText);
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
 
             GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
-            SelectInternal(RowNumber, ColumnNumber, button, locationInCell, MouseKeyModifier.None);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>
-        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
         /// <param name="columnText">The column text of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            int RowNumber = FindRow(rowText);
-            int ColumnNumber = FindColumn(columnText);
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
 
             GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
-            SelectInternal(RowNumber, ColumnNumber, button, locationInCell, keyModifier);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
         /// <summary>
@@ -1001,10 +1038,10 @@ namespace APE.Language
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
         {
-            int ColumnNumber = FindColumn(columnText);
+            int columnIndex = FindColumn(columnText);
 
             GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
-            SelectInternal(rowIndex, ColumnNumber, button, locationInCell, MouseKeyModifier.None);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -1017,41 +1054,41 @@ namespace APE.Language
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            int ColumnNumber = FindColumn(columnText);
+            int columnIndex = FindColumn(columnText);
 
             GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
-            SelectInternal(rowIndex, ColumnNumber, button, locationInCell, keyModifier);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>
-        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
         /// <param name="columnIndex">The column index of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
-            int RowNumber = FindRow(rowText);
+            int rowIndex = FindRow(rowText, columnIndex);
 
             GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
-            SelectInternal(RowNumber, columnIndex, button, locationInCell, MouseKeyModifier.None);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>
-        /// <param name="rowText">The row text of the cell to select</param>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
         /// <param name="columnIndex">The column index of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            int RowNumber = FindRow(rowText);
+            int rowIndex = FindRow(rowText, columnIndex);
 
             GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
-            SelectInternal(RowNumber, columnIndex, button, locationInCell, keyModifier);
+            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
         /// <summary>
@@ -1099,29 +1136,39 @@ namespace APE.Language
             base.MouseMove(Location.X, Location.Y);
         }
 
-        private Point GetLocationInCell(int Row, int Column, CellClickLocation LocationInCell)
+        private Point GetLocationInCell(int rowIndex, int columnIndex, CellClickLocation locationInCell)
         {
+            if (rowIndex < 0)
+            {
+                throw new Exception("Must supply a valid row index: " + rowIndex.ToString());
+            }
+
+            if (columnIndex < 0)
+            {
+                throw new Exception("Must supply a valid column index: " + columnIndex.ToString());
+            }
+
             //Check to make sure the row isn't hidden
-            if (IsRowHidden(Row))
+            if (IsRowHidden(rowIndex))
             {
                 throw new Exception("Row is hidden");
             }
 
             //Check to make sure the column isn't hidden
-            if (IsColumnHidden(Column))
+            if (IsColumnHidden(columnIndex))
             {
                 throw new Exception("Column is hidden");
             }
 
             //Scroll the cell into view
-            Show(Row, Column);
+            Show(rowIndex, columnIndex);
 
-            Rectangle CellRectangle = GetCellRectangle(Row, Column);
+            Rectangle CellRectangle = GetCellRectangle(rowIndex, columnIndex);
 
             Point Location = new Point();
 
             //Adjust for where we want to click in the cell
-            switch (LocationInCell)
+            switch (locationInCell)
             {
                 case CellClickLocation.LeftSideOfCell:
                     Location.X = CellRectangle.Left + 5;

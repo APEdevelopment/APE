@@ -808,6 +808,16 @@ namespace APE.Language
         /// <returns>The points location</returns>
         private Point GetLocationInCell(int rowIndex, int columnIndex, CellClickLocation LocationInCell)
         {
+            if (rowIndex < 0)
+            {
+                throw new Exception("Must supply a valid row index: " + rowIndex.ToString());
+            }
+
+            if (columnIndex < 0)
+            {
+                throw new Exception("Must supply a valid column index: " + columnIndex.ToString());
+            }
+
             //Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
@@ -1192,40 +1202,77 @@ namespace APE.Language
             return CellRangeClip;
         }
 
-        public int FindRow(string Row)
+        /// <summary>
+        /// Returns the rows index of the specified value in the first visible column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the first visible column</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText)
         {
-            int ColumnNumber = FirstVisibleColumn();
-            int StartAtRow = 0; //FixedRows();
-            return FindRow(Row, ColumnNumber, StartAtRow);
+            int columnIndex = FirstVisibleColumn();
+            int startAtRow = 0; //FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
-        public int FindRow(string Row, string Column)
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, string columnText)
         {
-            int ColumnNumber = FindColumn(Column);
-            int StartAtRow = 0; //FixedRows();
-            return FindRow(Row, ColumnNumber, StartAtRow);
+            int columnIndex = FindColumn(columnText);
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
-        public int FindRow(string Row, string Column, int StartAtRow)
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
+        /// <param name="startAtRow">The row to start the search at</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, string columnText, int startAtRow)
         {
-            int ColumnNumber = FindColumn(Column);
-            return FindRow(Row, ColumnNumber, StartAtRow);
+            int columnIndex = FindColumn(columnText);
+            return FindRow(rowText, columnIndex, startAtRow);
         }
 
-        public int FindRow(string Row, int Column, int StartAtRow)
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnIndex">The column to look for the value in</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, int columnIndex)
         {
-            int CurrentRow = StartAtRow;
+            int startAtRow = 0;//FixedRows();
+            return FindRow(rowText, columnIndex, startAtRow);
+        }
+
+        /// <summary>
+        /// Returns the rows index of the specified value in the specified column
+        /// </summary>
+        /// <param name="rowText">The value to look for in the specified column</param>
+        /// <param name="columnIndex">The column to look for the value in</param>
+        /// <param name="startAtRow">The row to start the search at</param>
+        /// <returns>The index of the row</returns>
+        public int FindRow(string rowText, int columnIndex, int startAtRow)
+        {
+            int rowIndex;
 
             if (IsTreeView())
             {
-                CurrentRow = FindNodeRow(Row);
+                rowIndex = FindNodeRow(rowText);
             }
             else
             {
-                CurrentRow = FindRowInternal(Row, Column, StartAtRow);
+                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
             }
 
-            return CurrentRow;
+            return rowIndex;
         }
 
         private int FindRowInternal(string Row, int Column, int StartAtRow)
