@@ -37,6 +37,7 @@ namespace APE.Test
         {
             button1.Enabled = false;
 
+
             Process p;
 
             //close any running sentinels
