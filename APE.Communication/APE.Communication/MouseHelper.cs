@@ -18,6 +18,7 @@ using NM = APE.Native.NativeMethods;
 using System.Diagnostics;
 using System.Threading;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace APE.Communication
 {
@@ -180,6 +181,9 @@ namespace APE.Communication
                 bool returnValue = NM.UnhookWindowsHookEx(m_hMouseHook);
                 if (!returnValue)
                 {
+                    //PostThreadMessage ?
+                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+
                     bool ignoreFailedToUnhook = false;
 
                     //check to see if the thread has exited (in which case you cant unhook it)
@@ -196,7 +200,7 @@ namespace APE.Communication
 
                     if (!ignoreFailedToUnhook)
                     {
-                        throw new Exception("UnhookWindowsHookEx Failed for Mouse hook");
+                        throw new Exception("UnhookWindowsHookEx Failed for Mouse hook: " + errorMessage);
                     }
                 }
             }

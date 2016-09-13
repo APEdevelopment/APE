@@ -91,101 +91,121 @@ namespace APE.Language
 
                 CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 
-                if (CurrentText != "")
+                if (text == CurrentText)
                 {
-                    textbox.MouseSingleClick(MouseButton.Left);
-                    //textbox.MouseDoubleClick(MouseButton.Left);
+                    GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + text, LogItemTypeEnum.Action);
+                }
+                else
+                {
+                    if (CurrentText != "")
+                    {
+                        textbox.MouseSingleClick(MouseButton.Left);
+                        //textbox.MouseDoubleClick(MouseButton.Left);
 
-                    //Select everything in the textbox
-                    base.SendKeys("{HOME}+{END}");
+                        //Select everything in the textbox
+                        base.SendKeys("{HOME}+{END}");
 
-                    string selectedText;
+                        string selectedText;
 
-                    //wait for .selectedText to = Text
+                        //wait for .selectedText to = Text
+                        timer = Stopwatch.StartNew();
+                        do
+                        {
+                            //Get the selectedText property
+                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, textboxHandle);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedText", MemberTypes.Property);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            selectedText = GUI.m_APE.GetValueFromMessage();
+
+                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                            {
+                                throw new Exception("Failed to select all the text in the TextBox");
+                            }
+
+                            Thread.Sleep(15);
+                        }
+                        while (CurrentText != selectedText);
+                        timer.Stop();
+                    }
+
+                    switch (text.Length)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            base.SendKeys(text);
+                            break;
+                        default:
+                            //Send first 2 characters
+                            base.SendKeys(text.Substring(0, 2));
+                            GUI.Log("Wait for the generic walker popup to appear", LogItemTypeEnum.Action);
+
+                            //Wait for popup
+                            timer = Stopwatch.StartNew();
+                            bool isDropped = false;
+                            do
+                            {
+                                //Get the state of the popup control
+                                if (Identity.TypeNameSpace == "LzGenericWalker")
+                                {
+                                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsDropped", MemberTypes.Property);
+                                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                                    GUI.m_APE.SendMessages(EventSet.APE);
+                                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                                    isDropped = GUI.m_APE.GetValueFromMessage();
+                                }
+                                else
+                                {
+                                    string PopupState;
+                                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "PopupState", MemberTypes.Property);
+                                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+                                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                                    GUI.m_APE.SendMessages(EventSet.APE);
+                                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                                    PopupState = GUI.m_APE.GetValueFromMessage();
+                                    if (PopupState == "Open")
+                                    {
+                                        isDropped = true;
+                                    }
+                                }
+                            }
+                            while (!isDropped);
+                            timer.Stop();
+                            break;
+                    }
+
+                    //Send rest of characters
+                    if (text.Length > 2)
+                    {
+                        base.SendKeys(text.Substring(2));
+                    }
+
+                    //wait for .Text to == text
                     timer = Stopwatch.StartNew();
                     do
                     {
-                        //Get the selectedText property
-                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, textboxHandle);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedText", MemberTypes.Property);
-                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
-                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        selectedText = GUI.m_APE.GetValueFromMessage();
+                        CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to select all the text in the TextBox");
+                            throw new Exception("Failed to set the text of the TextBox");
                         }
 
                         Thread.Sleep(15);
                     }
-                    while (CurrentText != selectedText);
+                    while (CurrentText != text);
                     timer.Stop();
+
+                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    base.SendKeysInternal("{Enter}");
                 }
-
-                //Send first 2 characters
-                base.SendKeys(text.Substring(0, 2));
-                GUI.Log("Wait for the generic walker popup to appear", LogItemTypeEnum.Action);
-
-                //Wait for popup
-                timer = Stopwatch.StartNew();
-                bool isDropped = false;
-                do
-                {
-                    //Get the state of the popup control
-                    if (Identity.TypeNameSpace == "LzGenericWalker")
-                    {
-                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsDropped", MemberTypes.Property);
-                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
-                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        isDropped = GUI.m_APE.GetValueFromMessage();
-                    }
-                    else
-                    {
-                        string PopupState;
-                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "PopupState", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
-                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        PopupState = GUI.m_APE.GetValueFromMessage();
-                        if (PopupState == "Open")
-                        {
-                            isDropped = true;
-                        }
-                    }
-                }
-                while (!isDropped);
-                timer.Stop();
-
-                //Send rest of characters
-                base.SendKeys(text.Substring(2));
-
-                //wait for .Text to == text
-                timer = Stopwatch.StartNew();
-                do
-                {
-                    CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
-
-                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                    {
-                        throw new Exception("Failed to set the text of the TextBox");
-                    }
-
-                    Thread.Sleep(15);
-                }
-                while (CurrentText != text);
-                timer.Stop();
-
-                GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
-                base.SendKeysInternal("{Enter}");
             }
             finally
             {
