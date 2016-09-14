@@ -1944,7 +1944,7 @@ namespace APE.Language
                 {
                     columnsToExclude[column] = true;
                 }
-                if (columnsWidthTextArray[column] == "0")
+                if (columnsWidthTextArray[column] == "0" || columnsWidthTextArray[column] == "1")
                 {
                     columnsToExclude[column] = true;
                 }
@@ -1961,7 +1961,7 @@ namespace APE.Language
                 {
                     rowsToExclude[row] = true;
                 }
-                if (rowsHeightTextArray[row] == "0")
+                if (rowsHeightTextArray[row] == "0" || rowsHeightTextArray[row] == "1")
                 {
                     rowsToExclude[row] = true;
                 }
