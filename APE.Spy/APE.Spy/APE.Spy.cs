@@ -352,6 +352,15 @@ namespace APE.Spy
 
         private void IdentifyButton_Click(object sender, EventArgs e)
         {
+            m_CurrentAttached = (KeyValuePair<Process, string>)WinformsProcessesCombobox.SelectedItem;
+
+            if (m_CurrentAttached.Key.HasExited)
+            {
+                WinformsProcessesCombobox.SelectedIndex = 0;
+                Populate();
+                return;
+            }
+
             IdentifyButton.Enabled = false;
             WinformsProcessesCombobox.Enabled = false;
             label1.Text = "Move the mouse cursor over the desired window and then press the control key";
