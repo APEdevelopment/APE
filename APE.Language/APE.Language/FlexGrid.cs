@@ -20,6 +20,7 @@ using APE.Communication;
 using System.Threading;
 using System.Diagnostics;
 using NM = APE.Native.NativeMethods;
+using System.Text;
 
 namespace APE.Language
 {
@@ -993,7 +994,8 @@ namespace APE.Language
 
                     if (EditorHandle == null)
                     {
-                        throw new Exception("Could not find the flexgrid cell editor");
+                        EditorHandle = IntPtr.Zero;
+                        //throw new Exception("Could not find the flexgrid cell editor");
                     }
 
                     // If the editor isn't visible then its likely not being used, so search for the real editor
@@ -1883,10 +1885,127 @@ namespace APE.Language
         ////FlexGridFullyCollapseTreeView //do in a more generic way?
         ////FlexGridFullyExpandTreeView
 
-        //public string GetAllVisibleCells()
-        //{
-        //    //TODO
-        //}
+        public string GetAllVisibleCells(CellProperty property)
+        {
+            string[] separatorComma = { "," };
+            string[] separatorCr = { "\r" };
+            string[] separatorTab = { "\t" };
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string columnsHiddenText = GUI.m_APE.GetValueFromMessage();
+            string[] columnsHiddenTextArray = columnsHiddenText.Split(separatorComma, StringSplitOptions.None);
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string rowsHiddenText = GUI.m_APE.GetValueFromMessage();
+            string[] rowsHiddenTextArray = rowsHiddenText.Split(separatorComma, StringSplitOptions.None);
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string columnsWidthText = GUI.m_APE.GetValueFromMessage();
+            string[] columnsWidthTextArray = columnsWidthText.Split(separatorComma, StringSplitOptions.None);
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string rowsHeightText = GUI.m_APE.GetValueFromMessage();
+            string[] rowsHeightTextArray = rowsHeightText.Split(separatorComma, StringSplitOptions.None);
+
+            //TODO exclude collapsed node rows
+            
+            int columns = this.Columns();
+            int rows = this.Rows();
+
+            bool[] columnsToExclude = new bool[columns];
+            bool[] rowsToExclude = new bool[rows];
+
+            int actualColumns = 0;
+            int actualRows = 0;
+
+            for (int column = 0; column < columns; column++)
+            {
+                if (columnsHiddenTextArray[column] == "True")
+                {
+                    columnsToExclude[column] = true;
+                }
+                if (columnsWidthTextArray[column] == "0")
+                {
+                    columnsToExclude[column] = true;
+                }
+
+                if (!columnsToExclude[column])
+                {
+                    actualColumns++;
+                }
+            }
+
+            for (int row = 0; row < rows; row++)
+            {
+                if (rowsHiddenTextArray[row] == "True")
+                {
+                    rowsToExclude[row] = true;
+                }
+                if (rowsHeightTextArray[row] == "0")
+                {
+                    rowsToExclude[row] = true;
+                }
+
+                if (!rowsToExclude[row])
+                {
+                    actualRows++;
+                }
+            }
+
+            // Copy the whole grid
+            string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1, property);
+
+            StringBuilder grid = new StringBuilder(10240);
+            bool doneColumn;
+
+            string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
+            for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
+            {
+                if (!rowsToExclude[fullGridRow])
+                {
+                    string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
+                    doneColumn = false;
+                    for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
+                    {
+                        if (!columnsToExclude[fullGridColumn])
+                        {
+                            if (doneColumn)
+                            {
+                                grid.Append("\t");
+                            }
+                            grid.Append(fullGridColumns[fullGridColumn]);
+                            doneColumn = true;
+                        }
+                    }
+                    grid.Append("\r");
+                }
+            }
+
+            // Strip off the final \r
+            grid.Length -= 1;
+
+            return grid.ToString();
+        }
 
         //private bool CellHasComboList()
         //{

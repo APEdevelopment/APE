@@ -69,6 +69,10 @@ namespace APE.Communication
             m_FlexgridGetCellRangeCheckBoxDelegater = new GetCellRangeCheckBoxDelegate(FlexgridGetCellRangeCheckBoxInternal);
             m_FlexgridGetCellRangeImageDelegater = new GetCellRangeImageDelegate(FlexgridGetCellRangeImageInternal);
             m_FlexgridGetCellRangeBackgroundImageDelegater = new GetCellRangeBackgroundImageDelegate(FlexgridGetCellRangeBackgroundImageInternal);
+            m_FlexgridGetAllColumnsHiddenDelegater = new GetAllColumnsHiddenDelegate(FlexgridGetAllColumnsHiddenInternal);
+            m_FlexgridGetAllColumnsWidthDelegater = new GetAllColumnsWidthDelegate(FlexgridGetAllColumnsWidthInternal);
+            m_FlexgridGetAllRowsHiddenDelegater = new GetAllRowsHiddenDelegate(FlexgridGetAllRowsHiddenInternal);
+            m_FlexgridGetAllRowsHeightDelegater = new GetAllRowsHeightDelegate(FlexgridGetAllRowsHeightInternal);
         }
 
         /// <summary>
@@ -488,6 +492,318 @@ namespace APE.Communication
             }
 
             return rangeDataType.ToString();
+        }
+
+        //
+        //  FlexgridGetAllColumnsHidden
+        //
+
+        private delegate string GetAllColumnsHiddenDelegate(dynamic grid);
+        private GetAllColumnsHiddenDelegate m_FlexgridGetAllColumnsHiddenDelegater;
+
+        /// <summary>
+        /// Calls into the AUT to iterate over every column in the grid returning a comma separated string of whether
+        /// the column is hidden (True) or visible (False)
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        unsafe public void AddQueryMessageFlexgridGetAllColumnsHidden(DataStores sourceStore, DataStores destinationStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            ptrMessage->Action = MessageAction.FlexgridGetAllColumnsHidden;
+            
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Calls the FlexgridGetAllColumnsHiddenInternal method on the correct thread storing the results
+        /// in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void FlexgridGetAllColumnsHidden(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsHiddenDelegater, theParameters);   
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Iterates over every column in the grid returning a comma separated string of whether the column is
+        /// hidden (True) or visible (False)
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <returns>A comma delimited string of whether the column is hidden</returns>
+        private string FlexgridGetAllColumnsHiddenInternal(dynamic grid)
+        {
+            StringBuilder columnsHiddenState = new StringBuilder(10240);
+            int columns = grid.Cols.Count;
+
+            for (int column = 0; column < columns; column++)
+            {
+                bool visible = grid.Cols[column].Visible;
+
+                if (column > 0)
+                {
+                    columnsHiddenState.Append(",");
+                }
+
+                if (visible)
+                {
+                    columnsHiddenState.Append("False");
+                }
+                else
+                {
+                    columnsHiddenState.Append("True");
+                }
+            }
+
+            return columnsHiddenState.ToString();
+        }
+
+        //
+        //  FlexgridGetAllColumnsWidth
+        //
+
+        private delegate string GetAllColumnsWidthDelegate(dynamic grid);
+        private GetAllColumnsWidthDelegate m_FlexgridGetAllColumnsWidthDelegater;
+
+        /// <summary>
+        /// Calls into the AUT to iterate over every column in the grid returning a comma separated string of
+        /// the columns width
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        unsafe public void AddQueryMessageFlexgridGetAllColumnsWidth(DataStores sourceStore, DataStores destinationStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            ptrMessage->Action = MessageAction.FlexgridGetAllColumnsWidth;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Calls the FlexgridGetAllColumnsWidthInternal method on the correct thread storing the results
+        /// in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void FlexgridGetAllColumnsWidth(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsWidthDelegater, theParameters);
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Iterates over every column in the grid returning a comma separated string of the column width
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <returns>A comma delimited string of the column width</returns>
+        private string FlexgridGetAllColumnsWidthInternal(dynamic grid)
+        {
+            StringBuilder columnsWidth = new StringBuilder(10240);
+            int columns = grid.Cols.Count;
+
+            for (int column = 0; column < columns; column++)
+            {
+                int width = grid.Cols[column].WidthDisplay;
+                if (column > 0)
+                {
+                    columnsWidth.Append(",");
+                }
+                columnsWidth.Append(width.ToString());
+            }
+
+            return columnsWidth.ToString();
+        }
+
+        //
+        //  FlexgridGetAllRowsHidden
+        //
+
+        private delegate string GetAllRowsHiddenDelegate(dynamic grid);
+        private GetAllRowsHiddenDelegate m_FlexgridGetAllRowsHiddenDelegater;
+
+        /// <summary>
+        /// Calls into the AUT to iterate over every row in the grid returning a comma separated string of whether
+        /// the row is hidden (True) or visible (False)
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        unsafe public void AddQueryMessageFlexgridGetAllRowsHidden(DataStores sourceStore, DataStores destinationStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            ptrMessage->Action = MessageAction.FlexgridGetAllRowsHidden;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Calls the FlexgridGetAllRowsHiddenInternal method on the correct thread storing the results
+        /// in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void FlexgridGetAllRowsHidden(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllRowsHiddenDelegater, theParameters);
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Iterates over every row in the grid returning a comma separated string of whether the row is
+        /// hidden (True) or visible (False)
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <returns>A comma delimited string of whether the row is hidden</returns>
+        private string FlexgridGetAllRowsHiddenInternal(dynamic grid)
+        {
+            StringBuilder rowsHiddenState = new StringBuilder(10240);
+            int rows = grid.Rows.Count;
+
+            for (int row = 0; row < rows; row++)
+            {
+                bool visible = grid.Rows[row].Visible;
+
+                if (row > 0)
+                {
+                    rowsHiddenState.Append(",");
+                }
+
+                if (visible)
+                {
+                    rowsHiddenState.Append("False");
+                }
+                else
+                {
+                    rowsHiddenState.Append("True");
+                }
+            }
+
+            return rowsHiddenState.ToString();
+        }
+
+        //
+        //  FlexgridGetAllRowsHeight
+        //
+
+        private delegate string GetAllRowsHeightDelegate(dynamic grid);
+        private GetAllRowsHeightDelegate m_FlexgridGetAllRowsHeightDelegater;
+
+        /// <summary>
+        /// Calls into the AUT to iterate over every row in the grid returning a comma separated string of
+        /// the rows height
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        unsafe public void AddQueryMessageFlexgridGetAllRowsHeight(DataStores sourceStore, DataStores destinationStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            ptrMessage->Action = MessageAction.FlexgridGetAllRowsHeight;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Calls the FlexgridGetAllRowsHeightInternal method on the correct thread storing the results
+        /// in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void FlexgridGetAllRowsHeight(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllRowsHeightDelegater, theParameters);
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Iterates over every row in the grid returning a comma separated string of the row height
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <returns>A comma delimited string of the row height</returns>
+        private string FlexgridGetAllRowsHeightInternal(dynamic grid)
+        {
+            StringBuilder rowHeight = new StringBuilder(10240);
+            int rows = grid.Rows.Count;
+
+            for (int row = 0; row < rows; row++)
+            {
+                int height = grid.Rows[row].HeightDisplay;
+                if (row > 0)
+                {
+                    rowHeight.Append(",");
+                }
+                rowHeight.Append(height.ToString());
+            }
+
+            return rowHeight.ToString();
         }
     }
 }

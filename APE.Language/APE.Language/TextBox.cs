@@ -49,6 +49,16 @@ namespace APE.Language
         /// <param name="text">The text to set the text of the textbox to</param>
         public void SetText(string text)
         {
+            SetText(text, null);
+        }
+
+        /// <summary>
+        /// Sets the text of the textbox to the specified text by sending keystrokes
+        /// </summary>
+        /// <param name="text">The text to set the text of the textbox to</param>
+        /// <param name="submitKey">The key to press after setting the text, for instance {Enter}</param>
+        public void SetText(string text, string submitKey)
+        {
             Stopwatch timer;
             string currentText;
 
@@ -114,6 +124,11 @@ namespace APE.Language
                 }
                 while (currentText != text);
                 timer.Stop();
+
+                if (!string.IsNullOrEmpty(submitKey))
+                {
+                    base.SendKeys(submitKey);
+                }
             }
             finally
             {

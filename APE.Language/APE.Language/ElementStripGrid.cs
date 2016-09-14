@@ -1652,9 +1652,50 @@ namespace APE.Language
         //    return false;
         //}
 
-        //public string GetAllVisibleCells()
-        //{
-        //    return "";
-        //}
+        public string GetAllVisibleCells()
+        {
+            string[] separatorComma = { "," };
+            string[] separatorCr = { "\r" };
+            string[] separatorTab = { "\t" };
+
+            bool[] visibleColumns = GetColumnsVisibilityState();
+
+            int columns = this.Columns();
+            int rows = this.Rows();
+
+            // Copy the whole grid
+            string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1);
+
+            StringBuilder grid = new StringBuilder(10240);
+            bool doneColumn;
+
+            string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
+            for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
+            {
+                if (true)   // All rows
+                {
+                    string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
+                    doneColumn = false;
+                    for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
+                    {
+                        if (visibleColumns[fullGridColumn])
+                        {
+                            if (doneColumn)
+                            {
+                                grid.Append("\t");
+                            }
+                            grid.Append(fullGridColumns[fullGridColumn]);
+                            doneColumn = true;
+                        }
+                    }
+                    grid.Append("\r");
+                }
+            }
+
+            // Strip off the final \r
+            grid.Length -= 1;
+
+            return grid.ToString();
+        }
     }
 }

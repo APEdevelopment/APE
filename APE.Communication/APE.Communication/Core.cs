@@ -86,6 +86,10 @@ namespace APE.Communication
         FlexgridGetCellRangeCheckBox = 24,
         FlexgridGetCellRangeImage = 25,
         FlexgridGetCellRangeBackgroundImage = 26,
+        FlexgridGetAllColumnsHidden = 27,
+        FlexgridGetAllRowsHidden = 28,
+        FlexgridGetAllColumnsWidth = 29,
+        FlexgridGetAllRowsHeight = 30,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -281,6 +285,27 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.FlexgridGetCellRangeDataType:
                                     FlexgridGetCellRange(ptrMessage, CellProperty.DataType);
+                                    break;
+                                case MessageAction.FlexgridGetCellRangeCheckBox:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.CheckBox);
+                                    break;
+                                case MessageAction.FlexgridGetCellRangeImage:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.Image);
+                                    break;
+                                case MessageAction.FlexgridGetCellRangeBackgroundImage:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.BackgroundImage);
+                                    break;
+                                case MessageAction.FlexgridGetAllColumnsHidden:
+                                    FlexgridGetAllColumnsHidden(ptrMessage);
+                                    break;
+                                case MessageAction.FlexgridGetAllRowsHidden:
+                                    FlexgridGetAllRowsHidden(ptrMessage);
+                                    break;
+                                case MessageAction.FlexgridGetAllColumnsWidth:
+                                    FlexgridGetAllColumnsWidth(ptrMessage);
+                                    break;
+                                case MessageAction.FlexgridGetAllRowsHeight:
+                                    FlexgridGetAllRowsHeight(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
