@@ -147,6 +147,12 @@ namespace APE.Language
 
         private void SelectInternal(int tabIndex, string tabName, MouseButton button)
         {
+            if (SelectedTabText() == tabName)
+            {
+                GUI.Log("Ensure tab " + tabName + " is selected in the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+                return;
+            }
+
             bool multiLine = MultiLine();
             Rectangle tabRectangle = TabRectangle(tabIndex);
             int width = tabRectangle.Width;

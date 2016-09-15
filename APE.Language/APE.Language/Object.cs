@@ -123,6 +123,29 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Waits for the specified control to not be visible
+        /// </summary>
+        public void WaitForControlToNotBeVisible()
+        {
+            //Wait for the control to not be visible
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception("Control " + this.Description + " failed to become nonvisible");
+                }
+
+                if (!NM.IsWindowVisible(this.Handle))
+                {
+                    break;
+                }
+                
+                Thread.Sleep(15);
+            }
+        }
+
+        /// <summary>
         /// Selects the specified item on the currently displayed context menu
         /// </summary>
         /// <param name="ContextMenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>

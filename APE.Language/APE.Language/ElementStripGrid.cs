@@ -382,7 +382,10 @@ namespace APE.Language
         /// <returns>True or False</returns>
         public bool ColumnExists(string columnToFind)
         {
-            if (FindColumnInternal(columnToFind, false) == -1)
+            string[] delimiter = { " -> " };
+            string[] columnHeader = columnToFind.Split(delimiter, StringSplitOptions.None);
+
+            if (FindColumnInternal(columnHeader) == -1)
             {
                 return false;
             }
@@ -393,20 +396,47 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the index of the specified column in the grid or -1 if its not found
+        /// Returns the index of the specified column in the grid
         /// </summary>
         /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
         /// <returns>The index of the column</returns>
         public int FindColumn(string columnToFind)
         {
-            return FindColumnInternal(columnToFind, true);
+            string[] delimiter = { " -> " };
+            string[] columnHeader = columnToFind.Split(delimiter, StringSplitOptions.None);
+
+            return FindColumn(columnHeader);
         }
 
-        private int FindColumnInternal(string columnToFind, bool raiseExceptionIfNotFound)
+        /// <summary>
+        /// Returns the index of the specified column in the grid
+        /// </summary>
+        /// <param name="columnHeader">The column to check</param>
+        /// <returns>The index of the column</returns>
+        public int FindColumn(string[] columnHeader)
         {
-            string[] Delimiter = { " -> " };
-            string[] columnHeader = columnToFind.Split(Delimiter, StringSplitOptions.None);
+            int column = -1;
 
+            // Columns present may change so try twice
+            try
+            {
+                column = FindColumnInternal(columnHeader);
+            }
+            catch
+            {
+                column = FindColumnInternal(columnHeader);
+            }
+
+            if (column == -1)
+            {
+                throw new Exception("Failed to find column");
+            }
+
+            return column;
+        }
+
+        private int FindColumnInternal(string[] columnHeader)
+        {
             string[,] titles = GetColumnTitles(false);
 
             //Search for the column
@@ -456,11 +486,6 @@ namespace APE.Language
             if (Found)
             {
                 return column;
-            }
-
-            if (raiseExceptionIfNotFound)
-            {
-                throw new Exception("Failed to find column " + columnToFind + " in " + m_DescriptionOfControl);
             }
             
             return -1;
@@ -1664,38 +1689,55 @@ namespace APE.Language
             int rows = this.Rows();
 
             // Copy the whole grid
-            string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1);
-
-            StringBuilder grid = new StringBuilder(10240);
-            bool doneColumn;
-
-            string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
-            for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
+            if (rows > 0 && columns > 0)
             {
-                if (true)   // All rows
+                string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1);
+
+                StringBuilder grid = new StringBuilder(10240);
+                bool doneColumn;
+
+                string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
+                for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
                 {
-                    string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
-                    doneColumn = false;
-                    for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
+                    if (true)   // All rows
                     {
-                        if (visibleColumns[fullGridColumn])
+                        string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
+                        doneColumn = false;
+                        for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
                         {
-                            if (doneColumn)
+                            if (visibleColumns[fullGridColumn])
                             {
-                                grid.Append("\t");
+                                if (doneColumn)
+                                {
+                                    grid.Append("\t");
+                                }
+                                grid.Append(fullGridColumns[fullGridColumn]);
+                                doneColumn = true;
                             }
-                            grid.Append(fullGridColumns[fullGridColumn]);
-                            doneColumn = true;
                         }
+                        grid.Append("\r");
                     }
-                    grid.Append("\r");
                 }
+
+                // Strip off the final \r
+                grid.Length -= 1;
+
+                return grid.ToString();
             }
+            else
+            {
+                return "";
+            }
+        }
 
-            // Strip off the final \r
-            grid.Length -= 1;
-
-            return grid.ToString();
+        /// <summary>
+        /// Send the specified text to the control
+        /// </summary>
+        /// <param name="text">The text to send to the control</param>
+        public void Type(string text)
+        {
+            base.SetFocus();
+            base.SendKeys(text);
         }
     }
 }

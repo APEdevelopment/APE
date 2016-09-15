@@ -48,6 +48,23 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Initialises a new instance of the GUIForm class for a child form
+        /// </summary>
+        /// <param name="parentForm">The top level form the control belongs to</param>
+        /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
+        /// <para/>This text is used in the logging method.  For example: OK button</param>
+        /// <param name="identParams">One or more identifier object(s) used to locate the control.
+        /// <para/>Normally you would just use the name identifier</param>
+        public GUIForm(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
+            : base(parentForm, descriptionOfControl, identParams)
+        {
+            //When a form is opened it is animated, so wait for it to finish
+            WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
+
+            Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
+        }
+
+        /// <summary>
         /// Closes the form by click the 'x' in the top right hand corner of the form
         /// </summary>
         public void Close()
@@ -90,23 +107,7 @@ namespace APE.Language
                         base.MouseSingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                         //Wait for the window to disappear
-                        Stopwatch timer = Stopwatch.StartNew();
-                        do
-                        {
-                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                            {
-                                throw new Exception("Failed to close the window");
-                            }
-
-                            if (!NM.IsWindowVisible(Identity.Handle))
-                            {
-                                break;
-                            }
-
-                            Thread.Sleep(15);
-                        }
-                        while (true);
-                        timer.Stop();
+                        base.WaitForControlToNotBeVisible();
                     }
                     finally
                     {

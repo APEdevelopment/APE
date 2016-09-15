@@ -1682,34 +1682,64 @@ namespace APE.Language
             return CurrentRow;
         }
 
-        public int FindColumn(string Column)
+        /// <summary>
+        /// Returns true if the specified column in the grid exists
+        /// </summary>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <returns>True or False</returns>
+        public bool ColumnExists(string columnToFind)
         {
-            string[] Delimiter = { " -> " };
-            string[] ColumnHeader = Column.Split(Delimiter, StringSplitOptions.None);
+            string[] delimiter = { " -> " };
+            string[] columnHeader = columnToFind.Split(delimiter, StringSplitOptions.None);
 
-            return FindColumn(ColumnHeader);
+            if (FindColumnInternal(columnHeader) == -1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
-        public int FindColumn(string[] ColumnHeader)
+        /// <summary>
+        /// Returns the index of the specified column in the grid
+        /// </summary>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <returns>The index of the column</returns>
+        public int FindColumn(string columnToFind)
         {
-            int Column = -1;
+            string[] delimiter = { " -> " };
+            string[] columnHeader = columnToFind.Split(delimiter, StringSplitOptions.None);
+
+            return FindColumn(columnHeader);
+        }
+
+        /// <summary>
+        /// Returns the index of the specified column in the grid
+        /// </summary>
+        /// <param name="columnHeader">The column to check</param>
+        /// <returns>The index of the column</returns>
+        public int FindColumn(string[] columnHeader)
+        {
+            int column = -1;
 
             // Columns present may change so try twice
             try
             {
-                Column = FindColumnInternal(ColumnHeader);
+                column = FindColumnInternal(columnHeader);
             }
             catch
             {
-                Column = FindColumnInternal(ColumnHeader);
+                column = FindColumnInternal(columnHeader);
             }
 
-            if (Column == -1)
+            if (column == -1)
             {
                 throw new Exception("Failed to find column");
             }
 
-            return Column;
+            return column;
         }
 
         private int FindColumnInternal(string[] ColumnHeader)
@@ -1973,38 +2003,45 @@ namespace APE.Language
             }
 
             // Copy the whole grid
-            string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1, property);
-
-            StringBuilder grid = new StringBuilder(10240);
-            bool doneColumn;
-
-            string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
-            for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
+            if (rows > 0 && columns > 0)
             {
-                if (!rowsToExclude[fullGridRow])
+                string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1, property);
+
+                StringBuilder grid = new StringBuilder(10240);
+                bool doneColumn;
+
+                string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
+                for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
                 {
-                    string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
-                    doneColumn = false;
-                    for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
+                    if (!rowsToExclude[fullGridRow])
                     {
-                        if (!columnsToExclude[fullGridColumn])
+                        string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
+                        doneColumn = false;
+                        for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
                         {
-                            if (doneColumn)
+                            if (!columnsToExclude[fullGridColumn])
                             {
-                                grid.Append("\t");
+                                if (doneColumn)
+                                {
+                                    grid.Append("\t");
+                                }
+                                grid.Append(fullGridColumns[fullGridColumn]);
+                                doneColumn = true;
                             }
-                            grid.Append(fullGridColumns[fullGridColumn]);
-                            doneColumn = true;
                         }
+                        grid.Append("\r");
                     }
-                    grid.Append("\r");
                 }
+
+                // Strip off the final \r
+                grid.Length -= 1;
+
+                return grid.ToString();
             }
-
-            // Strip off the final \r
-            grid.Length -= 1;
-
-            return grid.ToString();
+            else
+            {
+                return "";
+            }
         }
 
         //private bool CellHasComboList()
@@ -2054,5 +2091,15 @@ namespace APE.Language
         //{
         //    //TODO
         //}
+
+        /// <summary>
+        /// Send the specified text to the control
+        /// </summary>
+        /// <param name="text">The text to send to the control</param>
+        public void Type(string text)
+        {
+            base.SetFocus();
+            base.SendKeys(text);
+        }
     }
 }

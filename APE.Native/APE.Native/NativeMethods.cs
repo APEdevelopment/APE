@@ -1255,13 +1255,13 @@ namespace APE.Native
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
         public delegate bool EnumWindow(IntPtr hwnd, IntPtr lParam);
 
-        [DllImport("user32.dll", EntryPoint = "SetWindowsHookEx", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll", SetLastError = true, EntryPoint = "SetWindowsHookEx", CharSet = CharSet.Unicode)]
         public static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hInstance, int threadId);
 
-        [DllImport("user32.dll", EntryPoint = "UnhookWindowsHookEx", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll", SetLastError = true, EntryPoint = "UnhookWindowsHookEx", CharSet = CharSet.Unicode)]
         public static extern bool UnhookWindowsHookEx(int idHook);
 
-        [DllImport("user32.dll", EntryPoint = "CallNextHookEx", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll", SetLastError = true, EntryPoint = "CallNextHookEx", CharSet = CharSet.Unicode)]
         public static extern int CallNextHookEx(int idHook, int nCode, IntPtr wParam, IntPtr lParam);
 
         /// Return Type: DWORD->unsigned int->int

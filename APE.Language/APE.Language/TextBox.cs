@@ -65,7 +65,7 @@ namespace APE.Language
             currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
             if (currentText == text)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + text, LogItemTypeEnum.Action);
+                GUI.Log("Ensure the " + m_DescriptionOfControl + " is set to " + text, LogItemTypeEnum.Action);
                 return;
             }
 
