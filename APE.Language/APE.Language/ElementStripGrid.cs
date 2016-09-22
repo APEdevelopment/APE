@@ -927,11 +927,8 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "EnsureCellVisible", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic nullValue = GUI.m_APE.GetValueFromMessage();
         }
 
         /// <summary>

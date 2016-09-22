@@ -39,7 +39,6 @@ namespace APE.Communication
 
         private NM.HookProc MouseHookProcedure;
         private int m_hMouseHook = 0;
-        private IntPtr m_MouseHookThread = IntPtr.Zero;
         private IntPtr m_HookWindow;
 
         /// <summary>
@@ -124,12 +123,6 @@ namespace APE.Communication
 
             // Add the mouse hook
             DebugLogging.WriteLog("Adding Mouse hook");
-            IntPtr m_MouseHookThread = NM.OpenThread(NM.ThreadAccess.QUERY_INFORMATION, false, (uint)threadId);
-            if (m_MouseHookThread == IntPtr.Zero)
-            {
-                throw new Exception("SetWindowsHookEx failed to open the thread");
-            }
-
             m_hMouseHook = NM.SetWindowsHookEx(NM.WH_MOUSE, MouseHookProcedure, IntPtr.Zero, threadId);
             if (m_hMouseHook == 0)
             {
@@ -181,21 +174,17 @@ namespace APE.Communication
                 bool returnValue = NM.UnhookWindowsHookEx(m_hMouseHook);
                 if (!returnValue)
                 {
-                    //PostThreadMessage ?
-                    string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+                    string errorMessage = null;
+                    bool ignoreFailedToUnhook;
 
-                    bool ignoreFailedToUnhook = false;
-
-                    //check to see if the thread has exited (in which case you cant unhook it)
-                    uint exitCode;
-                    if (NM.GetExitCodeThread(m_MouseHookThread, out exitCode))
+                    if (Marshal.GetLastWin32Error() == 0)
                     {
-                        // If the thread isn't active
-                        if (exitCode != NM.STILL_ACTIVE)
-                        {
-                            // Ignore the failed unhook
-                            ignoreFailedToUnhook = true;
-                        }
+                        ignoreFailedToUnhook = true;
+                    }
+                    else
+                    {
+                        ignoreFailedToUnhook = false;
+                        errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                     }
 
                     if (!ignoreFailedToUnhook)
@@ -208,7 +197,6 @@ namespace APE.Communication
             {
                 m_hMouseHook = 0;
                 ClearMouseState();
-                NM.CloseHandle(m_MouseHookThread);
                 DebugLogging.WriteLog("Removed Mouse hook");
             }
            
