@@ -242,16 +242,32 @@ namespace APE.Test
             Stopwatch stepTimer;
             stepTimer = Stopwatch.StartNew();
 
-            string text = "";
-            Image image = null;
+            //string text = "";
+            //Image image = null;
 
             //////IMS
-            //Process p = Process.GetProcessesByName("LzCapstone")[0];
-            //GUI.AttachToProcess(p);
-            //GUI.SetTimeOut(5000);
+            Process p = Process.GetProcessesByName("LzCapstone")[0];
+            GUI.AttachToProcess(p);
+            GUI.SetTimeOut(5000);
 
+            
+            GUIForm exe = new GUIForm("rel", new Identifier(Identifiers.Name, "frmSingleExecution"));
+            GUIFlexgrid grid = new GUIFlexgrid(exe, "grid", new Identifier(Identifiers.Name, "fgAmendGrid"));
 
+            string text = grid.GetAllVisibleCells(CellProperty.TextDisplay);
 
+            grid.WaitForControlToNotBeVisible();
+
+            //GUIForm asa = new GUIForm("aas", new Identifier(Identifiers.Name, "SimpleContainer"));
+            //GUIElementStripGrid grid = new GUIElementStripGrid(asa, "GridColumnStylesCollection", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 3));
+            
+            ////GUIForm exec = new GUIForm("exec", new Identifier(Identifiers.Name, "frmSingleExecution"));
+            ////GUIFlexgrid execGrid = new GUIFlexgrid(exec, "grid", new Identifier(Identifiers.Name, "fgAllocations"));
+
+            //Stopwatch timerx = Stopwatch.StartNew();
+            //string ook = grid.GetAllVisibleCells();
+            //Debug.WriteLine(timerx.ElapsedMilliseconds.ToString());
+            //Clipboard.SetText(ook);
 
             //GUIForm splash = new GUIForm("splash screen", new Identifier(Identifiers.Name, "SplashScreenForm"));
             //GUIPictureBox splashPicturebox = new GUIPictureBox(splash, "picture box", new Identifier(Identifiers.Name, "picSplash"));
@@ -262,18 +278,28 @@ namespace APE.Test
 
 
             //Sentinel
-            Process p = Process.GetProcessesByName("LzSentinel")[0];
-            GUI.AttachToProcess(p);
-            GUIForm Sentinel = new GUIForm("sentinel form", new Identifier(Identifiers.Name, "CapstoneContainer"));
+            //Process p = Process.GetProcessesByName("LzSentinel")[0];
+            //GUI.AttachToProcess(p);
+            //GUIForm Sentinel = new GUIForm("sentinel form", new Identifier(Identifiers.Name, "CapstoneContainer"));
 
-            GUIFlexgrid today = new GUIFlexgrid(Sentinel, "sentinel today", new Identifier(Identifiers.Name, "vfgStats"));
+            //GUIFlexgrid today = new GUIFlexgrid(Sentinel, "sentinel today", new Identifier(Identifiers.Name, "vfgStats"));
 
-            for (int x = 0; x < 1000; x++)
-            {
-                today.Select("Overrides -> New", 0, MouseButton.Left, CellClickLocation.CentreOfCell);
-            }
-            
+            //for (int x = 0; x < 1000; x++)
+            //{
+            //    today.Select("Overrides -> New", 0, MouseButton.Left, CellClickLocation.CentreOfCell);
+            //}
 
+
+            //GUIForm aaa = new GUIForm("aaa", new Identifier(Identifiers.Name, "SimpleContainer"));
+
+            //GUIElementStripGrid xxx = new GUIElementStripGrid(aaa, "grid", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 3));
+
+            //Debug.WriteLine(xxx.Rows().ToString());
+
+            //GUIAxLZResultsGrid resgrid = new GUIAxLZResultsGrid(aaa, "resgrid", new Identifier(Identifiers.Name, "lzcResultsGrid"));
+
+            //Debug.WriteLine(resgrid.Rows().ToString());
+            //Debug.WriteLine(xxx.IsEnabled.ToString());
 
             //
             //

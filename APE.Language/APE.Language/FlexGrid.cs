@@ -21,6 +21,7 @@ using System.Threading;
 using System.Diagnostics;
 using NM = APE.Native.NativeMethods;
 using System.Text;
+using System.ComponentModel;
 
 namespace APE.Language
 {
@@ -60,6 +61,11 @@ namespace APE.Language
         /// For GetCellRange this returns whether the cells contain a background image
         /// </summary>
         BackgroundImage,
+        /// <summary>
+        /// The font style of the cell
+        /// Supported in GetCellValue only
+        /// </summary>
+        FontStyle,
     }
 
     /// <summary>
@@ -1117,32 +1123,106 @@ namespace APE.Language
         //    return format;
         //}
 
+        /// <summary>
+        /// Returns the value of the specified cell as a string
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
+        /// <returns></returns>
+        public string GetCellValue(string rowText, string columnText)
+        {
+            return GetCellValue(rowText, columnText, CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified cell as a string
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
+        /// <returns>The cell value as a string</returns>
+        /// <returns></returns>
+        public string GetCellValue(int rowIndex, string columnText)
+        {
+            return GetCellValue(rowIndex, columnText, CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified cell as a string
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        /// <returns>The cell value as a string</returns>
+        public string GetCellValue(string rowText, int columnIndex)
+        {
+            return GetCellValue(rowText, columnIndex, CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified cell as a string
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        /// <returns>The cell value as a string</returns>
+        public string GetCellValue(int rowIndex, int columnIndex)
+        {
+            return GetCellValue(rowIndex, columnIndex, CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified cell property
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>The cell property</returns>
         public dynamic GetCellValue(string rowText, string columnText, CellProperty property)
         {
-            int row = FindRow(rowText);
-            int column = FindColumn(columnText);
-            return GetCellValue(row, column, property);
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+            
+            return GetCellValue(rowIndex, columnIndex, property);
         }
 
-        public dynamic GetCellValue(int row, string columnText, CellProperty Property)
+        /// <summary>
+        /// Returns the value of the specified cell property
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>The cell property</returns>
+        public dynamic GetCellValue(int rowIndex, string columnText, CellProperty property)
         {
             int column = FindColumn(columnText);
-            return GetCellValue(row, column, Property);
+            return GetCellValue(rowIndex, column, property);
         }
 
-        public dynamic GetCellValue(string rowText, int column, CellProperty property)
+        /// <summary>
+        /// Returns the value of the specified cell property
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>The cell property</returns>
+        public dynamic GetCellValue(string rowText, int columnIndex, CellProperty property)
         {
-            int row = FindRow(rowText);
-            return GetCellValue(row, column, property);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return GetCellValue(rowIndex, columnIndex, property);
         }
 
-        public dynamic GetCellValue(int row, int column, CellProperty property)
+        /// <summary>
+        /// Returns the value of the specified cell property
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>The cell property</returns>
+        public dynamic GetCellValue(int rowIndex, int columnIndex, CellProperty property)
         {
             switch (property)
             {
                 case CellProperty.TextDisplay:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "DataDisplay", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
                     GUI.m_APE.SendMessages(EventSet.APE);
@@ -1152,7 +1232,7 @@ namespace APE.Language
                     return CellDataDisplay;
                 case CellProperty.BackColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "BackColor", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
@@ -1164,7 +1244,7 @@ namespace APE.Language
                     return backColourName;
                 case CellProperty.ForeColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ForeColor", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
@@ -1176,7 +1256,7 @@ namespace APE.Language
                     return foreColourName;
                 case CellProperty.DataType:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DataType", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Namespace", MemberTypes.Property);
@@ -1191,7 +1271,7 @@ namespace APE.Language
                     return cellTypeNamespace + "." + cellTypeName;
                 case CellProperty.CheckBox:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Checkbox", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
@@ -1202,7 +1282,7 @@ namespace APE.Language
                     return checkboxState;
                 case CellProperty.Image:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Image", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
                     GUI.m_APE.SendMessages(EventSet.APE);
@@ -1212,7 +1292,7 @@ namespace APE.Language
                     return image;
                 case CellProperty.BackgroundImage:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "BackgroundImage", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
@@ -1221,37 +1301,139 @@ namespace APE.Language
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     Image backgroundImage = GUI.m_APE.GetValueFromMessage();
                     return backgroundImage;
+                case CellProperty.FontStyle:
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Font", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Style", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "ToString", MemberTypes.Method);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string fontStyleText = GUI.m_APE.GetValueFromMessage();
+                    FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
+                    return fontStyle;
                 default:
                     throw new Exception("Implement support for getting cell property " + property.ToString());
             }
         }
 
-        public string GetCellRange(int row1, string columnText1, int row2, string columnText2, CellProperty property)
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Text">The start column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Text">The end column of the range delimited by -> for example Order -> Id</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, string column1Text, int row2Index, string column2Text)
         {
-            int column1 = FindColumn(columnText1);
-            int column2 = FindColumn(columnText2);
-            return GetCellRange(row1, column1, row2, column2, property);
+            return GetCellRange(row1Index, column1Text, row2Index, column2Text, CellProperty.TextDisplay);
         }
 
-        public string GetCellRange(int row1, int column1, int row2, string columnText2, CellProperty property)
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Index">The start column of the range</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Text">The end column of the range delimited by -> for example Order -> Id</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, int column1Index, int row2Index, string column2Text)
         {
-            int column2 = FindColumn(columnText2);
-            return GetCellRange(row1, column1, row2, column2, property);
+            return GetCellRange(row1Index, column1Index, row2Index, column2Text, CellProperty.TextDisplay);
         }
 
-        public string GetCellRange(int row1, string columnText1, int row2, int column2, CellProperty property)
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Text">The start column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Index">The end column of the range</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, string column1Text, int row2Index, int column2Index)
         {
-            int column1 = FindColumn(columnText1);
-            return GetCellRange(row1, column1, row2, column2, property);
+            return GetCellRange(row1Index, column1Text, row2Index, column2Index, CellProperty.TextDisplay);
         }
 
-        public string GetCellRange(int row1, int column1, int row2, int column2, CellProperty property)
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Index">The start column of the range</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Index">The end column of the range</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, int column1Index, int row2Index, int column2Index)
+        {
+            return GetCellRange(row1Index, column1Index, row2Index, column2Index, CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Text">The start column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Text">The end column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, string column1Text, int row2Index, string column2Text, CellProperty property)
+        {
+            int column1 = FindColumn(column1Text);
+            int column2 = FindColumn(column2Text);
+            return GetCellRange(row1Index, column1, row2Index, column2, property);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Index">The start column of the range</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Text">The end column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, int column1Index, int row2Index, string column2Text, CellProperty property)
+        {
+            int column2 = FindColumn(column2Text);
+            return GetCellRange(row1Index, column1Index, row2Index, column2, property);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Text">The start column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Index">The end column of the range</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, string column1Text, int row2Index, int column2Index, CellProperty property)
+        {
+            int column1 = FindColumn(column1Text);
+            return GetCellRange(row1Index, column1, row2Index, column2Index, property);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Index">The start column of the range</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Index">The end column of the range</param>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, int column1Index, int row2Index, int column2Index, CellProperty property)
         {
             switch (property)
             {
                 case CellProperty.TextDisplay:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row1), new Parameter(GUI.m_APE, column1), new Parameter(GUI.m_APE, row2), new Parameter(GUI.m_APE, column2));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row1Index), new Parameter(GUI.m_APE, column1Index), new Parameter(GUI.m_APE, row2Index), new Parameter(GUI.m_APE, column2Index));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Clip", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
                     GUI.m_APE.SendMessages(EventSet.APE);
@@ -1261,7 +1443,7 @@ namespace APE.Language
                     return rangeClip;
                 case CellProperty.BackColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1, column1, row2, column2, APEIPC.CellProperty.BackColourName);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1270,7 +1452,7 @@ namespace APE.Language
                     return rangeBackColourName;
                 case CellProperty.ForeColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1, column1, row2, column2, APEIPC.CellProperty.ForeColourName);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1279,7 +1461,7 @@ namespace APE.Language
                     return rangeForeColourName;
                 case CellProperty.DataType:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1, column1, row2, column2, APEIPC.CellProperty.DataType);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.DataType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1802,6 +1984,10 @@ namespace APE.Language
             return -1;
         }
 
+        /// <summary>
+        /// Gets the tree view column
+        /// </summary>
+        /// <returns>The tree view column index or -1</returns>
         public int TreeViewColumn()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -1816,6 +2002,10 @@ namespace APE.Language
             return TreeViewColumn;
         }
 
+        /// <summary>
+        /// Determines if the grid has a tree view column
+        /// </summary>
+        /// <returns>True if the grid has a tree view column otherwise false</returns>
         public bool IsTreeView()
         {
             int TreeColumn = TreeViewColumn();
@@ -1912,10 +2102,155 @@ namespace APE.Language
             throw new Exception("Unknown BorderStyle: " + BorderStyle);
         }
 
-        ////FlexGridFullyCollapseTreeView //do in a more generic way?
-        ////FlexGridFullyExpandTreeView
+        //TODO
+        //FlexGridFullyCollapseTreeView //do in a more generic way?
+        //FlexGridFullyExpandTreeView
 
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r where
+        /// each cell has a width and height greater than 1 pixel and the row or column is not
+        /// hidden.  Collapsed nodes are also excluded.
+        /// </summary>
+        /// <returns>A string containing the range of values</returns>
+        public string GetAllVisibleCells()
+        {
+            return GetAllVisibleCells(CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r where
+        /// each cell has a width and height greater than 1 pixel and the row or column is not
+        /// hidden.  Collapsed nodes are also excluded.
+        /// </summary>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>A string containing the range of values</returns>
         public string GetAllVisibleCells(CellProperty property)
+        {
+            string[] separatorComma = { "," };
+            string[] separatorCr = { "\r" };
+            string[] separatorTab = { "\t" };
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string columnsHiddenText = GUI.m_APE.GetValueFromMessage();
+            string[] columnsHiddenTextArray = columnsHiddenText.Split(separatorComma, StringSplitOptions.None);
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string rowsHiddenText = GUI.m_APE.GetValueFromMessage();
+            string[] rowsHiddenTextArray = rowsHiddenText.Split(separatorComma, StringSplitOptions.None);
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string columnsWidthText = GUI.m_APE.GetValueFromMessage();
+            string[] columnsWidthTextArray = columnsWidthText.Split(separatorComma, StringSplitOptions.None);
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store0, DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string rowsHeightText = GUI.m_APE.GetValueFromMessage();
+            string[] rowsHeightTextArray = rowsHeightText.Split(separatorComma, StringSplitOptions.None);
+
+            //TODO exclude collapsed node rows
+
+            int columns = this.Columns();
+            int rows = this.Rows();
+
+            bool[] columnsToExclude = new bool[columns];
+            bool[] rowsToExclude = new bool[rows];
+
+            for (int column = 0; column < columns; column++)
+            {
+                if (columnsHiddenTextArray[column] == "True")
+                {
+                    columnsToExclude[column] = true;
+                }
+                if (columnsWidthTextArray[column] == "0" || columnsWidthTextArray[column] == "1")
+                {
+                    columnsToExclude[column] = true;
+                }
+            }
+
+            for (int row = 0; row < rows; row++)
+            {
+                if (rowsHiddenTextArray[row] == "True")
+                {
+                    rowsToExclude[row] = true;
+                }
+                if (rowsHeightTextArray[row] == "0" || rowsHeightTextArray[row] == "1")
+                {
+                    rowsToExclude[row] = true;
+                }
+            }
+
+            // Copy the whole grid
+            if (rows > 0 && columns > 0)
+            {
+                string fullGrid = GetCellRange(0, 0, rows - 1, columns - 1, property);
+
+                StringBuilder grid = new StringBuilder(10240);
+                bool doneColumn;
+
+                string[] fullGridRows = fullGrid.Split(separatorCr, StringSplitOptions.None);
+                for (int fullGridRow = 0; fullGridRow < rows; fullGridRow++)
+                {
+                    if (!rowsToExclude[fullGridRow])
+                    {
+                        string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
+                        doneColumn = false;
+                        for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
+                        {
+                            if (!columnsToExclude[fullGridColumn])
+                            {
+                                if (doneColumn)
+                                {
+                                    grid.Append("\t");
+                                }
+                                grid.Append(fullGridColumns[fullGridColumn]);
+                                doneColumn = true;
+                            }
+                        }
+                        grid.Append("\r");
+                    }
+                }
+
+                // Strip off the final \r
+                grid.Length -= 1;
+
+                return grid.ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// THIS WILL BE REMOVED SOMETIME IN 2017 DO NOT USE IT
+        /// Returns a range of cell values column separated by \t and row separated by \r where
+        /// each cell has a width and height greater than 1 pixel and the row or column is not
+        /// hidden.  Collapsed nodes are also excluded.
+        /// </summary>
+        /// <param name="property">The property of the cell to get</param>
+        /// <param name="excludeWidthHeightSmallerThan2">Exclude columns and rows with widths or heights less than 2 pixels</param>
+        /// <returns>A string containing the range of values</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string GetAllVisibleCells(CellProperty property, bool excludeWidthHeightSmallerThan2)
         {
             string[] separatorComma = { "," };
             string[] separatorCr = { "\r" };
@@ -1965,23 +2300,18 @@ namespace APE.Language
             bool[] columnsToExclude = new bool[columns];
             bool[] rowsToExclude = new bool[rows];
 
-            int actualColumns = 0;
-            int actualRows = 0;
-
             for (int column = 0; column < columns; column++)
             {
                 if (columnsHiddenTextArray[column] == "True")
                 {
                     columnsToExclude[column] = true;
                 }
-                if (columnsWidthTextArray[column] == "0" || columnsWidthTextArray[column] == "1")
+                if (excludeWidthHeightSmallerThan2)
                 {
-                    columnsToExclude[column] = true;
-                }
-
-                if (!columnsToExclude[column])
-                {
-                    actualColumns++;
+                    if (columnsWidthTextArray[column] == "0" || columnsWidthTextArray[column] == "1")
+                    {
+                        columnsToExclude[column] = true;
+                    }
                 }
             }
 
@@ -1991,14 +2321,12 @@ namespace APE.Language
                 {
                     rowsToExclude[row] = true;
                 }
-                if (rowsHeightTextArray[row] == "0" || rowsHeightTextArray[row] == "1")
+                if (excludeWidthHeightSmallerThan2)
                 {
-                    rowsToExclude[row] = true;
-                }
-
-                if (!rowsToExclude[row])
-                {
-                    actualRows++;
+                    if (rowsHeightTextArray[row] == "0" || rowsHeightTextArray[row] == "1")
+                    {
+                        rowsToExclude[row] = true;
+                    }
                 }
             }
 

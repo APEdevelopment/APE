@@ -647,27 +647,55 @@ namespace APE.Language
         /// <summary>
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
-        /// <param name="row1">The start row of the range</param>
-        /// <param name="column1">The start column of the range delimited by -> for example Order -> Id</param>
-        /// <param name="row2">The end row of the range</param>
-        /// <param name="column2">The end column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Text">The start column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Text">The end column of the range delimited by -> for example Order -> Id</param>
         /// <returns>A string containing the range of values</returns>
-        public string GetCellRange(int row1, string column1, int row2, string column2)
+        public string GetCellRange(int row1Index, string column1Text, int row2Index, string column2Text)
         {
-            int column1Index = FindColumn(column1);
-            int column2Index = FindColumn(column2);
-            return GetCellRange(row1, column1Index, row2, column2Index);
+            int column1Index = FindColumn(column1Text);
+            int column2Index = FindColumn(column2Text);
+            return GetCellRange(row1Index, column1Index, row2Index, column2Index);
         }
 
         /// <summary>
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
-        /// <param name="row1">The start row of the range</param>
-        /// <param name="column1">The start column of the range</param>
-        /// <param name="row2">The end row of the range</param>
-        /// <param name="column2">The end column of the range</param>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Index">The start column of the range</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Text">The end column of the range delimited by -> for example Order -> Id</param>
         /// <returns>A string containing the range of values</returns>
-        public string GetCellRange(int row1, int column1, int row2, int column2)
+        public string GetCellRange(int row1Index, int column1Index, int row2Index, string column2Text)
+        {
+            int column2Index = FindColumn(column2Text);
+            return GetCellRange(row1Index, column1Index, row2Index, column2Index);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Text">The start column of the range delimited by -> for example Order -> Id</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Index">The end column of the range</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, string column1Text, int row2Index, int column2Index)
+        {
+            int column1Index = FindColumn(column1Text);
+            return GetCellRange(row1Index, column1Index, row2Index, column2Index);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r
+        /// </summary>
+        /// <param name="row1Index">The start row of the range</param>
+        /// <param name="column1Index">The start column of the range</param>
+        /// <param name="row2Index">The end row of the range</param>
+        /// <param name="column2Index">The end column of the range</param>
+        /// <returns>A string containing the range of values</returns>
+        public string GetCellRange(int row1Index, int column1Index, int row2Index, int column2Index)
         {
             string text = "";
 
@@ -678,28 +706,28 @@ namespace APE.Language
             string[,] columnTitle = GetColumnTitles(false);
     
             //If the range we want includes the title rows
-            if (row1 < titleRows)
+            if (row1Index < titleRows)
             {
-                for (int row = row1; row < titleRows; row++)
+                for (int row = row1Index; row < titleRows; row++)
                 {
-                    if (row > row2)
+                    if (row > row2Index)
                     {
                         break;
                     }
 
-                    for (int column = column1; column <= column2; column++)
+                    for (int column = column1Index; column <= column2Index; column++)
                     {
-                        if (column1 == column2)
+                        if (column1Index == column2Index)
                         {
                             text += columnTitle[row, column] + "\r";
                         }
                         else
                         {
-                            if (column == column1)
+                            if (column == column1Index)
                             {
                                 text += columnTitle[row, column];
                             }
-                            else if (column == column2)
+                            else if (column == column2Index)
                             {
                                 text += "\t" + columnTitle[row, column] + "\r";
                             }
@@ -712,19 +740,19 @@ namespace APE.Language
                 }
             }
 
-            row1 -= titleRows;
-            row2 -= titleRows;
+            row1Index -= titleRows;
+            row2Index -= titleRows;
 
-            if (row1 < 0)
+            if (row1Index < 0)
             {
-                row1 = 0;
+                row1Index = 0;
             }
 
             //Get the data rows
-            if (row2 > -1)
+            if (row2Index > -1)
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellsDisplayTextString", MemberTypes.Method, new Parameter(GUI.m_APE, row1), new Parameter(GUI.m_APE, column1), new Parameter(GUI.m_APE, row2), new Parameter(GUI.m_APE, column2));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellsDisplayTextString", MemberTypes.Method, new Parameter(GUI.m_APE, row1Index), new Parameter(GUI.m_APE, column1Index), new Parameter(GUI.m_APE, row2Index), new Parameter(GUI.m_APE, column2Index));
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -745,25 +773,51 @@ namespace APE.Language
         /// <summary>
         /// Returns the value of the specified cell as a string
         /// </summary>
-        /// <param name="row">Row of the cell</param>
-        /// <param name="column">Column of the cell delimited by -> for example Order -> Id</param>
-        /// <returns>The cell value as a string</returns>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
         /// <returns></returns>
-        public string GetCellValue(int row, string column)
+        public string GetCellValue(string rowText, string columnText)
         {
-            int columnIndex = FindColumn(column);
-            return GetCellRange(row, columnIndex, row, columnIndex);
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
         }
 
         /// <summary>
         /// Returns the value of the specified cell as a string
         /// </summary>
-        /// <param name="row">Row of the cell</param>
-        /// <param name="column">Column of the cell</param>
+        /// <param name="rowIndex">Row of the cell</param>
+        /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
         /// <returns>The cell value as a string</returns>
-        public string GetCellValue(int row, int column)
+        /// <returns></returns>
+        public string GetCellValue(int rowIndex, string columnText)
         {
-            return GetCellRange(row, column, row, column);
+            int columnIndex = FindColumn(columnText);
+            return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified cell as a string
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        /// <returns></returns>
+        public string GetCellValue(string rowText, int columnIndex)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+            return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns the value of the specified cell as a string
+        /// </summary>
+        /// <param name="rowIndex">Row index of the cell</param>
+        /// <param name="columnIndex">Column index of the cell</param>
+        /// <returns>The cell value as a string</returns>
+        public string GetCellValue(int rowIndex, int columnIndex)
+        {
+            return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
         }
 
         /// <summary>
@@ -1677,6 +1731,12 @@ namespace APE.Language
         //    return false;
         //}
 
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r where
+        /// each cell has a width and height greater than 1 pixel and the row or column is not
+        /// hidden.  Collapsed nodes are also excluded.
+        /// </summary>
+        /// <returns>A string containing the range of values</returns>
         public string GetAllVisibleCells()
         {
             string[] separatorComma = { "," };

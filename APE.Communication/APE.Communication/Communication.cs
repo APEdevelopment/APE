@@ -305,7 +305,7 @@ namespace APE.Communication
             //must be first message
             if (MessageNumber != 1)
             {
-                throw new Exception("GetListViewItemRectangle must be first message");
+                throw new Exception("SetTimeOuts must be first message");
             }
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
