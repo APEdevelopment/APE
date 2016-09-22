@@ -824,7 +824,7 @@ namespace APE.Language
         /// Returns the rows index of the specified value in the first visible column
         /// </summary>
         /// <param name="rowText">The value to look for in the first visible column</param>
-        /// <returns>The index of the row</returns>
+        /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText)
         {
             //TODO if there is a treeview column, use that, otherwise use first visible
@@ -838,7 +838,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="rowText">The value to look for in the specified column</param>
         /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
-        /// <returns>The index of the row</returns>
+        /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, string columnText)
         {
             int columnIndex = this.FindColumn(columnText);
@@ -852,7 +852,7 @@ namespace APE.Language
         /// <param name="rowText">The value to look for in the specified column</param>
         /// <param name="columnText">The column to look for the value in delimited by -> for example Order -> Id</param>
         /// <param name="startAtRow">The row to start the search at</param>
-        /// <returns>The index of the row</returns>
+        /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, string columnText, int startAtRow)
         {
             int columnIndex = this.FindColumn(columnText);
@@ -864,7 +864,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="rowText">The value to look for in the specified column</param>
         /// <param name="columnIndex">The column to look for the value in</param>
-        /// <returns>The index of the row</returns>
+        /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, int columnIndex)
         {
             int startAtRow = 0;//FixedRows();
@@ -877,7 +877,7 @@ namespace APE.Language
         /// <param name="rowText">The value to look for in the specified column</param>
         /// <param name="columnIndex">The column to look for the value in</param>
         /// <param name="startAtRow">The row to start the search at</param>
-        /// <returns>The index of the row</returns>
+        /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, int columnIndex, int startAtRow)
         {
             //TODO treeview

@@ -14,10 +14,6 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using APE.Communication;
 using System.Reflection;
 using System.Drawing;
@@ -155,7 +151,10 @@ namespace APE.Language
 
             bool multiLine = MultiLine();
             Rectangle tabRectangle = TabRectangle(tabIndex);
-            int width = tabRectangle.Width;
+
+            NM.tagRect tabRect;
+            NM.GetClientRect(Identity.Handle, out tabRect);
+            int width = tabRect.right;
 
             // multiline means no scroll button
             if (!multiLine)
@@ -183,8 +182,6 @@ namespace APE.Language
                 {
                     // work out if we need to scroll the tab into view
                     NM.tagRect scrollButtonsRect;
-                    NM.tagRect tabRect;
-                    NM.GetClientRect(Identity.Handle, out tabRect);
                     NM.GetClientRect(upDownControl, out scrollButtonsRect);
 
                     width = tabRect.right - scrollButtonsRect.right;
