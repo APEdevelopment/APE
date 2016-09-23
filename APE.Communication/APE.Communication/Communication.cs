@@ -2610,6 +2610,14 @@ namespace APE.Communication
                         default:
                             return "";
                     }
+                case "LzStretchyCombo":
+                    switch (TypeName)
+                    {
+                        case "StretchyCombo":
+                            return "GUIStretchyCombo";
+                        default:
+                            return "";
+                    }
                 default:
                     return "";
             }
