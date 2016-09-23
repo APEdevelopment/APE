@@ -562,7 +562,7 @@ namespace APE.Spy
                 ControlIdentifier identity = new ControlIdentifier();
                 identity.ParentHandle = m_Identity.ParentHandle;
                 identity.TechnologyType = m_Identity.TechnologyType;
-                if (m_Identity.Name != "" && m_Identity.Name != null && Guid.TryParse(m_Identity.Name, out notUsed) == false)
+                if (m_Identity.Name != "" && m_Identity.Name != null && !Guid.TryParse(m_Identity.Name, out notUsed) && m_Identity.Name != "DinamicallyLoadedControl")
                 {
                     //Use Name as the index key
                     identity.Name = m_Identity.Name;
@@ -570,7 +570,7 @@ namespace APE.Spy
                 else if (m_Identity.Text != "" && m_Identity.Text != null)
                 {
                     //Use Typename and Text as the index key
-                    identity.Text = Regex.Escape(m_Identity.Text);
+                    identity.Text = "^" + Regex.Escape(m_Identity.Text) + "$";
                     identity.TypeName = m_Identity.TypeName;
                 }
                 else
@@ -598,7 +598,7 @@ namespace APE.Spy
             string indexLocatorText = "";
             string parentLocatorText = "";
 
-            if (m_Identity.Name != "" && m_Identity.Name != null && Guid.TryParse(m_Identity.Name, out notUsed) == false)
+            if (m_Identity.Name != "" && m_Identity.Name != null && !Guid.TryParse(m_Identity.Name, out notUsed) && m_Identity.Name != "DinamicallyLoadedControl")
             {
                 PropertyListbox.Items.Add("Index (by Name)\t: " + m_Identity.Index);
                 mainLocatorText = ", new Identifier(Identifiers.Name, \"" + m_Identity.Name + "\")";
@@ -607,7 +607,7 @@ namespace APE.Spy
             {
                 PropertyListbox.Items.Add("Index (by Text and\t: " + m_Identity.Index);
                 PropertyListbox.Items.Add(" TypeName)");
-                mainLocatorText = ", new Identifier(Identifiers.Text, \"" + Regex.Escape(m_Identity.Text) + "\"), new Identifier(Identifiers.TypeName, \"" + m_Identity.TypeName + "\")";
+                mainLocatorText = ", new Identifier(Identifiers.Text, @\"^" + Regex.Escape(m_Identity.Text) + "$\"), new Identifier(Identifiers.TypeName, \"" + m_Identity.TypeName + "\")";
             }
             else
             {
