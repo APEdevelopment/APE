@@ -2618,6 +2618,14 @@ namespace APE.Communication
                         default:
                             return "";
                     }
+                case "LzNavBarControls":
+                    switch (TypeName)
+                    {
+                        case "LzNavBarGridControl":
+                            return "GUILzNavBarGridControl";
+                        default:
+                            return "";
+                    }
                 default:
                     return "";
             }

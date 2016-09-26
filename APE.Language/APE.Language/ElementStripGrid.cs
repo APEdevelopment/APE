@@ -17,12 +17,9 @@ using System;
 using System.Drawing;
 using System.Text;
 using System.Reflection;
-using APE.Capture;
 using APE.Communication;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
-using NM = APE.Native.NativeMethods;
 using System.Xml;
 
 namespace APE.Language
@@ -451,7 +448,7 @@ namespace APE.Language
                     if (titles[columnHeader.GetLength(0) - 1, column] == columnHeader[columnHeader.GetLength(0) - 1])
                     {
                         Found = true;
-                        for (row = columnHeader.GetLength(0) - 2; row > - 1; row--)
+                        for (row = columnHeader.GetLength(0) - 2; row > -1; row--)
                         {
                             int tempColumn = column;
 
@@ -487,7 +484,7 @@ namespace APE.Language
             {
                 return column;
             }
-            
+
             return -1;
         }
 
@@ -497,7 +494,7 @@ namespace APE.Language
 
             //Build a boolean array big enough to hold an entry for each column
             bool[] visibleColumns = new bool[columns];
-    
+
             //Get an XML representation of the columns
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
@@ -510,7 +507,7 @@ namespace APE.Language
             //Load the xml into an xml document
             XmlDocument columnsXMLDocument = new XmlDocument();
             columnsXMLDocument.LoadXml(xmlColumns);
-    
+
             //Workout which columns are visible
             int column = 0;
             foreach (XmlNode node in columnsXMLDocument.SelectNodes(".//Column"))
@@ -524,7 +521,7 @@ namespace APE.Language
                     column++;
                 }
             }
-    
+
             return visibleColumns;
         }
 
@@ -704,7 +701,7 @@ namespace APE.Language
 
             //Get the title rows
             string[,] columnTitle = GetColumnTitles(false);
-    
+
             //If the range we want includes the title rows
             if (row1Index < titleRows)
             {
@@ -823,14 +820,12 @@ namespace APE.Language
         /// <summary>
         /// Returns the rows index of the specified value in the first visible column
         /// </summary>
-        /// <param name="rowText">The value to look for in the first visible column</param>
+        /// <param name="rowText">The value to look for in the first visible column or the treeview column if the grid is a tree</param>
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText)
         {
-            //TODO if there is a treeview column, use that, otherwise use first visible
-            int columnIndex = this.FirstVisibleColumn();
-            int startAtRow = 0;//FixedRows();
-            return FindRow(rowText, columnIndex, startAtRow);
+            int startAtRow = 0;
+            return FindRow(rowText, -1, startAtRow);
         }
 
         /// <summary>
@@ -841,8 +836,8 @@ namespace APE.Language
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, string columnText)
         {
-            int columnIndex = this.FindColumn(columnText);
-            int startAtRow = 0;//FixedRows();
+            int columnIndex = FindColumn(columnText);
+            int startAtRow = 0;
             return FindRow(rowText, columnIndex, startAtRow);
         }
 
@@ -855,7 +850,7 @@ namespace APE.Language
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, string columnText, int startAtRow)
         {
-            int columnIndex = this.FindColumn(columnText);
+            int columnIndex = FindColumn(columnText);
             return FindRow(rowText, columnIndex, startAtRow);
         }
 
@@ -867,7 +862,7 @@ namespace APE.Language
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, int columnIndex)
         {
-            int startAtRow = 0;//FixedRows();
+            int startAtRow = 0;
             return FindRow(rowText, columnIndex, startAtRow);
         }
 
@@ -880,11 +875,27 @@ namespace APE.Language
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, int columnIndex, int startAtRow)
         {
-            //TODO treeview
             int rowIndex;
-            rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+
+            if (columnIndex == -1)
+            {
+                //TODO treeview
+                //if (IsTreeView())
+                //{
+                //    rowIndex = FindNodeRow(rowText);
+                //}
+                //else
+                //{
+                columnIndex = FirstVisibleColumn();
+                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+                //}
+            }
+            else
+            {
+                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+            }
+
             return rowIndex;
-            
         }
 
         private int FindRowInternal(string rowText, int columnIndex, int startAtRow)
@@ -948,7 +959,7 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             bool isChild = GUI.m_APE.GetValueFromMessage();
-            
+
             return isChild;
         }
 
@@ -981,7 +992,7 @@ namespace APE.Language
             {
                 if (FilterRowVisible())
                 {
-                    row++;    
+                    row++;
                 }
 
                 return row;
@@ -1391,7 +1402,7 @@ namespace APE.Language
             IntPtr controlHandle = GUI.m_APE.GetValueFromMessage();
             return controlHandle;
         }
-        
+
         /// <summary>
         /// Sets the specified cell to the specified value
         /// </summary>

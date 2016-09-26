@@ -76,6 +76,7 @@
     <Compile Include="FlexGrid.cs" />
     <Compile Include="FocusableObject.cs" />
     <Compile Include="Form.cs" />
+    <Compile Include="LzNavBarGridControl.cs" />
     <Compile Include="PictureBox.cs" />
     <Compile Include="PopupList.cs" />
     <Compile Include="ProgressBar.cs" />

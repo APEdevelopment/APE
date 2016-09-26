@@ -182,7 +182,7 @@ namespace APE.Language
             {
                 NodePath = GetCellValue(CurrentRow, Column, CellProperty.TextDisplay) + " -> " + NodePath;
                 CurrentRow = GetNodeParentRow(CurrentRow);
-            } 
+            }
 
             return NodePath;
         }
@@ -301,7 +301,7 @@ namespace APE.Language
                 throw new Exception("Flexgrid is not a treeview");
             }
 
-            for (int rowIndex = Rows() -1; rowIndex > -1; rowIndex--)
+            for (int rowIndex = Rows() - 1; rowIndex > -1; rowIndex--)
             {
                 if (IsNode(rowIndex))
                 {
@@ -423,7 +423,7 @@ namespace APE.Language
                         row += " -> " + nodePathArray[x];
                     }
                 }
-                
+
                 int rowIndex = FindNodeRow(row);
 
                 if (!HasNodeGotChildren(rowIndex))
@@ -576,7 +576,7 @@ namespace APE.Language
             int rightColumn = GUI.m_APE.GetValueFromMessage();
             int topRow = GUI.m_APE.GetValueFromMessage();
             int bottomRow = GUI.m_APE.GetValueFromMessage();
-            
+
             if (column <= leftColumn || column >= rightColumn || row <= topRow || row >= bottomRow)
             {
                 return false;
@@ -1179,7 +1179,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
-            
+
             return GetCellValue(rowIndex, columnIndex, property);
         }
 
@@ -1624,7 +1624,7 @@ namespace APE.Language
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
-        private void SelectInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        internal void SelectInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
             Point location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
             base.MouseSingleClickInternal(location.X, location.Y, button, keyModifier);
@@ -1662,12 +1662,12 @@ namespace APE.Language
             {
                 throw new Exception("Column is hidden");
             }
-    
+
             //Scroll the cell into view
             Show(rowIndex, columnIndex);
 
             Rectangle CellRectangle = GetCellRectangle(rowIndex, columnIndex);
-            
+
             Point Location = new Point();
 
             //Adjust for where we want to click in the cell
@@ -1770,13 +1770,12 @@ namespace APE.Language
         /// <summary>
         /// Returns the rows index of the specified value in the first visible column
         /// </summary>
-        /// <param name="rowText">The value to look for in the first visible column</param>
+        /// <param name="rowText">The value to look for in the first visible column or the treeview column if the grid is a tree</param>
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText)
         {
-            int columnIndex = FirstVisibleColumn();
-            int startAtRow = 0; //FixedRows();
-            return FindRow(rowText, columnIndex, startAtRow);
+            int startAtRow = 0;
+            return FindRow(rowText, -1, startAtRow);
         }
 
         /// <summary>
@@ -1788,7 +1787,7 @@ namespace APE.Language
         public int FindRow(string rowText, string columnText)
         {
             int columnIndex = FindColumn(columnText);
-            int startAtRow = 0;//FixedRows();
+            int startAtRow = 0;
             return FindRow(rowText, columnIndex, startAtRow);
         }
 
@@ -1813,7 +1812,7 @@ namespace APE.Language
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, int columnIndex)
         {
-            int startAtRow = 0;//FixedRows();
+            int startAtRow = 0;
             return FindRow(rowText, columnIndex, startAtRow);
         }
 
@@ -1828,9 +1827,17 @@ namespace APE.Language
         {
             int rowIndex;
 
-            if (IsTreeView())
+            if (columnIndex == -1)
             {
-                rowIndex = FindNodeRow(rowText);
+                if (IsTreeView())
+                {
+                    rowIndex = FindNodeRow(rowText);
+                }
+                else
+                {
+                    columnIndex = FirstVisibleColumn();
+                    rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+                }
             }
             else
             {
@@ -1860,7 +1867,7 @@ namespace APE.Language
                     return -1;
                 }
             } while (IsRowHidden(CurrentRow));
-           
+
             return CurrentRow;
         }
 
@@ -2293,7 +2300,7 @@ namespace APE.Language
             string[] rowsHeightTextArray = rowsHeightText.Split(separatorComma, StringSplitOptions.None);
 
             //TODO exclude collapsed node rows
-            
+
             int columns = this.Columns();
             int rows = this.Rows();
 
