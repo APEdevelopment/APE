@@ -963,7 +963,7 @@ namespace APE.Language
             string CurrentValue = this.GetCellValue(rowIndex, columnIndex, CellProperty.TextDisplay);
             if (CurrentValue == expectedValue)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemType.Action);
+                GUI.Log("Ensure " + Identity.Description + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemType.Action);
                 return false;
             }
 
@@ -975,18 +975,18 @@ namespace APE.Language
                 //case "System.DateTime":
                 case "System.Boolean":  //checkbox
                     // Click on the checkbox
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
                     this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     break;
                 default:
                     // Select the cell if its not selected
                     if (this.SelectedRow() == rowIndex && this.SelectedColumn() == columnIndex)
                     {
-                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemType.Action);
+                        GUI.Log("Ensure " + Identity.Description + " row " + rowText + " column " + columnText + " is selected", LogItemType.Action);
                     }
                     else
                     {
-                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
                         this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     }
 
@@ -1027,7 +1027,7 @@ namespace APE.Language
                         try
                         {
                             GUI.SetTimeOut(0);
-                            genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
+                            genericWalker = new GUIGenericWalker(m_ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
                         }
                         finally
                         {
@@ -1050,17 +1050,17 @@ namespace APE.Language
                         switch (APEBaseType)
                         {
                             case "GUIComboBox":
-                                GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                                GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, Identity.Description + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridComboBox.ItemSelect(value);
                                 break;
                             case "GUITextBox":
-                                GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
+                                GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridTextBox.SetText(value);
                                 GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                                 base.SendKeysInternal(submitKey);
                                 break;
                             case "GUIDateTimePicker":
-                                GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
+                                GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, Identity.Description + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridDateTimePicker.SetText(value);
                                 GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                                 base.SendKeysInternal(submitKey);
@@ -1526,7 +1526,7 @@ namespace APE.Language
             int rowIndex = FindRow(rowText);
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1543,7 +1543,7 @@ namespace APE.Language
             int rowIndex = FindRow(rowText);
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1558,7 +1558,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1574,7 +1574,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1589,7 +1589,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1605,7 +1605,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1618,7 +1618,7 @@ namespace APE.Language
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1632,7 +1632,7 @@ namespace APE.Language
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 

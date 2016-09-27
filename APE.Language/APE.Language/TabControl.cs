@@ -145,7 +145,7 @@ namespace APE.Language
         {
             if (SelectedTabText() == tabName)
             {
-                GUI.Log("Ensure tab " + tabName + " is selected in the " + m_DescriptionOfControl, LogItemType.Action);
+                GUI.Log("Ensure tab " + tabName + " is selected in the " + Identity.Description, LogItemType.Action);
                 return;
             }
 
@@ -192,12 +192,12 @@ namespace APE.Language
                     {
                         if (tabRectangle.X < 0)
                         {
-                            GUI.Log("Click " + m_DescriptionOfControl + " left button", LogItemType.Action);
+                            GUI.Log("Click " + Identity.Description + " left button", LogItemType.Action);
                             scrollTabButton.MouseSingleClickInternal(5, 5, MouseButton.Left, MouseKeyModifier.None);
                         }
                         else if (tabRectangle.X > width)
                         {
-                            GUI.Log("Click " + m_DescriptionOfControl + " right button", LogItemType.Action);
+                            GUI.Log("Click " + Identity.Description + " right button", LogItemType.Action);
                             scrollTabButton.MouseSingleClickInternal(scrollButtonsRect.right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
                         }
                         else
@@ -210,7 +210,7 @@ namespace APE.Language
                 }
             }
 
-            GUI.Log("Select tab " + tabName + " in " + m_DescriptionOfControl, LogItemType.Action);
+            GUI.Log("Select tab " + tabName + " in " + Identity.Description, LogItemType.Action);
             int x = tabRectangle.X + (tabRectangle.Width / 2);
             int y = tabRectangle.Y + (tabRectangle.Height / 2);
             if (!multiLine)

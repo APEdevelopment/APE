@@ -192,8 +192,7 @@ namespace APE.Communication
                         break;
                     }
 
-                    bool result = true;
-                    string resultText = "";
+                    string result = null;
 
                     try
                     {
@@ -220,10 +219,6 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.Find:
                                     result = Find(messageNumber);
-                                    if (!result)
-                                    {
-                                        resultText = "Failed to find control";
-                                    }
                                     break;
                                 case MessageAction.Refind:
                                     Refind(messageNumber);
@@ -311,24 +306,23 @@ namespace APE.Communication
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
                             }
 
-                            if (!result)
+                            if (result != null)
                             {
                                 break;
                             }
                         }
 
-                        if (result)
+                        if (result == null)
                         {
                             AddResultMessage(MessageResult.Success);
                         }
                     }
                     catch (Exception ex)
                     {
-                        result = false;
-                        resultText = ex.GetType().Name + " " + ex.Message + "\r\n" + ex.StackTrace;
+                        result = ex.GetType().Name + " " + ex.Message + "\r\n" + ex.StackTrace;
                     }
 
-                    if (!result)
+                    if (result != null)
                     {
                         //clean up all the messages
                         for (int messageNumber = 1; messageNumber <= MessageStore.MaxMessages; messageNumber++)
@@ -340,7 +334,7 @@ namespace APE.Communication
                         m_PtrMessageStore->NumberOfMessages = 0;
                         m_StringStoreOffset = 0;
 
-                        AddResultMessage(MessageResult.Failure, resultText);
+                        AddResultMessage(MessageResult.Failure, result);
                     }
 
                     //clear the data stores so we don't hold any references to objects in the AUT

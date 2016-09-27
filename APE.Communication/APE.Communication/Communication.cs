@@ -50,6 +50,7 @@ namespace APE.Communication
         public string Text;
         public IntPtr ChildOf;
         public IntPtr SiblingOf;
+        public string Description;
     }
 
     public enum DataStores : int
@@ -1112,6 +1113,9 @@ namespace APE.Communication
             //p12
             p = new Parameter(this, Identifier.SiblingOf);
 
+            //p13
+            p = new Parameter(this, Identifier.Description);
+
             m_PtrMessageStore->NumberOfMessages++;
         }
 
@@ -1541,6 +1545,19 @@ namespace APE.Communication
                 {
                     throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[11])).ToString());
                 }
+
+                // p13  = Description
+                if (PtrMessage->Parameter.StringLength[12] > 0)
+                {
+                    if ((PtrMessage->Parameter.TypeCode[12]) == (Int32)ApeTypeCode.String)
+                    {
+                        Identifier.Description = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[12]), 0, PtrMessage->Parameter.StringLength[12]);
+                    }
+                    else
+                    {
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[12])).ToString());
+                    }
+                }
             }
 
             //cleanup the message
@@ -1692,7 +1709,7 @@ namespace APE.Communication
             }
         }
 
-        unsafe private bool Find(int messageNumber)
+        unsafe private string Find(int messageNumber)
         {
             ControlIdentifier Identifier;
             DecodeControl(messageNumber, out Identifier);
@@ -2203,6 +2220,7 @@ namespace APE.Communication
             {
                 ControlIdentifier NewIdentifier = new ControlIdentifier();
 
+                NewIdentifier.Description = Identifier.Description;
                 NewIdentifier.ParentHandle = Identifier.ParentHandle;
                 NewIdentifier.Handle = Handle;
                 NewIdentifier.Name = Name;
@@ -2222,9 +2240,12 @@ namespace APE.Communication
                 NewIdentifier.Index = Identifier.Index;
                 NewIdentifier.Text = theText;
                 AddIdentifierMessage(NewIdentifier);
+                return null;
             }
-            
-            return FoundControl;
+            else
+            {
+                return "Failed to find the " + Identifier.Description;
+            }
         }
 
         unsafe private void Refind(int messageNumber)

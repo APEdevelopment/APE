@@ -118,7 +118,7 @@ namespace APE.Language
         {
             if (GetState() == true)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is checked", LogItemType.Action);
+                GUI.Log("Ensure " + Identity.Description + " is checked", LogItemType.Action);
             }
             else
             {
@@ -133,7 +133,7 @@ namespace APE.Language
         {
             if (GetState() == false)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is unchecked", LogItemType.Action);
+                GUI.Log("Ensure " + Identity.Description + " is unchecked", LogItemType.Action);
             }
             else
             {

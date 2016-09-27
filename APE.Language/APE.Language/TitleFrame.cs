@@ -120,19 +120,15 @@ namespace APE.Language
         /// <summary>
         /// The identity of the title frame object
         /// </summary>
-        protected ControlIdentifier m_Identity;
+        protected ControlIdentifier Identity;
         /// <summary>
         /// The index of the title frame object within the TitleFrame
         /// </summary>
-        protected int m_Index = 0;
+        protected int Index = 0;
         /// <summary>
         /// The TitleFrame which the title frame object belongs to
         /// </summary>
-        protected GUITitleFrame m_ParentTitleFrame;
-        /// <summary>
-        /// The human readable description of the title frame object
-        /// </summary>
-        protected string m_DescriptionOfControl;
+        protected GUITitleFrame ParentTitleFrame;
 
         /// <summary>
         /// Constructor used for TitleFrame objects
@@ -144,39 +140,39 @@ namespace APE.Language
         /// <para/>Normally you would just use the name identifier</param>
         protected GUITitleFrameObject(GUITitleFrame parentTitleFrame, string descriptionOfControl, params Identifier[] identParams)
         {
-            m_ParentTitleFrame = parentTitleFrame;
-            m_DescriptionOfControl = descriptionOfControl;
+            ParentTitleFrame = parentTitleFrame;
+            Identity.Description = descriptionOfControl;
 
             foreach (Identifier i in identParams)
             {
                 switch (i.IdentifierType)
                 {
                     case Identifiers.Handle:
-                        m_Identity.Handle = i.IdentifierValue;
+                        Identity.Handle = i.IdentifierValue;
                         break;
                     case Identifiers.Name:
-                        m_Identity.Name = i.IdentifierValue;
+                        Identity.Name = i.IdentifierValue;
                         break;
                     case Identifiers.TechnologyType:
-                        m_Identity.TechnologyType = i.IdentifierValue;
+                        Identity.TechnologyType = i.IdentifierValue;
                         break;
                     case Identifiers.TypeNameSpace:
-                        m_Identity.TypeNameSpace = i.IdentifierValue;
+                        Identity.TypeNameSpace = i.IdentifierValue;
                         break;
                     case Identifiers.TypeName:
-                        m_Identity.TypeName = i.IdentifierValue;
+                        Identity.TypeName = i.IdentifierValue;
                         break;
                     case Identifiers.ModuleName:
-                        m_Identity.ModuleName = i.IdentifierValue;
+                        Identity.ModuleName = i.IdentifierValue;
                         break;
                     case Identifiers.AssemblyName:
-                        m_Identity.AssemblyName = i.IdentifierValue;
+                        Identity.AssemblyName = i.IdentifierValue;
                         break;
                     case Identifiers.Index:
-                        m_Identity.Index = i.IdentifierValue;
+                        Identity.Index = i.IdentifierValue;
                         break;
                     case Identifiers.Text:
-                        m_Identity.Text = i.IdentifierValue;
+                        Identity.Text = i.IdentifierValue;
                         break;
                     default:
                         throw new Exception("Unsupported identifier: " + i.ToString());
@@ -195,62 +191,62 @@ namespace APE.Language
             string ModuleName = null;
             string AssemblyName = null;
 
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_ParentTitleFrame.m_ParentForm.Handle, m_ParentTitleFrame.Handle);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, item));
-            if (m_Identity.Name != null)
+            if (Identity.Name != null)
             {
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
             }
-            if (m_Identity.TypeNameSpace != null || m_Identity.TypeName != null || m_Identity.AssemblyName != null || m_Identity.ModuleName != null)
+            if (Identity.TypeNameSpace != null || Identity.TypeName != null || Identity.AssemblyName != null || Identity.ModuleName != null)
             {
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
-                if (m_Identity.TypeNameSpace != null)
+                if (Identity.TypeNameSpace != null)
                 {
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Namespace", MemberTypes.Property);
                 }
-                if (m_Identity.TypeName != null)
+                if (Identity.TypeName != null)
                 {
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Name", MemberTypes.Property);
                 }
-                if (m_Identity.AssemblyName != null)
+                if (Identity.AssemblyName != null)
                 {
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store7, "Assembly", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "GetName", MemberTypes.Method);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store8, DataStores.Store9, "Name", MemberTypes.Property);
                 }
-                if (m_Identity.ModuleName != null)
+                if (Identity.ModuleName != null)
                 {
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store7, "Module", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
                 }
             }
-            if (m_Identity.Text != null)
+            if (Identity.Text != null)
             {
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store7, "Text", MemberTypes.Property);
             }
 
-            if (m_Identity.Name != null)
+            if (Identity.Name != null)
             {
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             }
-            if (m_Identity.Text != null)
+            if (Identity.Text != null)
             {
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
             }
-            if (m_Identity.TypeNameSpace != null)
+            if (Identity.TypeNameSpace != null)
             {
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
             }
-            if (m_Identity.TypeName != null)
+            if (Identity.TypeName != null)
             {
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
             }
-            if (m_Identity.ModuleName != null)
+            if (Identity.ModuleName != null)
             {
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
             }
-            if (m_Identity.AssemblyName != null)
+            if (Identity.AssemblyName != null)
             {
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
             }
@@ -258,90 +254,90 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            if (m_Identity.Name != null)
+            if (Identity.Name != null)
             {
                 Name = GUI.m_APE.GetValueFromMessage();
             }
-            if (m_Identity.Text != null)
+            if (Identity.Text != null)
             {
                 Text = GUI.m_APE.GetValueFromMessage();
             }
-            if (m_Identity.TypeNameSpace != null)
+            if (Identity.TypeNameSpace != null)
             {
                 TypeNameSpace = GUI.m_APE.GetValueFromMessage();
             }
-            if (m_Identity.TypeName != null)
+            if (Identity.TypeName != null)
             {
                 TypeName = GUI.m_APE.GetValueFromMessage();
             }
-            if (m_Identity.ModuleName != null)
+            if (Identity.ModuleName != null)
             {
                 ModuleName = GUI.m_APE.GetValueFromMessage();
             }
-            if (m_Identity.AssemblyName != null)
+            if (Identity.AssemblyName != null)
             {
                 AssemblyName = GUI.m_APE.GetValueFromMessage();
             }
 
-            if (m_Identity.Name != null)
+            if (Identity.Name != null)
             {
-                if (Name != m_Identity.Name)
+                if (Name != Identity.Name)
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.TechnologyType != null)
+            if (Identity.TechnologyType != null)
             {
-                if ("Windows Forms (WinForms)" != m_Identity.TechnologyType)
+                if ("Windows Forms (WinForms)" != Identity.TechnologyType)
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.TypeNameSpace != null)
+            if (Identity.TypeNameSpace != null)
             {
-                if (TypeNameSpace != m_Identity.TypeNameSpace)
+                if (TypeNameSpace != Identity.TypeNameSpace)
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.TypeName != null)
+            if (Identity.TypeName != null)
             {
-                if (TypeName != m_Identity.TypeName)
+                if (TypeName != Identity.TypeName)
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.ModuleName != null)
+            if (Identity.ModuleName != null)
             {
-                if (ModuleName != m_Identity.ModuleName)
+                if (ModuleName != Identity.ModuleName)
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.AssemblyName != null)
+            if (Identity.AssemblyName != null)
             {
-                if (AssemblyName != m_Identity.AssemblyName)
+                if (AssemblyName != Identity.AssemblyName)
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.Text != null)
+            if (Identity.Text != null)
             {
-                if (!System.Text.RegularExpressions.Regex.IsMatch(Text, m_Identity.Text))
+                if (!System.Text.RegularExpressions.Regex.IsMatch(Text, Identity.Text))
                 {
                     return false;
                 }
             }
 
-            if (m_Identity.Index > 0)
+            if (Identity.Index > 0)
             {
-                if (item != m_Identity.Index)
+                if (item != Identity.Index)
                 {
                     return false;
                 }
@@ -355,7 +351,7 @@ namespace APE.Language
             bool match = false;
 
             //Get the number of items
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_ParentTitleFrame.m_ParentForm.Handle, m_ParentTitleFrame.Handle);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
@@ -365,13 +361,13 @@ namespace APE.Language
             int items = GUI.m_APE.GetValueFromMessage();
 
             //The old index is larger than the current maximum index so reset the index back to 0
-            if (m_Index >= items)
+            if (Index >= items)
             {
-                m_Index = 0;
+                Index = 0;
             }
 
             //Check the index of the item when it was found first
-            match = ItemMatchIdentifier(m_Index);
+            match = ItemMatchIdentifier(Index);
 
             if (!match)
             {
@@ -379,18 +375,18 @@ namespace APE.Language
                 for (int item = 0; item < items; item++)
                 {
                     //No need to recheck the value of m_Index as we did it above
-                    if (item != m_Index)
+                    if (item != Index)
                     {
                         match = ItemMatchIdentifier(item);
                         if (match)
                         {
-                            m_Index = item;
+                            Index = item;
                             return;
                         }
                     }
                 }
 
-                throw new Exception("Failed to find the " + m_DescriptionOfControl);
+                throw new Exception("Failed to find the " + Identity.Description);
             }
         }
     }
@@ -420,8 +416,8 @@ namespace APE.Language
         public virtual void MouseSingleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + button.ToString() + " click on the " + m_DescriptionOfControl, LogItemType.Action);
-            m_ParentTitleFrame.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description, LogItemType.Action);
+            ParentTitleFrame.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -431,8 +427,8 @@ namespace APE.Language
         public virtual void MouseDoubleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + button.ToString() + " click on the " + m_DescriptionOfControl, LogItemType.Action);
-            m_ParentTitleFrame.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description, LogItemType.Action);
+            ParentTitleFrame.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -441,8 +437,8 @@ namespace APE.Language
         public virtual void MouseMove()
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Move the mouse over the " + m_DescriptionOfControl, LogItemType.Action);
-            m_ParentTitleFrame.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
+            GUI.Log("Move the mouse over the " + Identity.Description, LogItemType.Action);
+            ParentTitleFrame.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
         }
 
         /// <summary>
@@ -454,9 +450,9 @@ namespace APE.Language
             {
                 UpdateIndex();
 
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_ParentTitleFrame.m_ParentForm.Handle, m_ParentTitleFrame.Handle);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToolTip", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -472,9 +468,9 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_ParentTitleFrame.m_ParentForm.Handle, m_ParentTitleFrame.Handle);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, m_Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "m_rect", MemberTypes.Field);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);

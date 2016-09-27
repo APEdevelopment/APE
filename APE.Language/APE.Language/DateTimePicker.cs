@@ -98,7 +98,7 @@ namespace APE.Language
             currentDateText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
             if (currentDateText == formatedDateText)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + dateText, LogItemType.Action);
+                GUI.Log("Ensure " + Identity.Description + " is set to " + dateText, LogItemType.Action);
                 return;
             }
 

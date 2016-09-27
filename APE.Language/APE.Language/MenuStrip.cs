@@ -57,7 +57,7 @@ namespace APE.Language
         /// <param name="MenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
         public void Select(string MenuItem)
         {
-            GUI.Log("Select [" + MenuItem + "] from " + m_DescriptionOfControl, LogItemType.Action);
+            GUI.Log("Select [" + MenuItem + "] from " + Identity.Description, LogItemType.Action);
 
             string[] Menus = MenuItem.Split(new char[] { '\\' });
             int MenuIndex = 0;

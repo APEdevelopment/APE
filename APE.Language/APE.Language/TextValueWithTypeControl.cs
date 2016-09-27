@@ -59,7 +59,7 @@ namespace APE.Language
             GUIForm popupListForm = new GUIForm("Popup list form", new Identifier(Identifiers.Name, "PopupListForm"));
 
             //find the popuplist
-            GUIPopupList popupList = new GUIPopupList(popupListForm, m_DescriptionOfControl + " popup List", new Identifier(Identifiers.Name, "popupList1"));
+            GUIPopupList popupList = new GUIPopupList(popupListForm, Identity.Description + " popup List", new Identifier(Identifiers.Name, "popupList1"));
             //Select the type in the popup list
             popupList.Select(typeText);
         }
@@ -79,7 +79,7 @@ namespace APE.Language
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
             IntPtr textboxHandle = GUI.m_APE.GetValueFromMessage();
 
-            GUITextBox textBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
+            GUITextBox textBox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
             // Select the item
             textBox.SetText(text);
         }

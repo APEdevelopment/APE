@@ -55,7 +55,7 @@ namespace APE.Language
         /// <param name="ListViewItem">The item to select</param>
         public void Select(string ListViewItem)
         {
-            GUI.Log("Select item [" + ListViewItem + "] from " + m_DescriptionOfControl, LogItemType.Action);
+            GUI.Log("Select item [" + ListViewItem + "] from " + Identity.Description, LogItemType.Action);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -139,7 +139,7 @@ namespace APE.Language
         /// <param name="ListViewGroup">The group to select</param>
         public void SelectGroup(string ListViewGroup)
         {
-            GUI.Log("Select group [" + ListViewGroup + "] from " + m_DescriptionOfControl, LogItemType.Action);
+            GUI.Log("Select group [" + ListViewGroup + "] from " + Identity.Description, LogItemType.Action);
 
             IntPtr Return;
             IntPtr Result;
@@ -395,7 +395,7 @@ namespace APE.Language
         /// /// <param name="ListViewItem">The item to select</param>
         public void Select(string ListViewGroup, string ListViewItem)
         {
-            GUI.Log("Select item [" + ListViewItem + "] in group [" + ListViewGroup + "] from " + m_DescriptionOfControl, LogItemType.Action);
+            GUI.Log("Select item [" + ListViewItem + "] in group [" + ListViewGroup + "] from " + Identity.Description, LogItemType.Action);
 
             IntPtr Return;
             IntPtr Result;

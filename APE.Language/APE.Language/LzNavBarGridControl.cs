@@ -47,7 +47,7 @@ namespace APE.Language
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(string nodeText, MouseButton button, CellClickLocation locationInCell)
         {   
-            GUIFlexgrid grid = new GUIFlexgrid(m_ParentForm, m_DescriptionOfControl + " grid", new Identifier(Identifiers.Name, "Grid"), new Identifier(Identifiers.ChildOf, this));
+            GUIFlexgrid grid = new GUIFlexgrid(m_ParentForm, Identity.Description + " grid", new Identifier(Identifiers.Name, "Grid"), new Identifier(Identifiers.ChildOf, this));
             string uid = FindNodeUid(nodeText);
             if (uid == null)
             {
@@ -60,7 +60,7 @@ namespace APE.Language
                 GUI.Log("Failed to find uid " + uid + " in the grid", LogItemType.Information);
                 throw new Exception("Failed to find uid in the grid");
             }
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " node " + nodeText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " node " + nodeText, LogItemType.Action);
             grid.SelectInternal(row, 0, button, locationInCell, MouseKeyModifier.None);
         }
 

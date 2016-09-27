@@ -87,13 +87,13 @@ namespace APE.Language
                     textboxHandle = GUI.m_APE.GetValueFromMessage();
                 }               
 
-                GUITextBox textbox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
+                GUITextBox textbox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
                 CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 
                 if (text == CurrentText)
                 {
-                    GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + text, LogItemType.Action);
+                    GUI.Log("Ensure " + Identity.Description + " is set to " + text, LogItemType.Action);
                 }
                 else
                 {

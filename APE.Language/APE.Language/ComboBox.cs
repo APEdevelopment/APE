@@ -72,11 +72,11 @@ namespace APE.Language
             //Check if its already selected
             if (this.Text == item)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + item, LogItemType.Action);
+                GUI.Log("Ensure " + Identity.Description + " is set to " + item, LogItemType.Action);
                 return;
             }
             
-            GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemType.Action);
+            GUI.Log("Select [" + item + "] from " + Identity.Description, LogItemType.Action);
 
             //Get the style
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -246,7 +246,7 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                GUITextBox comboboxTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+                GUITextBox comboboxTextBox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboboxTextBox.SetText(text);
             }
             finally

@@ -40,10 +40,10 @@ namespace APE.Language
         /// The parent form the control belongs to.  If the control is a form then this field will be null
         /// </summary>
         protected internal GUIForm m_ParentForm = null;
-        /// <summary>
-        /// The human readable description of the control
-        /// </summary>
-        protected string m_DescriptionOfControl = null;
+        ///// <summary>
+        ///// The human readable description of the control
+        ///// </summary>
+        //protected string Identity.Description = null;
         private MenuUtils m_MenuUtils = new MenuUtils();
         private AnimationUtils m_AnimationUtils = new AnimationUtils();
 
@@ -60,7 +60,8 @@ namespace APE.Language
         /// </summary>
         protected GUIObject(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
         {
-            m_DescriptionOfControl = descriptionOfControl;
+            //Identity.Description = descriptionOfControl;
+            Identity.Description = descriptionOfControl;
             if (parentForm != null)
             {
                 m_ParentForm = parentForm;
@@ -248,7 +249,7 @@ namespace APE.Language
         {
             get
             {
-                return m_DescriptionOfControl;
+                return Identity.Description;
             }
         }
 
@@ -294,7 +295,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + point + keyModifiers, LogItemType.Action);
             MouseSingleClickInternal(X, Y, button, keys);
         }
 
@@ -335,7 +336,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Double " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
+            GUI.Log("Double " + button.ToString() + " click on " + Identity.Description + point + keyModifiers, LogItemType.Action);
             MouseDoubleClickInternal(X, Y, button, keys);
         }
 
@@ -376,7 +377,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Triple " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
+            GUI.Log("Triple " + button.ToString() + " click on " + Identity.Description + point + keyModifiers, LogItemType.Action);
             MouseTripleClickInternal(X, Y, button, keys);
         }
 
@@ -408,7 +409,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log(button.ToString() + " mouse down on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
+            GUI.Log(button.ToString() + " mouse down on " + Identity.Description + point + keyModifiers, LogItemType.Action);
             MouseDownInternal(X, Y, button, keys);
         }
 
@@ -440,7 +441,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log(button.ToString() + " mouse up on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
+            GUI.Log(button.ToString() + " mouse up on " + Identity.Description + point + keyModifiers, LogItemType.Action);
             MouseUpInternal(X, Y, button, keys);
         }
 

@@ -72,7 +72,7 @@ namespace APE.Language
 
             IntPtr UpDownEditHandle = UpDownEditControl;
 
-            GUITextBox UpDownEdit = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, UpDownEditHandle));
+            GUITextBox UpDownEdit = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, UpDownEditHandle));
             
             UpDownEdit.SetText(text);
         }
@@ -100,7 +100,7 @@ namespace APE.Language
 
             IntPtr UpDownButtonHandle = UpDownButtonsControl;
 
-            GUIButton UpDownButton = new GUIButton(m_ParentForm, m_DescriptionOfControl + " up button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
+            GUIButton UpDownButton = new GUIButton(m_ParentForm, Identity.Description + " up button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
 
             UpDownButton.MouseSingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 1, Button);
         }
@@ -128,7 +128,7 @@ namespace APE.Language
 
             IntPtr UpDownButtonHandle = UpDownButtonsControl;
 
-            GUIButton UpDownButton = new GUIButton(m_ParentForm, m_DescriptionOfControl + " down button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
+            GUIButton UpDownButton = new GUIButton(m_ParentForm, Identity.Description + " down button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
 
             UpDownButton.MouseSingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 3, Button);
         }
