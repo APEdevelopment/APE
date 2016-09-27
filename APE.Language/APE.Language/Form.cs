@@ -103,7 +103,7 @@ namespace APE.Language
                     Input.Block(Identity.ParentHandle, Identity.Handle);
                     try
                     {
-                        GUI.Log("Close the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+                        GUI.Log("Close the " + m_DescriptionOfControl, LogItemType.Action);
                         base.MouseSingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                         //Wait for the window to disappear
@@ -194,7 +194,7 @@ namespace APE.Language
         /// </summary>
         public void Maximise()
         {
-            GUI.Log("Maximise the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Maximise the " + m_DescriptionOfControl, LogItemType.Action);
 
             string windowState = FormWindowState();
             if (windowState == "Minimized")
@@ -272,7 +272,7 @@ namespace APE.Language
         /// </summary>
         public void Minimise()
         {
-            GUI.Log("Minimise the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Minimise the " + m_DescriptionOfControl, LogItemType.Action);
 
             string windowState = FormWindowState();
             if (windowState == "Minimized")
@@ -346,7 +346,7 @@ namespace APE.Language
         /// </summary>
         public void Restore()
         {
-            GUI.Log("Restore the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Restore the " + m_DescriptionOfControl, LogItemType.Action);
 
             string windowState = FormWindowState();
             if (windowState == "Normal")
@@ -479,7 +479,7 @@ namespace APE.Language
         /// <param name="DestinationUpperLeftY">The new location for the top of the form</param>
         public void Move(int MouseDownX, int MouseDownY, int DestinationUpperLeftX, int DestinationUpperLeftY)
         {
-            GUI.Log("Move the " + m_DescriptionOfControl + " window to " + DestinationUpperLeftX.ToString() + ", " + DestinationUpperLeftY.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Move the " + m_DescriptionOfControl + " window to " + DestinationUpperLeftX.ToString() + ", " + DestinationUpperLeftY.ToString(), LogItemType.Action);
 
             NM.tagRect WindowRect;
             NM.GetWindowRect(Identity.Handle, out WindowRect);

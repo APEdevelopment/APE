@@ -151,7 +151,7 @@ namespace APE.Language
         /// <param name="Button">The mouse button to click with</param>
         public void ItemSelect(string Item, MouseButton Button)
         {
-            GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
@@ -320,7 +320,7 @@ namespace APE.Language
             int InitialItems = ItemCount();
             int CurrentItems = InitialItems;
 
-            GUI.Log("Remove [" + Item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Remove [" + Item + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             //Click 10 pixels in from the right hand side of the window and 10 pixels down
             base.MouseSingleClickInternal(ClientRect.right -10, 10, MouseButton.Left, MouseKeyModifier.None);

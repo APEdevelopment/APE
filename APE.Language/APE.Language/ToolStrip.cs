@@ -485,7 +485,7 @@ namespace APE.Language
         public virtual void MouseSingleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentToolStrip.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
@@ -496,7 +496,7 @@ namespace APE.Language
         public virtual void MouseDoubleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentToolStrip.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
@@ -506,7 +506,7 @@ namespace APE.Language
         public virtual void MouseMove()
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Move the mouse over the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Move the mouse over the " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentToolStrip.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
         }
 
@@ -709,10 +709,10 @@ namespace APE.Language
         public void Select(string splitDropDownItem)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentToolStrip.MouseSingleClickInternal(bounds.Width - 3, bounds.Y + (bounds.Height / 2), MouseButton.Left, MouseKeyModifier.None);
 
-            GUI.Log("Select [" + splitDropDownItem + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + splitDropDownItem + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             string[] DropDownItems = splitDropDownItem.Split(new char[] { '\\' });
             int MenuIndex = 0;
@@ -786,7 +786,7 @@ namespace APE.Language
         {
             this.MouseSingleClick(MouseButton.Left);
 
-            GUI.Log("Select [" + dropDownItem + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + dropDownItem + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             string[] DropDownItems = dropDownItem.Split(new char[] { '\\' });
             int MenuIndex = 0;

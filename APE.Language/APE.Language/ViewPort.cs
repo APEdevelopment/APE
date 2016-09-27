@@ -46,7 +46,7 @@ namespace APE
         private bool Processing = false;
         private uint m_DoubleClickTimer = 0;
 
-        private delegate void AppendToLogCallback(string text, LogItemTypeEnum type);
+        private delegate void AppendToLogCallback(string text, LogItemType type);
 
         internal ViewPort()
         {
@@ -206,30 +206,54 @@ namespace APE
             Environment.Exit(0);
         }
 
-        internal void AppendToLog(string text, LogItemTypeEnum type)
+        internal void AppendToLog(string text, LogItemType type)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
                 AppendToLogCallback cbAppendToLog = new AppendToLogCallback(AppendToLog);
-                this.Invoke(cbAppendToLog, new object[] { text, type });
+                Invoke(cbAppendToLog, new object[] { text, type });
             }
             else
             {
                 Color colText;
-
+                // TODO let the user configure the colours
                 switch (type)
                 {
-                    case LogItemTypeEnum.Information:
-                        colText = Color.DarkGray;
-                        break;
-                    case LogItemTypeEnum.Action:
+                    case LogItemType.Action:
                         colText = Color.Black;
                         break;
-                    case LogItemTypeEnum.ApeContext:
+                    case LogItemType.Start:
+                        colText = Color.Turquoise;
+                        break;
+                    case LogItemType.Finish:
+                        colText = Color.Brown;
+                        break;
+                    case LogItemType.Pass:
+                        colText = Color.Green;
+                        break;
+                    case LogItemType.Fail:
                         colText = Color.Red;
                         break;
+                    case LogItemType.Disabled:
+                        colText = Color.LightGray;
+                        break;
+                    case LogItemType.NA:
+                        colText = Color.Purple;
+                        break;
+                    case LogItemType.Debug:
+                        colText = Color.SlateGray;
+                        break;
+                    case LogItemType.Information:
+                        colText = Color.Navy;
+                        break;
+                    case LogItemType.Warning:
+                        colText = Color.LightPink;
+                        break;
+                    case LogItemType.Error:
+                        colText = Color.DeepPink;
+                        break;
                     default:
-                        throw new Exception("Implement support for LogItemTypeEnum." + type.ToString());
+                        throw new Exception("Implement support for LogItemType." + type.ToString());
                 }
 
                 string TextToAdd;

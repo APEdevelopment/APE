@@ -59,7 +59,7 @@ namespace APE.Language
                 throw new Exception("Expando can not be collapsed");
             }
 
-            GUI.Log("Single Left click on the " + m_DescriptionOfControl + " to expand it", LogItemTypeEnum.Action);
+            GUI.Log("Single Left click on the " + m_DescriptionOfControl + " to expand it", LogItemType.Action);
             ClickTitleBar(MouseButton.Left);
 
             if (IsCollapsed())
@@ -83,7 +83,7 @@ namespace APE.Language
                 throw new Exception("Expando can not be collapsed");
             }
 
-            GUI.Log("Single Left click on the " + m_DescriptionOfControl + " to collapse it", LogItemTypeEnum.Action);
+            GUI.Log("Single Left click on the " + m_DescriptionOfControl + " to collapse it", LogItemType.Action);
             ClickTitleBar(MouseButton.Left);
 
             if (!IsCollapsed())

@@ -151,7 +151,7 @@ namespace APE.Language
         /// <param name="ContextMenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
         public void ContextMenuSelect(string ContextMenuItem)
         {
-            GUI.Log("Select context menu item [" + ContextMenuItem + "]", LogItemTypeEnum.Action);
+            GUI.Log("Select context menu item [" + ContextMenuItem + "]", LogItemType.Action);
 
             string[] Menus = ContextMenuItem.Split(new char[] { '\\' });
             int MenuIndex = 0;
@@ -294,7 +294,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
             MouseSingleClickInternal(X, Y, button, keys);
         }
 
@@ -335,7 +335,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Double " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            GUI.Log("Double " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
             MouseDoubleClickInternal(X, Y, button, keys);
         }
 
@@ -376,7 +376,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log("Triple " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            GUI.Log("Triple " + button.ToString() + " click on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
             MouseTripleClickInternal(X, Y, button, keys);
         }
 
@@ -408,7 +408,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log(button.ToString() + " mouse down on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            GUI.Log(button.ToString() + " mouse down on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
             MouseDownInternal(X, Y, button, keys);
         }
 
@@ -440,7 +440,7 @@ namespace APE.Language
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
 
-            GUI.Log(button.ToString() + " mouse up on " + m_DescriptionOfControl + point + keyModifiers, LogItemTypeEnum.Action);
+            GUI.Log(button.ToString() + " mouse up on " + m_DescriptionOfControl + point + keyModifiers, LogItemType.Action);
             MouseUpInternal(X, Y, button, keys);
         }
 

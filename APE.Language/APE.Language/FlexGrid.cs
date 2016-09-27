@@ -246,7 +246,7 @@ namespace APE.Language
         /// </summary>
         public void ExpandTreeView()
         {
-            GUI.Log("Fully expand the treeview", LogItemTypeEnum.Action);
+            GUI.Log("Fully expand the treeview", LogItemType.Action);
 
             int treeColumnIndex = TreeViewColumn();
 
@@ -292,7 +292,7 @@ namespace APE.Language
         /// </summary>
         public void CollapseTreeView()
         {
-            GUI.Log("Fully collapse the treeview", LogItemTypeEnum.Action);
+            GUI.Log("Fully collapse the treeview", LogItemType.Action);
 
             int treeColumnIndex = TreeViewColumn();
 
@@ -338,7 +338,7 @@ namespace APE.Language
         /// <param name="nodePath">Node path to expand delimited by -> for example RULE LIBRARY -> UCITS I -> France</param>
         public void ExpandNodes(string nodePath)
         {
-            GUI.Log("Expand node " + nodePath, LogItemTypeEnum.Action);
+            GUI.Log("Expand node " + nodePath, LogItemType.Action);
 
             string[] delimiter = { " -> " };
             string[] nodePathArray = nodePath.Split(delimiter, StringSplitOptions.None);
@@ -397,7 +397,7 @@ namespace APE.Language
         /// <param name="nodePath">Node path to collapse delimited by -> for example RULE LIBRARY -> UCITS I -> France</param>
         public void CollapseNodes(string nodePath)
         {
-            GUI.Log("Collapse node " + nodePath, LogItemTypeEnum.Action);
+            GUI.Log("Collapse node " + nodePath, LogItemType.Action);
 
             string[] delimiter = { " -> " };
             string[] nodePathArray = nodePath.Split(delimiter, StringSplitOptions.None);
@@ -636,6 +636,18 @@ namespace APE.Language
             int SelectedRow = GUI.m_APE.GetValueFromMessage();
 
             return SelectedRow;
+        }
+
+        /// <summary>
+        /// Polls for the specified row index to be the selected row
+        /// </summary>
+        /// <param name="rowIndex">The row index to wait to be selected</param>
+        public void SelectedRowPollForIndex(int rowIndex)
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessagePollMember(DataStores.Store0, "RowSel", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, false));
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
         }
 
         /// <summary>
@@ -951,7 +963,7 @@ namespace APE.Language
             string CurrentValue = this.GetCellValue(rowIndex, columnIndex, CellProperty.TextDisplay);
             if (CurrentValue == expectedValue)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemTypeEnum.Action);
+                GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemType.Action);
                 return false;
             }
 
@@ -963,23 +975,23 @@ namespace APE.Language
                 //case "System.DateTime":
                 case "System.Boolean":  //checkbox
                     // Click on the checkbox
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
                     this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     break;
                 default:
                     // Select the cell if its not selected
                     if (this.SelectedRow() == rowIndex && this.SelectedColumn() == columnIndex)
                     {
-                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemTypeEnum.Action);
+                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemType.Action);
                     }
                     else
                     {
-                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
                         this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     }
 
                     // Put the cell into edit mode
-                    GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
+                    GUI.Log("Press F2 to enter edit mode", LogItemType.Action);
                     base.SendKeysInternal("{F2}");
 
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -1044,13 +1056,13 @@ namespace APE.Language
                             case "GUITextBox":
                                 GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridTextBox.SetText(value);
-                                GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                                GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                                 base.SendKeysInternal(submitKey);
                                 break;
                             case "GUIDateTimePicker":
                                 GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridDateTimePicker.SetText(value);
-                                GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                                GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                                 base.SendKeysInternal(submitKey);
                                 break;
                             default:
@@ -1514,7 +1526,7 @@ namespace APE.Language
             int rowIndex = FindRow(rowText);
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1531,7 +1543,7 @@ namespace APE.Language
             int rowIndex = FindRow(rowText);
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1546,7 +1558,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1562,7 +1574,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1577,7 +1589,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1593,7 +1605,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1606,7 +1618,7 @@ namespace APE.Language
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1620,7 +1632,7 @@ namespace APE.Language
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 

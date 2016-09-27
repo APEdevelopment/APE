@@ -52,7 +52,7 @@ namespace APE.Language
         public void SetType(string typeText)
         {
             //click on the right side of the control to display the popup list form
-            GUI.Log("Left click on the right side of the text value with type control to display the popup list", LogItemTypeEnum.Action);
+            GUI.Log("Left click on the right side of the text value with type control to display the popup list", LogItemType.Action);
             base.MouseSingleClickInternal(Width - 5, 5, MouseButton.Left, MouseKeyModifier.None);
 
             //find the form

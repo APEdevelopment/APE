@@ -420,7 +420,7 @@ namespace APE.Language
         public virtual void MouseSingleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + button.ToString() + " click on the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on the " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentTitleFrame.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
@@ -431,7 +431,7 @@ namespace APE.Language
         public virtual void MouseDoubleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + button.ToString() + " click on the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on the " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentTitleFrame.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
@@ -441,7 +441,7 @@ namespace APE.Language
         public virtual void MouseMove()
         {
             Rectangle bounds = ItemBounds();
-            GUI.Log("Move the mouse over the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Move the mouse over the " + m_DescriptionOfControl, LogItemType.Action);
             m_ParentTitleFrame.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
         }
 

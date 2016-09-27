@@ -80,7 +80,7 @@ namespace APE.Language
         /// <param name="textToSend">The text to send to the control</param>
         protected void SendKeys(string textToSend)
         {
-            GUI.Log("Type [" + textToSend + "] into the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Type [" + textToSend + "] into the " + m_DescriptionOfControl, LogItemType.Action);
             SendKeysInternal(textToSend);
         }
 

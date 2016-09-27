@@ -195,7 +195,7 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int row = GUI.m_APE.GetValueFromMessage();
-            row = row + TitleRows();
+            row += TitleRows();
             return row;
         }
 
@@ -212,8 +212,27 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int row = GUI.m_APE.GetValueFromMessage();
-            row = row + TitleRows();
+            row += TitleRows();
             return row;
+        }
+
+        /// <summary>
+        /// Polls for the specified row index to be the selected row
+        /// </summary>
+        /// <param name="rowIndex">The row index to wait to be selected</param>
+        public void SelectedRowPollForIndex(int rowIndex)
+        {
+            int row = rowIndex - TitleRows();
+
+            if (row < 0)
+            {
+                throw new Exception("Title rows are not currently supported");
+            }
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddMessagePollMember(DataStores.Store0, "SelectedRow", MemberTypes.Property, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, false));
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
         }
 
         /// <summary>
@@ -1095,7 +1114,7 @@ namespace APE.Language
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1112,7 +1131,7 @@ namespace APE.Language
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1127,7 +1146,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1143,7 +1162,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1158,7 +1177,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1174,7 +1193,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1187,7 +1206,7 @@ namespace APE.Language
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
@@ -1201,7 +1220,7 @@ namespace APE.Language
         /// <param name="keyModifier">The key to press while clicking</param>
         public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + m_DescriptionOfControl + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -1582,7 +1601,7 @@ namespace APE.Language
 
             if (CurrentValue == expectedValue)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemTypeEnum.Action);
+                GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemType.Action);
                 return false;
             }
 
@@ -1600,16 +1619,16 @@ namespace APE.Language
                     // Select the cell if its not selected
                     if (this.CursorCellRow() == row && this.CursorCellColumn() == column)
                     {
-                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemTypeEnum.Action);
+                        GUI.Log("Ensure " + m_DescriptionOfControl + " row " + rowText + " column " + columnText + " is selected", LogItemType.Action);
                     }
                     else
                     {
-                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
                         this.SelectInternal(row, column, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     }
 
                     // Put the cell into edit mode
-                    GUI.Log("Press F2 to enter edit mode", LogItemTypeEnum.Action);
+                    GUI.Log("Press F2 to enter edit mode", LogItemType.Action);
                     base.SendKeysInternal("{F2}");
                     Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
 
@@ -1634,7 +1653,7 @@ namespace APE.Language
                     GUIComboBox checkBoxComboBox = new GUIComboBox(m_ParentForm, m_DescriptionOfControl + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     checkBoxComboBox.ItemSelect(value);
-                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "LatentZero.Utility.Controls.DatePickerRenderer":
@@ -1643,7 +1662,7 @@ namespace APE.Language
                     GUIDateTimePicker datePicker = new GUIDateTimePicker(m_ParentForm, m_DescriptionOfControl + " date picker", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     datePicker.SetText(value);
-                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "LatentZero.Utility.Controls.CheckStateControl.CheckStateRenderer":
@@ -1651,7 +1670,7 @@ namespace APE.Language
                     EditorHandle = GetRenderedControlHandle(row, column);
                     GUICheckStateControl checkStateControl = new GUICheckStateControl(m_ParentForm, m_DescriptionOfControl + " check state control", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item (it is rendered so we need to click on the grid and it processes mouse down events)
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemTypeEnum.Action);
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + m_DescriptionOfControl + " row " + rowText + " column " + columnText, LogItemType.Action);
                     Point Location = GetLocationInCell(row, column, CellClickLocation.CentreOfCell);
                     base.MouseDownInternal(Location.X, Location.Y, MouseButton.Left, MouseKeyModifier.None);
                     break;
@@ -1661,7 +1680,7 @@ namespace APE.Language
                     GUIGenericWalker genericWalker = new GUIGenericWalker(m_ParentForm, m_DescriptionOfControl + " generic walker", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     genericWalker.SetText(value);
-                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl":
@@ -1676,7 +1695,7 @@ namespace APE.Language
                     // Select the item
                     textValueWithTypeControl.SetText(textType[0]);
                     // Submit the change
-                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 case "System.Windows.Forms.TextBox":
@@ -1685,7 +1704,7 @@ namespace APE.Language
                     GUITextBox textBox = new GUITextBox(m_ParentForm, m_DescriptionOfControl + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     textBox.SetText(value);
-                    GUI.Log("Press " + submitKey + " to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                     base.SendKeysInternal(submitKey);
                     break;
                 default:

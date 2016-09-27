@@ -90,7 +90,7 @@ namespace APE.Language
                 if (textOfitem == item)
                 {
                     // we only do a mouse down as the control disappears before any up event can be sent
-                    GUI.Log("Select item " + item + " in the " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+                    GUI.Log("Select item " + item + " in the " + m_DescriptionOfControl, LogItemType.Action);
                     base.MouseDownInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
                     return;
                 }

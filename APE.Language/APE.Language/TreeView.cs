@@ -591,7 +591,7 @@ namespace APE.Language
         /// <param name="treeViewItem">The item to check</param>
         public void Check(string treeViewItem)
         {
-            GUI.Log("Check treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+            GUI.Log("Check treeview item [" + treeViewItem + "]", LogItemType.Action);
             CheckInternal(treeViewItem, true);
         }
 
@@ -601,7 +601,7 @@ namespace APE.Language
         /// <param name="treeViewItem">The item to uncheck</param>
         public void Uncheck(string treeViewItem)
         {
-            GUI.Log("Uncheck treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+            GUI.Log("Uncheck treeview item [" + treeViewItem + "]", LogItemType.Action);
             CheckInternal(treeViewItem, false);
         }
 
@@ -653,13 +653,13 @@ namespace APE.Language
             switch (button)
             {
                 case MouseButton.Left:
-                    GUI.Log("Left click treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+                    GUI.Log("Left click treeview item [" + treeViewItem + "]", LogItemType.Action);
                     break;
                 case MouseButton.Middle:
-                    GUI.Log("Middle click treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+                    GUI.Log("Middle click treeview item [" + treeViewItem + "]", LogItemType.Action);
                     break;
                 case MouseButton.Right:
-                    GUI.Log("Right click treeview item [" + treeViewItem + "]", LogItemTypeEnum.Action);
+                    GUI.Log("Right click treeview item [" + treeViewItem + "]", LogItemType.Action);
                     break;
             }
 

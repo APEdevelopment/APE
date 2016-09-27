@@ -74,7 +74,7 @@ namespace APE.Language
         /// <param name="Item">The item to select</param>
         public void ItemSelect(string Item)
         {
-            GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + Item + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             //locate the item
             int Index = ItemIndex(Item);

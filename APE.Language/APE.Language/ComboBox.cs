@@ -72,11 +72,11 @@ namespace APE.Language
             //Check if its already selected
             if (this.Text == item)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + item, LogItemTypeEnum.Action);
+                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + item, LogItemType.Action);
                 return;
             }
             
-            GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             //Get the style
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);

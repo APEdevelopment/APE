@@ -51,16 +51,16 @@ namespace APE.Language
             string uid = FindNodeUid(nodeText);
             if (uid == null)
             {
-                GUI.Log("Failed to find node " + nodeText, LogItemTypeEnum.Information);
+                GUI.Log("Failed to find node " + nodeText, LogItemType.Information);
                 throw new Exception("Failed to find node");
             }
             int row = grid.FindRow(uid, 1);     // hidden column 1 contains the uid for each row
             if (row == -1)
             {
-                GUI.Log("Failed to find uid " + uid + " in the grid", LogItemTypeEnum.Information);
+                GUI.Log("Failed to find uid " + uid + " in the grid", LogItemType.Information);
                 throw new Exception("Failed to find uid in the grid");
             }
-            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " node " + nodeText, LogItemTypeEnum.Action);
+            GUI.Log("Single " + button.ToString() + " click on " + m_DescriptionOfControl + " node " + nodeText, LogItemType.Action);
             grid.SelectInternal(row, 0, button, locationInCell, MouseKeyModifier.None);
         }
 

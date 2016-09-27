@@ -69,11 +69,11 @@ namespace APE.Language
             // Check if its already selected
             if (SelectedItemText() == item)
             {
-                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + item, LogItemTypeEnum.Action);
+                GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + item, LogItemType.Action);
                 return;
             }
 
-            GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemTypeEnum.Action);
+            GUI.Log("Select [" + item + "] from " + m_DescriptionOfControl, LogItemType.Action);
 
             int itemIndex = ItemIndex(item);
 

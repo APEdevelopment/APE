@@ -93,7 +93,7 @@ namespace APE.Language
 
                 if (text == CurrentText)
                 {
-                    GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + text, LogItemTypeEnum.Action);
+                    GUI.Log("Ensure " + m_DescriptionOfControl + " is set to " + text, LogItemType.Action);
                 }
                 else
                 {
@@ -141,7 +141,7 @@ namespace APE.Language
                         default:
                             //Send first 2 characters
                             base.SendKeys(text.Substring(0, 2));
-                            GUI.Log("Wait for the generic walker popup to appear", LogItemTypeEnum.Action);
+                            GUI.Log("Wait for the generic walker popup to appear", LogItemType.Action);
 
                             //Wait for popup
                             timer = Stopwatch.StartNew();
@@ -203,7 +203,7 @@ namespace APE.Language
                     while (CurrentText != text);
                     timer.Stop();
 
-                    GUI.Log("Press Enter to set the value", LogItemTypeEnum.Action);
+                    GUI.Log("Press Enter to set the value", LogItemType.Action);
                     base.SendKeysInternal("{Enter}");
                 }
             }

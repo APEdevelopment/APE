@@ -15,11 +15,9 @@
 //
 using System;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using APE.Capture;
 using APE.Communication;
 using NM = APE.Native.NativeMethods;
@@ -33,20 +31,52 @@ namespace APE.Language
     /// <summary>
     /// The type of information that is being logged
     /// </summary>
-    public enum LogItemTypeEnum
+    public enum LogItemType
     {
-        /// <summary>
-        /// Used for logging other non-user interaction such as waiting for a grid to be populated
-        /// </summary>
-        Information = 0,
         /// <summary>
         /// Used for logging user interaction with the application such as clicking on a button
         /// </summary>
-        Action = 1,
+        Action,
         /// <summary>
-        /// Used internally by the automation framework
+        /// Used to denote the start of something
         /// </summary>
-        ApeContext = 2,
+        Start,
+        /// <summary>
+        /// Used to denote the end of something
+        /// </summary>
+        Finish,
+        /// <summary>
+        /// Used to denote something has passed
+        /// </summary>
+        Pass,
+        /// <summary>
+        /// Used to denote something has failed
+        /// </summary>
+        Fail,
+        /// <summary>
+        /// Used to denote something which is disabled
+        /// </summary>
+        Disabled,
+        /// <summary>
+        /// Used to denote something which is N/A
+        /// </summary>
+        NA,
+        /// <summary>
+        /// Used for logging non-user interaction as debug severity
+        /// </summary>
+        Debug,
+        /// <summary>
+        /// Used for logging non-user interaction as information severity
+        /// </summary>
+        Information,
+        /// <summary>
+        /// Used for logging non-user interaction as warning severity
+        /// </summary>
+        Warning,
+        /// <summary>
+        /// Used for logging non-user interaction as error severity
+        /// </summary>
+        Error,
     }
 
     /// <summary>
@@ -187,7 +217,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="textToLog">The text to be logged</param>
         /// <param name="type">The type of information to be logged</param>
-        public delegate void LoggerDelegate(string textToLog, LogItemTypeEnum type);
+        public delegate void LoggerDelegate(string textToLog, LogItemType type);
         /// <summary>
         /// Assign a method to this field which matches the LoggerDelegate to allow custom logging 
         /// </summary>
@@ -237,7 +267,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="textToLog"></param>
         /// <param name="type"></param>
-        public static void Log(string textToLog, LogItemTypeEnum type)
+        public static void Log(string textToLog, LogItemType type)
         {
             while (m_ViewPort == null || m_ViewPort.IsHandleCreated == false || m_ViewPort.Visible == false)
             {
@@ -267,7 +297,7 @@ namespace APE.Language
         /// <param name="domain">The domain in the process to attach to</param>
         public static void AttachToProcess(Process process, string domain)
         {
-            Log("Attached to process [" + process.ProcessName + "]", LogItemTypeEnum.ApeContext);
+            Log("Attached to process [" + process.ProcessName + "]", LogItemType.Information);
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
