@@ -51,12 +51,16 @@ namespace APE.Language
             timer.Stop();
         }
 
-        public static void SendKeys(IntPtr Handle, string text)
+        public static void SendKeys(GUIFocusableObject focusableObject, IntPtr Handle, string text)
         {
             WaitToBeVisibleAndEnabled(Handle);
             if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
+            }
+            if (!focusableObject.HasFocus)
+            {
+                focusableObject.SetFocus();
             }
             TimerResolution.SetMaxTimerResolution();
             System.Windows.Forms.SendKeys.SendWait(text);

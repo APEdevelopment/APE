@@ -94,12 +94,7 @@ namespace APE.Language
 
             try
             {
-                if (!HasFocus)
-                {
-                    SetFocus();
-                }
-
-                Input.SendKeys(Identity.Handle, textToSend);
+                Input.SendKeys(this, Identity.Handle, textToSend);
             }
             finally
             {
