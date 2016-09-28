@@ -988,6 +988,7 @@ namespace APE.Language
                     {
                         GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
                         this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+                        SelectedRowPollForIndex(rowIndex);
                     }
 
                     // Put the cell into edit mode
