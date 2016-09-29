@@ -1605,6 +1605,17 @@ namespace APE.Language
                 return false;
             }
 
+            // TODO get this fixed
+            // Work around a bug in the elementstripgrid
+            if (column > 0)
+            {
+                Show(row, column - 1);
+            }
+            if (column + 1 < this.Columns())
+            {
+                Show(row, column + 1);
+            }
+
             // Get the editor type for the cell
             string editorType = GetEdititorType(row, column);
             IntPtr EditorHandle = IntPtr.Zero;

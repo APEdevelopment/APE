@@ -970,6 +970,14 @@ namespace APE.Language
             // Get the data type of the cell we want to set
             string cellDataType = this.GetCellValue(rowIndex, columnIndex, CellProperty.DataType);
 
+            if (IsEnabled)
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Focus", MemberTypes.Method);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+            }
+
             switch (cellDataType)
             {
                 //case "System.DateTime":

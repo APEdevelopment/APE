@@ -27,6 +27,7 @@ using System.Threading;
 using System.Drawing.Imaging;
 using System.Security.Principal;
 using NM = APE.Native.NativeMethods;
+using System.Collections;
 
 namespace APE.Language
 {
@@ -131,22 +132,28 @@ namespace APE.Language
                         timer.Stop();
                     }
 
-                    switch (text.Length)
+                    // Get an array of each character token for example a or {+}
+                    string[] tokens = Tokenise(text);
+                    string unescapedText = Unescape(text);
+
+                    switch (tokens.Length)
                     {
                         case 0:
                             break;
                         case 1:
-                            base.SendKeys(text);
+                            GUI.Log("Type [" + unescapedText.Substring(0, 1) + "] into the " + Identity.Description, LogItemType.Action);
+                            base.SendKeysInternal(tokens[0]);
                             break;
                         default:
                             //Send first 2 characters
-                            base.SendKeys(text.Substring(0, 2));
-                            GUI.Log("Wait for the generic walker popup to appear", LogItemType.Action);
+                            GUI.Log("Type [" + unescapedText.Substring(0, 2) + "] into the " + Identity.Description, LogItemType.Action);
+                            base.SendKeysInternal(tokens[0] + tokens[1]);
 
                             //Wait for popup
+                            GUI.Log("Wait for the generic walker popup to appear", LogItemType.Action);
                             timer = Stopwatch.StartNew();
                             bool isDropped = false;
-                            do
+                            while (true)
                             {
                                 //Get the state of the popup control
                                 if (Identity.TypeNameSpace == "LzGenericWalker")
@@ -175,16 +182,29 @@ namespace APE.Language
                                         isDropped = true;
                                     }
                                 }
-                            }
-                            while (!isDropped);
-                            timer.Stop();
-                            break;
-                    }
 
-                    //Send rest of characters
-                    if (text.Length > 2)
-                    {
-                        base.SendKeys(text.Substring(2));
+                                if (isDropped)
+                                {
+                                    break;
+                                }
+
+                                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                                {
+                                    throw new Exception("Failed to find the " + Identity.Description + " dropdown");
+                                }
+
+                                Thread.Sleep(50);
+                            }
+                            timer.Stop();
+
+                            //Send rest of characters
+                            if (tokens.Length > 2)
+                            {
+                                tokens[0] = "";
+                                tokens[1] = "";
+                                base.SendKeys(string.Join("", tokens));
+                            }
+                            break;
                     }
 
                     //wait for .Text to == text
@@ -200,7 +220,7 @@ namespace APE.Language
 
                         Thread.Sleep(15);
                     }
-                    while (CurrentText != text);
+                    while (CurrentText != unescapedText);
                     timer.Stop();
 
                     GUI.Log("Press Enter to set the value", LogItemType.Action);
@@ -211,6 +231,55 @@ namespace APE.Language
             {
                 Input.Unblock();
             }
+        }
+
+        private string[] Tokenise(string escapedText)
+        {
+            ArrayList tokens = new ArrayList(escapedText.Length);
+            string character;
+            for (int characterIndex = 0; characterIndex < escapedText.Length; characterIndex++)
+            {
+                if (escapedText.Substring(characterIndex, 1) == "{")
+                {
+                    if (escapedText.Substring(characterIndex + 1, 1) == "}")
+                    {
+                        character = escapedText.Substring(characterIndex, 3);
+                        characterIndex = characterIndex + 2;
+                    }
+                    else
+                    {
+                        int endIndex = escapedText.IndexOf("}", characterIndex);
+                        character = escapedText.Substring(characterIndex, endIndex - characterIndex + 1);
+                        characterIndex = endIndex;
+                    }
+                }
+                else
+                {
+                    character = escapedText.Substring(characterIndex, 1);
+                }
+
+                tokens.Add(character);
+            }
+
+            tokens.TrimToSize();
+            return (string[])tokens.ToArray(typeof(string));
+        }
+
+        private string Unescape(string escapedText)
+        {
+            string unescapedText = escapedText;
+            unescapedText = unescapedText.Replace("{{}", "{");
+            unescapedText = unescapedText.Replace("{}}", "}");
+            unescapedText = unescapedText.Replace("{(}", "(");
+            unescapedText = unescapedText.Replace("{)}", ")");
+            unescapedText = unescapedText.Replace("{{}", "{");
+            unescapedText = unescapedText.Replace("{+}", "+");
+            unescapedText = unescapedText.Replace("{^}", "^");
+            unescapedText = unescapedText.Replace("{%}", "%");
+            unescapedText = unescapedText.Replace("{~}", "~");
+            unescapedText = unescapedText.Replace("{[}", "[");
+            unescapedText = unescapedText.Replace("{]}", "]");
+            return unescapedText;
         }
     }
 }
