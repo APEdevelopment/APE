@@ -246,7 +246,7 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                GUITextBox comboboxTextBox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+                GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboboxTextBox.SetText(text);
             }
             finally

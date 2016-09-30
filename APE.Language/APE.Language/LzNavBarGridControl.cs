@@ -47,7 +47,7 @@ namespace APE.Language
         /// <param name="locationInCell">The location in the cell to click</param>
         public void Select(string nodeText, MouseButton button, CellClickLocation locationInCell)
         {   
-            GUIFlexgrid grid = new GUIFlexgrid(m_ParentForm, Identity.Description + " grid", new Identifier(Identifiers.Name, "Grid"), new Identifier(Identifiers.ChildOf, this));
+            GUIFlexgrid grid = new GUIFlexgrid(ParentForm, Identity.Description + " grid", new Identifier(Identifiers.Name, "Grid"), new Identifier(Identifiers.ChildOf, this));
             string uid = FindNodeUid(nodeText);
             if (uid == null)
             {

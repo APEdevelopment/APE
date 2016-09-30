@@ -37,19 +37,21 @@ namespace APE.Language
         /// </summary>
         protected ControlIdentifier Identity;
         /// <summary>
-        /// The parent form the control belongs to.  If the control is a form then this field will be null
+        /// The parent form the control
         /// </summary>
-        protected internal GUIForm m_ParentForm = null;
+        protected internal GUIForm ParentForm;
+
         ///// <summary>
         ///// The human readable description of the control
         ///// </summary>
-        //protected string Identity.Description = null;
         private MenuUtils m_MenuUtils = new MenuUtils();
         private AnimationUtils m_AnimationUtils = new AnimationUtils();
 
         /// <summary>
         /// Constructor used for form controls
         /// </summary>
+        /// <param name="descriptionOfControl">The human readable description of the form</param>
+        /// <param name="identParams">The identifier(s) of the form</param>
         protected GUIObject(string descriptionOfControl, params Identifier[] identParams)
             : this(null, descriptionOfControl, identParams)
         {
@@ -58,62 +60,13 @@ namespace APE.Language
         /// <summary>
         /// Constructor used for everything which isn't a Form
         /// </summary>
+        /// <param name="parentForm">The form the control belongs to</param>
+        /// <param name="descriptionOfControl">The human readable description of the control</param>
+        /// <param name="identParams">The identifier(s) of the control</param>
         protected GUIObject(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
         {
-            //Identity.Description = descriptionOfControl;
-            Identity.Description = descriptionOfControl;
-            if (parentForm != null)
-            {
-                m_ParentForm = parentForm;
-                Identity.ParentHandle = m_ParentForm.Handle;
-            }
-
-            foreach (Identifier i in identParams)
-            {
-                switch (i.IdentifierType)
-                {
-                    case Identifiers.Handle:
-                        Identity.Handle = i.IdentifierValue;
-                        break;
-                    case Identifiers.Name:
-                        Identity.Name = i.IdentifierValue;
-                        break;
-                    case Identifiers.TechnologyType:
-                        Identity.TechnologyType = i.IdentifierValue;
-                        break;
-                    case Identifiers.TypeNameSpace:
-                        Identity.TypeNameSpace = i.IdentifierValue;
-                        break;
-                    case Identifiers.TypeName:
-                        Identity.TypeName = i.IdentifierValue;
-                        break;
-                    case Identifiers.ModuleName:
-                        Identity.ModuleName = i.IdentifierValue;
-                        break;
-                    case Identifiers.AssemblyName:
-                        Identity.AssemblyName = i.IdentifierValue;
-                        break;
-                    case Identifiers.Index:
-                        Identity.Index = i.IdentifierValue;
-                        break;
-                    case Identifiers.Text:
-                        Identity.Text = i.IdentifierValue;
-                        break;
-                    case Identifiers.ChildOf:
-                        Identity.ChildOf = i.IdentifierValue.Handle;
-                        break;
-                    case Identifiers.SiblingOf:
-                        Identity.SiblingOf = i.IdentifierValue.Handle;
-                        break;
-                    default:
-                        throw new Exception("Unsupported identifier: " + i.ToString());
-                }
-            }
-
-            if (Identity.TechnologyType == null)
-            {
-                Identity.TechnologyType = "Windows Forms (WinForms)";
-            }
+            ParentForm = parentForm;
+            Identity = GUI.BuildIdentity(parentForm, descriptionOfControl, identParams);
 
             GUI.m_APE.AddFirstMessageFindByProperty(Identity);
             GUI.m_APE.SendMessages(EventSet.APE);

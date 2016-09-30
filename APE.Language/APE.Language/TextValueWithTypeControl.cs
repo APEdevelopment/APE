@@ -79,7 +79,7 @@ namespace APE.Language
             //Get the value(s) returned MUST be done straight after the WaitForMessages call;
             IntPtr textboxHandle = GUI.m_APE.GetValueFromMessage();
 
-            GUITextBox textBox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
+            GUITextBox textBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
             // Select the item
             textBox.SetText(text);
         }

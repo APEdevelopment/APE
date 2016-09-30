@@ -90,6 +90,7 @@ namespace APE.Communication
         FlexgridGetAllRowsHidden = 28,
         FlexgridGetAllColumnsWidth = 29,
         FlexgridGetAllRowsHeight = 30,
+        ControlExists = 31,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -217,8 +218,19 @@ namespace APE.Communication
                                 case MessageAction.GetListViewItemRectangle:
                                     GetListViewItemRectangle(messageNumber);
                                     break;
+                                case MessageAction.ControlExists:
+                                    string findText = Find(messageNumber, 0);
+                                    if (findText == null)
+                                    {
+                                        AddReturnValue(new Parameter(this, true));
+                                    }
+                                    else
+                                    {
+                                        AddReturnValue(new Parameter(this, false));
+                                    }
+                                    break;
                                 case MessageAction.Find:
-                                    result = Find(messageNumber);
+                                    result = Find(messageNumber, m_TimeOut);
                                     break;
                                 case MessageAction.Refind:
                                     Refind(messageNumber);

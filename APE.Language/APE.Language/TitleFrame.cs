@@ -141,44 +141,7 @@ namespace APE.Language
         protected GUITitleFrameObject(GUITitleFrame parentTitleFrame, string descriptionOfControl, params Identifier[] identParams)
         {
             ParentTitleFrame = parentTitleFrame;
-            Identity.Description = descriptionOfControl;
-
-            foreach (Identifier i in identParams)
-            {
-                switch (i.IdentifierType)
-                {
-                    case Identifiers.Handle:
-                        Identity.Handle = i.IdentifierValue;
-                        break;
-                    case Identifiers.Name:
-                        Identity.Name = i.IdentifierValue;
-                        break;
-                    case Identifiers.TechnologyType:
-                        Identity.TechnologyType = i.IdentifierValue;
-                        break;
-                    case Identifiers.TypeNameSpace:
-                        Identity.TypeNameSpace = i.IdentifierValue;
-                        break;
-                    case Identifiers.TypeName:
-                        Identity.TypeName = i.IdentifierValue;
-                        break;
-                    case Identifiers.ModuleName:
-                        Identity.ModuleName = i.IdentifierValue;
-                        break;
-                    case Identifiers.AssemblyName:
-                        Identity.AssemblyName = i.IdentifierValue;
-                        break;
-                    case Identifiers.Index:
-                        Identity.Index = i.IdentifierValue;
-                        break;
-                    case Identifiers.Text:
-                        Identity.Text = i.IdentifierValue;
-                        break;
-                    default:
-                        throw new Exception("Unsupported identifier: " + i.ToString());
-                }
-            }
-
+            Identity = GUI.BuildIdentity(null, descriptionOfControl, identParams);
             UpdateIndex();
         }
 
@@ -191,7 +154,7 @@ namespace APE.Language
             string ModuleName = null;
             string AssemblyName = null;
 
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.ParentForm.Handle, ParentTitleFrame.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, item));
             if (Identity.Name != null)
@@ -351,7 +314,7 @@ namespace APE.Language
             bool match = false;
 
             //Get the number of items
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.ParentForm.Handle, ParentTitleFrame.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
@@ -450,7 +413,7 @@ namespace APE.Language
             {
                 UpdateIndex();
 
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.ParentForm.Handle, ParentTitleFrame.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToolTip", MemberTypes.Property);
@@ -468,7 +431,7 @@ namespace APE.Language
         {
             UpdateIndex();
 
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.m_ParentForm.Handle, ParentTitleFrame.Handle);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.ParentForm.Handle, ParentTitleFrame.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "m_rect", MemberTypes.Field);

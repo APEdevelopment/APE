@@ -88,7 +88,7 @@ namespace APE.Language
                     textboxHandle = GUI.m_APE.GetValueFromMessage();
                 }               
 
-                GUITextBox textbox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
+                GUITextBox textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
                 CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 

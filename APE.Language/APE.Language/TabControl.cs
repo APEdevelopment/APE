@@ -186,7 +186,7 @@ namespace APE.Language
 
                     width = tabRect.right - scrollButtonsRect.right;
 
-                    GUIButton scrollTabButton = new GUIButton(m_ParentForm, "Scroll button", new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.Handle, upDownControl));
+                    GUIButton scrollTabButton = new GUIButton(ParentForm, "Scroll button", new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.Handle, upDownControl));
 
                     while (true)
                     {

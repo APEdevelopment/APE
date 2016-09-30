@@ -372,6 +372,102 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Gets the handle of the control which currently has focus
+        /// </summary>
+        public static IntPtr GetFocus()
+        {
+            return Input.GetFocus();
+        }
+
+        /// <summary>
+        /// Checks if the form currently exists
+        /// </summary>
+        /// <param name="identParams">The identifier(s) of the form</param>
+        /// <returns>True if the form exists otheriwse false</returns>
+        public static bool ControlExists(params Identifier[] identParams)
+        {
+            return ControlExists(null, identParams);
+        }
+
+        /// <summary>
+        /// Checks if the control currently exists
+        /// </summary>
+        /// <param name="parentForm">The identifier(s) of the control</param>
+        /// <param name="identParams"></param>
+        /// <returns></returns>
+        public static bool ControlExists(GUIForm parentForm, params Identifier[] identParams)
+        {
+            ControlIdentifier Identity = GUI.BuildIdentity(parentForm, null, identParams);
+
+            GUI.m_APE.AddFirstMessageControlExistsByProperty(Identity);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool controlExists = GUI.m_APE.GetValueFromMessage();
+            return controlExists;
+        }
+
+        internal static ControlIdentifier BuildIdentity(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
+        {
+            ControlIdentifier Identity = new ControlIdentifier();
+
+            Identity.Description = descriptionOfControl;
+            if (parentForm != null)
+            {
+                Identity.ParentHandle = parentForm.Handle;
+            }
+
+            foreach (Identifier i in identParams)
+            {
+                switch (i.IdentifierType)
+                {
+                    case Identifiers.Handle:
+                        Identity.Handle = i.IdentifierValue;
+                        break;
+                    case Identifiers.Name:
+                        Identity.Name = i.IdentifierValue;
+                        break;
+                    case Identifiers.TechnologyType:
+                        Identity.TechnologyType = i.IdentifierValue;
+                        break;
+                    case Identifiers.TypeNameSpace:
+                        Identity.TypeNameSpace = i.IdentifierValue;
+                        break;
+                    case Identifiers.TypeName:
+                        Identity.TypeName = i.IdentifierValue;
+                        break;
+                    case Identifiers.ModuleName:
+                        Identity.ModuleName = i.IdentifierValue;
+                        break;
+                    case Identifiers.AssemblyName:
+                        Identity.AssemblyName = i.IdentifierValue;
+                        break;
+                    case Identifiers.Index:
+                        Identity.Index = i.IdentifierValue;
+                        break;
+                    case Identifiers.Text:
+                        Identity.Text = i.IdentifierValue;
+                        break;
+                    case Identifiers.ChildOf:
+                        Identity.ChildOf = i.IdentifierValue.Handle;
+                        break;
+                    case Identifiers.SiblingOf:
+                        Identity.SiblingOf = i.IdentifierValue.Handle;
+                        break;
+                    default:
+                        throw new Exception("Unsupported identifier: " + i.ToString());
+                }
+            }
+
+            if (Identity.TechnologyType == null)
+            {
+                Identity.TechnologyType = "Windows Forms (WinForms)";
+            }
+
+            return Identity;
+        }
+
+        /// <summary>
         /// Performs a garbage collection using the specified generation in both this and the application being automated
         /// </summary>
         /// <param name="generation"></param>

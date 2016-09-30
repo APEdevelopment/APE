@@ -956,6 +956,16 @@ namespace APE.Communication
         //    m_DoneGet = true;
         //}
 
+        unsafe public void AddFirstMessageControlExistsByProperty(ControlIdentifier Identifier)
+        {
+            FirstMessageInitialise();
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+            PtrMessage->Action = MessageAction.ControlExists;
+
+            AddIdentifierMessage(Identifier);
+        }
+
         unsafe public void AddFirstMessageFindByProperty(ControlIdentifier Identifier)
         {
             FirstMessageInitialise();
@@ -1709,7 +1719,7 @@ namespace APE.Communication
             }
         }
 
-        unsafe private string Find(int messageNumber)
+        unsafe private string Find(int messageNumber, uint timeoutMs)
         {
             ControlIdentifier Identifier;
             DecodeControl(messageNumber, out Identifier);
@@ -1960,7 +1970,7 @@ namespace APE.Communication
                             Thread.Sleep(15);
                         }
                     }
-                    while (FoundControl == false && timer.ElapsedMilliseconds < m_TimeOut);
+                    while (FoundControl == false && timer.ElapsedMilliseconds < timeoutMs);
                     timer.Stop();
                 }
             }
@@ -2210,7 +2220,7 @@ namespace APE.Communication
                             Thread.Sleep(15);
                         }
                     }
-                    while (FoundControl == false && timer.ElapsedMilliseconds < m_TimeOut);
+                    while (FoundControl == false && timer.ElapsedMilliseconds < timeoutMs);
                     timer.Stop();
                 }
             }

@@ -733,7 +733,7 @@ namespace APE.Language
                 // If the form it belongs to isn't enabled then there is likely a modal form displayed
                 // so exit the loop so the code can continue (its up to the caller to validate the
                 // value is set in these cases)
-                if (!m_ParentForm.IsEnabled)
+                if (!ParentForm.IsEnabled)
                 {
                     break;
                 }
@@ -1099,7 +1099,7 @@ namespace APE.Language
             Point location = GetLocationInCell(row, column, locationInCell);
 
             // Find the actual native grid to click on
-            GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(m_ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
+            GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
 
             nativeGrid.MouseSingleClickInternal(location.X, location.Y, button, keyModifier);
         }
@@ -1115,7 +1115,7 @@ namespace APE.Language
             Point location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
 
             // Find the actual native grid to click on
-            GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(m_ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
+            GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
 
             nativeGrid.MouseMove(location.X, location.Y);
         }

@@ -1036,7 +1036,7 @@ namespace APE.Language
                         try
                         {
                             GUI.SetTimeOut(0);
-                            genericWalker = new GUIGenericWalker(m_ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
+                            genericWalker = new GUIGenericWalker(ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
                         }
                         finally
                         {
@@ -1059,17 +1059,17 @@ namespace APE.Language
                         switch (APEBaseType)
                         {
                             case "GUIComboBox":
-                                GUIComboBox flexgridComboBox = new GUIComboBox(m_ParentForm, Identity.Description + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                                GUIComboBox flexgridComboBox = new GUIComboBox(ParentForm, Identity.Description + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridComboBox.ItemSelect(value);
                                 break;
                             case "GUITextBox":
-                                GUITextBox flexgridTextBox = new GUITextBox(m_ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
+                                GUITextBox flexgridTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridTextBox.SetText(value);
                                 GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                                 base.SendKeysInternal(submitKey);
                                 break;
                             case "GUIDateTimePicker":
-                                GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(m_ParentForm, Identity.Description + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
+                                GUIDateTimePicker flexgridDateTimePicker = new GUIDateTimePicker(ParentForm, Identity.Description + " datetime picker", new Identifier(Identifiers.Handle, EditorHandle));
                                 flexgridDateTimePicker.SetText(value);
                                 GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                                 base.SendKeysInternal(submitKey);
@@ -1095,7 +1095,7 @@ namespace APE.Language
                 // If the form it belongs to isn't enabled then there is likely a modal form displayed
                 // so exit the loop so the code can continue (its up to the caller to validate the
                 // value is set in these cases)
-                if (!m_ParentForm.IsEnabled)
+                if (!ParentForm.IsEnabled)
                 {
                     break;
                 }
