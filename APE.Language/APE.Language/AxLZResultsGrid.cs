@@ -585,7 +585,7 @@ namespace APE.Language
         public bool SetCellValue(int rowIndex, string columnText, string value, string expectedValue, string submitKey)
         {
             int column = FindColumn(columnText);
-            return SetCellValueInternal(rowIndex.ToString(), columnText, rowIndex, column, value, expectedValue, submitKey);
+            return SetCellValueInternal(null, columnText, rowIndex, column, value, expectedValue, submitKey);
         }
 
         /// <summary>
@@ -625,7 +625,7 @@ namespace APE.Language
         public bool SetCellValue(string rowText, int columnIndex, string value, string expectedValue, string submitKey)
         {
             int row = FindRow(rowText);
-            return SetCellValueInternal(rowText, columnIndex.ToString(), row, columnIndex, value, expectedValue, submitKey);
+            return SetCellValueInternal(rowText, null, row, columnIndex, value, expectedValue, submitKey);
         }
 
         /// <summary>
@@ -664,12 +664,32 @@ namespace APE.Language
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
         public bool SetCellValue(int rowIndex, int columnIndex, string value, string expectedValue, string submitKey)
         {
-            return SetCellValueInternal(rowIndex.ToString(), columnIndex.ToString(), rowIndex, columnIndex, value, expectedValue, submitKey);
+            return SetCellValueInternal(null, null, rowIndex, columnIndex, value, expectedValue, submitKey);
         }
 
         private bool SetCellValueInternal(string rowText, string columnText, int rowIndex, int columnIndex, string value, string expectedValue, string submitKey)
         {
-            Stopwatch ook = Stopwatch.StartNew();
+            string rowFriendlyText;
+            string columnFriendlyText;
+            Stopwatch timer;
+
+            if (rowText == null)
+            {
+                rowFriendlyText = rowIndex.ToString();
+            }
+            else
+            {
+                rowFriendlyText = rowText;
+            }
+
+            if (columnText == null)
+            {
+                columnFriendlyText = columnIndex.ToString();
+            }
+            else
+            {
+                columnFriendlyText = columnText;
+            }
 
             if (expectedValue == null)
             {
@@ -687,7 +707,7 @@ namespace APE.Language
                 throw new Exception("RowIndex " + rowIndex.ToString() + " is not a valid row");
             }
 
-            if (rowIndex < 0)
+            if (columnIndex < 0)
             {
                 throw new Exception("ColumnIndex " + columnIndex.ToString() + " is not a valid column");
             }
@@ -696,7 +716,7 @@ namespace APE.Language
             string CurrentValue = this.GetCellValue(rowIndex, columnIndex, VSFlexgridCellPropertySettings.flexcpTextDisplay);
             if (CurrentValue == expectedValue)
             {
-                GUI.Log("Ensure " + Identity.Description + " row " + rowText + " column " + columnText + " is set to " + expectedValue, LogItemType.Action);
+                GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
                 return false;
             }
 
@@ -707,12 +727,12 @@ namespace APE.Language
             {
                 case VSFlexgridColumnDataType.flexDTEmpty:
                     // Click on the cell
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the cell in the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the cell in the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
                     this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     break;
                 case VSFlexgridColumnDataType.flexDTBoolean:
                     // Click on the checkbox
-                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+                    GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
                     this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     break;
                 default:
@@ -720,7 +740,7 @@ namespace APE.Language
             }
 
             //Check the value was set
-            Stopwatch timer = Stopwatch.StartNew();
+            timer = Stopwatch.StartNew();
             do
             {
                 CurrentValue = this.GetCellValue(rowIndex, columnIndex, VSFlexgridCellPropertySettings.flexcpTextDisplay);
@@ -736,6 +756,12 @@ namespace APE.Language
                 if (!ParentForm.IsEnabled)
                 {
                     break;
+                }
+
+                if (columnText != null)
+                {
+                    // Look for the column again as the act of setting the value may have changed its position
+                    columnIndex = FindColumn(columnText);
                 }
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
