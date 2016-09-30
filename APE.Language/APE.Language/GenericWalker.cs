@@ -200,9 +200,8 @@ namespace APE.Language
                             //Send rest of characters
                             if (tokens.Length > 2)
                             {
-                                tokens[0] = "";
-                                tokens[1] = "";
-                                base.SendKeys(string.Join("", tokens));
+                                GUI.Log("Type [" + unescapedText.Substring(2) + "] into the " + Identity.Description, LogItemType.Action);
+                                base.SendKeysInternal(string.Join("", tokens));
                             }
                             break;
                     }
