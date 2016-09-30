@@ -1691,8 +1691,6 @@ namespace APE.Language
                     GUIGenericWalker genericWalker = new GUIGenericWalker(ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
                     genericWalker.SetText(value);
-                    GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
-                    base.SendKeysInternal(submitKey);
                     break;
                 case "LatentZero.Capstone.Controls.TextValueWithTypeControl.TextValueWithTypeControl":
                     // Get the handle of the editor for this cell then locate the control
