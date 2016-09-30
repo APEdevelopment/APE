@@ -1301,45 +1301,75 @@ namespace APE.Language
             return CurrentRow;
         }
 
-        public int FindColumn(string Column)
+        /// <summary>
+        /// Returns true if the specified column in the grid exists
+        /// </summary>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <returns>True or False</returns>
+        public bool ColumnExists(string columnToFind)
+        {
+            string[] delimiter = { " -> " };
+            string[] columnHeader = columnToFind.Split(delimiter, StringSplitOptions.None);
+
+            if (FindColumnInternal(columnHeader) == -1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Returns the index of the specified column in the grid
+        /// </summary>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <returns>The index of the column</returns>
+        public int FindColumn(string columnToFind)
         {
             string[] Delimiter = { " -> " };
-            string[] ColumnHeader = Column.Split(Delimiter, StringSplitOptions.None);
+            string[] ColumnHeader = columnToFind.Split(Delimiter, StringSplitOptions.None);
 
             return FindColumn(ColumnHeader);
         }
 
-        public int FindColumn(string[] ColumnHeader)
+        /// <summary>
+        /// Returns the index of the specified column in the grid
+        /// </summary>
+        /// <param name="columnHeader">The column to check</param>
+        /// <returns>The index of the column</returns>
+        public int FindColumn(string[] columnHeader)
         {
             int Column = -1;
 
             // Columns present may change so try twice
             try
             {
-                Column = FindColumnInternal(ColumnHeader);
+                Column = FindColumnInternal(columnHeader);
             }
             catch
             {
-                Column = FindColumnInternal(ColumnHeader);
+                Column = FindColumnInternal(columnHeader);
             }
 
             if (Column == -1)
             {
-                throw new Exception("Failed to find column");
+                throw new Exception("Failed to find column " + string.Join(" -> ", columnHeader));
             }
 
             return Column;
         }
 
-        private int FindColumnInternal(string[] ColumnHeader)
+        private int FindColumnInternal(string[] columnHeader)
         {
             // Build a 2d array of the header
             int Columns = this.Columns();
-            string[,] GridHeader = new string[ColumnHeader.Length, Columns];
+            string[,] GridHeader = new string[columnHeader.Length, Columns];
 
             int VisibleRow = 0;
             int Row = 0;
-            while (VisibleRow < ColumnHeader.Length)
+            while (VisibleRow < columnHeader.Length)
             {
                 if (!this.IsRowHidden(Row))
                 {
@@ -1369,9 +1399,9 @@ namespace APE.Language
             {
                 if (!this.IsColumnHidden(Column))
                 {
-                    for (Row = 0; Row < ColumnHeader.Length; Row++)
+                    for (Row = 0; Row < columnHeader.Length; Row++)
                     {
-                        if (GridHeader[Row, Column] == ColumnHeader[Row])
+                        if (GridHeader[Row, Column] == columnHeader[Row])
                         {
                             Found = true;
                         }

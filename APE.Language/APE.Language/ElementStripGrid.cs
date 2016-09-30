@@ -445,7 +445,7 @@ namespace APE.Language
 
             if (column == -1)
             {
-                throw new Exception("Failed to find column");
+                throw new Exception("Failed to find column " + string.Join(" -> ", columnHeader));
             }
 
             return column;
