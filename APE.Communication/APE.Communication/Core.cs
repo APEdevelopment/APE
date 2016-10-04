@@ -220,13 +220,10 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.ControlExists:
                                     string findText = Find(messageNumber, 0);
-                                    if (findText == null)
+                                    if (findText != null)
                                     {
-                                        AddReturnValue(new Parameter(this, true));
-                                    }
-                                    else
-                                    {
-                                        AddReturnValue(new Parameter(this, false));
+                                        ControlIdentifier newIdentifier = new ControlIdentifier();
+                                        AddIdentifierMessage(newIdentifier);
                                     }
                                     break;
                                 case MessageAction.Find:

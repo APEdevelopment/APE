@@ -53,7 +53,7 @@ namespace APE.Language
         {
             //click on the right side of the control to display the popup list form
             GUI.Log("Left click on the right side of the text value with type control to display the popup list", LogItemType.Action);
-            base.MouseSingleClickInternal(Width - 5, 5, MouseButton.Left, MouseKeyModifier.None);
+            base.SingleClickInternal(Width - 5, 5, MouseButton.Left, MouseKeyModifier.None);
 
             //find the form
             GUIForm popupListForm = new GUIForm("Popup list form", new Identifier(Identifiers.Name, "PopupListForm"));
@@ -61,7 +61,7 @@ namespace APE.Language
             //find the popuplist
             GUIPopupList popupList = new GUIPopupList(popupListForm, Identity.Description + " popup List", new Identifier(Identifiers.Name, "popupList1"));
             //Select the type in the popup list
-            popupList.Select(typeText);
+            popupList.SingleClickItem(typeText);
         }
 
         /// <summary>

@@ -168,7 +168,7 @@ namespace APE.Language
         {
             Rectangle titleBarRectangle = TitleBarRectangle();
 
-            base.MouseSingleClickInternal(titleBarRectangle.X + (titleBarRectangle.Width / 2), titleBarRectangle.Y + (titleBarRectangle.Height / 2), button, MouseKeyModifier.None);
+            base.SingleClickInternal(titleBarRectangle.X + (titleBarRectangle.Width / 2), titleBarRectangle.Y + (titleBarRectangle.Height / 2), button, MouseKeyModifier.None);
 
             if (button == MouseButton.Left)
             {

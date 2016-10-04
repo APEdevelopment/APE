@@ -76,7 +76,7 @@ namespace APE.Language
 
                 if (currentText != "")
                 {
-                    base.MouseSingleClick(MouseButton.Left);
+                    base.SingleClick(MouseButton.Left);
 
                     //Select everything in the textbox
                     base.SendKeys("{HOME}+{END}");

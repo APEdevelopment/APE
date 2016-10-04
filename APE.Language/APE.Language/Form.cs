@@ -104,7 +104,7 @@ namespace APE.Language
                     try
                     {
                         GUI.Log("Close the " + Identity.Description, LogItemType.Action);
-                        base.MouseSingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                        base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                         //Wait for the window to disappear
                         base.WaitForControlToNotBeVisible();
@@ -232,7 +232,7 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                base.MouseSingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                 // Wait for the animation to finish
                 base.WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
@@ -305,7 +305,7 @@ namespace APE.Language
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
             {
-                base.MouseSingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                 // Wait for the animation to finish
                 base.WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
@@ -423,7 +423,7 @@ namespace APE.Language
                 Input.Block(Identity.ParentHandle, Identity.Handle);
                 try
                 {
-                    base.MouseSingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                    base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                     // Wait for the animation to finish
                     base.WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);

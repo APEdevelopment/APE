@@ -100,7 +100,7 @@ namespace APE.Language
                 {
                     if (CurrentText != "")
                     {
-                        textbox.MouseSingleClick(MouseButton.Left);
+                        textbox.SingleClick(MouseButton.Left);
                         //textbox.MouseDoubleClick(MouseButton.Left);
 
                         //Select everything in the textbox

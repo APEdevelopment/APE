@@ -102,7 +102,7 @@ namespace APE.Language
 
             GUIButton UpDownButton = new GUIButton(ParentForm, Identity.Description + " up button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
 
-            UpDownButton.MouseSingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 1, Button);
+            UpDownButton.SingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 1, Button);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace APE.Language
 
             GUIButton UpDownButton = new GUIButton(ParentForm, Identity.Description + " down button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
 
-            UpDownButton.MouseSingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 3, Button);
+            UpDownButton.SingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 3, Button);
         }
     }
 }

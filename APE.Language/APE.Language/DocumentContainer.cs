@@ -61,7 +61,6 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int NumberOfItems = GUI.m_APE.GetValueFromMessage();
-
             return NumberOfItems;
         }
 
@@ -69,7 +68,7 @@ namespace APE.Language
         /// Returns the number of controls contained in the document container
         /// </summary>
         /// <returns>The number of controls in the document container</returns>
-        public int ItemCount()
+        public int ItemsCount()
         {
             int Count = 0;
             int NumberOfDockControls = DockControls();
@@ -100,9 +99,9 @@ namespace APE.Language
         /// <summary>
         /// Checks if the specified item exists in the document container
         /// </summary>
-        /// <param name="Item"></param>
+        /// <param name="item"></param>
         /// <returns>True if it exists otherwise false</returns>
-        public bool ItemExists(string Item)
+        public bool ItemExists(string item)
         {
             int NumberOfDockControls = DockControls();
 
@@ -125,7 +124,7 @@ namespace APE.Language
 
                 if (ParentHandle == this.Handle)
                 {
-                    if (TabText == Item)
+                    if (TabText == item)
                     {
                         return true;
                     }
@@ -138,20 +137,20 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified item in the document container
         /// </summary>
-        /// <param name="Item">The item in the document container</param>
-        public void ItemSelect(string Item)
+        /// <param name="item">The item in the document container</param>
+        public void SingleClickItem(string item)
         {
-            ItemSelect(Item, MouseButton.Left);
+            SingleClickItem(item, MouseButton.Left);
         }
 
         /// <summary>
         /// Clicks on the specified item in the document container using the specified mouse button
         /// </summary>
-        /// <param name="Item">The item in the document container</param>
-        /// <param name="Button">The mouse button to click with</param>
-        public void ItemSelect(string Item, MouseButton Button)
+        /// <param name="item">The item in the document container</param>
+        /// <param name="button">The mouse button to click with</param>
+        public void SingleClickItem(string item, MouseButton button)
         {
-            GUI.Log("Select [" + Item + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Select [" + item + "] from " + Identity.Description, LogItemType.Action);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
@@ -176,7 +175,7 @@ namespace APE.Language
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string TabText = GUI.m_APE.GetValueFromMessage();
 
-                if (TabText == Item)
+                if (TabText == item)
                 {
                     int rightPadding = RightPadding();
                     Rectangle leftScrollButton = ScrollButtonBounds(ButtonBounds.Left);
@@ -199,11 +198,11 @@ namespace APE.Language
 
                         if (tabX < 5)
                         {
-                            base.MouseSingleClickInternal(leftScrollButtonX, leftScrollButtonY, MouseButton.Left, MouseKeyModifier.None);
+                            base.SingleClickInternal(leftScrollButtonX, leftScrollButtonY, MouseButton.Left, MouseKeyModifier.None);
                         }
                         else if (tabX > width - rightPadding)
                         {
-                            base.MouseSingleClickInternal(rightScrollButtonX, rightScrollButtonY, MouseButton.Left, MouseKeyModifier.None);                            
+                            base.SingleClickInternal(rightScrollButtonX, rightScrollButtonY, MouseButton.Left, MouseKeyModifier.None);                            
                         }
                         else
                         {
@@ -223,14 +222,14 @@ namespace APE.Language
                         }
                     }
 
-                    base.MouseSingleClickInternal(tabX, tabY, Button, MouseKeyModifier.None);
+                    base.SingleClickInternal(tabX, tabY, button, MouseKeyModifier.None);
 
                     //Wait for the active document to be the tab we selected
                     string ActiveTab;
                     timer = Stopwatch.StartNew();
                     do
                     {
-                        ActiveTab = ItemActive();
+                        ActiveTab = ActiveItem();
 
                         if (ActiveTab == TabText)
                         {
@@ -286,7 +285,7 @@ namespace APE.Language
         /// The currently selected item in the document container
         /// </summary>
         /// <returns>The text of the currently selected item</returns>
-        public string ItemActive()
+        public string ActiveItem()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
@@ -305,25 +304,25 @@ namespace APE.Language
         /// Removes the specified item from the document container
         /// First selects the item if need be then clicks on the 'x' at the top right of the document container
         /// </summary>
-        /// <param name="Item"></param>
-        public void ItemRemove(string Item)
+        /// <param name="item"></param>
+        public void RemoveItem(string item)
         {
-            if (ItemActive() != Item)
+            if (ActiveItem() != item)
             {
-                ItemSelect(Item);
+                SingleClickItem(item);
             }
 
             //Get the size of the window
             NM.tagRect ClientRect;
             NM.GetClientRect(Identity.Handle, out ClientRect);
 
-            int InitialItems = ItemCount();
+            int InitialItems = ItemsCount();
             int CurrentItems = InitialItems;
 
-            GUI.Log("Remove [" + Item + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Remove [" + item + "] from " + Identity.Description, LogItemType.Action);
 
             //Click 10 pixels in from the right hand side of the window and 10 pixels down
-            base.MouseSingleClickInternal(ClientRect.right -10, 10, MouseButton.Left, MouseKeyModifier.None);
+            base.SingleClickInternal(ClientRect.right -10, 10, MouseButton.Left, MouseKeyModifier.None);
 
             //Wait for the number of items to decrease by one
             Stopwatch timer = Stopwatch.StartNew();
@@ -331,7 +330,7 @@ namespace APE.Language
             {
                 if (InitialItems > 1)
                 {
-                    CurrentItems = ItemCount();
+                    CurrentItems = ItemsCount();
                 }
                 else
                 {

@@ -438,35 +438,51 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Perform a single left mouse click in the middle of the toolstrip object
+        /// </summary>
+        public virtual void SingleClick()
+        {
+            SingleClick(MouseButton.Left);
+        }
+
+        /// <summary>
         /// Perform a mouse click with the specified button in the middle of the toolstrip object
         /// </summary>
         /// <param name="button">The button to click</param>
-        public virtual void MouseSingleClick(MouseButton button)
+        public virtual void SingleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + button.ToString() + " click on " + Identity.Description, LogItemType.Action);
-            ParentToolStrip.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+            ParentToolStrip.SingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Perform a double left mouse click in the middle of the toolstrip object
+        /// </summary>
+        public virtual void DoubleClick()
+        {
+            DoubleClick(MouseButton.Left);
         }
 
         /// <summary>
         /// Perform a double mouse click with the specified button in the middle of the toolstrip object
         /// </summary>
         /// <param name="button">The button to double click</param>
-        public virtual void MouseDoubleClick(MouseButton button)
+        public virtual void DoubleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + button.ToString() + " click on " + Identity.Description, LogItemType.Action);
-            ParentToolStrip.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+            ParentToolStrip.DoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
         /// <summary>
         /// Moves the mouse cursor to the middle of the toolstrip object
         /// </summary>
-        public virtual void MouseMove()
+        public virtual void MoveTo()
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Move the mouse over the " + Identity.Description, LogItemType.Action);
-            ParentToolStrip.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
+            ParentToolStrip.MoveTo(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
         }
 
         /// <summary>
@@ -665,11 +681,11 @@ namespace APE.Language
         /// Selects the specified item in the split drop down
         /// </summary>
         /// <param name="splitDropDownItem">The item to select from the split drop down</param>
-        public void Select(string splitDropDownItem)
+        public void SingleClickItem(string splitDropDownItem)
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + Identity.Description, LogItemType.Action);
-            ParentToolStrip.MouseSingleClickInternal(bounds.Width - 3, bounds.Y + (bounds.Height / 2), MouseButton.Left, MouseKeyModifier.None);
+            ParentToolStrip.SingleClickInternal(bounds.Width - 3, bounds.Y + (bounds.Height / 2), MouseButton.Left, MouseKeyModifier.None);
 
             GUI.Log("Select [" + splitDropDownItem + "] from " + Identity.Description, LogItemType.Action);
 
@@ -741,9 +757,9 @@ namespace APE.Language
         /// Selects the specified item in the drop down
         /// </summary>
         /// <param name="dropDownItem">The item to select from the drop down</param>
-        public void Select(string dropDownItem)
+        public void SingleClickItem(string dropDownItem)
         {
-            this.MouseSingleClick(MouseButton.Left);
+            this.SingleClick(MouseButton.Left);
 
             GUI.Log("Select [" + dropDownItem + "] from " + Identity.Description, LogItemType.Action);
 
@@ -827,9 +843,9 @@ namespace APE.Language
         /// Selects the specified item in the toolstrip combobox
         /// </summary>
         /// <param name="item">The item to select</param>
-        public void ItemSelect(string item)
+        public void SingleClickItem(string item)
         {
-            ComboBox.ItemSelect(item);
+            ComboBox.SingleClickItem(item);
         }
 
         /// <summary>
@@ -898,12 +914,20 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Perform a single left mouse click in the middle of the toolstrip textbox
+        /// </summary>
+        public void SingleClick()
+        {
+            SingleClick(MouseButton.Left);
+        }
+
+        /// <summary>
         /// Perform a mouse click with the specified button in the middle of the toolstrip textbox
         /// </summary>
         /// <param name="button">The button to click</param>
-        public void MouseSingleClick(MouseButton button)
+        public void SingleClick(MouseButton button)
         {
-            TextBox.MouseSingleClick(button);
+            TextBox.SingleClick(button);
         }
 
         /// <summary>
@@ -912,9 +936,9 @@ namespace APE.Language
         /// <param name="x">How far from the left edge of the control to click the mouse</param>
         /// <param name="y">How far from the top edge of the control to click the mouse</param>
         /// <param name="button">The button to click</param>
-        public void MouseSingleClick(int x, int y, MouseButton button)
+        public void SingleClick(int x, int y, MouseButton button)
         {
-            TextBox.MouseSingleClick(x, y, button);
+            TextBox.SingleClick(x, y, button);
         }
 
         /// <summary>
@@ -924,18 +948,26 @@ namespace APE.Language
         /// <param name="y">How far from the top edge of the control to click the mouse</param>
         /// <param name="button">The button to click</param>
         /// <param name="keys">The key to hold while clicking</param>
-        public void MouseSingleClick(int x, int y, MouseButton button, MouseKeyModifier keys)
+        public void SingleClick(int x, int y, MouseButton button, MouseKeyModifier keys)
         {
-            TextBox.MouseSingleClick(x, y, button, keys);
+            TextBox.SingleClick(x, y, button, keys);
+        }
+
+        /// <summary>
+        /// Perform a double left mouse click in the middle of the toolstrip textbox
+        /// </summary>
+        public void DoubleClick()
+        {
+            DoubleClick(MouseButton.Left);
         }
 
         /// <summary>
         /// Perform a double mouse click with the specified button in the middle of the toolstrip textbox
         /// </summary>
         /// <param name="button">The button to double click</param>
-        public void MouseDoubleClick(MouseButton button)
+        public void DoubleClick(MouseButton button)
         {
-            TextBox.MouseDoubleClick(button);
+            TextBox.DoubleClick(button);
         }
 
         /// <summary>
@@ -944,9 +976,9 @@ namespace APE.Language
         /// <param name="x">How far from the left edge of the control to double click the mouse</param>
         /// <param name="y">How far from the top edge of the control to double click the mouse</param>
         /// <param name="button">The button to double click</param>
-        public void MouseDoubleClick(int x, int y, MouseButton button)
+        public void DoubleClick(int x, int y, MouseButton button)
         {
-            TextBox.MouseDoubleClick(x, y, button);
+            TextBox.DoubleClick(x, y, button);
         }
 
         /// <summary>
@@ -956,9 +988,9 @@ namespace APE.Language
         /// <param name="y">How far from the top edge of the control to double click the mouse</param>
         /// <param name="button">The button to double click</param>
         /// <param name="keys">The key to hold while double clicking</param>
-        public void MouseDoubleClick(int x, int y, MouseButton button, MouseKeyModifier keys)
+        public void DoubleClick(int x, int y, MouseButton button, MouseKeyModifier keys)
         {
-            TextBox.MouseDoubleClick(x, y, button, keys);
+            TextBox.DoubleClick(x, y, button, keys);
         }
 
         internal IntPtr ItemTextBoxHandle(string descriptionOfControl, ControlIdentifier identity)

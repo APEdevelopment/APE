@@ -62,10 +62,10 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the combobox
+        /// Selects the specified item in the combobox by clicking on it
         /// </summary>
         /// <param name="item">The item to select</param>
-        public void ItemSelect(string item)
+        public void SingleClickItem(string item)
         {
             Stopwatch timer;
 
@@ -113,7 +113,7 @@ namespace APE.Language
                     if (!DroppedDown)
                     {
                         //show the dropdown
-                        base.MouseSingleClickInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
+                        base.SingleClickInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
                     }
                     
                     //find the dropdown
@@ -177,7 +177,7 @@ namespace APE.Language
                 try
                 {
                     Identity.Handle = ListBox;
-                    base.MouseSingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
+                    base.SingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
                 }
                 finally
                 {

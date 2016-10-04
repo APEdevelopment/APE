@@ -239,16 +239,16 @@ namespace APE.Language
                     IntPtr MessageResult;
                     IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
 
-                    base.MouseSingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                    base.SingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
                 }
                 else
                 {
-                    base.MouseSingleClickInternal(Left - 7 - CheckBoxModifier, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                    base.SingleClickInternal(Left - 7 - CheckBoxModifier, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
                 }
             }
             else
             {
-                base.MouseDoubleClickInternal(Right - 4, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                base.DoubleClickInternal(Right - 4, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
             }
 
             // Wait for it to be expanded
@@ -403,7 +403,7 @@ namespace APE.Language
             if (Button == MouseButton.Left)
             {
                 // Click it
-                base.MouseSingleClickInternal(Right - 2, Top + ((Bottom - Top) / 2), Button, MouseKeyModifier.None);
+                base.SingleClickInternal(Right - 2, Top + ((Bottom - Top) / 2), Button, MouseKeyModifier.None);
 
                 // Wait for it to be selected
                 bool IsNowSelected = false;
@@ -440,7 +440,7 @@ namespace APE.Language
             else
             {
                 // Click it
-                base.MouseSingleClickInternal(Right - 2, Top + ((Bottom - Top) / 2), Button, MouseKeyModifier.None);
+                base.SingleClickInternal(Right - 2, Top + ((Bottom - Top) / 2), Button, MouseKeyModifier.None);
             }
         }
 
@@ -545,11 +545,11 @@ namespace APE.Language
                 IntPtr MessageResult;
                 IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
 
-                base.MouseSingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
             }
             else
             {
-                base.MouseSingleClickInternal(Left - 7, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(Left - 7, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
             }
 
             // Wait for it to be checked / unchecked
@@ -589,7 +589,7 @@ namespace APE.Language
         /// Checks the specified item in the tree view 
         /// </summary>
         /// <param name="treeViewItem">The item to check</param>
-        public void Check(string treeViewItem)
+        public void CheckItem(string treeViewItem)
         {
             GUI.Log("Check treeview item [" + treeViewItem + "]", LogItemType.Action);
             CheckInternal(treeViewItem, true);
@@ -599,7 +599,7 @@ namespace APE.Language
         /// Unchecks the specified item in the tree view 
         /// </summary>
         /// <param name="treeViewItem">The item to uncheck</param>
-        public void Uncheck(string treeViewItem)
+        public void UncheckItem(string treeViewItem)
         {
             GUI.Log("Uncheck treeview item [" + treeViewItem + "]", LogItemType.Action);
             CheckInternal(treeViewItem, false);
@@ -638,9 +638,9 @@ namespace APE.Language
         /// Selects the specified item in the tree view
         /// </summary>
         /// <param name="treeViewItem">The item to select</param>
-        public void Select(string treeViewItem)
+        public void SingleClickItem(string treeViewItem)
         {
-            Select(treeViewItem, MouseButton.Left);
+            SingleClickItem(treeViewItem, MouseButton.Left);
         }
 
         /// <summary>
@@ -648,7 +648,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="treeViewItem">The item to click on</param>
         /// <param name="button">The mouse button to click with</param>
-        public void Select(string treeViewItem, MouseButton button)
+        public void SingleClickItem(string treeViewItem, MouseButton button)
         {
             switch (button)
             {

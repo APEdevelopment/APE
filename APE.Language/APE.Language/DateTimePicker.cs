@@ -106,7 +106,7 @@ namespace APE.Language
             try
             {
                 //click on the left side of the control
-                base.MouseSingleClick(5, 5, MouseButton.Left);
+                base.SingleClick(5, 5, MouseButton.Left);
 
                 char[] splitSeparator = { '/', ':', ' ' };
                 string[] dateParts;

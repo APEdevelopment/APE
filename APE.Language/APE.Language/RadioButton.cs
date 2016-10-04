@@ -72,9 +72,9 @@ namespace APE.Language
         /// <param name="Y">How far from the top edge of the control to click the mouse</param>
         /// <param name="Button">The button to click</param>
         /// <param name="Keys">The key to hold while clicking</param>
-        public override void MouseSingleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        public override void SingleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys)
         {
-            base.MouseSingleClick(X, Y, Button, Keys);
+            base.SingleClick(X, Y, Button, Keys);
             if (Button == MouseButton.Left)
             {
                 pollForState(true);
@@ -87,9 +87,9 @@ namespace APE.Language
         /// <param name="X">How far from the left edge of the control to double click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to double click the mouse</param>
         /// <param name="Button">The button to double click</param>
-        public override void MouseDoubleClick(int X, int Y, MouseButton Button)
+        public override void DoubleClick(int X, int Y, MouseButton Button)
         {
-            base.MouseDoubleClick(X, Y, Button);
+            base.DoubleClick(X, Y, Button);
             if (Button == MouseButton.Left)
             {
                 pollForState(true);
@@ -102,9 +102,9 @@ namespace APE.Language
         /// <param name="X">How far from the left edge of the control to triple click the mouse</param>
         /// <param name="Y">How far from the top edge of the control to triple click the mouse</param>
         /// <param name="Button">The button to triple click</param>
-        public override void MouseTripleClick(int X, int Y, MouseButton Button)
+        public override void TripleClick(int X, int Y, MouseButton Button)
         {
-            base.MouseTripleClick(X, Y, Button);
+            base.TripleClick(X, Y, Button);
             if (Button == MouseButton.Left)
             {
                 pollForState(true);

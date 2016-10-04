@@ -45,7 +45,7 @@ namespace APE.Language
         /// <param name="nodeText">The node to look for delimited by -> for example Order -> Id</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
-        public void Select(string nodeText, MouseButton button, CellClickLocation locationInCell)
+        public void SingleClickItem(string nodeText, MouseButton button, CellClickLocation locationInCell)
         {   
             GUIFlexgrid grid = new GUIFlexgrid(ParentForm, Identity.Description + " grid", new Identifier(Identifiers.Name, "Grid"), new Identifier(Identifiers.ChildOf, this));
             string uid = FindNodeUid(nodeText);
@@ -60,16 +60,16 @@ namespace APE.Language
                 GUI.Log("Failed to find uid " + uid + " in the grid", LogItemType.Information);
                 throw new Exception("Failed to find uid in the grid");
             }
-            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " node " + nodeText, LogItemType.Action);
-            grid.SelectInternal(row, 0, button, locationInCell, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description + " node " + nodeText, LogItemType.Action);
+            grid.SingleClickCellInternal(row, 0, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
-        /// Returns true if the specified node in the grid exists
+        /// Returns true if the specified node item exists in the grid
         /// </summary>
         /// <param name="nodeText">The node to look for delimited by -> for example Order -> Id</param>
         /// <returns>True or False</returns>
-        public bool NodeExists(string nodeText)
+        public bool ItemExists(string nodeText)
         {
             if (FindNodeUid(nodeText) == null)
             {

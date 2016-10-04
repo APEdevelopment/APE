@@ -333,9 +333,12 @@ namespace APE.Language
         /// Returns the process object for the currently attached process
         /// </summary>
         /// <returns>The process object</returns>
-        public static Process GetAttachedProcess()
+        public static Process AttachedProcess
         {
-            return m_AttachedProcess;
+            get
+            {
+                return m_AttachedProcess;
+            }
         }
 
         /// <summary>
@@ -403,8 +406,15 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool exists = GUI.m_APE.GetValueFromMessage();
-            return exists;
+            GUI.m_APE.DecodeControl(1, out Identity);
+            if (Identity.Handle == IntPtr.Zero)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         internal static ControlIdentifier BuildIdentity(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
@@ -565,10 +575,10 @@ namespace APE.Language
     {
         //GUIObject
         string ClassName { get; }
-        void MouseSingleClick(int X, int Y, MouseButton Button);
-        void MouseSingleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys);
-        void MouseDoubleClick(int X, int Y, MouseButton Button);
-        void MouseTripleClick(int X, int Y, MouseButton Button);
+        void SingleClick(int X, int Y, MouseButton Button);
+        void SingleClick(int X, int Y, MouseButton Button, MouseKeyModifier Keys);
+        void DoubleClick(int X, int Y, MouseButton Button);
+        void TripleClick(int X, int Y, MouseButton Button);
         void MouseDown(int X, int Y, MouseButton Button);
         void MouseUp(int X, int Y, MouseButton Button);
         bool IsEnabled { get; }

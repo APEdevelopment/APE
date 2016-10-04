@@ -69,10 +69,10 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the combobox
+        /// Selects the specified item in the combobox by clicking on it
         /// </summary>
         /// <param name="Item">The item to select</param>
-        public void ItemSelect(string Item)
+        public void SingleClickItem(string Item)
         {
             GUI.Log("Select [" + Item + "] from " + Identity.Description, LogItemType.Action);
 
@@ -152,7 +152,7 @@ namespace APE.Language
             }
 
             //click the item
-            base.MouseSingleClickInternal(-1, ((Bottom - Top) / 2) + Top, MouseButton.Left, MouseKeyModifier.None);
+            base.SingleClickInternal(-1, ((Bottom - Top) / 2) + Top, MouseButton.Left, MouseKeyModifier.None);
 
             //wait for selected == item
             int SelectedIndex;

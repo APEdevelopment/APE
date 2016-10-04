@@ -373,58 +373,71 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Perform a mouse click with the specified button in the middle of the title frame object
+        /// Perform a single left mouse click in the middle of the title frame object
+        /// </summary>
+        public virtual void SingleClick()
+        {
+            SingleClick(MouseButton.Left);
+        }
+
+        /// <summary>
+        /// Perform a single mouse click with the specified button in the middle of the title frame object
         /// </summary>
         /// <param name="button">The button to click</param>
-        public virtual void MouseSingleClick(MouseButton button)
+        public virtual void SingleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description, LogItemType.Action);
-            ParentTitleFrame.MouseSingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+            ParentTitleFrame.SingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Perform a double left mouse click in the middle of the title frame object
+        /// </summary>
+        public virtual void DoubleClick()
+        {
+            DoubleClick(MouseButton.Left);
         }
 
         /// <summary>
         /// Perform a double mouse click with the specified button in the middle of the title frame object
         /// </summary>
         /// <param name="button">The button to double click</param>
-        public virtual void MouseDoubleClick(MouseButton button)
+        public virtual void DoubleClick(MouseButton button)
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description, LogItemType.Action);
-            ParentTitleFrame.MouseDoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
+            ParentTitleFrame.DoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
         /// <summary>
         /// Moves the mouse cursor to the middle of the title frame object
         /// </summary>
-        public virtual void MouseMove()
+        public virtual void MoveTo()
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Move the mouse over the " + Identity.Description, LogItemType.Action);
-            ParentTitleFrame.MouseMove(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
+            ParentTitleFrame.MoveTo(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2));
         }
 
         /// <summary>
         /// The tool tip text of the title frame object
         /// </summary>
-        public virtual string ToolTipText
+        public virtual string ToolTipText()
         {
-            get
-            {
-                UpdateIndex();
+            UpdateIndex();
 
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.ParentForm.Handle, ParentTitleFrame.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToolTip", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string itemToolTipText = GUI.m_APE.GetValueFromMessage();
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentTitleFrame.ParentForm.Handle, ParentTitleFrame.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToolTip", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string itemToolTipText = GUI.m_APE.GetValueFromMessage();
 
-                return itemToolTipText;
-            }
+            return itemToolTipText;
         }
 
         internal Rectangle ItemBounds()

@@ -46,7 +46,7 @@ namespace APE.Language
         /// Returns the number of tabs in the tabcontrol
         /// </summary>
         /// <returns>The number of tabs</returns>
-        public int Count()
+        public int TabCount()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabCount", MemberTypes.Property);
@@ -64,9 +64,9 @@ namespace APE.Language
         /// </summary>
         /// <param name="tabText">The text of the tab</param>
         /// <returns>The index of the tab</returns>
-        public int Index(string tabText)
+        public int TabIndex(string tabText)
         {
-            int tabCount = Count();
+            int tabCount = TabCount();
 
             for (int x = 0; x < tabCount; x++)
             {
@@ -103,10 +103,10 @@ namespace APE.Language
         /// Select a tab
         /// </summary>
         /// <param name="tabText">The tab to select</param>
-        public void Select(string tabText)
+        public void SingleClickTab(string tabText)
         {
-            int tabIndex = Index(tabText);
-            SelectInternal(tabIndex, tabText, MouseButton.Left);
+            int tabIndex = TabIndex(tabText);
+            SingleClickTabInternal(tabIndex, tabText, MouseButton.Left);
         }
 
         /// <summary>
@@ -114,20 +114,20 @@ namespace APE.Language
         /// </summary>
         /// <param name="tabText">The tab to select</param>
         /// <param name="button">The mouse button to click with</param>
-        public void Select(string tabText, MouseButton button)
+        public void SingleClickTab(string tabText, MouseButton button)
         {
-            int tabIndex = Index(tabText);
-            SelectInternal(tabIndex, tabText, button);
+            int tabIndex = TabIndex(tabText);
+            SingleClickTabInternal(tabIndex, tabText, button);
         }
 
         /// <summary>
         /// Select a tab
         /// </summary>
         /// <param name="tabIndex">The tab index to select</param>
-        public void Select(int tabIndex)
+        public void SingleClickTab(int tabIndex)
         {
             string tabText = TabText(tabIndex);
-            SelectInternal(tabIndex, tabText, MouseButton.Left);
+            SingleClickTabInternal(tabIndex, tabText, MouseButton.Left);
         }
 
         /// <summary>
@@ -135,13 +135,13 @@ namespace APE.Language
         /// </summary>
         /// <param name="tabIndex">The tab index to select</param>
         /// <param name="button">The mouse button to click with</param>
-        public void Select(int tabIndex, MouseButton button)
+        public void SingleClickTab(int tabIndex, MouseButton button)
         {
             string tabText = TabText(tabIndex);
-            SelectInternal(tabIndex, tabText, button);
+            SingleClickTabInternal(tabIndex, tabText, button);
         }
 
-        private void SelectInternal(int tabIndex, string tabName, MouseButton button)
+        private void SingleClickTabInternal(int tabIndex, string tabName, MouseButton button)
         {
             if (SelectedTabText() == tabName)
             {
@@ -193,12 +193,12 @@ namespace APE.Language
                         if (tabRectangle.X < 0)
                         {
                             GUI.Log("Click " + Identity.Description + " left button", LogItemType.Action);
-                            scrollTabButton.MouseSingleClickInternal(5, 5, MouseButton.Left, MouseKeyModifier.None);
+                            scrollTabButton.SingleClickInternal(5, 5, MouseButton.Left, MouseKeyModifier.None);
                         }
                         else if (tabRectangle.X > width)
                         {
                             GUI.Log("Click " + Identity.Description + " right button", LogItemType.Action);
-                            scrollTabButton.MouseSingleClickInternal(scrollButtonsRect.right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
+                            scrollTabButton.SingleClickInternal(scrollButtonsRect.right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
                         }
                         else
                         {
@@ -220,7 +220,7 @@ namespace APE.Language
                     x = width - 2;
                 }
             }
-            base.MouseSingleClickInternal(x, y, button, MouseKeyModifier.None);
+            base.SingleClickInternal(x, y, button, MouseKeyModifier.None);
 
             // Confirm the expected tab has been selected
             Stopwatch timer = Stopwatch.StartNew();
@@ -250,7 +250,6 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string selectedTabText = GUI.m_APE.GetValueFromMessage();
-
             return selectedTabText;
         }
 

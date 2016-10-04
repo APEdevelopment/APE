@@ -792,7 +792,7 @@ namespace APE.Language
         /// <param name="rowText">The row text of the cell in the specified column</param>
         /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
         /// <returns></returns>
-        public string GetCellValue(string rowText, string columnText)
+        public string GetCell(string rowText, string columnText)
         {
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
@@ -807,7 +807,7 @@ namespace APE.Language
         /// <param name="columnText">Column of the cell delimited by -> for example Order -> Id</param>
         /// <returns>The cell value as a string</returns>
         /// <returns></returns>
-        public string GetCellValue(int rowIndex, string columnText)
+        public string GetCell(int rowIndex, string columnText)
         {
             int columnIndex = FindColumn(columnText);
             return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
@@ -819,7 +819,7 @@ namespace APE.Language
         /// <param name="rowText">The row text of the cell in the specified column</param>
         /// <param name="columnIndex">Column index of the cell</param>
         /// <returns></returns>
-        public string GetCellValue(string rowText, int columnIndex)
+        public string GetCell(string rowText, int columnIndex)
         {
             int rowIndex = FindRow(rowText, columnIndex);
             return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
@@ -831,7 +831,7 @@ namespace APE.Language
         /// <param name="rowIndex">Row index of the cell</param>
         /// <param name="columnIndex">Column index of the cell</param>
         /// <returns>The cell value as a string</returns>
-        public string GetCellValue(int rowIndex, int columnIndex)
+        public string GetCell(int rowIndex, int columnIndex)
         {
             return GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex);
         }
@@ -895,7 +895,7 @@ namespace APE.Language
         public int FindRow(string rowText, int columnIndex, int startAtRow)
         {
             int rowIndex;
-
+            //int treeColumn = TreeViewColumn();
             if (columnIndex == -1)
             {
                 //TODO treeview
@@ -911,9 +911,15 @@ namespace APE.Language
             }
             else
             {
-                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+                //if (columnIndex == treeColumn)
+                //{
+                //    rowIndex = FindNodeRow(rowText);
+                //}
+                //else
+                //{
+                    rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+                //}
             }
-
             return rowIndex;
         }
 
@@ -940,10 +946,10 @@ namespace APE.Language
         /// </summary>
         /// <param name="rowIndex">Row index of the cell</param>
         /// <param name="columnText">Column text of the cell delimited by -> for example Order -> Id</param>
-        public void Show(int rowIndex, string columnText)
+        public void ShowCell(int rowIndex, string columnText)
         {
             int columnIndex = FindColumn(columnText);
-            Show(rowIndex, columnIndex);
+            ShowCell(rowIndex, columnIndex);
         }
 
         /// <summary>
@@ -951,7 +957,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="rowIndex">Row index of the cell</param>
         /// <param name="columnIndex">Column index of the cell</param>
-        public void Show(int rowIndex, int columnIndex)
+        public void ShowCell(int rowIndex, int columnIndex)
         {
             rowIndex -= TitleRows();
 
@@ -1109,13 +1115,13 @@ namespace APE.Language
         /// <param name="columnText">The column text of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
-        public void Select(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
+        public void SingleClickCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
         {
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -1126,13 +1132,13 @@ namespace APE.Language
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
-        public void Select(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        public void SingleClickCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
         /// <summary>
@@ -1142,12 +1148,12 @@ namespace APE.Language
         /// <param name="columnText">The column text of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
-        public void Select(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
+        public void SingleClickCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -1158,12 +1164,12 @@ namespace APE.Language
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
-        public void Select(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        public void SingleClickCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
         /// <summary>
@@ -1173,12 +1179,12 @@ namespace APE.Language
         /// <param name="columnIndex">The column index of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
-        public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        public void SingleClickCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -1189,12 +1195,12 @@ namespace APE.Language
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
-        public void Select(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        public void SingleClickCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
         /// <summary>
@@ -1204,10 +1210,10 @@ namespace APE.Language
         /// <param name="columnIndex">The column index of the cell to select</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
-        public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        public void SingleClickCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
         {
-            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+            GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
         }
 
         /// <summary>
@@ -1218,16 +1224,144 @@ namespace APE.Language
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         /// <param name="keyModifier">The key to press while clicking</param>
-        public void Select(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        public void SingleClickCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
-            SelectInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
-        private void SelectInternal(int row, int column, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        private void SingleClickCellInternal(int row, int column, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
             Point Location = GetLocationInCell(row, column, locationInCell);
-            base.MouseSingleClickInternal(Location.X, Location.Y, button, keyModifier);
+            base.SingleClickInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void DoubleClickCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Double " + button.ToString() + " click on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void DoubleClickCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void DoubleClickCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Double " + button.ToString() + " click on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void DoubleClickCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void DoubleClickCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Double " + button.ToString() + " click on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void DoubleClickCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void DoubleClickCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            GUI.Log("Double " + button.ToString() + " click on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Double clicks the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void DoubleClickCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        private void DoubleClickCellInternal(int row, int column, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(row, column, locationInCell);
+            base.DoubleClickInternal(Location.X, Location.Y, button, keyModifier);
         }
 
         /// <summary>
@@ -1236,10 +1370,10 @@ namespace APE.Language
         /// <param name="Row">The row index of the cell to move the cursor to</param>
         /// <param name="Column">The column index of the cell to move the cursor to</param>
         /// <param name="LocationInCell">The location in the cell to move the cursor to</param>
-        public void MouseMove(int Row, int Column, CellClickLocation LocationInCell)
+        public void MoveToCell(int Row, int Column, CellClickLocation LocationInCell)
         {
             Point Location = GetLocationInCell(Row, Column, LocationInCell);
-            base.MouseMove(Location.X, Location.Y);
+            base.MoveTo(Location.X, Location.Y);
         }
 
         private Point GetLocationInCell(int rowIndex, int columnIndex, CellClickLocation locationInCell)
@@ -1267,7 +1401,7 @@ namespace APE.Language
             }
 
             //Scroll the cell into view
-            Show(rowIndex, columnIndex);
+            ShowCell(rowIndex, columnIndex);
 
             Rectangle CellRectangle = GetCellRectangle(rowIndex, columnIndex);
 
@@ -1304,32 +1438,32 @@ namespace APE.Language
             return Location;
         }
 
-        private Rectangle GetCellRectangle(string row, string column)
+        private Rectangle GetCellRectangle(string rowText, string columnText)
         {
-            int RowNumber = FindRow(row);
-            int ColumnNumber = FindColumn(column);
-            return GetCellRectangle(RowNumber, ColumnNumber);
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return GetCellRectangle(rowIndex, columnIndex);
         }
 
-        private Rectangle GetCellRectangle(int row, string column)
+        private Rectangle GetCellRectangle(int rowIndex, string columnText)
         {
-            int ColumnNumber = FindColumn(column);
-            return GetCellRectangle(row, ColumnNumber);
+            int columnIndex = FindColumn(columnText);
+            return GetCellRectangle(rowIndex, columnIndex);
         }
 
-        private Rectangle GetCellRectangle(string row, int column)
+        private Rectangle GetCellRectangle(string rowText, int columnIndex)
         {
-            int RowNumber = FindRow(row);
-            return GetCellRectangle(RowNumber, column);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return GetCellRectangle(rowIndex, columnIndex);
         }
 
-        private Rectangle GetCellRectangle(int row, int column)
+        private Rectangle GetCellRectangle(int rowIndex, int columnIndex)
         {
             int titleRows = TitleRows();
-            row -= titleRows;
+            rowIndex -= titleRows;
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellDisplayBounds", MemberTypes.Method, new Parameter(GUI.m_APE, row), new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellDisplayBounds", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
@@ -1458,9 +1592,9 @@ namespace APE.Language
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
         public bool SetCellValue(string rowText, string columnText, string value, string expectedValue, string submitKey)
         {
-            int row = FindRow(rowText);
-            int column = FindColumn(columnText);
-            return SetCellValueInternal(rowText, columnText, row, column, value, expectedValue, submitKey);
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return SetCellValueInternal(rowText, columnText, rowIndex, columnIndex, value, expectedValue, submitKey);
         }
 
         /// <summary>
@@ -1539,7 +1673,7 @@ namespace APE.Language
         /// <returns>True if the cell was set or False if it was already set to the value</returns>
         public bool SetCellValue(string rowText, int columnIndex, string value, string expectedValue, string submitKey)
         {
-            int rowIndex = FindRow(rowText);
+            int rowIndex = FindRow(rowText, columnIndex);
             return SetCellValueInternal(rowText, null, rowIndex, columnIndex, value, expectedValue, submitKey);
         }
 
@@ -1628,7 +1762,7 @@ namespace APE.Language
             }
 
             // Check if the cell is already set to the correct value
-            string CurrentValue = this.GetCellValue(rowIndex, columnIndex);
+            string CurrentValue = this.GetCell(rowIndex, columnIndex);
 
             if (CurrentValue == expectedValue)
             {
@@ -1640,11 +1774,11 @@ namespace APE.Language
             // Work around a bug in the elementstripgrid
             if (columnIndex > 0)
             {
-                Show(rowIndex, columnIndex - 1);
+                ShowCell(rowIndex, columnIndex - 1);
             }
             if (columnIndex + 1 < this.Columns())
             {
-                Show(rowIndex, columnIndex + 1);
+                ShowCell(rowIndex, columnIndex + 1);
             }
 
             // Get the editor type for the cell
@@ -1665,8 +1799,8 @@ namespace APE.Language
                     }
                     else
                     {
-                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
-                        this.SelectInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
+                        this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     }
 
                     // Put the cell into edit mode
@@ -1675,7 +1809,23 @@ namespace APE.Language
                     Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
 
                     // Reget the editor type now the cell is in edit mode
-                    editorType = GetEdititorType(rowIndex, columnIndex);
+                    timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        editorType = GetEdititorType(rowIndex, columnIndex);
+
+                        if (editorType != ".")
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > 3000)
+                        {
+                            throw new Exception("Failed to get editor type for the " + Description);
+                        }
+
+                        Thread.Sleep(50);
+                    }
                     break;
             }
 
@@ -1687,14 +1837,14 @@ namespace APE.Language
                     EditorHandle = GetRenderedControlHandle(rowIndex, columnIndex);
                     GUIComboBox comboBox = new GUIComboBox(ParentForm, Identity.Description + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
-                    comboBox.ItemSelect(value);
+                    comboBox.SingleClickItem(value);
                     break;
                 case "LatentZero.Utility.Controls.CheckBoxComboBoxRenderer":
                     // Get the handle of the editor for this cell then locate the control
                     EditorHandle = GetRenderedControlHandle(rowIndex, columnIndex);
                     GUIComboBox checkBoxComboBox = new GUIComboBox(ParentForm, Identity.Description + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
                     // Select the item
-                    checkBoxComboBox.ItemSelect(value);
+                    checkBoxComboBox.SingleClickItem(value);
                     GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
                     base.SendKeysInternal(submitKey);
                     break;
@@ -1755,7 +1905,7 @@ namespace APE.Language
             timer = Stopwatch.StartNew();
             do
             {
-                CurrentValue = this.GetCellValue(rowIndex, columnIndex);
+                CurrentValue = this.GetCell(rowIndex, columnIndex);
 
                 if (CurrentValue == expectedValue)
                 {

@@ -47,7 +47,7 @@ namespace APE.Language
         /// <returns></returns>
         public bool ItemExists(string item)
         {
-            int itemIndex = ItemIndex(item);
+            int itemIndex = IndexOfItem(item);
             if (itemIndex == -1)
             {
                 return false;
@@ -59,10 +59,10 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the combobox
+        /// Selects the specified item in the combobox by clicking it
         /// </summary>
         /// <param name="item">The item to select</param>
-        public void ItemSelect(string item)
+        public void SingleClickItem(string item)
         {
             Stopwatch timer;
 
@@ -75,7 +75,7 @@ namespace APE.Language
 
             GUI.Log("Select [" + item + "] from " + Identity.Description, LogItemType.Action);
 
-            int itemIndex = ItemIndex(item);
+            int itemIndex = IndexOfItem(item);
 
             if (itemIndex == -1)
             {
@@ -84,7 +84,7 @@ namespace APE.Language
 
             if (!IsDropped())
             {
-                base.MouseSingleClickInternal(Width - 5, 5, MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(Width - 5, 5, MouseButton.Left, MouseKeyModifier.None);
             }
 
             GUIForm dropDownForm = new GUIForm("drop down form", new Identifier(Identifiers.Name, "frmList"));
@@ -102,7 +102,7 @@ namespace APE.Language
             int x = dropDownForm.Width / 2;
             int y = (itemHeight * itemIndex) + (itemHeight / 2);
 
-            dropDownForm.MouseSingleClickInternal(x, y, MouseButton.Left, MouseKeyModifier.None);
+            dropDownForm.SingleClickInternal(x, y, MouseButton.Left, MouseKeyModifier.None);
 
             timer = Stopwatch.StartNew();
             while (true)
@@ -145,7 +145,7 @@ namespace APE.Language
             return selectedCaption;
         }
 
-        private int ItemIndex(string item)
+        private int IndexOfItem(string item)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_colItems", MemberTypes.Property);

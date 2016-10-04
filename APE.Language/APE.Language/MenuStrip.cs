@@ -50,39 +50,5 @@ namespace APE.Language
             : base(parentForm, descriptionOfControl, identParams)
         {
         }
-
-        /// <summary>
-        /// Selects the specified menu item
-        /// </summary>
-        /// <param name="MenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
-        public void Select(string MenuItem)
-        {
-            GUI.Log("Select [" + MenuItem + "] from " + Identity.Description, LogItemType.Action);
-
-            string[] Menus = MenuItem.Split(new char[] { '\\' });
-            int MenuIndex = 0;
-            IntPtr Handle;
-
-            Handle = Identity.Handle;
-
-            Input.Block(Identity.ParentHandle, Identity.Handle);
-            try
-            {
-                for (int Item = 0; Item < Menus.Length; Item++)
-                {
-                    if (Item > 0)
-                    {
-                        Handle = m_MenuUtils.GetDropDown(Identity.ParentHandle, Handle, MenuIndex);
-                    }
-
-                    MenuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, Handle, Menus[Item]);
-                    m_MenuUtils.ClickMenuItem(Identity.ParentHandle, Handle, MenuIndex, Menus[Item], ref Identity);
-                }
-            }
-            finally
-            {
-                Input.Unblock();
-            }
-        }
     }
 }

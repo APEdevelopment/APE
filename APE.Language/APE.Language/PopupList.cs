@@ -46,10 +46,10 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Sets the text portion of the TextValueWithTypeControl to the specified text by sending keystrokes
+        /// Selects the specified item in the pop up list by clicking on it
         /// </summary>
         /// <param name="item">The text to set the text portion of the TextValueWithTypeControl to</param>
-        public void Select(string item)
+        public void SingleClickItem(string item)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "PopupControlHelper", MemberTypes.Property);

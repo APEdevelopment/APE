@@ -50,12 +50,12 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the listview
+        /// Selects the specified item in the listview by clicking on it
         /// </summary>
-        /// <param name="ListViewItem">The item to select</param>
-        public void Select(string ListViewItem)
+        /// <param name="listViewItem">The item to select</param>
+        public void SingleClickItem(string listViewItem)
         {
-            GUI.Log("Select item [" + ListViewItem + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Select item [" + listViewItem + "] from " + Identity.Description, LogItemType.Action);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -78,7 +78,7 @@ namespace APE.Language
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string ItemText = GUI.m_APE.GetValueFromMessage();
 
-                if (ItemText == ListViewItem)
+                if (ItemText == listViewItem)
                 {
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -99,7 +99,7 @@ namespace APE.Language
                     int Bottom = GUI.m_APE.GetValueFromMessage();
                     int Right = GUI.m_APE.GetValueFromMessage();
 
-                    base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                    base.SingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
                     //Wait for it to be selected
                     bool Selected = false;
@@ -136,10 +136,10 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified group in the listview
         /// </summary>
-        /// <param name="ListViewGroup">The group to select</param>
-        public void SelectGroup(string ListViewGroup)
+        /// <param name="listViewGroup">The group to select</param>
+        public void SingleClickGroup(string listViewGroup)
         {
-            GUI.Log("Select group [" + ListViewGroup + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Select group [" + listViewGroup + "] from " + Identity.Description, LogItemType.Action);
 
             IntPtr Return;
             IntPtr Result;
@@ -150,7 +150,7 @@ namespace APE.Language
 
             // locate group and scroll the group
             int GroupID = -1;
-            if (ListViewGroup == "<Default>")
+            if (listViewGroup == "<Default>")
             {
                 // Get the id of the default group
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -189,7 +189,7 @@ namespace APE.Language
                     string Text = GUI.m_APE.GetValueFromMessage();
                     GroupID = GUI.m_APE.GetValueFromMessage();
 
-                    if (Text == ListViewGroup)
+                    if (Text == listViewGroup)
                     {
                         // scroll to first item in group
                         GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -235,7 +235,7 @@ namespace APE.Language
 
                 //wait for all group to be selected
                 bool Selected = false;
-                if (ListViewGroup == "<Default>")
+                if (listViewGroup == "<Default>")
                 {
                     // the default group isn't a real group so the count of items in it isnt populated
                     bool[] ListviewItemsHaveGroup = GetDefaultGroupItems();
@@ -389,13 +389,13 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the specified group in the listview
+        /// Selects the specified item in the specified group in the listview by single clicking
         /// </summary>
-        /// <param name="ListViewGroup">The group the item to select belongs to</param>
-        /// /// <param name="ListViewItem">The item to select</param>
-        public void Select(string ListViewGroup, string ListViewItem)
+        /// <param name="listViewGroup">The group the item to select belongs to</param>
+        /// /// <param name="listViewItem">The item to select</param>
+        public void SingleClickItem(string listViewGroup, string listViewItem)
         {
-            GUI.Log("Select item [" + ListViewItem + "] in group [" + ListViewGroup + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Select item [" + listViewItem + "] in group [" + listViewGroup + "] from " + Identity.Description, LogItemType.Action);
 
             IntPtr Return;
             IntPtr Result;
@@ -403,7 +403,7 @@ namespace APE.Language
             Return = NM.SendMessageTimeout(Identity.Handle, NM.WM_HSCROLL, new IntPtr(NM.SB_LEFT), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out Result);
             Return = NM.SendMessageTimeout(Identity.Handle, NM.WM_VSCROLL, new IntPtr(NM.SB_LEFT), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out Result);
 
-            if (ListViewGroup == "<Default>")
+            if (listViewGroup == "<Default>")
             {
                 // the default group isn't a real group so the count of items in it isnt populated
                 bool[] ListviewItemsHaveGroup = GetDefaultGroupItems();
@@ -431,7 +431,7 @@ namespace APE.Language
                         // Get the value(s) returned MUST be done straight after the WaitForMessages call
                         string ItemText = GUI.m_APE.GetValueFromMessage();
 
-                        if (ItemText == ListViewItem)
+                        if (ItemText == listViewItem)
                         {
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -452,7 +452,7 @@ namespace APE.Language
                             int Bottom = GUI.m_APE.GetValueFromMessage();
                             int Right = GUI.m_APE.GetValueFromMessage();
 
-                            base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                            base.SingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
                             //Wait for it to be selected
                             bool Selected = false;
@@ -512,7 +512,7 @@ namespace APE.Language
                     string GroupHeader = GUI.m_APE.GetValueFromMessage();
                     int Items = GUI.m_APE.GetValueFromMessage();
 
-                    if (GroupHeader == ListViewGroup)
+                    if (GroupHeader == listViewGroup)
                     {
                         for (int Item = 0; Item < Items; Item++)
                         {
@@ -528,7 +528,7 @@ namespace APE.Language
                             // Get the value(s) returned MUST be done straight after the WaitForMessages call
                             string ItemText = GUI.m_APE.GetValueFromMessage();
 
-                            if (ItemText == ListViewItem)
+                            if (ItemText == listViewItem)
                             {
                                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
@@ -551,7 +551,7 @@ namespace APE.Language
                                 int Bottom = GUI.m_APE.GetValueFromMessage();
                                 int Right = GUI.m_APE.GetValueFromMessage();
 
-                                base.MouseSingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                                base.SingleClickInternal(Left + 3, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
                                 //Wait for it to be selected
                                 bool Selected = false;
