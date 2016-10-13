@@ -94,7 +94,7 @@ namespace APE.Language
 
             try
             {
-                Input.SendKeys(this, Identity.Handle, textToSend);
+                Input.SendKeys(this, textToSend);
             }
             finally
             {

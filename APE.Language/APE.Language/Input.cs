@@ -30,6 +30,28 @@ namespace APE.Language
         private static int m_ProcessId = 0;
         private static bool m_MouseDown = false;
 
+        private static void WaitToBeVisibleAndEnabled(GUIObject control)
+        {
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                {
+                    throw new Exception(control.Description + " is not enabled");
+                }
+
+                if (NM.IsWindowEnabled(control.Handle))
+                {
+                    if (NM.IsWindowVisible(control.Handle))
+                    {
+                        break;
+                    }
+                }
+            }
+            timer.Stop();
+        }
+
+        //TODO remove theses and replace with above so we get better error messages
         private static void WaitToBeVisibleAndEnabled(IntPtr handle)
         {
             Stopwatch timer = Stopwatch.StartNew();
@@ -51,10 +73,10 @@ namespace APE.Language
             timer.Stop();
         }
 
-        public static void SendKeys(GUIFocusableObject focusableObject, IntPtr Handle, string text)
+        public static void SendKeys(GUIFocusableObject focusableObject, string text)
         {
-            WaitToBeVisibleAndEnabled(Handle);
-            if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
+            WaitToBeVisibleAndEnabled(focusableObject);
+            if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception("Window did not go idle within timeout");
             }

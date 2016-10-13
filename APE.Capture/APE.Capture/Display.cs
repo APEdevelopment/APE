@@ -25,6 +25,7 @@ using APE.Native;
 using NM = APE.Native.NativeMethods;
                                 //http://nquant.codeplex.com/license
 using nQuant;                   //Install-Package nQuant
+using System.IO;
 
 namespace APE.Capture
 {
@@ -113,9 +114,28 @@ namespace APE.Capture
             }
         }
 
-        public static void ScreenCapture(string FileName)
+        /// <summary>
+        /// Captures a screenshot of the whole desktop and returns it as a byte array
+        /// </summary>
+        /// <param name="format">The format to save the image as</param>
+        /// <returns>A byte array containing the desktop image</returns>
+        public static byte[] ScreenCapture(ImageFormat format)
         {
-            ScreenCapture(FileName, IntPtr.Zero);
+            Image bitmap = ScreenCapture(IntPtr.Zero);
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                bitmap.Save(memoryStream, format);
+                return memoryStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Captures a screenshot of the whole desktop and saves it to the specified file
+        /// </summary>
+        /// <param name="fileName">The file name to save the image as</param>
+        public static void ScreenCapture(string fileName)
+        {
+            ScreenCapture(fileName, IntPtr.Zero);
         }
 
         public static NM.tagRect GetWindowRectangleDIP(IntPtr Window)
@@ -191,10 +211,10 @@ namespace APE.Capture
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void ScreenCapture(string FileName, IntPtr Window)
+        public static Image ScreenCapture(IntPtr Window)
         {
             PixelFormat GrabFormat;
-            Bitmap WindowBitmap;
+            Bitmap windowBitmap;
 
             switch (m_ScreenPixelFormat)
             {
@@ -217,7 +237,6 @@ namespace APE.Capture
             int Height;
             int X;
             int Y;
-
 
             if (Window == IntPtr.Zero)
             {
@@ -248,26 +267,33 @@ namespace APE.Capture
                 {
                     NM.GetWindowRect(Window, out WindowRect);
                 }
-                
+
                 Width = WindowRect.right - WindowRect.left;
                 Height = WindowRect.bottom - WindowRect.top;
                 X = WindowRect.left;
                 Y = WindowRect.top;
             }
 
-            WindowBitmap = new Bitmap(Width, Height, GrabFormat);
-            GetWindowBitmap(Window, X, Y, ref WindowBitmap, true, false);
-            
+            windowBitmap = new Bitmap(Width, Height, GrabFormat);
+            GetWindowBitmap(Window, X, Y, ref windowBitmap, true, false);
+
             if (m_ScreenPixelFormat == PixelFormat.Format8bppIndexed)
             {
                 WuQuantizer quantizer = new WuQuantizer();
-                Image Quantized = quantizer.QuantizeImage(WindowBitmap);
-                Quantized.Save(FileName);
+                Image quantized = quantizer.QuantizeImage(windowBitmap);
+                return quantized;
             }
             else
             {
-                WindowBitmap.Save(FileName);
+                return windowBitmap;
             }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void ScreenCapture(string fileName, IntPtr window)
+        {
+            Image bitmap = ScreenCapture(window);
+            bitmap.Save(fileName);
         }
 
         public static void StopVideoCapture()
