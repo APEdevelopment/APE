@@ -128,7 +128,7 @@ namespace APE.Language
 
             if (EditWindowHandle == IntPtr.Zero)
             {
-                throw new Exception("Flexgrid is not in edit mode");
+                throw new Exception(Description + " is not in edit mode");
             }
 
             return GUI.m_APE.GetWindowTextViaWindowMessage(EditWindowHandle);
@@ -166,7 +166,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find node row");
+                    throw new Exception("Failed to find the row of the node in the " + Description);
                 }
             }
 
@@ -252,7 +252,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception("Flexgrid is not a treeview");
+                throw new Exception(Description + " is not a treeview");
             }
 
             for (int rowIndex = 0; rowIndex < Rows(); rowIndex++)
@@ -275,7 +275,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to expand the flexgrid node");
+                                    throw new Exception("Failed to expand the " + Description + " node");
                                 }
 
                                 Thread.Sleep(15);
@@ -298,7 +298,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception("Flexgrid is not a treeview");
+                throw new Exception(Description + " is not a treeview");
             }
 
             for (int rowIndex = Rows() - 1; rowIndex > -1; rowIndex--)
@@ -321,7 +321,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to collapse the flexgrid node");
+                                    throw new Exception("Failed to collapse the " + Description + " node");
                                 }
 
                                 Thread.Sleep(15);
@@ -348,7 +348,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception("Flexgrid is not a treeview");
+                throw new Exception(Description + " is not a treeview");
             }
 
             for (int i = 0; i < nodePathArray.GetLength(0); i++)
@@ -365,7 +365,7 @@ namespace APE.Language
 
                 if (!HasNodeGotChildren(rowIndex))
                 {
-                    throw new Exception("Can not expand node is has no children");
+                    throw new Exception("Can not expand the node of the " + Description + " is has no children");
                 }
 
                 if (IsNodeCollapsed(rowIndex))
@@ -382,7 +382,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to expand the flexgrid node");
+                            throw new Exception("Failed to expand the " + Description + " node");
                         }
 
                         Thread.Sleep(15);
@@ -407,7 +407,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception("Flexgrid is not a treeview");
+                throw new Exception(Description + " is not a treeview");
             }
 
             for (int i = nodePathArray.GetLength(0) - 1; i > -1; i--)
@@ -428,7 +428,7 @@ namespace APE.Language
 
                 if (!HasNodeGotChildren(rowIndex))
                 {
-                    throw new Exception("Can not collapse node is has no children");
+                    throw new Exception("Can not collapse the node of the " + Description + " is has no children");
                 }
 
                 if (!IsNodeCollapsed(rowIndex))
@@ -445,7 +445,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to collapse the flexgrid node");
+                            throw new Exception("Failed to collapse the " +  Description + " node");
                         }
 
                         Thread.Sleep(15);
@@ -973,12 +973,12 @@ namespace APE.Language
             // Couple of sanity checks
             if (rowIndex < 0)
             {
-                throw new Exception("RowIndex " + rowIndex.ToString() + " is not a valid row");
+                throw new Exception("RowIndex " + rowIndex.ToString() + " is not a valid row of the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("ColumnIndex " + columnIndex.ToString() + " is not a valid column");
+                throw new Exception("ColumnIndex " + columnIndex.ToString() + " is not a valid column of the " + Description);
             }
 
             // Check if the cell is already set to the correct value
@@ -1025,55 +1025,56 @@ namespace APE.Language
                     GUI.Log("Press F2 to enter edit mode", LogItemType.Action);
                     base.SendKeysInternal("{F2}");
 
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Editor", MemberTypes.Property);
-                    GUI.m_APE.AddMessageGetRecognisedType(DataStores.Store1, DataStores.Store2);
-                    GUI.m_APE.AddMessageGetApeTypeFromObject(DataStores.Store1, DataStores.Store3); //Get this to help with debuging
-                    GUI.m_APE.AddMessageGetApeTypeFromType(DataStores.Store2, DataStores.Store4);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Handle", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-                    string APEDirectType = GUI.m_APE.GetValueFromMessage();
-                    string APEBaseType = GUI.m_APE.GetValueFromMessage();
-                    dynamic EditorHandle = GUI.m_APE.GetValueFromMessage();
+                    string APEDirectType;
+                    string APEBaseType;
+                    dynamic EditorHandle;
 
-                    if (EditorHandle == null)
+                    // Search for the editor
+                    timer = Stopwatch.StartNew();
+                    while (true)
                     {
-                        EditorHandle = IntPtr.Zero;
-                        //throw new Exception("Could not find the flexgrid cell editor");
-                    }
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Editor", MemberTypes.Property);
+                        GUI.m_APE.AddMessageGetRecognisedType(DataStores.Store1, DataStores.Store2);
+                        GUI.m_APE.AddMessageGetApeTypeFromObject(DataStores.Store1, DataStores.Store3); //Get this to help with debuging
+                        GUI.m_APE.AddMessageGetApeTypeFromType(DataStores.Store2, DataStores.Store4);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Handle", MemberTypes.Property);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                        APEDirectType = GUI.m_APE.GetValueFromMessage();
+                        APEBaseType = GUI.m_APE.GetValueFromMessage();
+                        EditorHandle = GUI.m_APE.GetValueFromMessage();
 
+                        if (EditorHandle == null)
+                        {
+                            if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this)))
+                            {
+                                EditorHandle = IntPtr.Zero;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw new Exception("Failed to find the " + Description + " cell editor");
+                        }
+
+                        Thread.Sleep(50);
+                    }
+                    
                     // If the editor isn't visible then its likely not being used, so search for the real editor
                     if (!NM.IsWindowVisible(EditorHandle))
                     {
-                        bool suceeded = false;
-                        int timeout = GUI.GetTimeOut();
-
-                        // See if a generic walker exists
-                        GUIGenericWalker genericWalker = null;
-                        try
-                        {
-                            GUI.SetTimeOut(0);
-                            genericWalker = new GUIGenericWalker(ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
-                        }
-                        finally
-                        {
-                            GUI.SetTimeOut(timeout);
-                        }
-                        if (genericWalker != null && genericWalker.Handle != IntPtr.Zero)
-                        {
-                            genericWalker.SetText(value);
-                            suceeded = true;
-                        }
-
-                        if (!suceeded)
-                        {
-                            throw new Exception("Could not find a visible flexgrid cell editor");
-                        }
+                        GUIGenericWalker genericWalker = new GUIGenericWalker(ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
+                        genericWalker.SetText(value);
                     }
                     else
                     {
@@ -1130,7 +1131,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to set the flexgrid cell value");
+                    throw new Exception("Failed to set the " + Description + " cell value");
                 }
 
                 Thread.Sleep(15);
@@ -1825,13 +1826,13 @@ namespace APE.Language
             //Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
-                throw new Exception("Row is hidden");
+                throw new Exception("Row is hidden in the " + Description);
             }
 
             //Check to make sure the column isn't hidden
             if (IsColumnHidden(columnIndex))
             {
-                throw new Exception("Column is hidden");
+                throw new Exception("Column is hidden in the " + Description);
             }
 
             //Scroll the cell into view
@@ -2102,7 +2103,7 @@ namespace APE.Language
 
             if (column == -1)
             {
-                throw new Exception("Failed to find column " + string.Join(" -> ", columnHeader));
+                throw new Exception("Failed to find column " + string.Join(" -> ", columnHeader) + " in the " + Description);
             }
 
             return column;
@@ -2124,7 +2125,7 @@ namespace APE.Language
 
                     if (this.Columns() != Columns)
                     {
-                        throw new Exception("Grid columns changed");
+                        throw new Exception("Number of grid columns changed in the " + Description);
                     }
 
                     string[] Delimiter = { "\t" };
