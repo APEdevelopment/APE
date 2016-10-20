@@ -91,10 +91,14 @@ namespace APE.Language
         protected void SendKeysInternal(string textToSend)
         {
             Input.Block(Identity.ParentHandle, Identity.Handle);
-
             try
             {
                 Input.SendKeys(this, textToSend);
+            }
+            catch
+            {
+                Input.Reset();  //Reset the input blocking
+                throw;
             }
             finally
             {

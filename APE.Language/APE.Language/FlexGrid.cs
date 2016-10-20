@@ -22,6 +22,7 @@ using System.Diagnostics;
 using NM = APE.Native.NativeMethods;
 using System.Text;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace APE.Language
 {
@@ -1021,6 +1022,23 @@ namespace APE.Language
                         SelectedRowPollForIndex(rowIndex);
                     }
 
+                    // Build a list of genericwalkes which currently exist
+                    List<IntPtr> walkers = new List<IntPtr>(200);
+                    GUIGenericWalker genericWalker = null;
+                    for (int index = 1; index < 200; index++)
+                    {
+                        if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                        {
+                            genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                            walkers.Add(genericWalker.Handle);
+                        }
+                        else
+                        {
+                            genericWalker = null;
+                            break;
+                        }
+                    }
+
                     // Put the cell into edit mode
                     GUI.Log("Press F2 to enter edit mode", LogItemType.Action);
                     base.SendKeysInternal("{F2}");
@@ -1049,11 +1067,30 @@ namespace APE.Language
                         APEBaseType = GUI.m_APE.GetValueFromMessage();
                         EditorHandle = GUI.m_APE.GetValueFromMessage();
 
-                        if (EditorHandle == null)
+                        // If the editor isn't visible then its likely not being used, so search for the real editor
+                        if (EditorHandle == null || !NM.IsWindowVisible(EditorHandle))
                         {
-                            if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this)))
+                            // Search for a generic walker which is new
+                            for (int index = 1; index < 200; index++)
                             {
-                                EditorHandle = IntPtr.Zero;
+                                if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                                {
+                                    genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                                    if (!walkers.Contains(genericWalker.Handle))
+                                    {
+                                        EditorHandle = IntPtr.Zero;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    genericWalker = null;
+                                    break;
+                                }
+                            }
+
+                            if (genericWalker != null)
+                            {
                                 break;
                             }
                         }
@@ -1070,10 +1107,8 @@ namespace APE.Language
                         Thread.Sleep(50);
                     }
                     
-                    // If the editor isn't visible then its likely not being used, so search for the real editor
-                    if (!NM.IsWindowVisible(EditorHandle))
+                    if (genericWalker != null)
                     {
-                        GUIGenericWalker genericWalker = new GUIGenericWalker(ParentForm, Identity.Description + " generic walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.SiblingOf, this));
                         genericWalker.SetText(value);
                     }
                     else
