@@ -889,6 +889,7 @@ namespace APE.Communication
             {
                 while (true)
                 {
+                    // TODO probably want to have some time out in here incase the AUT hangs
                     if (m_eventIPC.WaitOne(100))
                     {
                         m_PtrMessageStore->LastWake = WhoIsWaiting;
