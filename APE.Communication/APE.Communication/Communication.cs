@@ -809,45 +809,84 @@ namespace APE.Communication
 
         unsafe public void SendMessages(EventSet WhoIsSending)
         {
-            if (WhoIsSending == EventSet.APE)
-            {
-                if (m_DoneQuery == true)
-                {
-                    //TODO remove this?
-                    //if (m_DoneGet == false)
-                    //{
-                    //    throw new Exception("Must get atleast one value after performing a query");
-                    //}
-                }
-
-                // Check AUT is still running
-                if (AUTProcess.HasExited)
-                {
-                    throw new Exception("AUT has exited!");
-                }
-            }
-
             //signal the other process
             m_eventIPC.Set();
 
-            //yield the current process until the other process wakes up and notifies us via the mmf
-            //if we didn't do this but instead waited we can end up in a situation where we immediatly wake up
-            //instead of the remote process due to kernal mode stuff preventing the other process from taking
-            //the signal
-            Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
-            while (m_PtrMessageStore->LastWake == WhoIsSending)
+            // Yield the current process until the other process wakes up and notifies us via the mmf
+
+            // 10 million loops should take a couple of seconds at most
+            for (int loop = 0; loop < 10000000; loop++)
             {
-                Thread.Sleep(0);    //better performance than Thread.Yield();
+                Thread.Yield();
+
+                if (m_PtrMessageStore->LastWake != WhoIsSending)
+                {
+                    return;
+                }
             }
-            Thread.CurrentThread.Priority = ThreadPriority.Normal;
+
+            // If the above loop didn't handle it then fall back to a less aggressive loop
+            // This should never happen under normal circumstances
+            while (true)
+            {
+                // Checking if a process has exited is slow so we only check once every second or so
+                if (WhoIsSending == EventSet.APE)
+                {
+                    // Check if the AUT is still running
+                    // If its being debugged HasExited will throw a permission denined exception
+                    bool exited = false;
+                    try
+                    {
+                        if (AUTProcess == null || AUTProcess.HasExited)
+                        {
+                            exited = true;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    if (exited)
+                    {
+                        m_Abort = true;
+                        throw new Exception("AUT has exited!");
+                    }
+                }
+                else
+                {
+                    // Check if the APE is still running (if it crashed it wont ask us to unload)
+                    // If its being debugged HasExited will throw a permission denined exception
+                    try
+                    {
+                        if (ApeProcess == null || ApeProcess.HasExited)
+                        {
+                            m_Abort = true;
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                // Loop for about a second
+                for (int loop = 0; loop < 1000; loop++)
+                {
+                    Thread.Sleep(1);
+
+                    if (m_PtrMessageStore->LastWake != WhoIsSending)
+                    {
+                        return;
+                    }
+                }
+            }
         }
 
         unsafe public void WaitForMessages(EventSet WhoIsWaiting)
         {
-            //we know the other process is awake so wait for it to signal us via the event
+            // We know the other process is awake so wait for it to signal us via the event
             if (Side == EventSet.APE)
             {
-                //m_eventIPC.WaitOne();
                 while (true)
                 {
                     if (m_eventIPC.WaitOne(100))
@@ -858,10 +897,24 @@ namespace APE.Communication
                     }
                     else
                     {
-                        //check if the AUT is still running (if it crashed it wont ask us to unload)
-                        if (AUTProcess == null || AUTProcess.HasExited)
+                        // Check if the AUT is still running
+                        // If its being debugged HasExited will throw a permission denined exception
+                        bool exited = false;
+                        try
+                        {
+                            if (AUTProcess == null || AUTProcess.HasExited)
+                            {
+                                exited = true;
+                            }
+                        }
+                        catch
+                        {
+                        }
+
+                        if (exited)
                         {
                             m_Abort = true;
+                            // We may be expecting it to have exited (IE if the form was closed)
                             break;
                         }
                     }
