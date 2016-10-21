@@ -22,6 +22,7 @@ using System.Net.Mail;
 using System.Drawing;
 using APE.Language;
 using APE.Capture;
+using System.Text.RegularExpressions;
 
 namespace APE.Test
 {
@@ -30,7 +31,7 @@ namespace APE.Test
         public Form1()
         {
             InitializeComponent();
-            GUI.Log("Starting", LogItemTypeEnum.ApeContext);
+            GUI.Log("Starting", LogItemType.Information);
         }
 
         private void button1_Click(object sender, EventArgs e)  //Sentinel
@@ -56,7 +57,7 @@ namespace APE.Test
             }
             
             //start sentinel
-            GUI.Log("Launch Sentinel", LogItemTypeEnum.Action);
+            GUI.Log("Launch Sentinel", LogItemType.Action);
             ProcessStartInfo SentinelStartup = new ProcessStartInfo();
             SentinelStartup.WorkingDirectory = @"C:\Program Files (x86)\LatentZero\LZ Sentinel\Client\";
             SentinelStartup.FileName = @"LzSentinel.exe";
@@ -81,10 +82,10 @@ namespace APE.Test
             UserId.SetText("autosen");
             Password.SetText("quality");
 
-            OK.MouseSingleClick(MouseButton.Left);
+            OK.SingleClick(MouseButton.Left);
 
             //find main sentinel window and the status bar
-            GUI.Log("Wait for Sentinel to load", LogItemTypeEnum.Information);
+            GUI.Log("Wait for Sentinel to load", LogItemType.Information);
             GUIForm Sentinel = new GUIForm("sentinel form", new Identifier(Identifiers.Name, "CapstoneContainer"));
             GUIStatusBar SentinelStatusBar = new GUIStatusBar(Sentinel, "sentiinel form status strip", new Identifier(Identifiers.Name, "statusBar"));
 
@@ -121,25 +122,26 @@ namespace APE.Test
             GUIDocumentContainer DocumentContainer = new GUIDocumentContainer(Sentinel, "panel tab", new Identifier(Identifiers.Name, ""), new Identifier(Identifiers.TypeNameSpace, "TD.SandDock"), new Identifier(Identifiers.TypeName, "DocumentContainer"));
 
             bool Exists = DocumentContainer.ItemExists("Sentinel Today");
-            int Count = DocumentContainer.ItemCount();
-            DocumentContainer.ItemSelect("Pre-trade");
-            DocumentContainer.ItemSelect("Rule Maintenance");
-            DocumentContainer.ItemSelect("Sentinel Today");
-            DocumentContainer.ItemRemove("Pre-trade");
+            int Count = DocumentContainer.ItemsCount();
+            DocumentContainer.SingleClickItem("Pre-trade");
+            DocumentContainer.SingleClickItem("Rule Maintenance");
+            DocumentContainer.SingleClickItem("Sentinel Today");
+            DocumentContainer.RemoveItem("Pre-trade");
 
             //Add a panel
-            int InitialItems = DocumentContainer.ItemCount();
+            int InitialItems = DocumentContainer.ItemsCount();
             int CurrentItems = 0;
-            MenuStrip.Select(@"&Panels\Pre-trade");
+            GUIToolStripMenu panelsMenu = MenuStrip.GetMenu("panels menu", new Identifier(Identifiers.Name, "PanelsMenu"));
+            panelsMenu.SingleClickItem(@"Pre-trade");
 
             do
             {
                 Thread.Sleep(50);
 
-                CurrentItems = DocumentContainer.ItemCount();
+                CurrentItems = DocumentContainer.ItemsCount();
             } while (CurrentItems != InitialItems + 1);
 
-            DocumentContainer.ItemSelect("Sentinel Today");
+            DocumentContainer.SingleClickItem("Sentinel Today");
     
     
 
@@ -178,7 +180,7 @@ namespace APE.Test
 
             
 
-            layoutGrid.Select(group + " -> " + layout, layoutGrid.FirstVisibleColumn(), MouseButton.Left, CellClickLocation.CentreOfCell);
+            layoutGrid.SingleClickCell(group + " -> " + layout, layoutGrid.FirstVisibleColumn(), MouseButton.Left, CellClickLocation.CentreOfCell);
             
             timer = Stopwatch.StartNew();
             do
@@ -250,17 +252,94 @@ namespace APE.Test
             GUI.AttachToProcess(p);
             GUI.SetTimeOut(5000);
 
+
+
+
+
+            GUIForm quote = new GUIForm("q", new Identifier(Identifiers.Name, "frmSingleQuote"));
+
+            GUIFlexgrid grid = new GUIFlexgrid(quote, "grid", new Identifier(Identifiers.Name, "fgGrid"));
+            grid.SetCellValue(1, "Counterparty", "ABN Amro");
+
+
+
+            bool exists = GUI.Exists(new Identifier(Identifiers.Name, "CapstoneContainer"));
             
-            GUIForm exe = new GUIForm("rel", new Identifier(Identifiers.Name, "frmSingleExecution"));
-            GUIFlexgrid grid = new GUIFlexgrid(exe, "grid", new Identifier(Identifiers.Name, "fgAmendGrid"));
 
-            string text = grid.GetAllVisibleCells(CellProperty.TextDisplay);
+            GUIForm im = new GUIForm("im", new Identifier(Identifiers.Name, "SimpleContainer"));
 
-            grid.WaitForControlToNotBeVisible();
+            GUIElementStripGrid amend = new GUIElementStripGrid(im, "amend", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 3));
+            amend.SetCellValue(amend.Rows() - 1, "Chinese CORP BOND 2 -> Order -> Qty", "3,000.000");
+
+
+
+            //GUIDockableWindow dw = new GUIDockableWindow(im, "dw", new Identifier(Identifiers.Text, @"^Orders\ \[Count:\ 673]\[Link:]$"), new Identifier(Identifiers.TypeName, "DockableWindow"));
+
+            //GUIElementStripGrid og = new GUIElementStripGrid(im, "og", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.ChildOf, dw));
+
+            //Thread.Sleep(3000);
+
+            //int sel = og.SelectedRow();
+            //og.SelectedRowPollForIndex(sel - 1);
+
+
+            //Thread.Sleep(5000);
+
+            GUIForm Form = new GUIForm(im, "quick execution form", new Identifier(Identifiers.Name, "frmQuickExecute"));
+            GUIFlexgrid AddGrid = new GUIFlexgrid(Form, "quick execution grid", new Identifier(Identifiers.Name, "fgAddGrid"));
+            //AddGrid.GetCell
+
+
+            AddGrid.ShowCell(1, 36);
+            AddGrid.ShowCell(1, 36);
+
+
+            AddGrid.SetCellValue(1, "Clearing Counterparty", "Cazenove");
+            AddGrid.SetCellValue(1, "Price", "123");
+
+            GUIForm rel = new GUIForm("rel", new Identifier(Identifiers.Name, "frmSingleRelease"));
+            ////GUILzNavBarGridControl c = new GUILzNavBarGridControl(rel, "c", new Identifier(Identifiers.Name, "Counterparties"));
+            //GUIFlexgrid grid = new GUIFlexgrid(rel, "grdi", new Identifier(Identifiers.Name, "fgData"));
+
+            ////Rectangle r = grid.GetCellRectangle(grid.FindRow("Global Balanced Fund 7", "Account Name"), grid.FindColumn("Account Name"));
+
+            //this.Focus()
+
+            GUIComboBox cp = new GUIComboBox(rel, "cp", new Identifier(Identifiers.Name, "cboCpties"));
+            cp.SingleClickItem("dodo");
+
+            //string ook = grid.GetCellValue(5, 0, CellProperty.RowUserDataNodeCaption);
+            Stopwatch ook = Stopwatch.StartNew();
+            //c.Select("JP Morgan", MouseButton.Left, CellClickLocation.CentreOfCell);
+            Debug.WriteLine(ook.ElapsedMilliseconds.ToString());
+            GUIForm merge = new GUIForm("merge", new Identifier(Identifiers.Name, "frmMerge"));
+
+            
+            GUIButton mergeandclose = new GUIButton(merge, "m & c", new Identifier(Identifiers.Text, @"Merge\ Orders\ and\ Close"), new Identifier(Identifiers.TypeName, "Button"));
+            GUIStretchyCombo type = new GUIStretchyCombo(merge, "xxx", new Identifier(Identifiers.Name, "cmbShow"));
+            type.SingleClickItem("Executions");
+
+            Debug.WriteLine("");
+            //GUIForm exe = new GUIForm("rel", new Identifier(Identifiers.Name, "frmSingleExecution"));
+
+
+            //GUITabControl tab = new GUITabControl(exe, "tab", new Identifier(Identifiers.Name, "sftViews"));
+
+            //tab.Select("Summary");
+            //tab.Select("Carnegie 2,500 @ 128");
+            //tab.Select("ABN Amro 2,500 @ 128");
+
+            //GUILabel nativeLabel = new GUILabel(exe, "message box label", new Identifier(Identifiers.Text, @"No unfilled release(s) found, do you want to continue\?"), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+
+            //GUIFlexgrid grid = new GUIFlexgrid(exe, "grid", new Identifier(Identifiers.Name, "fgAmendGrid"));
+
+            //string text = grid.GetAllVisibleCells(CellProperty.TextDisplay);
+
+            //grid.WaitForControlToNotBeVisible();
 
             //GUIForm asa = new GUIForm("aas", new Identifier(Identifiers.Name, "SimpleContainer"));
             //GUIElementStripGrid grid = new GUIElementStripGrid(asa, "GridColumnStylesCollection", new Identifier(Identifiers.Name, "m_elementStripGrid"), new Identifier(Identifiers.Index, 3));
-            
+
             ////GUIForm exec = new GUIForm("exec", new Identifier(Identifiers.Name, "frmSingleExecution"));
             ////GUIFlexgrid execGrid = new GUIFlexgrid(exec, "grid", new Identifier(Identifiers.Name, "fgAllocations"));
 
@@ -488,7 +567,7 @@ namespace APE.Test
             //    image.Save(@"C:\oooooooook.bmp");
             //}
 
-            Debug.WriteLine("");
+            //Debug.WriteLine("");
 
             //text = st.GetCellValue(0, col, GUIFlexgrid.CellProperty.Clip);
             //Debug.WriteLine("add row 0 CB = " + text);
@@ -969,7 +1048,7 @@ namespace APE.Test
             log.Close();
         }
 
-        private void Log(string textToLog, LogItemTypeEnum type)
+        private void Log(string textToLog, LogItemType type)
         {
             WriteToFile(textToLog);
         }
@@ -1016,7 +1095,7 @@ namespace APE.Test
                     }
 
                     //start
-                    GUI.Log("Launch TestApplication", LogItemTypeEnum.Action);
+                    GUI.Log("Launch TestApplication", LogItemType.Action);
 
                     ProcessStartInfo AppStartup = new ProcessStartInfo();
                     //AppStartup.WorkingDirectory = @"C:\Tools\TestApplication\TestApplication\bin\Debug\";
@@ -1043,7 +1122,8 @@ namespace APE.Test
                     tbxContext.SetText("moo");
 
                     GUIMenuStrip MenuStrip = new GUIMenuStrip(TestApplication, "menu strip", new Identifier(Identifiers.TypeName, "MenuStrip"));
-                    MenuStrip.Select(@"Second\OpensPopup");
+                    GUIToolStripMenu secondMenu = MenuStrip.GetMenu("second", new Identifier(Identifiers.Name, "secondToolStripMenuItem"));
+                    secondMenu.SingleClickItem(@"OpensPopup");
 
                     GUIForm CustomMessageBox = new GUIForm("messagebox form", new Identifier(Identifiers.Name, "frmCustomMessageBox"));
                     CustomMessageBox.Maximise();
@@ -1057,12 +1137,12 @@ namespace APE.Test
                     CustomMessageBox.Close();
 
                     GUITabControl tab1 = new GUITabControl(TestApplication, "tab control", new Identifier(Identifiers.Name, "tabControl1"));
-                    tab1.Select("tabPage3");
-                    tab1.Select("tabPage1");
+                    tab1.SingleClickTab("tabPage3");
+                    tab1.SingleClickTab("tabPage1");
 
                     GUITabControl tab2 = new GUITabControl(TestApplication, "tab control", new Identifier(Identifiers.Name, "tabControl2"));
-                    tab2.Select("tabPage4");
-                    tab2.Select("tabPage7");
+                    tab2.SingleClickTab("tabPage4");
+                    tab2.SingleClickTab("tabPage7");
 
                     GUIStatusStrip ssStatusBar = new GUIStatusStrip(TestApplication, "status strip", new Identifier(Identifiers.Name, "StatusStrip"));
 
@@ -1078,7 +1158,7 @@ namespace APE.Test
                     //PanelText = ssStatusBar.PanelText(PanelIndex);
                     //PanelText = ssStatusBar.PanelText("toolStripStatusLabel5");
 
-                    btnStatusBar.MouseSingleClick(MouseButton.Left);
+                    btnStatusBar.SingleClick(MouseButton.Left);
                     statusBarFirstPanel.PollForText("6");
                     statusBarFirstPanel.PollForText("");
                     Stopwatch doo = Stopwatch.StartNew();
@@ -1091,7 +1171,7 @@ namespace APE.Test
 
                     //bring up the context menu of the textbox and select the menu item
                     //TODO make this a single command??
-                    tbxContext.MouseSingleClick(MouseButton.Right);
+                    tbxContext.SingleClick(MouseButton.Right);
                     tbxContext.ContextMenuSelect(@"ConItem2\ConSubItem2");
                     
                     CustomMessageBox = new GUIForm("messagebox form", new Identifier(Identifiers.Name, "frmCustomMessageBox"));
@@ -1101,53 +1181,53 @@ namespace APE.Test
                     string labelText = EditBoxLabel.Text;
 
                     GUICheckBox MyCheckBox = new GUICheckBox(TestApplication, "checkbox1 checkbox", new Identifier(Identifiers.Name, "checkBox1"));
-                    MyCheckBox.MouseSingleClick(MouseButton.Left);
+                    MyCheckBox.SingleClick(MouseButton.Left);
 
                     GUIRadioButton MyRadioButton = new GUIRadioButton(TestApplication, "radioButton1 radio button", new Identifier(Identifiers.Name, "radioButton1"));
-                    MyRadioButton.MouseSingleClick(MouseButton.Left);
+                    MyRadioButton.SingleClick(MouseButton.Left);
 
                     GUIComboBox MyComboBox1 = new GUIComboBox(TestApplication, "top left combobox", new Identifier(Identifiers.Name, "comboBox1"));
                     MyComboBox1.SetText("foo");
                     MyComboBox1.SetText("bar");
-                    MyComboBox1.ItemSelect("Test31");
+                    MyComboBox1.SingleClickItem("Test31");
 
                     GUIComboBox MyComboBox2 = new GUIComboBox(TestApplication, "bottom left combobox", new Identifier(Identifiers.Name, "comboBox2"));
-                    MyComboBox2.ItemSelect("Test40");
+                    MyComboBox2.SingleClickItem("Test40");
 
                     GUIComboBox MyComboBox3 = new GUIComboBox(TestApplication, "top right combobox", new Identifier(Identifiers.Name, "comboBox3"));
-                    MyComboBox3.ItemSelect("Test50");
+                    MyComboBox3.SingleClickItem("Test50");
                     
                     MyComboBox3 = new GUIComboBox(TestApplication, "top right combobox", new Identifier(Identifiers.Name, "comboBox3"));
-                    MyComboBox3.ItemSelect("Test25");
+                    MyComboBox3.SingleClickItem("Test25");
 
                     GUIListBox MyListBox = new GUIListBox(TestApplication, "bottom right listbox", new Identifier(Identifiers.Name, "listBox1"));
-                    MyListBox.ItemSelect("Test25");
+                    MyListBox.SingleClickItem("Test25");
 
                     GUITreeView MyTreeView1 = new GUITreeView(TestApplication, "top left treeview", new Identifier(Identifiers.Name, "treeView1"));
-                    MyTreeView1.Select(@"Node6\Node9\Node10");
+                    MyTreeView1.SingleClickItem(@"Node6\Node9\Node10");
 
                     GUITreeView MyTreeView2 = new GUITreeView(TestApplication, "bottom left treeview", new Identifier(Identifiers.Name, "treeView2"));
-                    MyTreeView2.Select(@"Node1\Node4\Node9");
+                    MyTreeView2.SingleClickItem(@"Node1\Node4\Node9");
 
                     GUITreeView MyTreeView3 = new GUITreeView(TestApplication, "top right treeview", new Identifier(Identifiers.Name, "treeView3"));
-                    MyTreeView3.Select(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
-                    MyTreeView3.Select(@"Node1\Node2\Node4444444444444444444444444444444444444444444444");
-                    MyTreeView3.Select(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
-                    MyTreeView3.Select(@"Node1\Node2\Node4444444444444444444444444444444444444444444444");
-                    MyTreeView3.Select(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
-                    MyTreeView3.Check(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
-                    MyTreeView3.Check(@"Node1\Node3");
-                    MyTreeView3.Check(@"Node1\Node2\Node4444444444444444444444444444444444444444444444");
+                    MyTreeView3.SingleClickItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
+                    MyTreeView3.SingleClickItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444");
+                    MyTreeView3.SingleClickItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
+                    MyTreeView3.SingleClickItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444");
+                    MyTreeView3.SingleClickItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
+                    MyTreeView3.CheckItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444\Node5");
+                    MyTreeView3.CheckItem(@"Node1\Node3");
+                    MyTreeView3.CheckItem(@"Node1\Node2\Node4444444444444444444444444444444444444444444444");
 
                     GUIListView MyListView1 = new GUIListView(TestApplication, "bottom left listview", new Identifier(Identifiers.Name, "listView1"));
-                    MyListView1.SelectGroup("Test Group");
-                    MyListView1.SelectGroup("<Default>");
-                    MyListView1.Select("ook5");
-                    MyListView1.Select("Test Group", "B9");
-                    MyListView1.Select("<Default>", "A6");
-
+                    MyListView1.SingleClickGroup("Test Group");
+                    MyListView1.SingleClickGroup("<Default>");
+                    MyListView1.SingleClickItem("ook5");
+                    MyListView1.SingleClickItem("Test Group", "B9");
+                    MyListView1.SingleClickItem("<Default>", "A6");
+                    
                     GUIListView MyListView2 = new GUIListView(TestApplication, "bottom right listview", new Identifier(Identifiers.Name, "listView2"));
-                    MyListView2.Select("9");
+                    MyListView2.SingleClickItem("9");
 
                     //GUI.SetTimeOuts(0);
                     //try
@@ -1182,7 +1262,17 @@ namespace APE.Test
 
         private void btnSpamLog_Click(object sender, EventArgs e)
         {
-            GUI.Log("This is a Test!", LogItemTypeEnum.ApeContext);
+            GUI.Log("This is a Test Action!", LogItemType.Action);
+            GUI.Log("This is a Test Debug!", LogItemType.Debug);
+            GUI.Log("This is a Test Error!", LogItemType.Error);
+            GUI.Log("This is a Test Fail!", LogItemType.Fail);
+            GUI.Log("This is a Test Finish!", LogItemType.Finish);
+            GUI.Log("This is a Test Information!", LogItemType.Information);
+            GUI.Log("This is a Test Pass!", LogItemType.Pass);
+            GUI.Log("This is a Test Start!", LogItemType.Start);
+            GUI.Log("This is a Test Warning!", LogItemType.Warning);
+            GUI.Log("This is a Test Disabled!", LogItemType.Disabled);
+            GUI.Log("This is a Test NA!", LogItemType.NA);
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -1209,7 +1299,7 @@ namespace APE.Test
                 }
 
                 //start
-                GUI.Log("Launch TestApplication", LogItemTypeEnum.Action);
+                GUI.Log("Launch TestApplication", LogItemType.Action);
                 
                 ProcessStartInfo AppStartup = new ProcessStartInfo();
                 AppStartup.WorkingDirectory = @"C:\Tools\TestApplication\TestApplication\bin\Debug\";
