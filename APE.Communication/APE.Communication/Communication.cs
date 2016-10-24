@@ -180,16 +180,15 @@ namespace APE.Communication
             InjectAPEIPC(AUTProcess, AppDomain);
         }
 
-        private unsafe void InjectAPEIPC(Process AUTProcess, string AppDomain)
+        private unsafe void InjectAPEIPC(Process autProcess, string appDomain)
         {
-            string AUTProcessId = AUTProcess.Id.ToString();
-            string Path = Directory.GetCurrentDirectory();
-            string Method = "LoadAPEIPC";
-            string APEProcessId = Process.GetCurrentProcess().Id.ToString();
-            
-            this.AUTProcess = AUTProcess;
+            string autProcessId = autProcess.Id.ToString();
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string method = "LoadAPEIPC";
+            string apeProcessId = Process.GetCurrentProcess().Id.ToString();
+            this.AUTProcess = autProcess;
 
-            m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, APEProcessId + "_String_" + AppDomain + "_" + AUTProcessId);
+            m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, apeProcessId + "_String_" + appDomain + "_" + autProcessId);
 
             if (m_HandleMemoryMappedFileStringStore == null)
             {
@@ -202,19 +201,20 @@ namespace APE.Communication
                 RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
                 try
                 {
-                    key.SetValue(APEProcessId + "_Path_" + AUTProcessId, Path);
-                    key.SetValue(APEProcessId + "_AppDomain_" + AUTProcessId, AppDomain);
+                    key.SetValue(apeProcessId + "_Path_" + autProcessId, path);
+                    key.SetValue(apeProcessId + "_AppDomain_" + autProcessId, appDomain);
 
-                    if (NM.Is32BitProcess(AUTProcess))
+                    if (NM.Is32BitProcess(autProcess))
                     {
                         string Assembly = "APE.Loader_x86.dll";
-                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x86.exe", AUTProcessId + " " + Assembly + " " + Method + " " + APEProcessId);
+                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x86.exe", autProcessId + " " + Assembly + " " + method + " " + apeProcessId);
                     }
                     else
                     {
                         string Assembly = "APE.Loader_x64.dll";
-                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x64.exe", AUTProcessId + " " + Assembly + " " + Method + " " + APEProcessId);
+                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x64.exe", autProcessId + " " + Assembly + " " + method + " " + apeProcessId);
                     }
+                    Injector.StartInfo.WorkingDirectory = path;
                     Injector.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     Injector.Start();
 
@@ -222,8 +222,8 @@ namespace APE.Communication
                 }
                 finally
                 {
-                    key.DeleteValue(APEProcessId + "_Path_" + AUTProcessId, false);
-                    key.DeleteValue(APEProcessId + "_AppDomain_" + AUTProcessId, false);
+                    key.DeleteValue(apeProcessId + "_Path_" + autProcessId, false);
+                    key.DeleteValue(apeProcessId + "_AppDomain_" + autProcessId, false);
                     key.Close();
                 }
 
@@ -234,11 +234,11 @@ namespace APE.Communication
             }
 
             m_IntPtrMemoryMappedFileViewStringStore = NM.MapViewOfFile(m_HandleMemoryMappedFileStringStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)StringSpaceBytes);
-            m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), APEProcessId + "_Message_" + AppDomain + "_" + AUTProcessId);
+            m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), apeProcessId + "_Message_" + appDomain + "_" + autProcessId);
             m_IntPtrMemoryMappedFileViewMessageStore = NM.MapViewOfFile(m_HandleMemoryMappedFileMessageStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)sizeof(MessageStore));
             m_PtrMessageStore = (MessageStore*)m_IntPtrMemoryMappedFileViewMessageStore.ToPointer();
 
-            m_eventIPC = new EventWaitHandle(false, EventResetMode.AutoReset, APEProcessId + "_EventIPC_" + AppDomain + "_" + AUTProcessId);
+            m_eventIPC = new EventWaitHandle(false, EventResetMode.AutoReset, apeProcessId + "_EventIPC_" + appDomain + "_" + autProcessId);
             Side = EventSet.APE;
         }
 

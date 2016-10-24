@@ -30,6 +30,8 @@ using NM = APE.Native.NativeMethods;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using APE.Language;
+using System.IO;
+using System.Reflection;
 
 namespace APE
 {
@@ -113,6 +115,7 @@ namespace APE
             ProcessStartInfo AppStartup = new ProcessStartInfo();
             AppStartup.FileName = "APE.Watcher.exe";
             AppStartup.Arguments = Process.GetCurrentProcess().Id.ToString() + " " + ((uint)SystemInformation.DoubleClickTime).ToString();
+            AppStartup.WorkingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             Process.Start(AppStartup);
 
             m_DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;

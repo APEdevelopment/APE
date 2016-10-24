@@ -23,6 +23,7 @@ using System.Drawing;
 using APE.Language;
 using APE.Capture;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace APE.Test
 {
@@ -1098,14 +1099,12 @@ namespace APE.Test
                     GUI.Log("Launch TestApplication", LogItemType.Action);
 
                     ProcessStartInfo AppStartup = new ProcessStartInfo();
-                    //AppStartup.WorkingDirectory = @"C:\Tools\TestApplication\TestApplication\bin\Debug\";
-                    AppStartup.WorkingDirectory = @".\..\..\..\..\TestApplication\TestApplication\bin\Debug\";
+                    AppStartup.WorkingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\..\..\..\..\TestApplication\TestApplication\bin\Debug\";
                     AppStartup.FileName = @"TestApplication.exe";
                     Process.Start(AppStartup);
 
                     //find the process
                     p = Process.GetProcessesByName("TestApplication")[0];
-                    //p = Process.GetProcessesByName("TestApplication.vshost")[0];
 
                     //attach
                     GUI.AttachToProcess(p);
