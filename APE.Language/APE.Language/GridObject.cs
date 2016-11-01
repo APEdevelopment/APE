@@ -63,6 +63,33 @@ namespace APE.Language
     }
 
     /// <summary>
+    /// The location inside a grid cell where to click
+    /// </summary>
+    public enum CellClickLocation
+    {
+        /// <summary>
+        /// Slightly in from the left side of the cell, centred vertically
+        /// </summary>
+        LeftSideOfCell = 0,
+        /// <summary>
+        /// Centre of the cell both horizontally and vertically
+        /// </summary>
+        CentreOfCell = 1,
+        /// <summary>
+        /// Slightly in from the right side of the cell, centred vertically
+        /// </summary>
+        RightSideOfCell = 2,
+        /// <summary>
+        /// The centre of the expand / collapse icon on a tree view cell
+        /// </summary>
+        ExpandCollapseIconOfCell = 3,
+        /// <summary>
+        /// Slightly to the right of the expand / collapse icon of a tree view cell, centred vertically
+        /// </summary>
+        LeftSideOfTreeItem = 4,
+    }
+
+    /// <summary>
     /// What checking to perform
     /// </summary>
     public enum ComparisonMethod

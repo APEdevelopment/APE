@@ -322,7 +322,9 @@ namespace APE.Language
             GUI.Log("Remove [" + item + "] from " + Identity.Description, LogItemType.Action);
 
             //Click 10 pixels in from the right hand side of the window and 10 pixels down
-            base.SingleClickInternal(ClientRect.right -10, 10, MouseButton.Left, MouseKeyModifier.None);
+            base.MoveTo(ClientRect.right - 10, 10);
+            Thread.Sleep(20);
+            base.SingleClickInternal(ClientRect.right - 10, 10, MouseButton.Left, MouseKeyModifier.None);
 
             //Wait for the number of items to decrease by one
             Stopwatch timer = Stopwatch.StartNew();

@@ -97,6 +97,9 @@ namespace APE.Language
                 
                 Thread.Sleep(15);
             }
+
+            // Small sleep to let focus switch
+            Thread.Sleep(20);
         }
 
         /// <summary>

@@ -80,33 +80,6 @@ namespace APE.Language
     }
 
     /// <summary>
-    /// The location inside a grid cell where to click
-    /// </summary>
-    public enum CellClickLocation
-    {
-        /// <summary>
-        /// Slightly in from the left side of the cell, centred vertically
-        /// </summary>
-        LeftSideOfCell = 0,
-        /// <summary>
-        /// Centre of the cell both horizontally and vertically
-        /// </summary>
-        CentreOfCell = 1,
-        /// <summary>
-        /// Slightly in from the right side of the cell, centred vertically
-        /// </summary>
-        RightSideOfCell = 2,
-        /// <summary>
-        /// The centre of the expand / collapse icon on a tree view cell
-        /// </summary>
-        ExpandCollapseIconOfCell = 3,
-        /// <summary>
-        /// Slightly to the right of the expand / collapse icon of a tree view cell, centred vertically
-        /// </summary>
-        LeftSideOfTreeItem = 4,
-    }
-
-    /// <summary>
     /// The property to use to use to identify a control
     /// </summary>
     public enum Identifiers : int
@@ -338,6 +311,22 @@ namespace APE.Language
             get
             {
                 return m_AttachedProcess;
+            }
+        }
+
+        /// <summary>
+        /// If APE is attached to a process and the process exists this property will be true
+        /// </summary>
+        public static bool AttachedProcessExists
+        {
+            get
+            {
+                bool exists = false;
+                if (m_AttachedProcess != null && !m_AttachedProcess.HasExited)
+                {
+                    exists = true;
+                }
+                return exists;
             }
         }
 
