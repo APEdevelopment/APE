@@ -114,11 +114,26 @@ namespace APE.Language
         /// <summary>
         /// Whether the radio button is selected or not
         /// </summary>
-        public bool Checked
+        public bool Selected
         {
             get
             {
                 return GetState();
+            }
+        }
+
+        /// <summary>
+        /// Selects the radio button
+        /// </summary>
+        public void Select()
+        {
+            if (GetState() == true)
+            {
+                GUI.Log("Ensure " + Identity.Description + " is selected", LogItemType.Action);
+            }
+            else
+            {
+                this.SingleClick(MouseButton.Left);
             }
         }
 

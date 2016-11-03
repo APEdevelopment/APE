@@ -87,7 +87,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Control " + this.Description + " failed to become nonvisible");
+                    throw new Exception(this.Description + " failed to become nonvisible");
                 }
 
                 if (!NM.IsWindowVisible(this.Handle))
@@ -170,7 +170,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find context menu");
+                    throw new Exception("Failed to find context menu of the " + Description);
                 }
 
                 //Get the ContextMenuStrip handle
