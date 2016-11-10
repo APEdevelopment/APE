@@ -749,7 +749,7 @@ namespace APE.Language
 
     internal class MenuUtils
     {
-        public void ClickMenuItem(IntPtr Parent, IntPtr Control, int MenuIndex, string MenuItem, ref ControlIdentifier ControlIdentity)
+        public void ClickMenuItem(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier ControlIdentity)
         {
             bool Visible;
             bool Enabled;
@@ -757,57 +757,68 @@ namespace APE.Language
             int Height;
             int X;
             int Y;
-            
-            //Get visible, enabled and bounds
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "Bounds", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Width", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Height", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store8, "X", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store9, "Y", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //get the values returned
-            Visible = GUI.m_APE.GetValueFromMessage();
-            Enabled = GUI.m_APE.GetValueFromMessage();
-            Width = GUI.m_APE.GetValueFromMessage();
-            Height = GUI.m_APE.GetValueFromMessage();
-            X = GUI.m_APE.GetValueFromMessage();
-            Y = GUI.m_APE.GetValueFromMessage();
 
-            //Check its enabled, visible and click on it
-            if (Visible)
+            //Check its enabled and visible then click on it
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
             {
-                if (Enabled)
+                //Get visible, enabled and bounds
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "Bounds", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Width", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Height", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store8, "X", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store9, "Y", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //get the values returned
+                Visible = GUI.m_APE.GetValueFromMessage();
+                Enabled = GUI.m_APE.GetValueFromMessage();
+                Width = GUI.m_APE.GetValueFromMessage();
+                Height = GUI.m_APE.GetValueFromMessage();
+                X = GUI.m_APE.GetValueFromMessage();
+                Y = GUI.m_APE.GetValueFromMessage();
+
+                if (Visible)
                 {
-                    IntPtr Temp = ControlIdentity.Handle;
-                    try
+                    if (Enabled)
                     {
-                        Input.MouseSingleClick(Parent, Control, X + (Width / 2), Y + (Height / 2), MouseButton.Left, MouseKeyModifier.None);
-                    }
-                    finally
-                    {
-                        ControlIdentity.Handle = Temp;
+                        IntPtr Temp = ControlIdentity.Handle;
+                        try
+                        {
+                            Input.MouseSingleClick(parent, control, X + (Width / 2), Y + (Height / 2), MouseButton.Left, MouseKeyModifier.None);
+                            break;
+                        }
+                        finally
+                        {
+                            ControlIdentity.Handle = Temp;
+                        }
                     }
                 }
-                else
+                
+                if (timer.ElapsedMilliseconds > 3000)
                 {
-                    throw new Exception("Menu item [" + MenuItem + "] not enabled");
+                    if (!Visible)
+                    {
+                        throw new Exception("Menu item " + menuItem + " not visible");
+                    }
+                    else
+                    {
+                        throw new Exception("Menu item " + menuItem + " not enabled");
+                    }
                 }
-            }
-            else
-            {
-                throw new Exception("Menu item [" + MenuItem + "] not visible");
+
+                Thread.Sleep(15);
             }
         }
 
