@@ -58,7 +58,7 @@ namespace APE.Language
         public void SetText(string text)
         {
             Stopwatch timer;
-            string CurrentText;
+            string currentText;
 
             Input.Block(Identity.ParentHandle, Identity.Handle);
             try
@@ -90,15 +90,15 @@ namespace APE.Language
 
                 GUITextBox textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
-                CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
+                currentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
 
-                if (text == CurrentText)
+                if (text == currentText)
                 {
                     GUI.Log("Ensure " + Identity.Description + " is set to " + text, LogItemType.Action);
                 }
                 else
                 {
-                    if (CurrentText != "")
+                    if (currentText != "")
                     {
                         textbox.SingleClick(MouseButton.Left);
                         //textbox.MouseDoubleClick(MouseButton.Left);
@@ -110,7 +110,7 @@ namespace APE.Language
 
                         //wait for .selectedText to = Text
                         timer = Stopwatch.StartNew();
-                        do
+                        while (true)
                         {
                             //Get the selectedText property
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, textboxHandle);
@@ -121,15 +121,18 @@ namespace APE.Language
                             //Get the value(s) returned MUST be done straight after the WaitForMessages call
                             selectedText = GUI.m_APE.GetValueFromMessage();
 
+                            if (currentText == selectedText)
+                            {
+                                break;
+                            }
+
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
-                                throw new Exception("Failed to select all the text in the TextBox");
+                                throw new Exception("Failed to select all the text of the " + Description);
                             }
 
                             Thread.Sleep(15);
                         }
-                        while (CurrentText != selectedText);
-                        timer.Stop();
                     }
 
                     // Get an array of each character token for example a or {+}
@@ -185,17 +188,20 @@ namespace APE.Language
 
                                 if (isDropped)
                                 {
+                                    if (Identity.TypeNameSpace == "LzGenericWalker")
+                                    {
+                                        WaitForTimer("tmrResize");
+                                    }
                                     break;
                                 }
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to find the " + Identity.Description + " dropdown");
+                                    throw new Exception("Failed to find the " + Description + " dropdown");
                                 }
 
-                                Thread.Sleep(50);
+                                Thread.Sleep(15);
                             }
-                            timer.Stop();
 
                             //Send rest of characters
                             if (tokens.Length > 2)
@@ -211,27 +217,64 @@ namespace APE.Language
 
                     //wait for .Text to == text
                     timer = Stopwatch.StartNew();
-                    do
+                    while (true)
                     {
-                        CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
+                        currentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
+
+                        if (currentText == unescapedText)
+                        {
+                            break;
+                        }
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to set the text of the TextBox");
+                            throw new Exception("Failed to set the text of the " + Description);
                         }
 
                         Thread.Sleep(15);
                     }
-                    while (CurrentText != unescapedText);
-                    timer.Stop();
 
                     GUI.Log("Press Enter to set the value", LogItemType.Action);
                     base.SendKeysInternal("{Enter}");
+
+                    if (Identity.TypeNameSpace == "LzGenericWalker")
+                    {
+                        WaitForTimer("tmrDelayedEvent");
+                    }
                 }
             }
             finally
             {
                 Input.Unblock();
+            }
+        }
+
+        private void WaitForTimer(string timerName)
+        {
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                // Wait for the tmrDelayedEvent to be disabled
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, timerName, MemberTypes.Field);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Enabled", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                bool timerEnabled = GUI.m_APE.GetValueFromMessage();
+
+                if (!timerEnabled)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception(timerName + " failed to become disabled for the " + Description);
+                }
+
+                Thread.Sleep(15);
             }
         }
 
