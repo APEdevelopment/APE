@@ -616,7 +616,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to set the flexgrid cell value");
+                            throw new Exception("Failed to set the " + Description + " cell value");
                         }
 
                         Thread.Sleep(15);
@@ -780,24 +780,24 @@ namespace APE.Language
         {
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a valid row index: " + rowIndex.ToString());
+                throw new Exception("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a valid column index: " + columnIndex.ToString());
+                throw new Exception("Must supply a column index greater than 0 in the " + Description);
             }
 
             //Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
-                throw new Exception("Row is hidden");
+                throw new Exception("Row is hidden in the " + Description);
             }
 
             //Check to make sure the column isn't hidden
             if (IsColumnHidden(columnIndex))
             {
-                throw new Exception("Column is hidden");
+                throw new Exception("Column is hidden in the " + Description);
             }
 
             //Scroll the cell into view
@@ -833,6 +833,9 @@ namespace APE.Language
                 default:
                     throw new Exception("Implement for CellClickLocation: " + Location.ToString());
             }
+
+            Location.X += 2;
+            Location.Y += 2;
 
             return Location;
         }
@@ -1024,7 +1027,7 @@ namespace APE.Language
 
                     if (this.Columns() != Columns)
                     {
-                        throw new Exception("Grid columns changed");
+                        throw new Exception("Number of grid columns changed in the " + Description);
                     }
 
                     string[] Delimiter = { "\t" };
