@@ -2623,6 +2623,8 @@ namespace APE.Communication
                             return "GUIToolStrip";
                         case "TabControl":
                             return "GUITabControl";
+                        case "CheckedListBox":
+                            return "GUICheckedListBox";
                         default:
                             return "";
                     }
@@ -3116,6 +3118,7 @@ namespace APE.Communication
                     if (timer.ElapsedMilliseconds > m_TimeOut)
                     {
                         timer.Stop();
+                        //TODO pass back a fail rather than throwing an exception
                         throw new Exception("Polling failed to match item");
                     }
 

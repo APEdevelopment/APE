@@ -52,11 +52,11 @@ namespace APE.Language
         /// <summary>
         /// Checks if the specified item exists in the listbox
         /// </summary>
-        /// <param name="Item">The item to check if it exists</param>
+        /// <param name="itemText">The item to check if it exists</param>
         /// <returns>Whether item exists</returns>
-        public bool ItemExists(string Item)
+        public bool ItemExists(string itemText)
         {
-            int Index = ItemIndex(Item);
+            int Index = ItemIndex(itemText);
 
             if (Index == NM.LB_ERR)
             {
@@ -69,18 +69,22 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the combobox by clicking on it
+        /// Selects the specified item in the listbox by clicking on it
         /// </summary>
-        /// <param name="Item">The item to select</param>
-        public void SingleClickItem(string Item)
+        /// <param name="itemText">The item to select</param>
+        public void SingleClickItem(string itemText)
         {
-            GUI.Log("Select [" + Item + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Single Left click on the item " + itemText + " from the " + Identity.Description, LogItemType.Action);
+            SingleClickItemInternal(itemText);
+        }
 
+        internal void SingleClickItemInternal(string itemText)
+        {
             //locate the item
-            int Index = ItemIndex(Item);
+            int Index = ItemIndex(itemText);
             if (Index == NM.LB_ERR)
             {
-                throw new Exception("Failed to find the ListBox item");
+                throw new Exception("Failed to find the item in the " + Description);
             }
 
             //Locate the rect of the item
@@ -127,7 +131,7 @@ namespace APE.Language
                 SendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                 if (SendResult == IntPtr.Zero || MessageResult.ToInt64() == NM.LB_ERR)  //Failed
                 {
-                    throw new Exception("Failed to access the listbox");
+                    throw new Exception("Failed to access the listbox of the " + Description);
                 }
                 //Wait for animation to finish
                 //base.WaitForAnimation(Identity.Handle, false);
@@ -169,7 +173,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to select ListBox item");
+                    throw new Exception("Failed to select the item in the " + Description);
                 }
 
                 Thread.Sleep(15);
@@ -178,11 +182,11 @@ namespace APE.Language
             timer.Stop();
         }
 
-        private int ItemIndex(string Item)
+        internal int ItemIndex(string itemText)
         {
             //Get the index
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, Item));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, itemText));
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);

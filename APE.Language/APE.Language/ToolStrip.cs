@@ -510,17 +510,27 @@ namespace APE.Language
         /// <summary>
         /// Polls for the toolstrip object to have the specified text
         /// </summary>
-        /// <param name="Text">The text to wait for the toolstrip object to have</param>
-        public void PollForText(string Text)
+        /// <param name="text">The text to wait for the toolstrip object to have</param>
+        public void PollForText(string text)
         {
             UpdateIndex();
 
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
-            GUI.m_APE.AddMessagePollMember(DataStores.Store2, "Text", MemberTypes.Property, new Parameter(GUI.m_APE, Text), new Parameter(GUI.m_APE, true));
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //AddMessagePollMember will not work here
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (text == Text)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception("Failed to match text within timeout for the " + Identity.Description);
+                }
+
+                Thread.Sleep(50);
+            }
         }
 
         /// <summary>

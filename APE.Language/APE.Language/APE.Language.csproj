@@ -67,6 +67,7 @@
     <Compile Include="AxLZResultsGrid.cs" />
     <Compile Include="Button.cs" />
     <Compile Include="CheckBox.cs" />
+    <Compile Include="CheckedListBox.cs" />
     <Compile Include="CheckStateControl.cs" />
     <Compile Include="ComboBox.cs" />
     <Compile Include="DateTimePicker.cs" />

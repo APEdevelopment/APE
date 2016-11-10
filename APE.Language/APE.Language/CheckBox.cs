@@ -62,7 +62,7 @@ namespace APE.Language
             base.SingleClick(X, Y, Button, Keys);
             if (Button == MouseButton.Left)
             {
-                pollForState(!InitialState);
+                PollForState(!InitialState);
             }
         }
 
@@ -79,7 +79,7 @@ namespace APE.Language
             base.DoubleClick(X, Y, Button);
             if (Button == MouseButton.Left)
             {
-                pollForState(InitialState);
+                PollForState(InitialState);
             }
         }
 
@@ -96,7 +96,7 @@ namespace APE.Language
             base.TripleClick(X, Y, Button);
             if (Button == MouseButton.Left)
             {
-                pollForState(!InitialState);
+                PollForState(!InitialState);
             }
         }
 
@@ -118,11 +118,13 @@ namespace APE.Language
         {
             if (GetState() == true)
             {
-                GUI.Log("Ensure " + Identity.Description + " is checked", LogItemType.Action);
+                GUI.Log("Ensure " + Description + " is checked", LogItemType.Action);
             }
             else
             {
-                this.SingleClick(MouseButton.Left);
+                GUI.Log("Check " + Description, LogItemType.Action);
+                SingleClickInternal(-1, -1, MouseButton.Left, MouseKeyModifier.None);
+                PollForState(true);
             }
         }
 
@@ -133,17 +135,19 @@ namespace APE.Language
         {
             if (GetState() == false)
             {
-                GUI.Log("Ensure " + Identity.Description + " is unchecked", LogItemType.Action);
+                GUI.Log("Ensure " + Description + " is unchecked", LogItemType.Action);
             }
             else
             {
-                this.SingleClick(MouseButton.Left);
+                GUI.Log("Uncheck " + Description, LogItemType.Action);
+                SingleClickInternal(-1, -1, MouseButton.Left, MouseKeyModifier.None);
+                PollForState(false);
             }
         }
 
         private bool GetState()
         {
-            //Get the number of items
+            //Get the state of the checkbox
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Checked", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
@@ -153,20 +157,32 @@ namespace APE.Language
             return GUI.m_APE.GetValueFromMessage();
         }
 
-        private void pollForState(bool State)
+        private void PollForState(bool state)
         {
             Stopwatch timer = Stopwatch.StartNew();
-            do
+            while (true)
             {
+                if (GetState() == state)
+                {
+                    break;
+                }
+
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Checkbox failed to be set to state [" + State.ToString() + "]");
+                    string stateText;
+                    if (state)
+                    {
+                        stateText = "check";
+                    }
+                    else
+                    {
+                        stateText = "uncheck";
+                    }
+                    throw new Exception("Failed to " + stateText + " the " + Description);
                 }
 
                 Thread.Sleep(15);
             }
-            while (GetState() != State);
-            timer.Stop();
         }
     }
 }

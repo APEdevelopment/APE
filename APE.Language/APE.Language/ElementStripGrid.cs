@@ -108,9 +108,9 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FixedRows = GUI.m_APE.GetValueFromMessage();
+            int frozenRows = GUI.m_APE.GetValueFromMessage();
 
-            return FixedRows + TitleRows();
+            return frozenRows + TitleRows();
         }
 
         /// <summary>
@@ -805,14 +805,17 @@ namespace APE.Language
         public bool TotalRowVisible()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsTotalsRowShown", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsTotalsRowEnabled", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "IsTotalsRowShown", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool isVisible = GUI.m_APE.GetValueFromMessage();
+            bool isEnabled = GUI.m_APE.GetValueFromMessage();
+            bool isShown = GUI.m_APE.GetValueFromMessage();
 
-            return isVisible;
+            return isEnabled && isShown;
         }
 
         /// <summary>
@@ -845,14 +848,17 @@ namespace APE.Language
         public bool FilterRowVisible()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsFiltersRowShown", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsFiltersRowEnabled", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "IsFiltersRowShown", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool isVisible = GUI.m_APE.GetValueFromMessage();
+            bool isEnabled = GUI.m_APE.GetValueFromMessage();
+            bool isShown = GUI.m_APE.GetValueFromMessage();
 
-            return isVisible;
+            return isEnabled && isShown;
         }
 
         /// <summary>
@@ -881,13 +887,16 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsMultiEditRowEnabled", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "IsMultiEditRowShown", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool isVisible = GUI.m_APE.GetValueFromMessage();
+            bool isEnabled = GUI.m_APE.GetValueFromMessage();
+            bool isShown = GUI.m_APE.GetValueFromMessage();
 
-            return isVisible;
+            return isEnabled && isShown;
         }
 
         /// <summary>
@@ -1169,6 +1178,11 @@ namespace APE.Language
                 throw new Exception("Must supply a column index greater than 0 in the " + Description);
             }
 
+            if (FilterRowVisible() && rowIndex == FilterRow())
+            {
+                throw new Exception("Use SetFilterCellValue to set a filter value in the " + Description);
+            }
+
             switch (compareMethod)
             {
                 case ComparisonMethod.CompareUsingDefaultEqualityComparer:
@@ -1365,11 +1379,126 @@ namespace APE.Language
             return true;
         }
 
-        //TODO
-        //public bool SetFilterCellValue()
-        //{
-        //    return false;
-        //}
+        /// <summary>
+        /// Sets the filter for the specified column of the grid
+        /// </summary>
+        /// <param name="columnText">The column to set the filter for</param>
+        /// <param name="filterItems">The items to select for the filter</param>
+        /// <returns>True if the cell was set or False if it was already set to the value</returns>
+        public bool SetFilterCellValue(string columnText, params string[] filterItems)
+        {
+            int rowIndex = FilterRow();
+            int columnIndex = FindColumn(columnText);
+            StringBuilder filter = new StringBuilder(1024);
+
+            // Check if it needs to be set
+            string currentValue = GetCell(rowIndex, columnIndex);
+            bool alreadySet = true;
+            for (int i = 0; i < filterItems.GetLength(0); i++)
+            {
+                // Check for All
+                if (filterItems[i] == "[All]")
+                {
+                    if (currentValue == "")
+                    {
+                        filter.Clear();
+                        filter.Append("[All],");
+                        break;
+                    }
+                }
+
+                if (currentValue == filterItems[i])
+                {
+                }
+                else if (currentValue.StartsWith(filterItems[i] + ","))
+                {
+                }
+                else if (currentValue.EndsWith("," + filterItems[i]))
+                {
+                }
+                else if (currentValue.Contains("," + filterItems[i] + ","))
+                {
+                }
+                else
+                {
+                    alreadySet = false;
+                    break;
+                }
+
+                filter.Append(filterItems[i]);
+                filter.Append(",");
+            }
+            if (filter.Length > 0)
+            {
+                filter.Length--;
+            }
+
+            if (alreadySet)
+            {
+                GUI.Log("Ensure the filter for column " + columnText + " is set to " + filter.ToString() + " in the " + Description, LogItemType.Action);
+                return false;
+            }
+
+            GUIComboBox filterCombobox;
+            GUIForm checkedListBoxForm;
+            GUICheckedListBox checkedListBox;
+            GUITextBox filterTextBox;
+            Point location;
+
+            if (CursorCellRow() == rowIndex && CursorCellColumn() == columnIndex)
+            {
+                // The filter cell is selected
+                GUI.Log("Ensure the filter cell for column " + columnText + " is selected in the " + Description, LogItemType.Action);
+            }
+            else
+            {
+                // Select the filter cell
+                SingleClickCell(rowIndex, columnText, MouseButton.Left, CellClickLocation.CentreOfCell);
+            }
+
+            // Display the drop down
+            GUI.Log("Single Left click on the " + Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            location = GetLocationInCell(rowIndex, columnIndex, CellClickLocation.RightSideOfCell);
+            MouseDownInternal(location.X, location.Y, MouseButton.Left, MouseKeyModifier.None);
+
+            filterCombobox = new GUIComboBox(ParentForm, Description + " filter combobox", new Identifier(Identifiers.TypeName, "CheckedComboBox"));
+            filterTextBox = new GUITextBox(ParentForm, Description + " filter textbox", new Identifier(Identifiers.ChildOf, filterCombobox), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.TypeName, "Edit"));
+            checkedListBoxForm = new GUIForm(Description + " filter checkedlistbox form", new Identifier(Identifiers.Name, "ccbParent"));
+            checkedListBox = new GUICheckedListBox(checkedListBoxForm, Description + " filter checkedlistbox", new Identifier(Identifiers.Name, "cclb"));
+
+            // Clear the current filter
+            if (currentValue != "")
+            {
+                checkedListBox.SingleClickItem("[All]");
+                filterTextBox.SingleClick();
+
+                if (filter.ToString() != "[All]")
+                {
+                    // Display the drop down
+                    GUI.Log("Single Left click on the " + Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+                    location = GetLocationInCell(rowIndex, columnIndex, CellClickLocation.RightSideOfCell);
+                    MouseDownInternal(location.X, location.Y, MouseButton.Left, MouseKeyModifier.None);
+
+                    filterCombobox = new GUIComboBox(ParentForm, Description + " filter combobox", new Identifier(Identifiers.TypeName, "CheckedComboBox"));
+                    filterTextBox = new GUITextBox(ParentForm, Description + " filter textbox", new Identifier(Identifiers.ChildOf, filterCombobox), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.TypeName, "Edit"));
+                    checkedListBoxForm = new GUIForm(Description + " filter checkedlistbox form", new Identifier(Identifiers.Name, "ccbParent"));
+                    checkedListBox = new GUICheckedListBox(checkedListBoxForm, Description + " filter checkedlistbox", new Identifier(Identifiers.Name, "cclb"));
+                }
+            }
+
+            // Check the filter items
+            if (filter.ToString() != "[All]")
+            {
+                // Check the filter items
+                for (int i = 0; i < filterItems.GetLength(0); i++)
+                {
+                    checkedListBox.ItemCheck(filterItems[i]);
+                }
+                filterTextBox.SingleClick();
+            }
+
+            return true;
+        }
 
         //public bool SetTotalCellValue()
         //{
