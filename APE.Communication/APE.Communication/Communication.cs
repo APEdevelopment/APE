@@ -199,22 +199,38 @@ namespace APE.Communication
             {
                 Process Injector = new Process();
                 RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
+                string tempPath = null;
                 try
                 {
                     key.SetValue(apeProcessId + "_Path_" + autProcessId, path);
                     key.SetValue(apeProcessId + "_AppDomain_" + autProcessId, appDomain);
                     key.SetValue(apeProcessId + "_Attach_Status", "Starting");
-
+                    
+                    string assembly;
+                    string exe;
                     if (NM.Is32BitProcess(autProcess))
                     {
-                        string Assembly = "APE.Loader_x86.dll";
-                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x86.exe", autProcessId + " " + Assembly + " " + method + " " + apeProcessId);
+                        assembly = "APE.Loader_x86.dll";
+                        exe = "APE.Injector_x86.exe";
+                        //Injector.StartInfo = new ProcessStartInfo("APE.Injector_x86.exe", autProcessId + " " + assembly + " " + method + " " + apeProcessId);
                     }
                     else
                     {
-                        string Assembly = "APE.Loader_x64.dll";
-                        Injector.StartInfo = new ProcessStartInfo("APE.Injector_x64.exe", autProcessId + " " + Assembly + " " + method + " " + apeProcessId);
+                        assembly = "APE.Loader_x64.dll";
+                        exe = "APE.Injector_x64.exe";
+                        //Injector.StartInfo = new ProcessStartInfo("APE.Injector_x64.exe", autProcessId + " " + assembly + " " + method + " " + apeProcessId);
                     }
+
+                    tempPath = Path.GetTempPath();
+                    File.Delete(tempPath + @"devenv.exe");
+                    File.Delete(tempPath + @"APE.Syringe.dll");
+                    File.Delete(tempPath + @"APE.Native.dll");
+                    File.Copy(path + @"\" + exe, tempPath + @"devenv.exe");
+                    File.Copy(path + @"\APE.Syringe.dll", tempPath + @"APE.Syringe.dll");
+                    File.Copy(path + @"\APE.Native.dll", tempPath + @"APE.Native.dll");
+
+                    Injector.StartInfo = new ProcessStartInfo(tempPath + @"devenv.exe", autProcessId + " " + assembly + " " + method + " " + apeProcessId);
+
                     Injector.StartInfo.WorkingDirectory = path;
                     Injector.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     Injector.Start();
@@ -242,6 +258,12 @@ namespace APE.Communication
                     key.DeleteValue(apeProcessId + "_Path_" + autProcessId, false);
                     key.DeleteValue(apeProcessId + "_AppDomain_" + autProcessId, false);
                     key.Close();
+                    if (tempPath != null)
+                    {
+                        File.Delete(tempPath + @"devenv.exe");
+                        File.Delete(tempPath + @"APE.Syringe.dll");
+                        File.Delete(tempPath + @"APE.Native.dll");
+                    }
                 }
 
                 if (Injector.ExitCode != 0)
