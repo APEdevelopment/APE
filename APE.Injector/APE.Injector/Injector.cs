@@ -14,10 +14,9 @@
 //limitations under the License.
 //
 using System;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
 using APE.Syringe;
-using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace APE.Injector
 {
@@ -51,7 +50,11 @@ namespace APE.Injector
                 int SourcePID = int.Parse(args[3]);
 
                 Process p = Process.GetProcessById(TargetPID);
-                return (int)Needle.Inject(p, SourcePID, Assembly, Method);
+                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
+                key.SetValue(SourcePID + "_Attach_Status", "In_Process");
+                int result = (int)Needle.Inject(p, SourcePID, Assembly, Method);
+                key.SetValue(SourcePID + "_Attach_Status", "Success");
+                return result;
             }
         }
     }

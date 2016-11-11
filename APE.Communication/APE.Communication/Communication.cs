@@ -203,6 +203,7 @@ namespace APE.Communication
                 {
                     key.SetValue(apeProcessId + "_Path_" + autProcessId, path);
                     key.SetValue(apeProcessId + "_AppDomain_" + autProcessId, appDomain);
+                    key.SetValue(apeProcessId + "_Attach_Status", "Starting");
 
                     if (NM.Is32BitProcess(autProcess))
                     {
@@ -219,9 +220,25 @@ namespace APE.Communication
                     Injector.Start();
 
                     Injector.WaitForExit();
+                    int exitCode = Injector.ExitCode;
+                    if (exitCode != 0)
+                    {
+                        throw new Exception("Failed to attach to process: exit code: " + exitCode.ToString());
+                    }
+                    string state = (string)key.GetValue(apeProcessId + "_Attach_Status", "");
+                    if (state != "Success")
+                    {
+                        string additionalInformation = "";
+                        if (state == "In_Process")
+                        {
+                            additionalInformation = Environment.NewLine + "Please check any virus scanning software for possible error";
+                        }
+                        throw new Exception("Failed to attach to process: last state: " + state + additionalInformation);
+                    }
                 }
                 finally
                 {
+                    key.DeleteValue(apeProcessId + "_Attach_Status", false);
                     key.DeleteValue(apeProcessId + "_Path_" + autProcessId, false);
                     key.DeleteValue(apeProcessId + "_AppDomain_" + autProcessId, false);
                     key.Close();
