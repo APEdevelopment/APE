@@ -17,7 +17,6 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
-using System.Reflection;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -254,6 +253,12 @@ namespace APE.Communication
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.String;
             PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.String);
             PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, stdole.Picture param)
+        {
+            Image pictureAsImage = instance.OlePictureToImage(param);
+            Parameter paramImage = new Parameter(instance, pictureAsImage);
         }
 
         public Parameter(APEIPC instance, Image param)

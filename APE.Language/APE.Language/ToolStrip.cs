@@ -717,6 +717,11 @@ namespace APE.Language
                     m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, Handle, MenuIndex, DropDownItems[Item], ref Identity);
                 }
             }
+            catch
+            {
+                Input.Reset();  //Reset the mouse blocking
+                throw;
+            }
             finally
             {
                 Input.Unblock();
@@ -790,6 +795,11 @@ namespace APE.Language
                     MenuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, Handle, DropDownItems[Item]);
                     m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, Handle, MenuIndex, DropDownItems[Item], ref Identity);
                 }
+            }
+            catch
+            {
+                Input.Reset();  //Reset the mouse blocking
+                throw;
             }
             finally
             {

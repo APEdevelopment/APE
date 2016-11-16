@@ -182,6 +182,7 @@ namespace APE.Communication
                 m_GetTextDelegater = new GetTextDelegate(GetText);
                 SetupSentinelGridsHelperDelegates();
                 SetupFlexgridHelperDelegates();
+                SetupComHelperDelegates();
 
                 //Process all the messages
                 while (true)
@@ -329,6 +330,11 @@ namespace APE.Communication
                     catch (Exception ex)
                     {
                         result = ex.GetType().Name + " " + ex.Message + "\r\n" + ex.StackTrace;
+                        if (ex.InnerException != null)
+                        {
+                            //TODO make this better?
+                            result += "\r\n" + ex.InnerException.GetType().Name + " " + ex.InnerException.Message + "\r\n" + ex.InnerException.StackTrace;
+                        }
                     }
 
                     if (result != null)

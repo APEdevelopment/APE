@@ -2752,10 +2752,10 @@ namespace APE.Communication
                         default:
                             return "";
                     }
-                default:
-                    return "";
+                        default:
+                            return "";
+                    }
             }
-        }
 
         unsafe private void GetRecognisedType(int MessageNumber)
         {
@@ -3599,7 +3599,11 @@ namespace APE.Communication
 
                 if (Marshal.IsComObject(SourceObject))
                 {
-                    DestinationObject = SourceObject.GetType().InvokeMember(Name, BindingFlags.InvokeMethod | BindingFlags.GetProperty, null, SourceObject, ParametersObject);
+                    object[] comParameters = new object[3];
+                    comParameters[0] = Name;
+                    comParameters[1] = SourceObject;
+                    comParameters[2] = ParametersObject;
+                    DestinationObject = ((WF.Control)tempStore0).Invoke(m_ComReflectDelegater, comParameters);
                 }
                 else
                 {

@@ -14,6 +14,9 @@
 //limitations under the License.
 //
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
@@ -24,6 +27,17 @@ namespace APE.Communication
     /// </summary>
     public partial class APEIPC
     {
+        private delegate object ComReflectDelegate(string name, object sourceObject, object[] parameters);
+        private ComReflectDelegate m_ComReflectDelegater;
+
+        /// <summary>
+        /// Initialise the sentinel grids helper delegates for use
+        /// </summary>
+        private void SetupComHelperDelegates()
+        {
+            m_ComReflectDelegater = new ComReflectDelegate(ComReflectInternal);
+        }
+
         /// <summary>
         /// Gets the full typename of an object
         /// In the case of .NET objects it is in the form 'Type.Namespace'.'Type.Name'
@@ -60,6 +74,48 @@ namespace APE.Communication
         }
 
         /// <summary>
+        /// Calls the specified method / property on the com object on the gui thread
+        /// </summary>
+        /// <param name="name">The name of the method / property to call</param>
+        /// <param name="sourceObject">The com object</param>
+        /// <param name="parameters">The parameters to pass to the com object</param>
+        /// <returns>The object returned by the invoke</returns>
+        private object ComReflectInternal(string name, object sourceObject, object[] parameters)
+        {
+            return sourceObject.GetType().InvokeMember(name, BindingFlags.InvokeMethod | BindingFlags.GetProperty, null, sourceObject, parameters);
+        }
+
+        /// <summary>
+        /// Converts an ole picture into a .net image
+        /// </summary>
+        /// <param name="picture">The ole picture</param>
+        /// <returns>A .net image</returns>
+        internal Image OlePictureToImage(stdole.Picture picture)
+        {
+            Image image = null;
+            switch (picture.Type)
+            {
+                case Ole.PICTYPE_ICON:
+                    Icon icon = (Icon)Icon.FromHandle(new IntPtr(picture.Handle)).Clone();
+                    image = icon.ToBitmap();
+                    break;
+                case Ole.PICTYPE_BITMAP:
+                    image = (Image)Image.FromHbitmap(new IntPtr(picture.Handle), new IntPtr(picture.hPal)).Clone();
+                    break;
+                case Ole.PICTYPE_METAFILE:
+                case Ole.PICTYPE_ENHMETAFILE:
+                    image = (Image)new Metafile(new IntPtr(picture.Handle), true).Clone();
+                    break;
+                case Ole.PICTYPE_NONE:
+                case Ole.PICTYPE_UNINITIALIZED:
+                    break;
+                default:
+                    throw new Exception("Unsupported picture type: " + picture.Type.ToString());
+            }
+            return image;
+        }
+
+        /// <summary>
         /// A partial IDispatch interface
         /// </summary>
         [ComImport]
@@ -71,6 +127,16 @@ namespace APE.Communication
             [return: MarshalAs(UnmanagedType.Interface)]
             ITypeInfo GetTypeInfo([In, MarshalAs(UnmanagedType.U4)] int iTInfo, [In, MarshalAs(UnmanagedType.U4)] int lcid);
             void GetIDsOfNames([In] ref Guid riid, [In, MarshalAs(UnmanagedType.LPArray)] string[] rgszNames, [In, MarshalAs(UnmanagedType.U4)] int cNames, [In, MarshalAs(UnmanagedType.U4)] int lcid, [Out, MarshalAs(UnmanagedType.LPArray)] int[] rgDispId);
+        }
+
+        private class Ole
+        {
+            public const int PICTYPE_UNINITIALIZED = -1;
+            public const int PICTYPE_NONE = 0;
+            public const int PICTYPE_BITMAP = 1;
+            public const int PICTYPE_METAFILE = 2;
+            public const int PICTYPE_ICON = 3;
+            public const int PICTYPE_ENHMETAFILE = 4;
         }
     }
 }

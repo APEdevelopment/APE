@@ -237,6 +237,9 @@ namespace APE.Language
                     GUI.Log("Press Enter to set the value", LogItemType.Action);
                     base.SendKeysInternal("{Enter}");
 
+                    // Wait for the input to be idle after entering the value
+                    GUI.WaitForInputIdle(this);
+
                     if (Identity.TypeNameSpace == "LzGenericWalker")
                     {
                         WaitForTimer("tmrDelayedEvent");
@@ -266,6 +269,7 @@ namespace APE.Language
 
                 if (!timerEnabled)
                 {
+                    GUI.WaitForInputIdle(this);
                     break;
                 }
 
