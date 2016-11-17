@@ -491,6 +491,81 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns whether at the grid level it is editable
+        /// </summary>
+        /// <returns>True if it is editable otherwise false</returns>
+        public bool IsEditable()
+        {
+            if (IsEnabled)
+            {
+                return true;    // Doesn't have a concept of at the grid level being editable or not
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowText">The row of the cell to check if its editable</param>
+        /// <param name="columnText">The column of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(string rowText, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
+        /// <param name="columnText">The column of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(int rowIndex, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowText">The row of the cell to check if its editable</param>
+        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(string rowText, int columnIndex)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
+        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(int rowIndex, int columnIndex)
+        {
+            int titleRows = TitleRows();
+            rowIndex -= titleRows;
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetEditDescriptor", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "IsReadOnly", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+            bool isReadOnly = GUI.m_APE.GetValueFromMessage();
+            return !isReadOnly;
+        }
+
+        /// <summary>
         /// Returns the first visible (non-hidden) row in the grid
         /// </summary>
         /// <returns>The first visible row</returns>
@@ -552,12 +627,12 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified row is hidden in the grid
         /// </summary>
-        /// <param name="rowIndex">Row to check if hidden</param>
+        /// <param name="rowText">Row to check if hidden</param>
         /// <returns>True or False</returns>
-        public bool IsRowHidden(string rowIndex)
+        public bool IsRowHidden(string rowText)
         {
-            int RowNumber = FindRow(rowIndex);
-            return IsRowHidden(RowNumber);
+            int rowIndex = FindRow(rowText);
+            return IsRowHidden(rowIndex);
         }
 
         /// <summary>

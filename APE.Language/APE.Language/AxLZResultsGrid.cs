@@ -510,28 +510,32 @@ namespace APE.Language
 
 
         /// <summary>
-        /// Returns whether the entire grid is editable
+        /// Returns whether at the grid level it is editable
         /// </summary>
-        /// <returns>True if the entire grid is editable otherwise false</returns>
-        public bool Editable()
+        /// <returns>True if it is editable otherwise false</returns>
+        public bool IsEditable()
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Editable", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int editableState = GUI.m_APE.GetValueFromMessage();
-            if (editableState == 0)
+            if (IsEnabled)
             {
-                return false;
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Editable", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                int editableState = GUI.m_APE.GetValueFromMessage();
+                if (editableState == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
-            else
-            {
-                return true;
-            }
+            return false;
         }
 
         internal override bool SetCellValueInternal<T>(string rowText, string columnText, int rowIndex, int columnIndex, T value, T expectedValue, string submitKey, ComparisonMethod compareMethod)
