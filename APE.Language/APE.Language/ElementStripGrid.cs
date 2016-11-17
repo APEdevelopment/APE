@@ -1266,7 +1266,7 @@ namespace APE.Language
                     T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
                     if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
                     {
-                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                        GUI.Log("Ensure the " + Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
                         return false;
                     }
                     break;
@@ -1274,6 +1274,24 @@ namespace APE.Language
                     break;
                 default:
                     throw new Exception("Unsupported compare method: " + compareMethod.ToString());
+            }
+
+            // Wait for the cell to be editable
+            timer = Stopwatch.StartNew();
+            while (true)
+            {
+                bool editable = IsCellEditable(rowIndex, columnIndex);
+                if (editable)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                {
+                    throw new Exception("The cell for row " + rowFriendlyText + " column " + columnFriendlyText + " is not editable in the " + Description);
+                }
+
+                Thread.Sleep(50);
             }
 
             // TODO get this fixed
