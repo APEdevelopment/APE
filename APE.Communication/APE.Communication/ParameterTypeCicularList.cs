@@ -17,23 +17,18 @@ using System;
 
 namespace APE.Communication
 {
-    internal class ConstructorInvokerCircularList
+    internal class ParameterTypeCircularList
     {
-        string[] m_Name;
-        Fasterflect.ConstructorInvoker[] m_ConstructorInvoker;
-        Int64[] m_TypeCodeKey;
-        string[] m_DatastoreTypes;
+        Type[] m_ParameterType;
+        string[] m_ParameterTypeText;
         int m_OldestItemInList;
         int m_ListSize;
 
-        public void AddToList(string name, Int64 typeCodeKey, string datastoreTypes, Fasterflect.ConstructorInvoker constructorInvoker)
+        public void AddToList(string parameterTypeText, Type parametersType)
         {
             //Add an item to the list replacing the eldest item
-            m_Name[m_OldestItemInList] = name;
-            m_TypeCodeKey[m_OldestItemInList] = typeCodeKey;
-            m_DatastoreTypes[m_OldestItemInList] = datastoreTypes;
-            m_ConstructorInvoker[m_OldestItemInList] = constructorInvoker;
-
+            m_ParameterTypeText[m_OldestItemInList] = parameterTypeText;
+            m_ParameterType[m_OldestItemInList] = parametersType;
             m_OldestItemInList++;
             if (m_OldestItemInList > m_ListSize - 1)
             {
@@ -41,42 +36,40 @@ namespace APE.Communication
             }
         }
 
-        public void GetFromList(string name, Int64 typeCodeKey, string datastoreTypes, out Fasterflect.ConstructorInvoker constructorInvoker)
+        public void GetFromList(string parameterTypeText, out Type ParametersType)
         {
             //Search for the item starting at the youngest item in the list
             for (int i = m_OldestItemInList - 1; i >= 0; i--)
             {
-                if (m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypes[i] == datastoreTypes)
+                if (m_ParameterTypeText[i] == parameterTypeText)
                 {
-                    constructorInvoker = m_ConstructorInvoker[i];
+                    ParametersType = m_ParameterType[i];
                     return;
                 }
             }
 
             for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
             {
-                if (m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypes[i] == datastoreTypes)
+                if (m_ParameterTypeText[i] == parameterTypeText)
                 {
-                    constructorInvoker = m_ConstructorInvoker[i];
+                    ParametersType = m_ParameterType[i];
                     return;
                 }
             }
 
-            constructorInvoker = null;
+            ParametersType = null;
         }
 
-        public ConstructorInvokerCircularList(int length)
+        public ParameterTypeCircularList(int Length)
         {
-            if (length < 1)
+            if (Length < 1)
             {
                 throw new Exception("Length must be positive");
             }
 
-            m_ListSize = length;
-            m_Name = new string[length];
-            m_ConstructorInvoker = new Fasterflect.ConstructorInvoker[length];
-            m_TypeCodeKey = new Int64[length];
-            m_DatastoreTypes = new string[length];
+            m_ListSize = Length;
+            m_ParameterType = new Type[Length];
+            m_ParameterTypeText = new string[Length];
         }
     }
 }

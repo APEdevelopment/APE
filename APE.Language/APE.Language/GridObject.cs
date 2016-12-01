@@ -1102,5 +1102,25 @@ namespace APE.Language
             SetFocus();
             SendKeys(text);
         }
+
+        internal string[,] ConvertStringToString2dArray(string text)
+        {
+            string[,] array = null;
+            string[] rows = text.Split('\r');
+            for (int row = 0; row < rows.GetLength(0); row++)
+            {
+                string[] columns = rows[row].Split('\t');
+                if (row == 0)
+                {
+                    array = new string[rows.GetLength(0), columns.GetLength(0)];
+                }
+                for (int column = 0; column < columns.GetLength(0); column++)
+                {
+                    array[row, column] = columns[column];
+                }
+            }
+
+            return array;
+        }
     }
 }

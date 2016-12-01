@@ -91,6 +91,9 @@ namespace APE.Communication
         FlexgridGetAllColumnsWidth = 29,
         FlexgridGetAllRowsHeight = 30,
         ControlExists = 31,
+        GridControlGetTitleRows = 32,
+        GridControlGetTitleRowCount = 33,
+        GridControlGetAllColumnsHidden = 34,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -183,6 +186,7 @@ namespace APE.Communication
                 SetupSentinelGridsHelperDelegates();
                 SetupFlexgridHelperDelegates();
                 SetupComHelperDelegates();
+                SetupGridControlHelperDelegates();
 
                 //Process all the messages
                 while (true)
@@ -311,6 +315,15 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.FlexgridGetAllRowsHeight:
                                     FlexgridGetAllRowsHeight(ptrMessage);
+                                    break;
+                                case MessageAction.GridControlGetTitleRows:
+                                    GridControlGetTitleRows(ptrMessage);
+                                    break;
+                                case MessageAction.GridControlGetTitleRowCount:
+                                    GridControlGetTitleRowCount(ptrMessage);
+                                    break;
+                                case MessageAction.GridControlGetAllColumnsHidden:
+                                    GridControlGetAllColumnsVisible(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());

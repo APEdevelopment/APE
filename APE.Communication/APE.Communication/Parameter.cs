@@ -24,12 +24,20 @@ using NM = APE.Native.NativeMethods;
 
 namespace APE.Communication
 {
+    public enum ParameterType : int
+    {
+        In = 1,
+        Out,
+        Ref,
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe internal struct Parameters
     {
         private const int MaxParameters = 15;
 
         public fixed Int32 TypeCode[MaxParameters];
+        public fixed int ParameterType[MaxParameters];
         public fixed Boolean Boolean[MaxParameters];
         public fixed Byte Byte[MaxParameters];
         public fixed Char Char[MaxParameters];
@@ -61,7 +69,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Boolean[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Boolean;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Boolean);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Boolean) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -70,7 +79,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Byte[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Byte;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Byte);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Byte) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -79,7 +89,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Char[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Char;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Char);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Char) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -88,7 +99,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.DateTimeBinary[PtrMessage->NumberOfParameters] = param.ToBinary();
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.DateTime;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.DateTime);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.DateTime) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -103,7 +115,8 @@ namespace APE.Communication
             PtrMessage->Parameter.DecimalBits3[PtrMessage->NumberOfParameters] = DecimalBits[3];
 
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Decimal;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Decimal);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Decimal) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -112,7 +125,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Double[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Double;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Double);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Double) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -121,7 +135,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Int16[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Int16;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Int16);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Int16) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -130,7 +145,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Int32[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Int32;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Int32);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Int32) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -139,17 +155,55 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Int32[PtrMessage->NumberOfParameters] = (Int32)param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.DataStore;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.DataStore);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.DataStore) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
+        public Parameter(APEIPC instance, DataStores param, ParameterType apeParameterType)
+        {
+            if (apeParameterType == ParameterType.Out)
+            {
+                throw new Exception("Must specifiy the parameter type when using out datastore parameters");
+            }
+
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.Int32[PtrMessage->NumberOfParameters] = (Int32)param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.DataStore;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)apeParameterType;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.DataStore) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)apeParameterType);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, DataStores param, ParameterType apeParameterType, string parameterType)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.Int32[PtrMessage->NumberOfParameters] = (Int32)param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.DataStore;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)apeParameterType;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.DataStore) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)apeParameterType);
+
+            if (apeParameterType == ParameterType.Out)
+            {
+                fixed (void* PtrString = parameterType)
+                {
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(parameterType.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+                }
+                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
+                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = parameterType.Length;
+                instance.m_StringStoreOffset = instance.m_StringStoreOffset + (parameterType.Length * 2);
+            }
+
+            PtrMessage->NumberOfParameters++;
+        }
 
         public Parameter(APEIPC instance, IntPtr param)
         {
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.IntPtr[PtrMessage->NumberOfParameters] = param.ToInt64();
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.IntPtr;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.IntPtr);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.IntPtr) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -158,7 +212,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Int64[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Int64;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Int64);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Int64) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -167,7 +222,8 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.SByte[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.SByte;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.SByte);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.SByte) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -176,7 +232,136 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             PtrMessage->Parameter.Single[PtrMessage->NumberOfParameters] = param;
             PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Single;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Single);
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Single) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, UInt16 param)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.UInt16[PtrMessage->NumberOfParameters] = param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt16;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.UInt16) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, UInt16 param, ParameterType apeParameterType)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.UInt16[PtrMessage->NumberOfParameters] = param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt16;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)apeParameterType;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.UInt16) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)apeParameterType);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, UInt32 param)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.UInt32[PtrMessage->NumberOfParameters] = param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt32;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.UInt32) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, UInt32 param, ParameterType apeParameterType)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.UInt32[PtrMessage->NumberOfParameters] = param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt32;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)apeParameterType;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.UInt32) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)apeParameterType);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, UInt64 param)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.UInt64[PtrMessage->NumberOfParameters] = param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt64;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.UInt64) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, UInt64 param, ParameterType apeParameterType)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            PtrMessage->Parameter.UInt64[PtrMessage->NumberOfParameters] = param;
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt64;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)apeParameterType;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.UInt64) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)apeParameterType);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, stdole.Picture param)
+        {
+            Image pictureAsImage = instance.OlePictureToImage(param);
+            Parameter paramImage = new Parameter(instance, pictureAsImage);
+        }
+
+        public Parameter(APEIPC instance, Image param)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            if (param != null)
+            {
+                //Convert to byte array
+                MemoryStream ms = new MemoryStream();
+                ImageFormat theImageFormat = param.RawFormat;
+
+                if (theImageFormat.Guid == ImageFormat.MemoryBmp.Guid)  //MemoryBmp don't seem to be able to be saved
+                {
+                    theImageFormat = ImageFormat.Bmp;
+                }
+
+                param.Save(ms, theImageFormat);
+                byte[] imageAsByteArray = ms.ToArray();
+
+                fixed (void* PtrByteArray = imageAsByteArray)
+                {
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrByteArray, (UIntPtr)(imageAsByteArray.Length));
+                }
+                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
+                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = imageAsByteArray.Length;
+                instance.m_StringStoreOffset = instance.m_StringStoreOffset + imageAsByteArray.Length;
+            }
+            else
+            {
+                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = -1;
+                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = -1;
+            }
+
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Image;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Image) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
+            PtrMessage->NumberOfParameters++;
+        }
+
+        public Parameter(APEIPC instance, string param)
+        {
+            Message* PtrMessage = instance.GetPointerToNextMessage();
+            if (param != null)
+            {
+                fixed (void* PtrString = param)
+                {
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(param.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+                }
+                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
+                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = param.Length;
+                instance.m_StringStoreOffset = instance.m_StringStoreOffset + (param.Length * 2);
+            }
+            else
+            {
+                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = -1;
+                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = -1;
+            }
+
+            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.String;
+            PtrMessage->Parameter.ParameterType[PtrMessage->NumberOfParameters] = (int)ParameterType.In;
+            PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.String) + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax * 2) + OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
             PtrMessage->NumberOfParameters++;
         }
 
@@ -223,105 +408,12 @@ namespace APE.Communication
                     {
                         if (y < StringArray.GetUpperBound(0))
                         {
-                            sb.Append("\n");
+                            sb.Append("\r");
                         }
                     }
                 }
             }
             return sb.ToString();
-        }
-
-        public Parameter(APEIPC instance, string param)
-        {
-            Message* PtrMessage = instance.GetPointerToNextMessage();
-            if (param != null)
-            {
-                fixed (void* PtrString = param)
-                {
-                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(param.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
-                }
-                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
-                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = param.Length;
-                instance.m_StringStoreOffset = instance.m_StringStoreOffset + (param.Length * 2);
-            }
-            else
-            {
-                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = -1;
-                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = -1;
-            }
-
-            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.String;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.String);
-            PtrMessage->NumberOfParameters++;
-        }
-
-        public Parameter(APEIPC instance, stdole.Picture param)
-        {
-            Image pictureAsImage = instance.OlePictureToImage(param);
-            Parameter paramImage = new Parameter(instance, pictureAsImage);
-        }
-
-        public Parameter(APEIPC instance, Image param)
-        {
-            Message* PtrMessage = instance.GetPointerToNextMessage();
-            if (param != null)
-            {
-                //Convert to byte array
-                MemoryStream ms = new MemoryStream();
-                ImageFormat theImageFormat = param.RawFormat;
-
-                if (theImageFormat.Guid == ImageFormat.MemoryBmp.Guid)  //MemoryBmp don't seem to be able to be saved
-                {
-                    theImageFormat = ImageFormat.Bmp;
-                }
-
-                param.Save(ms, theImageFormat);
-                byte[] imageAsByteArray = ms.ToArray();
-                
-                fixed (void* PtrByteArray = imageAsByteArray)
-                {
-                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrByteArray, (UIntPtr)(imageAsByteArray.Length));
-                }
-                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
-                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = imageAsByteArray.Length;
-                instance.m_StringStoreOffset = instance.m_StringStoreOffset + imageAsByteArray.Length;
-            }
-            else
-            {
-                PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = -1;
-                PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = -1;
-            }
-
-            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Image;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Image);
-            PtrMessage->NumberOfParameters++;
-        }
-
-        public Parameter(APEIPC instance, UInt16 param)
-        {
-            Message* PtrMessage = instance.GetPointerToNextMessage();
-            PtrMessage->Parameter.UInt16[PtrMessage->NumberOfParameters] = param;
-            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt16;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.UInt16);
-            PtrMessage->NumberOfParameters++;
-        }
-
-        public Parameter(APEIPC instance, UInt32 param)
-        {
-            Message* PtrMessage = instance.GetPointerToNextMessage();
-            PtrMessage->Parameter.UInt32[PtrMessage->NumberOfParameters] = param;
-            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt32;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.UInt32);
-            PtrMessage->NumberOfParameters++;
-        }
-
-        public Parameter(APEIPC instance, UInt64 param)
-        {
-            Message* PtrMessage = instance.GetPointerToNextMessage();
-            PtrMessage->Parameter.UInt64[PtrMessage->NumberOfParameters] = param;
-            PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.UInt64;
-            PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.UInt64);
-            PtrMessage->NumberOfParameters++;
         }
     }
 }

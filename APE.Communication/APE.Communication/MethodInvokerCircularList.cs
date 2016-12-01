@@ -23,17 +23,17 @@ namespace APE.Communication
         string[] m_Name;
         Fasterflect.MethodInvoker[] m_MethodInvoker;
         Int64[] m_TypeCodeKey;
-        IntPtr[] m_DatastoreTypeHandle;
+        string[] m_DatastoreTypes;
         int m_OldestItemInList;
         int m_ListSize;
 
-        public void AddToList(IntPtr sourceTypeHandle, string name, Int64 typeCodeKey, IntPtr datastoreTypeHandle, Fasterflect.MethodInvoker methodInvoker)
+        public void AddToList(IntPtr sourceTypeHandle, string name, Int64 typeCodeKey, string datastoreTypes, Fasterflect.MethodInvoker methodInvoker)
         {
             //Add an item to the list replacing the eldest item
             m_SourceTypeHandle[m_OldestItemInList] = sourceTypeHandle;
             m_Name[m_OldestItemInList] = name;
             m_TypeCodeKey[m_OldestItemInList] = typeCodeKey;
-            m_DatastoreTypeHandle[m_OldestItemInList] = datastoreTypeHandle;
+            m_DatastoreTypes[m_OldestItemInList] = datastoreTypes;
             m_MethodInvoker[m_OldestItemInList] = methodInvoker;
 
             m_OldestItemInList++;
@@ -43,12 +43,12 @@ namespace APE.Communication
             }
         }
 
-        public void GetFromList(IntPtr sourceTypeHandle, string name, Int64 typeCodeKey, IntPtr datastoreTypeHandle, out Fasterflect.MethodInvoker methodInvoker)
+        public void GetFromList(IntPtr sourceTypeHandle, string name, Int64 typeCodeKey, string datastoreTypes, out Fasterflect.MethodInvoker methodInvoker)
         {
             //Search for the item starting at the youngest item in the list
             for (int i = m_OldestItemInList - 1; i >= 0; i--)
             {
-                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypeHandle[i] == datastoreTypeHandle)
+                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypes[i] == datastoreTypes)
                 {
                     methodInvoker = m_MethodInvoker[i];
                     return;
@@ -57,7 +57,7 @@ namespace APE.Communication
 
             for (int i = m_ListSize - 1; i >= m_OldestItemInList; i--)
             {
-                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypeHandle[i] == datastoreTypeHandle)
+                if (m_SourceTypeHandle[i] == sourceTypeHandle && m_Name[i] == name && m_TypeCodeKey[i] == typeCodeKey && m_DatastoreTypes[i] == datastoreTypes)
                 {
                     methodInvoker = m_MethodInvoker[i];
                     return;
@@ -79,7 +79,7 @@ namespace APE.Communication
             m_Name = new string[length];
             m_MethodInvoker = new Fasterflect.MethodInvoker[length];
             m_TypeCodeKey = new Int64[length];
-            m_DatastoreTypeHandle = new IntPtr[length];
+            m_DatastoreTypes = new string[length];
         }
     }
 }

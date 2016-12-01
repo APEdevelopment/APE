@@ -20,7 +20,6 @@ using System.Reflection;
 using APE.Communication;
 using System.Threading;
 using System.Diagnostics;
-using System.Xml;
 using System.Collections.Generic;
 
 namespace APE.Language
@@ -53,30 +52,14 @@ namespace APE.Language
         public int TitleRows()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageGridControlGetTitleRowCount(DataStores.Store0, DataStores.Store1);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string ColumnInfoXML = GUI.m_APE.GetValueFromMessage();
+            int titleRows = GUI.m_APE.GetValueFromMessage();
 
-            XmlDocument columnDocument = new XmlDocument();
-            columnDocument.LoadXml(ColumnInfoXML);
-
-            int maxLevels = -1;
-            int currentLevel = -1;
-            foreach (XmlNode node in columnDocument.SelectSingleNode("Columns").ChildNodes)
-            {
-                if (int.TryParse(node.Attributes.GetNamedItem("ColumnHeaderLevel").Value, out currentLevel))
-                {
-                    if (currentLevel > maxLevels)
-                    {
-                        maxLevels = currentLevel;
-                    }
-                }
-            }
-
-            return maxLevels + 1;
+            return titleRows;
         }
 
         /// <summary>
@@ -275,121 +258,18 @@ namespace APE.Language
             return columns;
         }
 
-        private void ConvertXMLTreeTo2dArray(XmlNodeList nodes, ref int column, ref string[,] titles, int maxLevels, bool visibleOnly)
+        private string[,] GetColumnTitles()
         {
-            foreach (XmlNode node in nodes)
-            {
-                if (node.Name == "Column")
-                {
-                    int level = int.Parse(node.Attributes.GetNamedItem("ColumnHeaderLevel").Value);
-                    bool visible = bool.Parse(node.Attributes.GetNamedItem("IsVisible").Value);
-
-                    if (visibleOnly)
-                    {
-                        if (visible)
-                        {
-                            titles[maxLevels - level, column] = node.Attributes.GetNamedItem("ColumnTitle").Value;
-                        }
-                    }
-                    else
-                    {
-                        titles[maxLevels - level, column] = node.Attributes.GetNamedItem("ColumnTitle").Value;
-                    }
-                }
-
-                if (node.HasChildNodes)
-                {
-                    ConvertXMLTreeTo2dArray(node.ChildNodes, ref column, ref titles, maxLevels, visibleOnly);
-                }
-                else
-                {
-                    if (node.Name == "Column")
-                    {
-                        bool visible = bool.Parse(node.Attributes.GetNamedItem("IsVisible").Value);
-                        if (visibleOnly)
-                        {
-                            if (visible)
-                            {
-                                column++;
-                            }
-                        }
-                        else
-                        {
-                            column++;
-                        }
-                    }
-                }
-            }
-        }
-
-        private string[,] GetColumnTitles(bool visibleOnly)
-        {
-            //Get an XML representation of the columns
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageGridControlGetTitleRows(DataStores.Store0, DataStores.Store1);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string xmlColumns = GUI.m_APE.GetValueFromMessage();
+            string titlesText = GUI.m_APE.GetValueFromMessage();
 
-            //Load the xml into an xml document
-            XmlDocument columnsXMLDocument = new XmlDocument();
-            columnsXMLDocument.LoadXml(xmlColumns);
+            string[,] titlesArray = ConvertStringToString2dArray(titlesText);
 
-            //Work out how many levels we have
-            int maxLevels = -1;
-            foreach (XmlNode node in columnsXMLDocument.SelectSingleNode("Columns").ChildNodes)
-            {
-                int level = int.Parse(node.Attributes.GetNamedItem("ColumnHeaderLevel").Value);
-                if (level > maxLevels)
-                {
-                    maxLevels = level;
-                }
-            }
-
-            //Workout how many columns we have
-            int maxColumns = -1;
-            foreach (XmlNode node in columnsXMLDocument.SelectNodes(@".//Column"))
-            {
-                bool visible = bool.Parse(node.Attributes.GetNamedItem("IsVisible").Value);
-                int level = int.Parse(node.Attributes.GetNamedItem("ColumnHeaderLevel").Value);
-
-                if (visibleOnly)
-                {
-                    if (visible)
-                    {
-                        if (level == 0)
-                        {
-                            maxColumns++;
-                        }
-                    }
-                }
-                else
-                {
-                    if (level == 0)
-                    {
-                        maxColumns++;
-                    }
-                }
-            }
-
-            //Build an array of the correct size
-            string[,] titles = new string[maxLevels + 1, maxColumns + 1];
-
-            for (int y = 0; y < titles.GetLength(0); y++)
-            {
-                for (int x = 0; x < titles.GetLength(1); x++)
-                {
-                    titles[y, x] = "";
-                }
-            }
-
-            //Convert to a 2d array
-            int column = 0;
-            ConvertXMLTreeTo2dArray(columnsXMLDocument.SelectSingleNode("Columns").ChildNodes, ref column, ref titles, maxLevels, visibleOnly);
-
-            return titles;
+            return titlesArray;
         }
 
         /// <summary>
@@ -399,7 +279,8 @@ namespace APE.Language
         /// <returns>The index of the column</returns>
         internal override int FindColumnInternal(string[] columnHeader)
         {
-            string[,] titles = GetColumnTitles(false);
+            string[,] titles = GetColumnTitles();
+            bool[] visibleColumns = GetColumnsVisibilityState();
 
             //Search for the column
             bool Found = false;
@@ -408,7 +289,7 @@ namespace APE.Language
             int column = -1;
             for (column = 0; column < columns; column++)
             {
-                if (!this.IsColumnHidden(column))
+                if (visibleColumns[column])
                 {
                     if (titles[columnHeader.GetLength(0) - 1, column] == columnHeader[columnHeader.GetLength(0) - 1])
                     {
@@ -441,7 +322,6 @@ namespace APE.Language
                             break;
                         }
                     }
-
                 }
             }
 
@@ -453,41 +333,62 @@ namespace APE.Language
             return -1;
         }
 
+        /// <summary>
+        /// Gets the tree view column
+        /// </summary>
+        /// <returns>The tree view column index or -1</returns>
+        public int TreeViewColumn()
+        {
+            int treeViewColumn = 0;
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "DrawTree", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            ////Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool drawTree = GUI.m_APE.GetValueFromMessage();
+
+            if (!drawTree)
+            {
+                treeViewColumn = -1;
+            }
+            return treeViewColumn;
+        }
+
+        /// <summary>
+        /// Determines if the grid has a tree view column
+        /// </summary>
+        /// <returns>True if the grid has a tree view column otherwise false</returns>
+        public bool IsTreeView()
+        {
+            int TreeColumn = TreeViewColumn();
+
+            if (TreeColumn == -1)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         private bool[] GetColumnsVisibilityState()
         {
-            int columns = this.Columns();
+            string[] separatorComma = { "," };
 
-            //Build a boolean array big enough to hold an entry for each column
-            bool[] visibleColumns = new bool[columns];
-
-            //Get an XML representation of the columns
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageGridControlGetAllColumnsVisible(DataStores.Store0, DataStores.Store1);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string xmlColumns = GUI.m_APE.GetValueFromMessage();
+            string columnsVisibleText = GUI.m_APE.GetValueFromMessage();
 
-            //Load the xml into an xml document
-            XmlDocument columnsXMLDocument = new XmlDocument();
-            columnsXMLDocument.LoadXml(xmlColumns);
+            string[] columnsVisibleTextArray = columnsVisibleText.Split(separatorComma, StringSplitOptions.None);
+            bool[] columnsVisibleArray = Array.ConvertAll(columnsVisibleTextArray, item => bool.Parse(item));
 
-            //Workout which columns are visible
-            int column = 0;
-            foreach (XmlNode node in columnsXMLDocument.SelectNodes(".//Column"))
-            {
-                if (node.Attributes.GetNamedItem("ColumnHeaderLevel").Value == "0")
-                {
-                    if (node.Attributes.GetNamedItem("IsVisible").Value == "True")
-                    {
-                        visibleColumns[column] = true;
-                    }
-                    column++;
-                }
-            }
-
-            return visibleColumns;
+            return columnsVisibleArray;
         }
 
         /// <summary>
@@ -700,12 +601,12 @@ namespace APE.Language
                     //Get how many column title rows we have
                     int titleRows = TitleRows();
 
-                    //Get the title rows
-                    string[,] columnTitle = GetColumnTitles(false);
-
                     //If the range we want includes the title rows
                     if (row1Index < titleRows)
                     {
+                        //Get the title rows
+                        string[,] columnTitle = GetColumnTitles();
+
                         for (int row = row1Index; row < titleRows; row++)
                         {
                             if (row > row2Index)
@@ -779,6 +680,7 @@ namespace APE.Language
         /// <returns>The cell property</returns>
         internal override dynamic GetCellInternal(int rowIndex, int columnIndex, CellProperty property)
         {
+            int titleRows;
             switch (property)
             {
                 case CellProperty.TextDisplay:
@@ -799,7 +701,7 @@ namespace APE.Language
         internal override int FindRowTemp(string rowText, int columnIndex, int startAtRow)
         {
             int rowIndex;
-            //int treeColumn = TreeViewColumn();
+            int treeColumn = TreeViewColumn();
             if (columnIndex == -1)
             {
                 //TODO treeview

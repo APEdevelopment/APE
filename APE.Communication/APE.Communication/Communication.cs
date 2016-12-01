@@ -32,6 +32,7 @@ using System.Runtime;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 
 namespace APE.Communication
 {
@@ -84,27 +85,44 @@ namespace APE.Communication
 
         private unsafe int m_SizeOfMessage = sizeof(Message);
         private ParametersTypeCircularList ParametersTypeCache = new ParametersTypeCircularList(3);    //3 is optimal here as there are only a couple of very frequently used types
+        private ParameterTypeCircularList ParameterTypeCache = new ParameterTypeCircularList(10);
         private MemberGetterCircularList MemberGetterCache = new MemberGetterCircularList(10);
         private MethodInvokerCircularList MethodInvokerCache = new MethodInvokerCircularList(10);
         private ConstructorInvokerCircularList ConstructorInvokerCache = new ConstructorInvokerCircularList(10);
 
         //Cache all the primitive types (for performance)
         private Type m_TypeBoolean = typeof(Boolean);
+        private Type m_TypeBooleanByRef = typeof(Boolean).MakeByRefType();
         private Type m_TypeChar = typeof(Char);
+        private Type m_TypeCharByRef = typeof(Char).MakeByRefType();
         private Type m_TypeSByte = typeof(SByte);
+        private Type m_TypeSByteByRef = typeof(SByte).MakeByRefType();
         private Type m_TypeByte = typeof(Byte);
+        private Type m_TypeByteByRef = typeof(Byte).MakeByRefType();
         private Type m_TypeInt16 = typeof(Int16);
+        private Type m_TypeInt16ByRef = typeof(Int16).MakeByRefType();
         private Type m_TypeUInt16 = typeof(UInt16);
+        private Type m_TypeUInt16ByRef = typeof(UInt16).MakeByRefType();
         private Type m_TypeInt32 = typeof(Int32);
+        private Type m_TypeInt32ByRef = typeof(Int32).MakeByRefType();
         private Type m_TypeUInt32 = typeof(UInt32);
+        private Type m_TypeUInt32ByRef = typeof(UInt32).MakeByRefType();
         private Type m_TypeInt64 = typeof(Int64);
+        private Type m_TypeInt64ByRef = typeof(Int64).MakeByRefType();
         private Type m_TypeUInt64 = typeof(UInt64);
+        private Type m_TypeUInt64ByRef = typeof(UInt64).MakeByRefType();
         private Type m_TypeSingle = typeof(Single);
+        private Type m_TypeSingleByRef = typeof(Single).MakeByRefType();
         private Type m_TypeDouble = typeof(Double);
+        private Type m_TypeDoubleByRef = typeof(Double).MakeByRefType();
         private Type m_TypeDecimal = typeof(Decimal);
+        private Type m_TypeDecimalByRef = typeof(Decimal).MakeByRefType();
         private Type m_TypeDateTime = typeof(DateTime);
+        private Type m_TypeDateTimeByRef = typeof(DateTime).MakeByRefType();
         private Type m_TypeString = typeof(String);
+        private Type m_TypeStringByRef = typeof(String).MakeByRefType();
         private Type m_TypeIntPtr = typeof(IntPtr);
+        private Type m_TypeIntPtrByRef = typeof(IntPtr).MakeByRefType();
 
         private object tempStore0;
         private object tempStore1;
@@ -1701,7 +1719,7 @@ namespace APE.Communication
             WPF.Application wpfApp = WPF.Application.Current;
             if (wpfApp != null)
             {
-                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(wpfApp, null);
 
                 foreach (WPF.Window wpfWindow in wpfWindows)
                 {
@@ -1723,7 +1741,7 @@ namespace APE.Communication
             WPF.Application wpfApp = WPF.Application.Current;
             if (wpfApp != null)
             {
-                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(wpfApp, null);
+                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(wpfApp, null);
 
                 foreach (WPF.Window wpfWindow in wpfWindows)
                 {
@@ -2471,7 +2489,7 @@ namespace APE.Communication
             {
                 PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
                 PtrMessage->Parameter.TypeCode[PtrMessage->NumberOfParameters] = (int)ApeTypeCode.Empty;
-                PtrMessage->TypeCodeKey = PtrMessage->TypeCodeKey + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanApeTypeCodeEnumMax) + (int)ApeTypeCode.Empty);
+                PtrMessage->TypeCodeKey += ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanApeTypeCodeEnumMax * 2) + (int)ApeTypeCode.Empty) + ((PtrMessage->NumberOfParameters * Parameter.OneLargerThanApeTypeCodeEnumMax * 2) + Parameter.OneLargerThanApeTypeCodeEnumMax + (int)ParameterType.In);
                 PtrMessage->NumberOfParameters++;
                 m_PtrMessageStore->NumberOfMessages++;
             }
@@ -3306,244 +3324,11 @@ namespace APE.Communication
         {
             object SourceObject;
             object DestinationObject;
-            IntPtr datastoreTypeHandle = IntPtr.Zero;
+            StringBuilder datastoreTypes = new StringBuilder(1024);
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
 
-            Type[] ParametersType = null;
-            object[] ParametersObject = new object[PtrMessage->NumberOfParameters];
-
-            ParametersTypeCache.GetFromList(PtrMessage->TypeCodeKey, out ParametersType);
-
-            if (ParametersType == null)
-            {
-                ParametersType = new Type[PtrMessage->NumberOfParameters];
-
-                for (int i = 0; i < PtrMessage->NumberOfParameters; i++)
-                {
-                    switch ((int)PtrMessage->Parameter.TypeCode[i])
-                    {
-                        case (int)ApeTypeCode.Boolean:
-                            ParametersType[i] = m_TypeBoolean;
-                            ParametersObject[i] = PtrMessage->Parameter.Boolean[i];
-                            break;
-                        case (int)ApeTypeCode.Char:
-                            ParametersType[i] = m_TypeChar;
-                            ParametersObject[i] = PtrMessage->Parameter.Char[i];
-                            break;
-                        case (int)ApeTypeCode.SByte:
-                            ParametersType[i] = m_TypeSByte;
-                            ParametersObject[i] = PtrMessage->Parameter.SByte[i];
-                            break;
-                        case (int)ApeTypeCode.Byte:
-                            ParametersType[i] = m_TypeByte;
-                            ParametersObject[i] = PtrMessage->Parameter.Byte[i];
-                            break;
-                        case (int)ApeTypeCode.Int16:
-                            ParametersType[i] = m_TypeInt16;
-                            ParametersObject[i] = PtrMessage->Parameter.Int16[i];
-                            break;
-                        case (int)ApeTypeCode.UInt16:
-                            ParametersType[i] = m_TypeUInt16;
-                            ParametersObject[i] = PtrMessage->Parameter.UInt16[i];
-                            break;
-                        case (int)ApeTypeCode.Int32:
-                            ParametersType[i] = m_TypeInt32;
-                            ParametersObject[i] = PtrMessage->Parameter.Int32[i];
-                            break;
-                        case (int)ApeTypeCode.UInt32:
-                            ParametersType[i] = m_TypeUInt32;
-                            ParametersObject[i] = PtrMessage->Parameter.UInt32[i];
-                            break;
-                        case (int)ApeTypeCode.Int64:
-                            ParametersType[i] = m_TypeInt64;
-                            ParametersObject[i] = PtrMessage->Parameter.Int64[i];
-                            break;
-                        case (int)ApeTypeCode.UInt64:
-                            ParametersType[i] = m_TypeUInt64;
-                            ParametersObject[i] = PtrMessage->Parameter.UInt64[i];
-                            break;
-                        case (int)ApeTypeCode.Single:
-                            ParametersType[i] = m_TypeSingle;
-                            ParametersObject[i] = PtrMessage->Parameter.Single[i];
-                            break;
-                        case (int)ApeTypeCode.Double:
-                            ParametersType[i] = m_TypeDouble;
-                            ParametersObject[i] = PtrMessage->Parameter.Double[i];
-                            break;
-                        case (int)ApeTypeCode.Decimal:
-                            ParametersType[i] = m_TypeDecimal;
-                            int[] DecimalBits = new int[4];
-                            DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[i];
-                            DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[i];
-                            DecimalBits[2] = PtrMessage->Parameter.DecimalBits2[i];
-                            DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[i];
-                            ParametersObject[i] = new decimal(DecimalBits);
-                            break;
-                        case (int)ApeTypeCode.DateTime:
-                            ParametersType[i] = m_TypeDateTime;
-                            ParametersObject[i] = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[i]);
-                            break;
-                        case (int)ApeTypeCode.String:
-                            ParametersType[i] = m_TypeString;
-                            if (PtrMessage->Parameter.StringLength[i] == -1)
-                            {
-                                string Empty = null;
-                                ParametersObject[i] = Empty;
-                            }
-                            else
-                            {
-                                ParametersObject[i] = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
-                            }
-                            break;
-                        case (int)ApeTypeCode.IntPtr:
-                            ParametersType[i] = m_TypeIntPtr;
-                            ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
-                            break;
-                        case (int)ApeTypeCode.DataStore:
-                            if (datastoreTypeHandle != IntPtr.Zero)
-                            {
-                                throw new Exception("Only passing one datastore item as a parameter is supported");
-                            }
-
-                            int datastoreNumber = PtrMessage->Parameter.Int32[i];
-                            switch (datastoreNumber)
-                            {
-                                case 0:
-                                    ParametersType[i] = tempStore0.GetType();
-                                    ParametersObject[i] = tempStore0;
-                                    break;
-                                case 1:
-                                    ParametersType[i] = tempStore1.GetType();
-                                    ParametersObject[i] = tempStore1;
-                                    break;
-                                case 2:
-                                    ParametersType[i] = tempStore2.GetType();
-                                    ParametersObject[i] = tempStore2;
-                                    break;
-                                case 3:
-                                    ParametersType[i] = tempStore3.GetType();
-                                    ParametersObject[i] = tempStore3;
-                                    break;
-                                case 4:
-                                    ParametersType[i] = tempStore4.GetType();
-                                    ParametersObject[i] = tempStore4;
-                                    break;
-                                case 5:
-                                    ParametersType[i] = tempStore5.GetType();
-                                    ParametersObject[i] = tempStore5;
-                                    break;
-                                case 6:
-                                    ParametersType[i] = tempStore6.GetType();
-                                    ParametersObject[i] = tempStore6;
-                                    break;
-                                case 7:
-                                    ParametersType[i] = tempStore7.GetType();
-                                    ParametersObject[i] = tempStore7;
-                                    break;
-                                case 8:
-                                    ParametersType[i] = tempStore8.GetType();
-                                    ParametersObject[i] = tempStore8;
-                                    break;
-                                case 9:
-                                    ParametersType[i] = tempStore9.GetType();
-                                    ParametersObject[i] = tempStore9;
-                                    break;
-                                default:
-                                    throw new Exception("Unsupported SourceStore " + datastoreNumber.ToString());
-                            }
-                            datastoreTypeHandle = ParametersType[i].TypeHandle.Value;
-                            break;
-                        default:
-                            throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[i].ToString());
-                    }
-                }
-                if (datastoreTypeHandle == IntPtr.Zero)  //none of the parameters are a datastore type
-                {
-                    ParametersTypeCache.AddToList(PtrMessage->TypeCodeKey, ParametersType);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < PtrMessage->NumberOfParameters; i++)
-                {
-                    switch ((int)PtrMessage->Parameter.TypeCode[i])
-                    {
-                        case (int)ApeTypeCode.Boolean:
-                            ParametersObject[i] = PtrMessage->Parameter.Boolean[i];
-                            break;
-                        case (int)ApeTypeCode.Char:
-                            ParametersObject[i] = PtrMessage->Parameter.Char[i];
-                            break;
-                        case (int)ApeTypeCode.SByte:
-                            ParametersObject[i] = PtrMessage->Parameter.SByte[i];
-                            break;
-                        case (int)ApeTypeCode.Byte:
-                            ParametersObject[i] = PtrMessage->Parameter.Byte[i];
-                            break;
-                        case (int)ApeTypeCode.Int16:
-                            ParametersObject[i] = PtrMessage->Parameter.Int16[i];
-                            break;
-                        case (int)ApeTypeCode.UInt16:
-                            ParametersObject[i] = PtrMessage->Parameter.UInt16[i];
-                            break;
-                        case (int)ApeTypeCode.Int32:
-                            ParametersObject[i] = PtrMessage->Parameter.Int32[i];
-                            break;
-                        case (int)ApeTypeCode.UInt32:
-                            ParametersObject[i] = PtrMessage->Parameter.UInt32[i];
-                            break;
-                        case (int)ApeTypeCode.Int64:
-                            ParametersObject[i] = PtrMessage->Parameter.Int64[i];
-                            break;
-                        case (int)ApeTypeCode.UInt64:
-                            ParametersObject[i] = PtrMessage->Parameter.UInt64[i];
-                            break;
-                        case (int)ApeTypeCode.Single:
-                            ParametersObject[i] = PtrMessage->Parameter.Single[i];
-                            break;
-                        case (int)ApeTypeCode.Double:
-                            ParametersObject[i] = PtrMessage->Parameter.Double[i];
-                            break;
-                        case (int)ApeTypeCode.Decimal:
-                            int[] DecimalBits = new int[4];
-                            DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[i];
-                            DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[i];
-                            DecimalBits[2] = PtrMessage->Parameter.DecimalBits2[i];
-                            DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[i];
-                            ParametersObject[i] = new decimal(DecimalBits);
-                            break;
-                        case (int)ApeTypeCode.DateTime:
-                            ParametersObject[i] = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[i]);
-                            break;
-                        case (int)ApeTypeCode.String:
-                            ParametersType[i] = m_TypeString;
-                            if (PtrMessage->Parameter.StringLength[i] == -1)
-                            {
-                                string Empty = null;
-                                ParametersObject[i] = Empty;
-                            }
-                            else
-                            {
-                                ParametersObject[i] = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
-                            }
-                            break;
-                        case (int)ApeTypeCode.IntPtr:
-                            ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
-                            break;
-                        default:
-                            throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[i].ToString());
-                    }
-                }
-            }
-
             Type SourceType;
-            string Name;
-            Fasterflect.ConstructorInvoker ConstructorInvoker;
-            Fasterflect.MethodInvoker MethodInvoker;
-            Fasterflect.MemberGetter MemberGetter;
-            Fasterflect.ArrayElementGetter ArrayElementGetter;
-
             switch (PtrMessage->SourceStore)
             {
                 case DataStores.Store0:
@@ -3587,6 +3372,381 @@ namespace APE.Communication
             else
             {
                 SourceType = SourceObject.GetType();
+                Type[] ParametersType = null;
+                object[] ParametersObject = new object[PtrMessage->NumberOfParameters];
+
+                ParametersTypeCache.GetFromList(PtrMessage->TypeCodeKey, out ParametersType);
+
+                if (ParametersType == null)
+                {
+                    ParametersType = new Type[PtrMessage->NumberOfParameters];
+
+                    for (int i = 0; i < PtrMessage->NumberOfParameters; i++)
+                    {
+                        switch ((int)PtrMessage->Parameter.TypeCode[i])
+                        {
+                            case (int)ApeTypeCode.Boolean:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeBoolean;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeBooleanByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Boolean[i];
+                                break;
+                            case (int)ApeTypeCode.Char:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeChar;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeCharByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Char[i];
+                                break;
+                            case (int)ApeTypeCode.SByte:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeSByte;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeSByteByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.SByte[i];
+                                break;
+                            case (int)ApeTypeCode.Byte:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeByte;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeByteByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Byte[i];
+                                break;
+                            case (int)ApeTypeCode.Int16:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeInt16;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeInt16ByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Int16[i];
+                                break;
+                            case (int)ApeTypeCode.UInt16:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeUInt16;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeUInt16ByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.UInt16[i];
+                                break;
+                            case (int)ApeTypeCode.Int32:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeInt32;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeInt32ByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Int32[i];
+                                break;
+                            case (int)ApeTypeCode.UInt32:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeUInt32;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeUInt32ByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.UInt32[i];
+                                break;
+                            case (int)ApeTypeCode.Int64:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeInt64;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeInt64ByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Int64[i];
+                                break;
+                            case (int)ApeTypeCode.UInt64:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeUInt64;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeUInt64ByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.UInt64[i];
+                                break;
+                            case (int)ApeTypeCode.Single:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeSingle;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeSingleByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Single[i];
+                                break;
+                            case (int)ApeTypeCode.Double:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeDouble;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeDoubleByRef;
+                                }
+                                ParametersObject[i] = PtrMessage->Parameter.Double[i];
+                                break;
+                            case (int)ApeTypeCode.Decimal:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeDecimal;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeDecimalByRef;
+                                }
+                                int[] DecimalBits = new int[4];
+                                DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[i];
+                                DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[i];
+                                DecimalBits[2] = PtrMessage->Parameter.DecimalBits2[i];
+                                DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[i];
+                                ParametersObject[i] = new decimal(DecimalBits);
+                                break;
+                            case (int)ApeTypeCode.DateTime:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeDateTime;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeDateTimeByRef;
+                                }
+                                ParametersObject[i] = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[i]);
+                                break;
+                            case (int)ApeTypeCode.String:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeString;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeStringByRef;
+                                }
+                                if (PtrMessage->Parameter.StringLength[i] == -1)
+                                {
+                                    string Empty = null;
+                                    ParametersObject[i] = Empty;
+                                }
+                                else
+                                {
+                                    ParametersObject[i] = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
+                                }
+                                break;
+                            case (int)ApeTypeCode.IntPtr:
+                                if (PtrMessage->Parameter.ParameterType[i] == (int)ParameterType.In)
+                                {
+                                    ParametersType[i] = m_TypeIntPtr;
+                                }
+                                else
+                                {
+                                    ParametersType[i] = m_TypeIntPtrByRef;
+                                }
+                                ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
+                                break;
+                            case (int)ApeTypeCode.DataStore:
+                                int datastoreNumber = PtrMessage->Parameter.Int32[i];
+                                switch (datastoreNumber)
+                                {
+                                    case 0:
+                                        ParametersObject[i] = tempStore0;
+                                        break;
+                                    case 1:
+                                        ParametersObject[i] = tempStore1;
+                                        break;
+                                    case 2:
+                                        ParametersObject[i] = tempStore2;
+                                        break;
+                                    case 3:
+                                        ParametersObject[i] = tempStore3;
+                                        break;
+                                    case 4:
+                                        ParametersObject[i] = tempStore4;
+                                        break;
+                                    case 5:
+                                        ParametersObject[i] = tempStore5;
+                                        break;
+                                    case 6:
+                                        ParametersObject[i] = tempStore6;
+                                        break;
+                                    case 7:
+                                        ParametersObject[i] = tempStore7;
+                                        break;
+                                    case 8:
+                                        ParametersObject[i] = tempStore8;
+                                        break;
+                                    case 9:
+                                        ParametersObject[i] = tempStore9;
+                                        break;
+                                    default:
+                                        throw new Exception("Unsupported SourceStore " + datastoreNumber.ToString());
+                                }
+
+                                string parameterTypeText;
+                                string parameterType = null;
+                                switch ((ParameterType)PtrMessage->Parameter.ParameterType[i])
+                                {
+                                    case ParameterType.In:
+                                        parameterTypeText = " In";
+                                        ParametersType[i] = ParametersObject[i].GetType();
+                                        break;
+                                    case ParameterType.Out:
+                                        parameterTypeText = " Out";
+                                        if (PtrMessage->Parameter.StringLength[i] != -1)
+                                        {
+                                            parameterType = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
+                                        }
+
+                                        Type typeContainingParameterType;
+                                        ParameterTypeCache.GetFromList(parameterType + parameterTypeText, out typeContainingParameterType);
+                                        if (typeContainingParameterType == null)
+                                        {
+                                            typeContainingParameterType = SourceType.Assembly.GetTypes().FirstOrDefault(x => x.FullName == parameterType);
+                                            if (typeContainingParameterType == null)
+                                            {
+                                                typeContainingParameterType = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == parameterType);
+                                                if (typeContainingParameterType == null)
+                                                {
+                                                    throw new Exception("Failed to find type containing " + parameterType);
+                                                }
+                                            }
+                                            typeContainingParameterType = typeContainingParameterType.MakeByRefType();
+                                            ParameterTypeCache.AddToList(parameterType + parameterTypeText, typeContainingParameterType);
+                                        }
+                                        ParametersType[i] = typeContainingParameterType;
+                                        break;
+                                    case ParameterType.Ref:
+                                        parameterTypeText = " Ref";
+                                        ParametersType[i] = ParametersObject[i].GetType().MakeByRefType();
+                                        break;
+                                    default:
+                                        throw new Exception("Unsupported ape parameter type: " + ((ParameterType)PtrMessage->Parameter.ParameterType[i]).ToString());
+                                }
+
+                                datastoreTypes.AppendLine(ParametersType[i].Namespace);
+                                datastoreTypes.AppendLine(".");
+                                datastoreTypes.AppendLine(ParametersType[i].Name);
+                                datastoreTypes.AppendLine(parameterTypeText);
+                                break;
+                            default:
+                                throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[i].ToString());
+                        }
+                    }
+                    if (datastoreTypes.Length == 0)  //none of the parameters are a datastore type
+                    {
+                        ParametersTypeCache.AddToList(PtrMessage->TypeCodeKey, ParametersType);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < PtrMessage->NumberOfParameters; i++)
+                    {
+                        switch ((int)PtrMessage->Parameter.TypeCode[i])
+                        {
+                            case (int)ApeTypeCode.Boolean:
+                                ParametersObject[i] = PtrMessage->Parameter.Boolean[i];
+                                break;
+                            case (int)ApeTypeCode.Char:
+                                ParametersObject[i] = PtrMessage->Parameter.Char[i];
+                                break;
+                            case (int)ApeTypeCode.SByte:
+                                ParametersObject[i] = PtrMessage->Parameter.SByte[i];
+                                break;
+                            case (int)ApeTypeCode.Byte:
+                                ParametersObject[i] = PtrMessage->Parameter.Byte[i];
+                                break;
+                            case (int)ApeTypeCode.Int16:
+                                ParametersObject[i] = PtrMessage->Parameter.Int16[i];
+                                break;
+                            case (int)ApeTypeCode.UInt16:
+                                ParametersObject[i] = PtrMessage->Parameter.UInt16[i];
+                                break;
+                            case (int)ApeTypeCode.Int32:
+                                ParametersObject[i] = PtrMessage->Parameter.Int32[i];
+                                break;
+                            case (int)ApeTypeCode.UInt32:
+                                ParametersObject[i] = PtrMessage->Parameter.UInt32[i];
+                                break;
+                            case (int)ApeTypeCode.Int64:
+                                ParametersObject[i] = PtrMessage->Parameter.Int64[i];
+                                break;
+                            case (int)ApeTypeCode.UInt64:
+                                ParametersObject[i] = PtrMessage->Parameter.UInt64[i];
+                                break;
+                            case (int)ApeTypeCode.Single:
+                                ParametersObject[i] = PtrMessage->Parameter.Single[i];
+                                break;
+                            case (int)ApeTypeCode.Double:
+                                ParametersObject[i] = PtrMessage->Parameter.Double[i];
+                                break;
+                            case (int)ApeTypeCode.Decimal:
+                                int[] DecimalBits = new int[4];
+                                DecimalBits[0] = PtrMessage->Parameter.DecimalBits0[i];
+                                DecimalBits[1] = PtrMessage->Parameter.DecimalBits1[i];
+                                DecimalBits[2] = PtrMessage->Parameter.DecimalBits2[i];
+                                DecimalBits[3] = PtrMessage->Parameter.DecimalBits3[i];
+                                ParametersObject[i] = new decimal(DecimalBits);
+                                break;
+                            case (int)ApeTypeCode.DateTime:
+                                ParametersObject[i] = DateTime.FromBinary(PtrMessage->Parameter.DateTimeBinary[i]);
+                                break;
+                            case (int)ApeTypeCode.String:
+                                ParametersType[i] = m_TypeString;
+                                if (PtrMessage->Parameter.StringLength[i] == -1)
+                                {
+                                    string Empty = null;
+                                    ParametersObject[i] = Empty;
+                                }
+                                else
+                                {
+                                    ParametersObject[i] = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[i]), 0, PtrMessage->Parameter.StringLength[i]);
+                                }
+                                break;
+                            case (int)ApeTypeCode.IntPtr:
+                                ParametersObject[i] = new IntPtr(PtrMessage->Parameter.IntPtr[i]);
+                                break;
+                            default:
+                                throw new Exception("Unsupported ApeTypeCode: " + PtrMessage->Parameter.TypeCode[i].ToString());
+                        }
+                    }
+                }
+
+                string Name;
+                Fasterflect.ConstructorInvoker ConstructorInvoker;
+                Fasterflect.MethodInvoker MethodInvoker;
+                Fasterflect.MemberGetter MemberGetter;
+                Fasterflect.ArrayElementGetter ArrayElementGetter;
+
                 if (PtrMessage->NameLength == -1)
                 {
                     string Empty = null;
@@ -3608,92 +3768,137 @@ namespace APE.Communication
                 else
                 {
                     //Get the value
-                    if (Name == "<Array>")
+                    switch (PtrMessage->MemberType)
                     {
-                        ArrayElementGetter = SourceType.DelegateForGetElement();
-                        DestinationObject = ArrayElementGetter(SourceObject, (int)ParametersObject[0]);
-                        ArrayElementGetter = null;
-                    }
-                    else
-                    {
-                        switch (PtrMessage->MemberType)
-                        {
-                            case MemberTypes.Constructor:
-                                ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out ConstructorInvoker);
-                                if (ConstructorInvoker == null)
+                        case MemberTypes.Constructor:
+                            ConstructorInvokerCache.GetFromList(Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), out ConstructorInvoker);
+                            if (ConstructorInvoker == null)
+                            {
+                                Type typeContainingConstructor;
+                                typeContainingConstructor = SourceType.Assembly.GetTypes().FirstOrDefault(x => x.FullName == Name);
+                                if (typeContainingConstructor == null)
                                 {
-                                    Type typeContainingConstructor;
-                                    typeContainingConstructor = SourceType.Assembly.GetTypes().FirstOrDefault(x => x.FullName == Name);
+                                    typeContainingConstructor = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == Name);
                                     if (typeContainingConstructor == null)
                                     {
-                                        typeContainingConstructor = SourceType.Assembly.GetReferencedAssemblies().Select(x => Assembly.Load(x)).SelectMany(x => x.GetTypes()).FirstOrDefault(x => x.FullName == Name);
+                                        throw new Exception("Failed to find type containing " + Name);
                                     }
-                                    ConstructorInvoker = typeContainingConstructor.DelegateForCreateInstance(ParametersType);
-                                    ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, ConstructorInvoker);
                                 }
-                                DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
-                                //DestinationObject = ((Control)tempStore0).Invoke(ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
-                                ConstructorInvoker = null;
-                                break;
-                            case MemberTypes.Field:
+                                ConstructorInvoker = typeContainingConstructor.DelegateForCreateInstance(Flags.AllMembers | Flags.TrimExplicitlyImplemented, ParametersType);
+                                ConstructorInvokerCache.AddToList(Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), ConstructorInvoker);
+                            }
+                            DestinationObject = ConstructorInvoker.Invoke(ParametersObject);
+                            //DestinationObject = ((Control)tempStore0).Invoke(ConstructorInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                            ConstructorInvoker = null;
+                            break;
+                        case MemberTypes.Field:
+                            MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
+                            if (MemberGetter == null)
+                            {
+                                MemberGetter = SourceType.DelegateForGetFieldValue(Name, Flags.AllMembers | Flags.TrimExplicitlyImplemented);
+                                MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
+                            }
+                            DestinationObject = ((WF.Control)tempStore0).Invoke(MemberGetter, SourceObject.WrapIfValueType());
+                            MemberGetter = null;
+                            break;
+                        case MemberTypes.Property:
+                            if (ParametersType.Length == 0)
+                            {
                                 MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
                                 if (MemberGetter == null)
                                 {
-                                    MemberGetter = SourceType.DelegateForGetFieldValue(Name);
+                                    MemberGetter = SourceType.DelegateForGetPropertyValue(Name, Flags.AllMembers | Flags.TrimExplicitlyImplemented);
                                     MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
                                 }
-                                DestinationObject = ((WF.Control)tempStore0).Invoke(MemberGetter, SourceObject.WrapIfValueType());
+                                DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
                                 MemberGetter = null;
-                                break;
-                            case MemberTypes.Property:
-                                if (ParametersType.Length == 0)
+                            }
+                            else
+                            {
+                                MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), out MethodInvoker);
+                                if (MethodInvoker == null)
                                 {
-                                    MemberGetterCache.GetFromList(SourceType.TypeHandle.Value, Name, out MemberGetter);
-                                    if (MemberGetter == null)
-                                    {
-                                        MemberGetter = SourceType.DelegateForGetPropertyValue(Name);
-                                        MemberGetterCache.AddToList(SourceType.TypeHandle.Value, Name, MemberGetter);
-                                    }
-                                    DestinationObject = ((WF.Control)tempStore0).Invoke((Delegate)MemberGetter, SourceObject.WrapIfValueType());
-                                    MemberGetter = null;
+                                    MethodInvoker = SourceType.DelegateForGetIndexer(Flags.AllMembers | Flags.TrimExplicitlyImplemented, ParametersType);
+                                    MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), MethodInvoker);
                                 }
-                                else
-                                {
-                                    MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
-                                    if (MethodInvoker == null)
-                                    {
-                                        MethodInvoker = SourceType.DelegateForGetIndexer(ParametersType);
-                                        MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
-                                    }
-                                    DestinationObject = ((WF.Control)tempStore0).Invoke(MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
-                                    MethodInvoker = null;
-                                }
-                                break;
-                            case MemberTypes.Method:
-                                //Reflection doesn't seem to work on Enums so access it directly
-                                if (SourceType.IsEnum && Name == "ToString")
-                                {
-                                    DestinationObject = SourceObject.ToString();
-                                }
-                                else
-                                {
-                                    MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, out MethodInvoker);
-                                    if (MethodInvoker == null)
-                                    {
-                                        MethodInvoker = SourceType.DelegateForCallMethod(Name, ParametersType);
-                                        MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypeHandle, MethodInvoker);
-                                    }
-                                    DestinationObject = ((WF.Control)tempStore0).Invoke(MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
-                                }
+                                DestinationObject = ((WF.Control)tempStore0).Invoke(MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
                                 MethodInvoker = null;
-                                break;
-                            default:
-                                throw new Exception("Unsupported member type: " + (PtrMessage->MemberType).ToString());
+                            }
+                            break;
+                        case MemberTypes.Method:
+                            //Reflection doesn't seem to work on Enums so access it directly
+                            if (SourceType.IsEnum && Name == "ToString")
+                            {
+                                DestinationObject = SourceObject.ToString();
+                            }
+                            else
+                            {
+                                MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), out MethodInvoker);
+                                if (MethodInvoker == null)
+                                {
+                                    MethodInvoker = SourceType.DelegateForCallMethod(Name, Flags.AllMembers | Flags.TrimExplicitlyImplemented, ParametersType);
+                                    MethodInvokerCache.AddToList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), MethodInvoker);
+                                }
+                                DestinationObject = ((WF.Control)tempStore0).Invoke(MethodInvoker, SourceObject.WrapIfValueType(), ParametersObject);
+                            }
+                            MethodInvoker = null;
+                            break;
+                        default:
+                            throw new Exception("Unsupported member type: " + (PtrMessage->MemberType).ToString());
+                    }
+
+                    // Copy back the out parameters to the tempstore
+                    if (datastoreTypes != null)
+                    {
+                        for (int i = 0; i < PtrMessage->NumberOfParameters; i++)
+                        {
+                            switch ((int)PtrMessage->Parameter.TypeCode[i])
+                            {
+                                case (int)ApeTypeCode.DataStore:
+                                    int datastoreNumber = PtrMessage->Parameter.Int32[i];
+                                    if (PtrMessage->Parameter.ParameterType[i] != (int)ParameterType.In)
+                                    {
+                                        switch (datastoreNumber)
+                                        {
+                                            case 0:
+                                                tempStore0 = ParametersObject[i];
+                                                break;
+                                            case 1:
+                                                tempStore1 = ParametersObject[i];
+                                                break;
+                                            case 2:
+                                                tempStore2 = ParametersObject[i];
+                                                break;
+                                            case 3:
+                                                tempStore3 = ParametersObject[i];
+                                                break;
+                                            case 4:
+                                                tempStore4 = ParametersObject[i];
+                                                break;
+                                            case 5:
+                                                tempStore5 = ParametersObject[i];
+                                                break;
+                                            case 6:
+                                                tempStore6 = ParametersObject[i];
+                                                break;
+                                            case 7:
+                                                tempStore7 = ParametersObject[i];
+                                                break;
+                                            case 8:
+                                                tempStore8 = ParametersObject[i];
+                                                break;
+                                            case 9:
+                                                tempStore9 = ParametersObject[i];
+                                                break;
+                                        }
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
             }
-
+           
             switch (PtrMessage->DestinationStore)
             {
                 case DataStores.Store0:

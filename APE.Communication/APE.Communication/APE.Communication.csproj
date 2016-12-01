@@ -62,11 +62,13 @@
     <Compile Include="Core.cs" />
     <Compile Include="DebugLogging.cs" />
     <Compile Include="FlexgridHelper.cs" />
+    <Compile Include="GridControlHelper.cs" />
     <Compile Include="MemberGetterCircularList.cs" />
     <Compile Include="MethodInvokerCircularList.cs" />
     <Compile Include="MouseHelper.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParametersTypeCircularList.cs" />
+    <Compile Include="ParameterTypeCicularList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SentinelGridsHelper.cs" />
   </ItemGroup>
