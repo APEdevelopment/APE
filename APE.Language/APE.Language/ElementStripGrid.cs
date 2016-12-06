@@ -685,6 +685,82 @@ namespace APE.Language
             {
                 case CellProperty.TextDisplay:
                     return GetCellRangeInternal(rowIndex, columnIndex, rowIndex, columnIndex, property);
+                //case CellProperty.BackColourName:
+                //    titleRows = TitleRows();
+                //    rowIndex -= titleRows;
+                //    //GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "GetAffectingStyle", MemberTypes.Method, new Parameter(GUI.m_APE, columnIndex));
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store7, "BackColour", MemberTypes.Property);
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
+                //    //GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+
+                //    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_view", MemberTypes.Field);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "m_rowContentsCache", MemberTypes.Field);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "MergedCellStyle", MemberTypes.Field);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "BackColour", MemberTypes.Property);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Name", MemberTypes.Property);
+                //    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                //    GUI.m_APE.SendMessages(EventSet.APE);
+                //    GUI.m_APE.WaitForMessages(EventSet.APE);
+                //    string backColourName = GUI.m_APE.GetValueFromMessage();
+
+                //    //GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetDisplayValue", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3), new Parameter(GUI.m_APE, DataStores.Store5, ParameterType.Out, "LatentZero.Capstone.Controls.GridControl.CellStyle"), new Parameter(GUI.m_APE, DataStores.Store6, ParameterType.Out, "LatentZero.Capstone.Controls.GridControl.Row+CellTooltip"));
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "BackColour", MemberTypes.Property);
+                //    //GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
+                //    //GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+
+                //    //GUI.m_APE.SendMessages(EventSet.APE);
+                //    //GUI.m_APE.WaitForMessages(EventSet.APE);
+                //    //string backColourName = GUI.m_APE.GetValueFromMessage();
+                //    return backColourName;
+                //case CellProperty.ForeColourName:
+                //    titleRows = TitleRows();
+                //    rowIndex -= titleRows;
+                //    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetDisplayValue", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3), new Parameter(GUI.m_APE, DataStores.Store5, ParameterType.Out, "LatentZero.Capstone.Controls.GridControl.CellStyle"), new Parameter(GUI.m_APE, DataStores.Store6, ParameterType.Out, "LatentZero.Capstone.Controls.GridControl.Row+CellTooltip"));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "ForeColour", MemberTypes.Property);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
+                //    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                //    GUI.m_APE.SendMessages(EventSet.APE);
+                //    GUI.m_APE.WaitForMessages(EventSet.APE);
+                //    string foreColourName = GUI.m_APE.GetValueFromMessage();
+                //    return foreColourName;
+                //case CellProperty.FontStyle:
+                //    titleRows = TitleRows();
+                //    rowIndex -= titleRows;
+                //    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "LatentZero.Capstone.Controls.GridControl.CellPosition", MemberTypes.Constructor, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetDisplayValue", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3), new Parameter(GUI.m_APE, DataStores.Store5, ParameterType.Out, "LatentZero.Capstone.Controls.GridControl.CellStyle"), new Parameter(GUI.m_APE, DataStores.Store6, ParameterType.Out, "LatentZero.Capstone.Controls.GridControl.Row+CellTooltip"));
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Font", MemberTypes.Property);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "Style", MemberTypes.Property);
+                //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store8, DataStores.Store9, "ToString", MemberTypes.Method);
+                //    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
+                //    GUI.m_APE.SendMessages(EventSet.APE);
+                //    GUI.m_APE.WaitForMessages(EventSet.APE);
+                //    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                //    string fontStyleText = GUI.m_APE.GetValueFromMessage();
+                //    FontStyle fontStyle;
+                //    //if (fontStyleText == null)
+                //    //{
+                //    //    fontStyle = new FontStyle();
+                //    //}
+                //    //else
+                //    //{
+                //    fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
+                //    //}
+                //    return fontStyle;
                 default:
                     throw new Exception("Implement support for getting cell property " + property.ToString());
             }

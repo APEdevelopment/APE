@@ -157,6 +157,9 @@ namespace APE.Communication
                 string AUTProcessId = Process.GetCurrentProcess().Id.ToString();
                 string APEProcessId = APEPID.ToString();
 
+                // Set the thread name so its easy to find in the debugger
+                Thread.CurrentThread.Name = "APE_" + APEProcessId + "_" + AppDomainToLoadInto + "_" + AUTProcessId;
+
                 m_WPF = WPF;
                 m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, APEProcessId + "_String_" + AppDomainToLoadInto + "_" + AUTProcessId);
                 m_IntPtrMemoryMappedFileViewStringStore = NM.MapViewOfFile(m_HandleMemoryMappedFileStringStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)StringSpaceBytes);

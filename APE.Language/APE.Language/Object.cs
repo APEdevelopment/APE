@@ -141,6 +141,11 @@ namespace APE.Language
                     m_MenuUtils.ClickMenuItem(MenuParent, Handle, MenuIndex, Menus[Item], ref Identity);
                 }
             }
+            catch
+            {
+                Input.Reset();  //Reset the mouse blocking
+                throw;
+            }
             finally
             {
                 Input.Unblock();
