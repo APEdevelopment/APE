@@ -627,46 +627,47 @@ namespace APE.Language
 
         public static void ClickCommon(IntPtr Parent, IntPtr Handle, int X, int Y)
         {
-            if (NM.IsWindowVisible(Handle))
+            if (NM.IsIconic(Handle))
             {
-                if (NM.IsWindowEnabled(Handle))
-                {
-                    IntPtr ActualParent;
+                throw new Exception("Window is minimised");
+            }
 
-                    if (Parent == IntPtr.Zero)
-                    {
-                        ActualParent = Handle;
-                    }
-                    else
-                    {
-                        ActualParent = Parent;
-                    }
+            if (!NM.IsWindowVisible(Handle))
+            {
+                throw new Exception("Window is not visible");
+            }
 
-                    if (!ActiveWindow(ActualParent))
-                    {
-                        SetFocus(Parent, Handle);
-                    }
-                    else
-                    {
-                        NM.BringWindowToTop(ActualParent);
-                    }
+            if (!NM.IsWindowEnabled(Handle))
+            {
+                throw new Exception("Window is not enabled");
+            }
 
-                    NM.tagPoint thePoint = MouseMove(Handle, X, Y);
-                    IntPtr WindowAtPoint = NM.WindowFromPoint(thePoint);
+            IntPtr ActualParent;
 
-                    if (WindowAtPoint != Handle)
-                    {
-                        throw new Exception("Window is obscured");
-                    }
-                }
-                else
-                {
-                    throw new Exception("Window is not enabled");
-                }
+            if (Parent == IntPtr.Zero)
+            {
+                ActualParent = Handle;
             }
             else
             {
-                throw new Exception("Window is not visible");
+                ActualParent = Parent;
+            }
+
+            if (!ActiveWindow(ActualParent))
+            {
+                SetFocus(Parent, Handle);
+            }
+            else
+            {
+                NM.BringWindowToTop(ActualParent);
+            }
+
+            NM.tagPoint thePoint = MouseMove(Handle, X, Y);
+            IntPtr WindowAtPoint = NM.WindowFromPoint(thePoint);
+
+            if (WindowAtPoint != Handle)
+            {
+                throw new Exception("Window is obscured");
             }
         }
 
