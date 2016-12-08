@@ -627,11 +627,6 @@ namespace APE.Language
 
         public static void ClickCommon(IntPtr Parent, IntPtr Handle, int X, int Y)
         {
-            if (NM.IsIconic(Handle))
-            {
-                throw new Exception("Window is minimised");
-            }
-
             if (!NM.IsWindowVisible(Handle))
             {
                 throw new Exception("Window is not visible");
@@ -651,6 +646,11 @@ namespace APE.Language
             else
             {
                 ActualParent = Parent;
+            }
+
+            if (NM.IsIconic(ActualParent))
+            {
+                throw new Exception("Window is minimised");
             }
 
             if (!ActiveWindow(ActualParent))
