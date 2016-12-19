@@ -14,15 +14,11 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Threading;
-using NM = APE.Native.NativeMethods;
 using APE.Communication;
 using System.Reflection;
+using System.Drawing;
 
 namespace APE.Language
 {
@@ -43,6 +39,140 @@ namespace APE.Language
         public GUIDateTimePicker(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
             : base(parentForm, descriptionOfControl, identParams)
         {
+        }
+
+        /// <summary>
+        /// Gets if the date time picker currently has a checkbox shown
+        /// </summary>
+        /// <returns>True if it has a checkbox shown otherwise false</returns>
+        public bool HasCheckbox()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ShowCheckBox", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool hasCheckbox = GUI.m_APE.GetValueFromMessage();
+            return hasCheckbox;
+        }
+
+        /// <summary>
+        /// Gets the checked state of the date time picker checkbox
+        /// </summary>
+        /// <returns>>True the checkbox is checked otherwise false</returns>
+        public bool Checked()
+        {
+            if (HasCheckbox())
+            {
+                return GetState();
+            }
+            else
+            {
+                throw new Exception(Description + " does not have a checkbox shown");
+            }
+        }
+
+        /// <summary>
+        /// Checks the checkbox
+        /// </summary>
+        public void Check()
+        {
+            if (GetState() == true)
+            {
+                GUI.Log("Ensure " + Description + " checkbox is checked", LogItemType.Action);
+            }
+            else
+            {
+                GUI.Log("Check " + Description + " checkbox", LogItemType.Action);
+                Rectangle location = GetCheckboxRectangle();
+                SingleClickInternal(location.X + (location.Width / 2), location.Y + (location.Height / 2), MouseButton.Left, MouseKeyModifier.None);
+                PollForState(true);
+            }
+        }
+
+        /// <summary>
+        /// Unchecks the checkbox
+        /// </summary>
+        public void Uncheck()
+        {
+            if (GetState() == false)
+            {
+                GUI.Log("Ensure " + Description + " checkbox is unchecked", LogItemType.Action);
+            }
+            else
+            {
+                GUI.Log("Uncheck " + Description + " checkbox", LogItemType.Action);
+                Rectangle location = GetCheckboxRectangle();
+                SingleClickInternal(location.X + (location.Width / 2), location.Y + (location.Height / 2), MouseButton.Left, MouseKeyModifier.None);
+                PollForState(false);
+            }
+        }
+
+        private Rectangle GetCheckboxRectangle()
+        {
+            GUI.m_APE.AddFirstMessageGetDateTimePickerCheckboxRectangle(Identity.Handle);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            int top = GUI.m_APE.GetValueFromMessage();
+            int left = GUI.m_APE.GetValueFromMessage();
+            int bottom = GUI.m_APE.GetValueFromMessage();
+            int right = GUI.m_APE.GetValueFromMessage();
+
+            return new Rectangle(left, top, (right - left), (bottom - top));
+        }
+
+        private Rectangle GetButtonRectangle()
+        {
+            GUI.m_APE.AddFirstMessageGetDateTimePickerButtonRectangle(Identity.Handle);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            int top = GUI.m_APE.GetValueFromMessage();
+            int left = GUI.m_APE.GetValueFromMessage();
+            int bottom = GUI.m_APE.GetValueFromMessage();
+            int right = GUI.m_APE.GetValueFromMessage();
+
+            return new Rectangle(left, top, (right - left), (bottom - top));
+        }
+
+        private bool GetState()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Checked", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool isChecked = GUI.m_APE.GetValueFromMessage();
+            return isChecked;
+        }
+
+        private void PollForState(bool state)
+        {
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (GetState() == state)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    string stateText;
+                    if (state)
+                    {
+                        stateText = "check";
+                    }
+                    else
+                    {
+                        stateText = "uncheck";
+                    }
+                    throw new Exception("Failed to " + stateText + " the " + Description + " checkbox");
+                }
+
+                Thread.Sleep(15);
+            }
         }
 
         /// <summary>
@@ -106,7 +236,14 @@ namespace APE.Language
             try
             {
                 //click on the left side of the control
-                base.SingleClick(5, 5, MouseButton.Left);
+                int x = 5;
+                int y = 5;
+                if (HasCheckbox())
+                {
+                    Rectangle location = GetCheckboxRectangle();
+                    x += location.Right;
+                }
+                base.SingleClick(x, y, MouseButton.Left);
 
                 char[] splitSeparator = { '/', ':', ' ' };
                 string[] dateParts;

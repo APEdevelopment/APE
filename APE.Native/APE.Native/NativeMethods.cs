@@ -347,6 +347,34 @@ namespace APE.Native
             BLTALIGNMENT = 119
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DATETIMEPICKERINFO
+        {
+            public uint cbSize;
+            public tagRect rcCheck;
+            public uint stateCheck;
+            public tagRect rcButton;
+            public uint stateButton;
+            public IntPtr hwndEdit;
+            public IntPtr hwndUD;
+            public IntPtr hwndDropDown;
+        }
+
+        const int DTM_GETDATETIMEPICKERINFO = 0x1000 + 14;
+
+        public static DATETIMEPICKERINFO GetDateTimePickerInfo(IntPtr hWnd)
+        {
+            DATETIMEPICKERINFO info = new DATETIMEPICKERINFO();
+            info.cbSize  = (uint)Marshal.SizeOf(typeof(DATETIMEPICKERINFO));
+            IntPtr theResult = IntPtr.Zero;
+            IntPtr theReturn = SendMessageTimeout(hWnd, DTM_GETDATETIMEPICKERINFO, IntPtr.Zero, ref info, SendMessageTimeoutFlags.SMTO_ABORTIFHUNG, 30, out theResult);
+            if (theReturn == IntPtr.Zero)
+            {
+                throw new Exception("SendMessageTimeout failed, does the window exists?");
+            }
+            return info;
+        }
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetTitleBarInfo(IntPtr hwnd, ref TITLEBARINFO pti);
@@ -1464,6 +1492,9 @@ namespace APE.Native
 
         [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, ref tagRect lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
+
+        [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, ref DATETIMEPICKERINFO lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
 
         [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, ref TITLEBARINFOEX lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);

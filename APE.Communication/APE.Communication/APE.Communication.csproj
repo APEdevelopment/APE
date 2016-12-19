@@ -60,8 +60,10 @@
     <Compile Include="Communication.cs" />
     <Compile Include="ConstructorInvokerCircularList.cs" />
     <Compile Include="Core.cs" />
+    <Compile Include="DateTimePickerHelper.cs" />
     <Compile Include="DebugLogging.cs" />
     <Compile Include="FlexgridHelper.cs" />
+    <Compile Include="FormHelper.cs" />
     <Compile Include="GridControlHelper.cs" />
     <Compile Include="MemberGetterCircularList.cs" />
     <Compile Include="MethodInvokerCircularList.cs" />

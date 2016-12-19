@@ -469,107 +469,6 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, contextMenuStrip));
         }
 
-        public unsafe void GetTitleBarItemRectangle(int MessageNumber)
-        {
-            //must be first message
-            if (MessageNumber != 1)
-            {
-                throw new Exception("GetListViewItemRectangle must be first message");
-            }
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((MessageNumber - 1) * m_SizeOfMessage));
-
-            // p1  = handle
-            IntPtr Handle;
-            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
-            {
-                Handle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
-            // p2  = TitleBarStateElement
-            NM.TitleBarStateElement Item;
-            if ((PtrMessage->Parameter.TypeCode[1]) == (Int32)ApeTypeCode.Int32)
-            {
-                Item = (NM.TitleBarStateElement)PtrMessage->Parameter.Int32[1];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.Int32 got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
-            }
-
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
-
-            NM.TITLEBARINFOEX tbi = new NM.TITLEBARINFOEX();
-            tbi.cbSize = Marshal.SizeOf(typeof(NM.TITLEBARINFOEX));
-
-            // Send the WM_GETTITLEBARINFOEX message
-            IntPtr Result;
-            IntPtr Return;
-            Return = NM.SendMessageTimeout(Handle, NM.WM_GETTITLEBARINFOEX, IntPtr.Zero, ref tbi, NM.SendMessageTimeoutFlags.SMTO_NORMAL, TimeOut, out Result);
-
-            uint State;
-            int Left;
-            int Top;
-            int Right;
-            int Bottom;
-
-            switch (Item)
-            {
-                case NM.TitleBarStateElement.TitleBar:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.TitleBar];
-                    Top = tbi.rcTitleBar.top;
-                    Left = tbi.rcTitleBar.left;
-                    Bottom = tbi.rcTitleBar.bottom;
-                    Right = tbi.rcTitleBar.right;
-                    break;
-                case NM.TitleBarStateElement.Minimize:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Minimize];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].right;
-                    break;
-                case NM.TitleBarStateElement.Maximize:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Maximize];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].right;
-                    break;
-                case NM.TitleBarStateElement.Help:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Help];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Help].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Help].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Help].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Help].right;
-                    break;
-                case NM.TitleBarStateElement.Close:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Close];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Close].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Close].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Close].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Close].right;
-                    break;
-                default:
-                    throw new Exception("Unknown titlebar element: " + Item.ToString());
-            }
-
-            AddReturnValue(new Parameter(this, State));
-            AddReturnValue(new Parameter(this, Top));
-            AddReturnValue(new Parameter(this, Left));
-            AddReturnValue(new Parameter(this, Bottom));
-            AddReturnValue(new Parameter(this, Right));
-        }
-
         public unsafe void GetListViewItemRectangle(int MessageNumber)
         {
             //
@@ -1303,25 +1202,6 @@ namespace APE.Communication
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
             PtrMessage->Action = MessageAction.GetAppDomains;
-
-            m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
-            m_DoneQuery = true;
-            m_DoneGet = true;
-        }
-
-        unsafe public void AddFirstMessageGetTitleBarItemRectangle(IntPtr Handle, NM.TitleBarStateElement Item)
-        {
-            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
-            FirstMessageInitialise();
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->Action = MessageAction.GetTitleBarItemRectangle;
-
-            Parameter HandleParam = new Parameter(this, Handle);
-            Parameter ItemParam = new Parameter(this, (int)Item);
-            m_MessageNumber = 0;
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
