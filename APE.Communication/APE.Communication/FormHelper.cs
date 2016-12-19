@@ -16,16 +16,19 @@
 using System;
 using System.Runtime.InteropServices;
 using NM = APE.Native.NativeMethods;
+using WF = System.Windows.Forms;
 
 namespace APE.Communication
 {
     public partial class APEIPC
     {
+        private Type m_ScrollableControl = typeof(WF.ScrollableControl);
+
         //
         //  GetTitleBarItemRectangle
         //
 
-        unsafe public void AddFirstMessageGetTitleBarItemRectangle(IntPtr Handle, NM.TitleBarStateElement Item)
+        unsafe public void AddFirstMessageGetTitleBarItemRectangle(IntPtr handle, NM.TitleBarStateElement item)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
@@ -34,8 +37,8 @@ namespace APE.Communication
 
             ptrMessage->Action = MessageAction.GetTitleBarItemRectangle;
 
-            Parameter HandleParam = new Parameter(this, Handle);
-            Parameter ItemParam = new Parameter(this, (int)Item);
+            Parameter handleParam = new Parameter(this, handle);
+            Parameter itemParam = new Parameter(this, (int)item);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -52,10 +55,10 @@ namespace APE.Communication
             }
 
             // p1  = handle
-            IntPtr Handle = GetParameterIntPtr(ptrMessage, 0);
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
 
             // p2  = TitleBarStateElement
-            NM.TitleBarStateElement Item = (NM.TitleBarStateElement)GetParameterInt32(ptrMessage, 1);
+            NM.TitleBarStateElement item = (NM.TitleBarStateElement)GetParameterInt32(ptrMessage, 1);
 
             CleanUpMessage(ptrMessage);
 
@@ -63,62 +66,111 @@ namespace APE.Communication
             tbi.cbSize = Marshal.SizeOf(typeof(NM.TITLEBARINFOEX));
 
             // Send the WM_GETTITLEBARINFOEX message
-            IntPtr Result;
-            IntPtr Return;
-            Return = NM.SendMessageTimeout(Handle, NM.WM_GETTITLEBARINFOEX, IntPtr.Zero, ref tbi, NM.SendMessageTimeoutFlags.SMTO_NORMAL, TimeOut, out Result);
+            IntPtr result;
+            IntPtr smtReturn;
+            smtReturn = NM.SendMessageTimeout(handle, NM.WM_GETTITLEBARINFOEX, IntPtr.Zero, ref tbi, NM.SendMessageTimeoutFlags.SMTO_NORMAL, TimeOut, out result);
 
-            uint State;
-            int Left;
-            int Top;
-            int Right;
-            int Bottom;
+            uint state;
+            int left;
+            int top;
+            int right;
+            int bottom;
 
-            switch (Item)
+            switch (item)
             {
                 case NM.TitleBarStateElement.TitleBar:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.TitleBar];
-                    Top = tbi.rcTitleBar.top;
-                    Left = tbi.rcTitleBar.left;
-                    Bottom = tbi.rcTitleBar.bottom;
-                    Right = tbi.rcTitleBar.right;
+                    state = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.TitleBar];
+                    top = tbi.rcTitleBar.top;
+                    left = tbi.rcTitleBar.left;
+                    bottom = tbi.rcTitleBar.bottom;
+                    right = tbi.rcTitleBar.right;
                     break;
                 case NM.TitleBarStateElement.Minimize:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Minimize];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].right;
+                    state = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Minimize];
+                    top = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].top;
+                    left = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].left;
+                    bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].bottom;
+                    right = tbi.rgrect[(int)NM.TitleBarStateElement.Minimize].right;
                     break;
                 case NM.TitleBarStateElement.Maximize:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Maximize];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].right;
+                    state = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Maximize];
+                    top = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].top;
+                    left = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].left;
+                    bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].bottom;
+                    right = tbi.rgrect[(int)NM.TitleBarStateElement.Maximize].right;
                     break;
                 case NM.TitleBarStateElement.Help:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Help];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Help].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Help].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Help].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Help].right;
+                    state = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Help];
+                    top = tbi.rgrect[(int)NM.TitleBarStateElement.Help].top;
+                    left = tbi.rgrect[(int)NM.TitleBarStateElement.Help].left;
+                    bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Help].bottom;
+                    right = tbi.rgrect[(int)NM.TitleBarStateElement.Help].right;
                     break;
                 case NM.TitleBarStateElement.Close:
-                    State = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Close];
-                    Top = tbi.rgrect[(int)NM.TitleBarStateElement.Close].top;
-                    Left = tbi.rgrect[(int)NM.TitleBarStateElement.Close].left;
-                    Bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Close].bottom;
-                    Right = tbi.rgrect[(int)NM.TitleBarStateElement.Close].right;
+                    state = (uint)tbi.rgstate[(int)NM.TitleBarStateElement.Close];
+                    top = tbi.rgrect[(int)NM.TitleBarStateElement.Close].top;
+                    left = tbi.rgrect[(int)NM.TitleBarStateElement.Close].left;
+                    bottom = tbi.rgrect[(int)NM.TitleBarStateElement.Close].bottom;
+                    right = tbi.rgrect[(int)NM.TitleBarStateElement.Close].right;
                     break;
                 default:
-                    throw new Exception("Unknown titlebar element: " + Item.ToString());
+                    throw new Exception("Unknown titlebar element: " + item.ToString());
             }
 
-            AddReturnValue(new Parameter(this, State));
-            AddReturnValue(new Parameter(this, Top));
-            AddReturnValue(new Parameter(this, Left));
-            AddReturnValue(new Parameter(this, Bottom));
-            AddReturnValue(new Parameter(this, Right));
+            AddReturnValue(new Parameter(this, state));
+            AddReturnValue(new Parameter(this, top));
+            AddReturnValue(new Parameter(this, left));
+            AddReturnValue(new Parameter(this, bottom));
+            AddReturnValue(new Parameter(this, right));
+        }
+
+        //
+        //  ScrollControlIntoView
+        //
+
+        unsafe public void AddFirstMessageScrollControlIntoView(IntPtr handle)
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.ScrollControlIntoView;
+
+            Parameter HandleParam = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void ScrollControlIntoView(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("ScrollControlIntoView must be first message");
+            }
+
+            // p1  = handle
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+
+            WF.Control childControl = WF.Control.FromHandle(handle);
+            if (childControl != null)
+            {
+                WF.Control control = childControl.Parent;
+                while (control != null)
+                {
+                    if (control.GetType().IsSubclassOf(m_ScrollableControl))
+                    {
+                        ((WF.ScrollableControl)control).ScrollControlIntoView(childControl);
+                    }
+
+                    control = control.Parent;
+                }
+            }
+            //TODO WPF etc
         }
     }
 }

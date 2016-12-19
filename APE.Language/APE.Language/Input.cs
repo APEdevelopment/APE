@@ -855,47 +855,46 @@ namespace APE.Language
         public static NM.tagPoint MouseMove(IntPtr Handle, int x, int y, bool PerformCheck = true)
         {
             NM.tagRect WindowRect;
-            NM.GetWindowRect(Handle, out WindowRect);
-
             NM.tagRect ClientRect;
-            NM.GetClientRect(Handle, out ClientRect);
-
-            //TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
-
-            int xOffset;
-            if (x == -1)
-            {
-                xOffset = ClientRect.right / 2;
-            }
-            else
-            {
-                xOffset = x;
-            }
-
-            int yOffset;
-            if (y == -1)
-            {
-                yOffset = ClientRect.bottom / 2;
-            }
-            else
-            {
-                yOffset = y;
-            }
-
-            //Convert the window area to screen point
             NM.tagPoint thePoint;
-            thePoint.x = WindowRect.left + xOffset;
-            thePoint.y = WindowRect.top + yOffset;
+            int xOffset;
+            int yOffset;
 
-            if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
             {
-                throw new Exception("coordinate appears to be offscreen");
-            }
+                NM.GetWindowRect(Handle, out WindowRect);
+                NM.GetClientRect(Handle, out ClientRect);
 
-            if (PerformCheck)
-            {
-                Stopwatch timer = Stopwatch.StartNew();
-                while (true)
+                //TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
+                if (x == -1)
+                {
+                    xOffset = ClientRect.right / 2;
+                }
+                else
+                {
+                    xOffset = x;
+                }
+
+                if (y == -1)
+                {
+                    yOffset = ClientRect.bottom / 2;
+                }
+                else
+                {
+                    yOffset = y;
+                }
+
+                //Convert the window area to screen point
+                thePoint.x = WindowRect.left + xOffset;
+                thePoint.y = WindowRect.top + yOffset;
+
+                if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
+                {
+                    throw new Exception("coordinate appears to be offscreen");
+                }
+
+                if (PerformCheck)
                 {
                     IntPtr ChildHandle;
 
@@ -911,11 +910,20 @@ namespace APE.Language
                     }
                     else
                     {
+                        //Try to scroll it into view
+                        GUI.m_APE.AddFirstMessageScrollControlIntoView(Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+
                         if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                         {
                             throw new Exception("Coordinates are not inside the controls area");
                         }
                     }
+                }
+                else
+                {
+                    break;
                 }
             }
 

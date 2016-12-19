@@ -96,6 +96,7 @@ namespace APE.Communication
         GridControlGetAllColumnsHidden = 34,
         GetDateTimePickerCheckboxRectangle = 35,
         GetDateTimePickerButtonRectangle = 36,
+        ScrollControlIntoView = 37,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -335,6 +336,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.GetDateTimePickerButtonRectangle:
                                     GetDateTimePickerButtonRectangle(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.ScrollControlIntoView:
+                                    ScrollControlIntoView(ptrMessage, messageNumber);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
