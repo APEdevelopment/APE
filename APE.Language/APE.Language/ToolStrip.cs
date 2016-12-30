@@ -699,7 +699,7 @@ namespace APE.Language
 
             GUI.Log("Select [" + splitDropDownItem + "] from " + Identity.Description, LogItemType.Action);
 
-            string[] DropDownItems = splitDropDownItem.Split(new char[] { '\\' });
+            string[] DropDownItems = splitDropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
             int MenuIndex = 0;
             IntPtr Handle= GetDropDown();
 
@@ -778,7 +778,7 @@ namespace APE.Language
 
             GUI.Log("Select [" + dropDownItem + "] from " + Identity.Description, LogItemType.Action);
 
-            string[] DropDownItems = dropDownItem.Split(new char[] { '\\' });
+            string[] DropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
             int MenuIndex = 0;
             IntPtr Handle = GetDropDown();
 

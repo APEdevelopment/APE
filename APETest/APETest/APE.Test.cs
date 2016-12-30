@@ -1062,6 +1062,10 @@ namespace APE.Test
             int loops = int.Parse(textBox1.Text);
             Stopwatch testTimer = Stopwatch.StartNew();
 
+            GUI.TreeViewDelimiter = @"\";
+            GUI.MenuDelimiter = @"\";
+            GUI.GridDelimiter = @" -> ";
+
             if (loops > 100)
             {
                 Thread.Sleep(5000);

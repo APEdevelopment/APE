@@ -110,7 +110,7 @@ namespace APE.Language
         {
             GUI.Log("Select context menu item [" + ContextMenuItem + "]", LogItemType.Action);
 
-            string[] Menus = ContextMenuItem.Split(new char[] { '\\' });
+            string[] Menus = ContextMenuItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
             int MenuIndex = 0;
             IntPtr Handle;
             IntPtr MenuParent;

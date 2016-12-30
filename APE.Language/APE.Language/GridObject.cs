@@ -121,33 +121,16 @@ namespace APE.Language
         public GUIGridObject(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
             : base(parentForm, descriptionOfControl, identParams)
         {
-        }
-
-        internal string[] DelimiterAsArray = { " -> " };
-
-        /// <summary>
-        /// The delimiter used to separate column title and node rows
-        /// </summary>
-        public string Delimiter
-        {
-            get
-            {
-                return DelimiterAsArray[0];
-            }
-            set
-            {
-                DelimiterAsArray[0] = value;
-            }
-        }
+        }       
 
         /// <summary>
         /// Returns true if the specified column in the grid exists
         /// </summary>
-        /// <param name="columnToFind">Column to check if hidden delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>True or False</returns>
         public virtual bool ColumnExists(string columnToFind)
         {
-            string[] columnHeader = columnToFind.Split(DelimiterAsArray, StringSplitOptions.None);
+            string[] columnHeader = columnToFind.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
 
             if (FindColumnInternal(columnHeader) == -1)
             {
@@ -162,11 +145,11 @@ namespace APE.Language
         /// <summary>
         /// Returns the index of the specified column in the grid
         /// </summary>
-        /// <param name="columnToFind">Column to check if hidden delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnToFind">Column to check if hidden delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>The index of the column</returns>
         public virtual int FindColumn(string columnToFind)
         {
-            string[] columnHeader = columnToFind.Split(DelimiterAsArray, StringSplitOptions.None);
+            string[] columnHeader = columnToFind.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
 
             return FindColumn(columnHeader);
         }
@@ -192,7 +175,7 @@ namespace APE.Language
 
             if (column == -1)
             {
-                throw new Exception("Failed to find column " + string.Join(Delimiter, columnHeader) + " in the " + Description);
+                throw new Exception("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
             }
 
             return column;
@@ -215,7 +198,7 @@ namespace APE.Language
         /// Returns the rows index of the specified value in the specified column
         /// </summary>
         /// <param name="rowText">The value to look for in the specified column</param>
-        /// <param name="columnText">The column to look for the value in delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, string columnText)
         {
@@ -228,7 +211,7 @@ namespace APE.Language
         /// Returns the rows index of the specified value in the specified column
         /// </summary>
         /// <param name="rowText">The value to look for in the specified column</param>
-        /// <param name="columnText">The column to look for the value in delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">The column to look for the value in delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="startAtRow">The row to start the search at</param>
         /// <returns>The index of the row or -1</returns>
         public int FindRow(string rowText, string columnText, int startAtRow)
@@ -563,7 +546,7 @@ namespace APE.Language
         /// Scrolls the specified cell into view
         /// </summary>
         /// <param name="rowIndex">Row index of the cell</param>
-        /// <param name="columnText">Column text of the cell delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column text of the cell delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         public void ShowCell(int rowIndex, string columnText)
         {
             int columnIndex = FindColumn(columnText);
@@ -898,9 +881,9 @@ namespace APE.Language
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
         /// <param name="row1Index">The start row of the range</param>
-        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="row2Index">The end row of the range</param>
-        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>A string containing the range of values</returns>
         public string GetCellRange(int row1Index, string column1Text, int row2Index, string column2Text)
         {
@@ -913,7 +896,7 @@ namespace APE.Language
         /// <param name="row1Index">The start row of the range</param>
         /// <param name="column1Index">The start column of the range</param>
         /// <param name="row2Index">The end row of the range</param>
-        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>A string containing the range of values</returns>
         public string GetCellRange(int row1Index, int column1Index, int row2Index, string column2Text)
         {
@@ -924,7 +907,7 @@ namespace APE.Language
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
         /// <param name="row1Index">The start row of the range</param>
-        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="row2Index">The end row of the range</param>
         /// <param name="column2Index">The end column of the range</param>
         /// <returns>A string containing the range of values</returns>
@@ -950,9 +933,9 @@ namespace APE.Language
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
         /// <param name="row1Index">The start row of the range</param>
-        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="row2Index">The end row of the range</param>
-        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="property">The property of the cell to get</param>
         /// <returns>A string containing the range of values</returns>
         public string GetCellRange(int row1Index, string column1Text, int row2Index, string column2Text, CellProperty property)
@@ -968,7 +951,7 @@ namespace APE.Language
         /// <param name="row1Index">The start row of the range</param>
         /// <param name="column1Index">The start column of the range</param>
         /// <param name="row2Index">The end row of the range</param>
-        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column2Text">The end column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="property">The property of the cell to get</param>
         /// <returns>A string containing the range of values</returns>
         public string GetCellRange(int row1Index, int column1Index, int row2Index, string column2Text, CellProperty property)
@@ -981,7 +964,7 @@ namespace APE.Language
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
         /// <param name="row1Index">The start row of the range</param>
-        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="column1Text">The start column of the range delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="row2Index">The end row of the range</param>
         /// <param name="column2Index">The end column of the range</param>
         /// <param name="property">The property of the cell to get</param>
@@ -1012,7 +995,7 @@ namespace APE.Language
         /// Returns the value of the specified cell as a string
         /// </summary>
         /// <param name="rowText">The row text of the cell in the specified column</param>
-        /// <param name="columnText">Column of the cell delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column of the cell delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns></returns>
         public string GetCell(string rowText, string columnText)
         {
@@ -1023,7 +1006,7 @@ namespace APE.Language
         /// Returns the value of the specified cell as a string
         /// </summary>
         /// <param name="rowIndex">Row index of the cell</param>
-        /// <param name="columnText">Column of the cell delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column of the cell delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>The cell value as a string</returns>
         /// <returns></returns>
         public string GetCell(int rowIndex, string columnText)
@@ -1057,7 +1040,7 @@ namespace APE.Language
         /// Returns the value of the specified cell property
         /// </summary>
         /// <param name="rowText">The row text of the cell in the specified column</param>
-        /// <param name="columnText">Column of the cell delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column of the cell delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="property">The property of the cell to get</param>
         /// <returns>The cell property</returns>
         public dynamic GetCell(string rowText, string columnText, CellProperty property)
@@ -1072,7 +1055,7 @@ namespace APE.Language
         /// Returns the value of the specified cell property
         /// </summary>
         /// <param name="rowIndex">Row index of the cell</param>
-        /// <param name="columnText">Column of the cell delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column of the cell delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <param name="property">The property of the cell to get</param>
         /// <returns>The cell property</returns>
         public dynamic GetCell(int rowIndex, string columnText, CellProperty property)

@@ -607,7 +607,7 @@ namespace APE.Language
 
         private void CheckInternal(string TreeViewItem, bool Check)
         {
-            string[] Nodes = TreeViewItem.Split(new char[] { '\\' });
+            string[] Nodes = TreeViewItem.Split(GUI.TreeViewDelimiterAsArray, StringSplitOptions.None);
             IntPtr NodeHandle = IntPtr.Zero;
 
             for (int Item = 0; Item < Nodes.Length; Item++)
@@ -663,7 +663,7 @@ namespace APE.Language
                     break;
             }
 
-            string[] Nodes = treeViewItem.Split(new char[] { '\\' });
+            string[] Nodes = treeViewItem.Split(GUI.TreeViewDelimiterAsArray, StringSplitOptions.None);
             IntPtr NodeHandle = IntPtr.Zero;
 
             for (int Item = 0; Item < Nodes.Length; Item++)

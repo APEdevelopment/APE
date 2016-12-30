@@ -195,6 +195,9 @@ namespace APE.Language
         /// Assign a method to this field which matches the LoggerDelegate to allow custom logging 
         /// </summary>
         public static LoggerDelegate Logger;
+        internal static string[] GridDelimiterAsArray = { "->" };
+        internal static string[] MenuDelimiterAsArray = { "->" };
+        internal static string[] TreeViewDelimiterAsArray = { "->" };
 
         static GUI()
         {
@@ -216,7 +219,52 @@ namespace APE.Language
                 m_threadViewPort.Start();
             }
         }
-        
+
+        /// <summary>
+        /// The delimiter used to separate column title and node rows
+        /// </summary>
+        public static string GridDelimiter
+        {
+            get
+            {
+                return GridDelimiterAsArray[0];
+            }
+            set
+            {
+                GridDelimiterAsArray[0] = value;
+            }
+        }
+
+        /// <summary>
+        /// The delimiter used to separate menu items
+        /// </summary>
+        public static string MenuDelimiter
+        {
+            get
+            {
+                return MenuDelimiterAsArray[0];
+            }
+            set
+            {
+                MenuDelimiterAsArray[0] = value;
+            }
+        }
+
+        /// <summary>
+        /// The delimiter used to separate treeview items
+        /// </summary>
+        public static string TreeViewDelimiter
+        {
+            get
+            {
+                return TreeViewDelimiterAsArray[0];
+            }
+            set
+            {
+                TreeViewDelimiterAsArray[0] = value;
+            }
+        }
+
         /// <summary>
         /// Waits for the specified controls gui thread to be idle waiting for user input
         /// </summary>

@@ -285,7 +285,7 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified column is hidden in the grid
         /// </summary>
-        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>True or False</returns>
         public bool IsColumnHidden(string columnText)
         {

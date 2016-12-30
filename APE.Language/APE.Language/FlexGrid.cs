@@ -95,7 +95,7 @@ namespace APE.Language
         private int FindNodeRow(string NodeText)
         {
             //TODO this is bit inefficent, it would be better to find from parent to child rather than child to parent
-            string[] SplitNodeText = NodeText.Split(DelimiterAsArray, StringSplitOptions.None);
+            string[] SplitNodeText = NodeText.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
 
             int Column = TreeViewColumn();
             int CurrentRow = FixedRows();
@@ -137,7 +137,7 @@ namespace APE.Language
 
             while (CurrentRow > -1)
             {
-                NodePath = GetCell(CurrentRow, Column, CellProperty.TextDisplay) + Delimiter + NodePath;
+                NodePath = GetCell(CurrentRow, Column, CellProperty.TextDisplay) + GUI.GridDelimiter + NodePath;
                 CurrentRow = GetNodeParentRow(CurrentRow);
             }
 
@@ -292,12 +292,12 @@ namespace APE.Language
         /// <summary>
         /// Expands the specified nodes in the flexgrid treeview column
         /// </summary>
-        /// <param name="nodePath">Node path to expand delimited by -> (or the user defined Delimiter property) for example RULE LIBRARY -> UCITS I -> France</param>
+        /// <param name="nodePath">Node path to expand delimited by -> (or the user defined GridDelimiter property) for example RULE LIBRARY -> UCITS I -> France</param>
         public void ExpandNodes(string nodePath)
         {
             GUI.Log("Expand node " + nodePath, LogItemType.Action);
 
-            string[] nodePathArray = nodePath.Split(DelimiterAsArray, StringSplitOptions.None);
+            string[] nodePathArray = nodePath.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
 
             int treeColumnIndex = TreeViewColumn();
             string row = "";
@@ -315,7 +315,7 @@ namespace APE.Language
                 }
                 else
                 {
-                    row += Delimiter + nodePathArray[i];
+                    row += GUI.GridDelimiter + nodePathArray[i];
                 }
                 int rowIndex = FindNodeRow(row);
 
@@ -350,12 +350,12 @@ namespace APE.Language
         /// <summary>
         /// Collapses the specified nodes in the flexgrid treeview column
         /// </summary>
-        /// <param name="nodePath">Node path to collapse delimited by -> (or the user defined Delimiter property) for example RULE LIBRARY -> UCITS I -> France</param>
+        /// <param name="nodePath">Node path to collapse delimited by -> (or the user defined GridDelimiter property) for example RULE LIBRARY -> UCITS I -> France</param>
         public void CollapseNodes(string nodePath)
         {
             GUI.Log("Collapse node " + nodePath, LogItemType.Action);
 
-            string[] nodePathArray = nodePath.Split(DelimiterAsArray, StringSplitOptions.None);
+            string[] nodePathArray = nodePath.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
 
             int treeColumnIndex = TreeViewColumn();
             string row = "";
@@ -375,7 +375,7 @@ namespace APE.Language
                     }
                     else
                     {
-                        row += Delimiter + nodePathArray[x];
+                        row += GUI.GridDelimiter + nodePathArray[x];
                     }
                 }
 
@@ -481,7 +481,7 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified column is hidden in the grid
         /// </summary>
-        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
+        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
         /// <returns>True or False</returns>
         public bool IsColumnHidden(string columnText)
         {
