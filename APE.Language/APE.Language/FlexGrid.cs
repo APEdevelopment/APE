@@ -95,8 +95,7 @@ namespace APE.Language
         private int FindNodeRow(string NodeText)
         {
             //TODO this is bit inefficent, it would be better to find from parent to child rather than child to parent
-            string[] Separator = new string[] { " -> " };
-            string[] SplitNodeText = NodeText.Split(Separator, StringSplitOptions.None);
+            string[] SplitNodeText = NodeText.Split(DelimiterAsArray, StringSplitOptions.None);
 
             int Column = TreeViewColumn();
             int CurrentRow = FixedRows();
@@ -138,7 +137,7 @@ namespace APE.Language
 
             while (CurrentRow > -1)
             {
-                NodePath = GetCell(CurrentRow, Column, CellProperty.TextDisplay) + " -> " + NodePath;
+                NodePath = GetCell(CurrentRow, Column, CellProperty.TextDisplay) + Delimiter + NodePath;
                 CurrentRow = GetNodeParentRow(CurrentRow);
             }
 
@@ -293,13 +292,12 @@ namespace APE.Language
         /// <summary>
         /// Expands the specified nodes in the flexgrid treeview column
         /// </summary>
-        /// <param name="nodePath">Node path to expand delimited by -> for example RULE LIBRARY -> UCITS I -> France</param>
+        /// <param name="nodePath">Node path to expand delimited by -> (or the user defined Delimiter property) for example RULE LIBRARY -> UCITS I -> France</param>
         public void ExpandNodes(string nodePath)
         {
             GUI.Log("Expand node " + nodePath, LogItemType.Action);
 
-            string[] delimiter = { " -> " };
-            string[] nodePathArray = nodePath.Split(delimiter, StringSplitOptions.None);
+            string[] nodePathArray = nodePath.Split(DelimiterAsArray, StringSplitOptions.None);
 
             int treeColumnIndex = TreeViewColumn();
             string row = "";
@@ -317,7 +315,7 @@ namespace APE.Language
                 }
                 else
                 {
-                    row += " -> " + nodePathArray[i];
+                    row += Delimiter + nodePathArray[i];
                 }
                 int rowIndex = FindNodeRow(row);
 
@@ -352,13 +350,12 @@ namespace APE.Language
         /// <summary>
         /// Collapses the specified nodes in the flexgrid treeview column
         /// </summary>
-        /// <param name="nodePath">Node path to collapse delimited by -> for example RULE LIBRARY -> UCITS I -> France</param>
+        /// <param name="nodePath">Node path to collapse delimited by -> (or the user defined Delimiter property) for example RULE LIBRARY -> UCITS I -> France</param>
         public void CollapseNodes(string nodePath)
         {
             GUI.Log("Collapse node " + nodePath, LogItemType.Action);
 
-            string[] delimiter = { " -> " };
-            string[] nodePathArray = nodePath.Split(delimiter, StringSplitOptions.None);
+            string[] nodePathArray = nodePath.Split(DelimiterAsArray, StringSplitOptions.None);
 
             int treeColumnIndex = TreeViewColumn();
             string row = "";
@@ -378,7 +375,7 @@ namespace APE.Language
                     }
                     else
                     {
-                        row += " -> " + nodePathArray[x];
+                        row += Delimiter + nodePathArray[x];
                     }
                 }
 
@@ -484,7 +481,7 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified column is hidden in the grid
         /// </summary>
-        /// <param name="columnText">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
         /// <returns>True or False</returns>
         public bool IsColumnHidden(string columnText)
         {
@@ -794,23 +791,14 @@ namespace APE.Language
                 throw new Exception("Must supply a column index greater than 0 in the " + Description);
             }
 
-            switch (compareMethod)
+            // Check if the cell is already set to the correct value
+            string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+            T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
             {
-                case ComparisonMethod.CompareUsingDefaultEqualityComparer:
-                    // Check if the cell is already set to the correct value
-                    string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
-                    T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-                    if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
-                    {
-                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                        return false;
-                    }
-                    break;
-                case ComparisonMethod.DoNotCompare:
-                    break;
-                default:
-                    throw new Exception("Unsupported compare method: " + compareMethod.ToString());
-            }
+                GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                return false;
+            }                    
             
             // Get the data type of the cell we want to set
             string cellDataType = this.GetCell(rowIndex, columnIndex, CellProperty.DataType);
@@ -969,9 +957,7 @@ namespace APE.Language
                     timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
-
-                        T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+                        currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
                         if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
                         {
                             break;

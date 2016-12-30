@@ -285,7 +285,7 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified column is hidden in the grid
         /// </summary>
-        /// <param name="columnText">Column to check if hidden delimited by -> for example Order -> Id</param>
+        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined Delimiter property) for example Order -> Id</param>
         /// <returns>True or False</returns>
         public bool IsColumnHidden(string columnText)
         {
@@ -578,22 +578,13 @@ namespace APE.Language
                 throw new Exception("Must supply a column index greater than 0 in the " + Description);
             }
 
-            switch (compareMethod)
+            // Check if the cell is already set to the correct value
+            string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+            T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
             {
-                case ComparisonMethod.CompareUsingDefaultEqualityComparer:
-                    // Check if the cell is already set to the correct value
-                    string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
-                    T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-                    if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
-                    {
-                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                        return false;
-                    }
-                    break;
-                case ComparisonMethod.DoNotCompare:
-                    break;
-                default:
-                    throw new Exception("Unsupported compare method: " + compareMethod.ToString());
+                GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                return false;
             }
 
             // Get the data type of the cell we want to set
@@ -622,9 +613,7 @@ namespace APE.Language
                     timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        string currentValue = GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
-
-                        T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+                        currentValue = GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
                         if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
                         {
                             break;
