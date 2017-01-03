@@ -797,15 +797,8 @@ namespace APE.Language
 
     internal class MenuUtils
     {
-        public void ClickMenuItem(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier ControlIdentity)
+        public void ClickMenuItem(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
         {
-            bool Visible;
-            bool Enabled;
-            int Width;
-            int Height;
-            int X;
-            int Y;
-
             //Check its enabled and visible then click on it
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
@@ -830,33 +823,25 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
-                Visible = GUI.m_APE.GetValueFromMessage();
-                Enabled = GUI.m_APE.GetValueFromMessage();
-                Width = GUI.m_APE.GetValueFromMessage();
-                Height = GUI.m_APE.GetValueFromMessage();
-                X = GUI.m_APE.GetValueFromMessage();
-                Y = GUI.m_APE.GetValueFromMessage();
+                bool isVisible = GUI.m_APE.GetValueFromMessage();
+                bool isEnabled = GUI.m_APE.GetValueFromMessage();
+                int width = GUI.m_APE.GetValueFromMessage();
+                int height = GUI.m_APE.GetValueFromMessage();
+                int x = GUI.m_APE.GetValueFromMessage();
+                int y = GUI.m_APE.GetValueFromMessage();
 
-                if (Visible)
+                if (isVisible)
                 {
-                    if (Enabled)
+                    if (isEnabled)
                     {
-                        IntPtr Temp = ControlIdentity.Handle;
-                        try
-                        {
-                            Input.MouseSingleClick(parent, control, X + (Width / 2), Y + (Height / 2), MouseButton.Left, MouseKeyModifier.None);
-                            break;
-                        }
-                        finally
-                        {
-                            ControlIdentity.Handle = Temp;
-                        }
+                        Input.MouseSingleClick(parent, control, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None);
+                        break;
                     }
                 }
                 
                 if (timer.ElapsedMilliseconds > 3000)
                 {
-                    if (!Visible)
+                    if (!isVisible)
                     {
                         throw new Exception("Menu item " + menuItem + " not visible");
                     }
@@ -870,30 +855,91 @@ namespace APE.Language
             }
         }
 
-        public IntPtr GetDropDown(IntPtr Parent, IntPtr Control, int MenuIndex)
+        public bool MenuItemVisible(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
         {
-            bool HasDropDown;
+            //Get Visible state
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //get the values returned
+            bool isVisible = GUI.m_APE.GetValueFromMessage();
+            return isVisible;
+        }
+
+        public bool MenuItemEnabled(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        {
+            //Get Enabled state
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Enabled", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //get the values returned
+            bool isEnabled = GUI.m_APE.GetValueFromMessage();
+            return isEnabled;
+        }
+
+        public bool MenuItemChecked(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        {
+            //Get Checked state
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Checked", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //get the values returned
+            bool isChecked = GUI.m_APE.GetValueFromMessage();
+            return isChecked;
+        }
+
+        public bool MenuItemCheckOnClick(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        {
+            //Get CheckOnClick state
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "CheckOnClick", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //get the values returned
+            bool isCheckOnClick = GUI.m_APE.GetValueFromMessage();
+            return isCheckOnClick;
+        }
+
+        public IntPtr GetDropDown(IntPtr parent, IntPtr control, int menuIndex)
+        {
+            bool hasDropDown;
 
             //check we have a drop down
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDown", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
-            HasDropDown = GUI.m_APE.GetValueFromMessage();
+            hasDropDown = GUI.m_APE.GetValueFromMessage();
 
-            if (HasDropDown == false)
+            if (hasDropDown == false)
             {
                 throw new Exception("Menu does not have a drop down");
             }
 
             //get the dropdown and its handle
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, MenuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DropDown", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -903,24 +949,24 @@ namespace APE.Language
             return (IntPtr)GUI.m_APE.GetValueFromMessage();
         }
 
-        public int GetIndexOfMenuItem(IntPtr Parent, IntPtr Control, string MenuItem)
+        public int GetIndexOfMenuItem(IntPtr parent, IntPtr control, string menuItem)
         {
-            int Items;
+            int items;
 
             //Get the number of items on the menustrip
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
-            Items = GUI.m_APE.GetValueFromMessage();
+            items = GUI.m_APE.GetValueFromMessage();
 
             //Loop through looking for the item we want
-            for (int Item = 0; Item < Items; Item++)
+            for (int Item = 0; Item < items; Item++)
             {
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Parent, Control);
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
@@ -930,15 +976,15 @@ namespace APE.Language
                 //get the values returned
                 string ItemText = GUI.m_APE.GetValueFromMessage();
 
-                if (ItemText == MenuItem)
+                if (ItemText == menuItem)
                 {
                     //found it
                     return Item;
                 }
             }
 
-            //Failed to find it
-            throw new Exception("Failed to find menu item [" + MenuItem + "]");
+            //Failed to find it            
+            throw new Exception("Failed to find menu item [" + menuItem + "]");
         }
     }
 }

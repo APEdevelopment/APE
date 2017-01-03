@@ -86,13 +86,13 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns a GetSplitButton object which can be used to automate a toolstrip split button
+        /// Returns a GUIToolStripSplitButton object which can be used to automate a toolstrip split button
         /// </summary>
         /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
         /// <para/>This text is used in the logging method.  For example: OK button</param>
         /// <param name="identParams">One or more identifier object(s) used to locate the control.
         /// <para/>Normally you would just use the name identifier</param>
-        /// <returns>The GetSplitButton object</returns>
+        /// <returns>The GUIToolStripSplitButton object</returns>
         public GUIToolStripSplitButton GetSplitButton(string descriptionOfControl, params Identifier[] identParams)
         {
             return new GUIToolStripSplitButton(this, descriptionOfControl, identParams);
@@ -438,6 +438,46 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Determines if the toolstrip object is enabled
+        /// </summary>
+        /// <returns>True if the item is enabled otherwise false</returns>
+        public virtual bool IsEnabled()
+        {
+            UpdateIndex();
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool isEnabled = GUI.m_APE.GetValueFromMessage();
+            return isEnabled;
+        }
+
+        /// <summary>
+        /// Determines if the toolstrip object is visible
+        /// </summary>
+        /// <returns>True if the item is visible otherwise false</returns>
+        public virtual bool IsVisible()
+        {
+            UpdateIndex();
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Visible", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool isVisible = GUI.m_APE.GetValueFromMessage();
+            return isVisible;
+        }
+
+        /// <summary>
         /// Perform a single left mouse click in the middle of the toolstrip object
         /// </summary>
         public virtual void SingleClick()
@@ -451,8 +491,16 @@ namespace APE.Language
         /// <param name="button">The button to click</param>
         public virtual void SingleClick(MouseButton button)
         {
-            Rectangle bounds = ItemBounds();
             GUI.Log("Single " + button.ToString() + " click on " + Identity.Description, LogItemType.Action);
+            Rectangle bounds = ItemBounds();
+            if (!IsVisible())
+            {
+                throw new Exception(Identity.Description + " is not visible");
+            }
+            if (!IsEnabled())
+            {
+                throw new Exception(Identity.Description + " is not enabled");
+            }
             ParentToolStrip.SingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
@@ -472,6 +520,14 @@ namespace APE.Language
         {
             Rectangle bounds = ItemBounds();
             GUI.Log("Single " + button.ToString() + " click on " + Identity.Description, LogItemType.Action);
+            if (!IsVisible())
+            {
+                throw new Exception(Identity.Description + " is not visible");
+            }
+            if (!IsEnabled())
+            {
+                throw new Exception(Identity.Description + " is not enabled");
+            }
             ParentToolStrip.DoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
 
@@ -625,7 +681,6 @@ namespace APE.Language
             }
 
             return handle;
-                
         }
     }
 
@@ -670,7 +725,7 @@ namespace APE.Language
     /// <summary>
     /// Automation class used to automate toolstrip split buttons
     /// </summary>
-    public sealed class GUIToolStripSplitButton : GUIToolStripRenderedObject
+    public sealed class GUIToolStripSplitButton : GUIToolStripDropDownButton
     {
         MenuUtils m_MenuUtils = new MenuUtils();
 
@@ -688,44 +743,22 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the split drop down
+        /// Perform a mouse click with the specified button on the right side of the toolstrip object
         /// </summary>
-        /// <param name="splitDropDownItem">The item to select from the split drop down</param>
-        public void SingleClickItem(string splitDropDownItem)
+        /// <param name="button">The button to click</param>
+        public override void SingleClick(MouseButton button)
         {
+            GUI.Log("Single " + button.ToString() + " click on " + Identity.Description, LogItemType.Action);
             Rectangle bounds = ItemBounds();
-            GUI.Log("Single " + MouseButton.Left.ToString() + " click on " + Identity.Description, LogItemType.Action);
-            ParentToolStrip.SingleClickInternal(bounds.Width - 3, bounds.Y + (bounds.Height / 2), MouseButton.Left, MouseKeyModifier.None);
-
-            GUI.Log("Select [" + splitDropDownItem + "] from " + Identity.Description, LogItemType.Action);
-
-            string[] DropDownItems = splitDropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
-            int MenuIndex = 0;
-            IntPtr Handle= GetDropDown();
-
-            Input.Block(ParentToolStrip.ParentForm.Handle, Identity.Handle);
-            try
+            if (!IsVisible())
             {
-                for (int Item = 0; Item < DropDownItems.Length; Item++)
-                {
-                    if (Item > 0)
-                    {
-                        Handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, Handle, MenuIndex);
-                    }
-
-                    MenuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, Handle, DropDownItems[Item]);
-                    m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, Handle, MenuIndex, DropDownItems[Item], ref Identity);
-                }
+                throw new Exception(Identity.Description + " is not visible");
             }
-            catch
+            if (!IsEnabled())
             {
-                Input.Reset();  //Reset the mouse blocking
-                throw;
+                throw new Exception(Identity.Description + " is not enabled");
             }
-            finally
-            {
-                Input.Unblock();
-            }
+            ParentToolStrip.SingleClickInternal(bounds.X + bounds.Width - 3, bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
     }
 
@@ -769,31 +802,37 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Selects the specified item in the drop down
+        /// Selects the specified item in the drop down by clicking on it
         /// </summary>
         /// <param name="dropDownItem">The item to select from the drop down</param>
         public void SingleClickItem(string dropDownItem)
         {
-            this.SingleClick(MouseButton.Left);
+            string logMessageAction = "Single Left click on the item " + dropDownItem + " from the " + Identity.Description;
+            SingleClickItemInternal(dropDownItem, logMessageAction);
+        }
 
-            GUI.Log("Select [" + dropDownItem + "] from " + Identity.Description, LogItemType.Action);
+        internal void SingleClickItemInternal(string dropDownItem, string logMessageAction)
+        {
+            SingleClick(MouseButton.Left);
 
-            string[] DropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
-            int MenuIndex = 0;
-            IntPtr Handle = GetDropDown();
+            GUI.Log(logMessageAction, LogItemType.Action);
+
+            string[] dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
+            int menuIndex = 0;
+            IntPtr handle = GetDropDown();
 
             Input.Block(ParentToolStrip.ParentForm.Handle, Identity.Handle);
             try
             {
-                for (int Item = 0; Item < DropDownItems.Length; Item++)
+                for (int Item = 0; Item < dropDownItems.Length; Item++)
                 {
                     if (Item > 0)
                     {
-                        Handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, Handle, MenuIndex);
+                        handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                     }
 
-                    MenuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, Handle, DropDownItems[Item]);
-                    m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, Handle, MenuIndex, DropDownItems[Item], ref Identity);
+                    menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[Item]);
+                    m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[Item], ref Identity);
                 }
             }
             catch
@@ -805,6 +844,124 @@ namespace APE.Language
             {
                 Input.Unblock();
             }
+        }
+
+        /// <summary>
+        /// Checks the specified item in the drop down by clicking on it
+        /// </summary>
+        /// <param name="dropDownItem">The item to check from the drop down</param>
+        public void CheckItem(string dropDownItem)
+        {
+            bool isChecked = ItemIsChecked(dropDownItem);
+
+            if (isChecked)
+            {
+                GUI.Log("Ensure item " + dropDownItem + "from the " + Identity.Description + " is checked", LogItemType.Action);
+            }
+            else
+            {
+                string logMessageAction = "Check item " + dropDownItem + " from the " + Identity.Description;
+                SingleClickItemInternal(dropDownItem, logMessageAction);
+
+                //Check it has been checked
+                isChecked = ItemIsChecked(dropDownItem);
+
+                if (!isChecked)
+                {
+                    throw new Exception("Failed to check item " + dropDownItem + " from the " + Identity.Description);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unchecks the specified item in the drop down by clicking on it
+        /// </summary>
+        /// <param name="dropDownItem">The item to uncheck from the drop down</param>
+        public void UncheckItem(string dropDownItem)
+        {
+            bool isChecked = ItemIsChecked(dropDownItem);
+
+            if (!isChecked)
+            {
+                GUI.Log("Ensure item " + dropDownItem + "from the " + Identity.Description + " is unchecked", LogItemType.Action);
+            }
+            else
+            {
+                string logMessageAction = "Uncheck item " + dropDownItem + " from the " + Identity.Description;
+                SingleClickItemInternal(dropDownItem, logMessageAction);
+
+                //Check it has been unchecked
+                isChecked = ItemIsChecked(dropDownItem);
+
+                if (isChecked)
+                {
+                    throw new Exception("Failed to uncheck item " + dropDownItem + " from the " + Identity.Description);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determines if the specified item in the drop down is enabled
+        /// </summary>
+        /// <param name="dropDownItem">The item to get the enabled state of in the drop down</param>
+        /// <returns>True if the item is enabled otherwise false</returns>
+        public bool ItemIsEnabled(string dropDownItem)
+        {
+            if (!IsEnabled())
+            {
+                return false;
+            }
+
+            string[] dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
+            int menuIndex = 0;
+            IntPtr handle = GetDropDown();
+            bool isEnabled = false;
+
+            for (int item = 0; item < dropDownItems.Length; item++)
+            {
+                if (item > 0)
+                {
+                    handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                }
+
+                menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+                isEnabled = m_MenuUtils.MenuItemEnabled(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+
+                if (!isEnabled)
+                {
+                    break;
+                }
+            }
+            return isEnabled;
+        }
+
+        /// <summary>
+        /// Determines if the specified item in the drop down is checked
+        /// </summary>
+        /// <param name="dropDownItem">The item to get the checked state of in the drop down</param>
+        /// <returns>True if the item is checked otherwise false</returns>
+        public bool ItemIsChecked(string dropDownItem)
+        {
+            string[] dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
+            int menuIndex = 0;
+            IntPtr handle = GetDropDown();
+            bool isChecked = false;
+            
+            for (int item = 0; item < dropDownItems.Length; item++)
+            {
+                if (item > 0)
+                {
+                    handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                }
+
+                menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+
+                if (item == dropDownItems.Length - 1)
+                {
+                    isChecked = m_MenuUtils.MenuItemChecked(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                }
+            }
+            return isChecked;
         }
     }
 
