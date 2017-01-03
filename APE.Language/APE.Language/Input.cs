@@ -1071,6 +1071,19 @@ namespace APE.Language
             return 0;
         }
 
+        /// <summary>
+        /// Presses and releases the left alt key
+        /// </summary>
+        public static void SendAltKey()
+        {
+            NM.INPUT[] inputEvent = new NM.INPUT[2];
+            inputEvent[0].type = NM.INPUT_TYPE.INPUT_KEYBOARD;
+            inputEvent[0].U.ki = CreateKeyboardInput(NM.VirtualKeyShort.LMENU, NM.ScanCodeShort.LMENU, NM.KEYEVENTF.NONE, 0, UIntPtr.Zero);
+            inputEvent[1].type = NM.INPUT_TYPE.INPUT_KEYBOARD;
+            inputEvent[1].U.ki = CreateKeyboardInput(NM.VirtualKeyShort.LMENU, NM.ScanCodeShort.LMENU, NM.KEYEVENTF.KEYUP, 0, UIntPtr.Zero);
+            NM.SendInput((uint)inputEvent.Length, inputEvent, NM.INPUT.Size);
+        }
+
         public static void MouseClick(MouseButton Button, Boolean Down, Boolean Up, int Clicks, bool ControlKey, bool ShiftKey)
         {
             NM.INPUT[] inputEvent = null;
