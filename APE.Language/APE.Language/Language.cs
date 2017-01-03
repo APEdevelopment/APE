@@ -916,10 +916,8 @@ namespace APE.Language
             return isCheckOnClick;
         }
 
-        public IntPtr GetDropDown(IntPtr parent, IntPtr control, int menuIndex)
+        public bool HasDropDown(IntPtr parent, IntPtr control, int menuIndex)
         {
-            bool hasDropDown;
-
             //check we have a drop down
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -929,8 +927,13 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
-            hasDropDown = GUI.m_APE.GetValueFromMessage();
+            bool hasDropDown = GUI.m_APE.GetValueFromMessage();
+            return hasDropDown;
+        }
 
+        public IntPtr GetDropDown(IntPtr parent, IntPtr control, int menuIndex)
+        {
+            bool hasDropDown = HasDropDown(parent, control, menuIndex);
             if (hasDropDown == false)
             {
                 throw new Exception("Menu does not have a drop down");

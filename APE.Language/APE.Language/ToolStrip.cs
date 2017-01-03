@@ -813,26 +813,36 @@ namespace APE.Language
 
         internal void SingleClickItemInternal(string dropDownItem, string logMessageAction)
         {
-            SingleClick(MouseButton.Left);
-
-            GUI.Log(logMessageAction, LogItemType.Action);
-
-            string[] dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
-            int menuIndex = 0;
-            IntPtr handle = GetDropDown();
+            IntPtr handle;
+            int menuIndex;
+            string[] dropDownItems;
 
             Input.Block(ParentToolStrip.ParentForm.Handle, Identity.Handle);
             try
             {
-                for (int Item = 0; Item < dropDownItems.Length; Item++)
+                SingleClick(MouseButton.Left);
+
+                GUI.Log(logMessageAction, LogItemType.Action);
+
+                dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
+                menuIndex = -1;
+                handle = GetDropDown();
+
+                for (int item = 0; item < dropDownItems.Length; item++)
                 {
-                    if (Item > 0)
+                    if (item > 0)
                     {
                         handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                     }
 
-                    menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[Item]);
-                    m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[Item], ref Identity);
+                    menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+                    m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                }
+
+                bool hasDropDown = m_MenuUtils.HasDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                if (hasDropDown)
+                {
+                    CloseDropdown(handle);
                 }
             }
             catch
@@ -962,6 +972,34 @@ namespace APE.Language
                 }
             }
             return isChecked;
+        }
+
+        internal void CloseDropdown(IntPtr handle)
+        {
+            GUI.Log("Press the left alt key", LogItemType.Action);
+
+            // Close the menu
+            Input.SendAltKey();
+
+            //Wait for the control to not be visible
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception(ParentToolStrip.Description + " dropdown failed to become nonvisible");
+                }
+
+                if (!NM.IsWindowVisible(handle))
+                {
+                    break;
+                }
+
+                Thread.Sleep(15);
+            }
+
+            // Small sleep to let focus switch
+            Thread.Sleep(20);
         }
     }
 
