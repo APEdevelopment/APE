@@ -916,25 +916,25 @@ namespace APE.Language
             return isCheckOnClick;
         }
 
-        public bool HasDropDown(IntPtr parent, IntPtr control, int menuIndex)
+        public bool HasDropDownItems(IntPtr parent, IntPtr control, int menuIndex)
         {
             //check we have a drop down
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDown", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDownItems", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
-            bool hasDropDown = GUI.m_APE.GetValueFromMessage();
-            return hasDropDown;
+            bool hasDropDownItems = GUI.m_APE.GetValueFromMessage();
+            return hasDropDownItems;
         }
 
         public IntPtr GetDropDown(IntPtr parent, IntPtr control, int menuIndex)
         {
-            bool hasDropDown = HasDropDown(parent, control, menuIndex);
-            if (hasDropDown == false)
+            bool hasDropDownItems = HasDropDownItems(parent, control, menuIndex);
+            if (hasDropDownItems == false)
             {
                 throw new Exception("Menu does not have a drop down");
             }

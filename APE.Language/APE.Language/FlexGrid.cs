@@ -958,6 +958,7 @@ namespace APE.Language
                     while (true)
                     {
                         currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+                        currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
                         if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
                         {
                             break;

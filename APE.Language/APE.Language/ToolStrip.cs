@@ -839,8 +839,8 @@ namespace APE.Language
                     m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
                 }
 
-                bool hasDropDown = m_MenuUtils.HasDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
-                if (hasDropDown)
+                bool hasDropDownItems = m_MenuUtils.HasDropDownItems(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                if (hasDropDownItems)
                 {
                     CloseDropdown(handle);
                 }
