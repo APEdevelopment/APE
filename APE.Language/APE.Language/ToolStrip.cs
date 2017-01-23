@@ -682,6 +682,22 @@ namespace APE.Language
 
             return handle;
         }
+
+        internal bool HasDropDownItems()
+        {
+            UpdateIndex();
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDownItems", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool hasDropDownItems = GUI.m_APE.GetValueFromMessage();
+            return hasDropDownItems;
+        }
     }
 
     /// <summary>
@@ -813,33 +829,44 @@ namespace APE.Language
 
         internal void SingleClickItemInternal(string dropDownItem, string logMessageAction)
         {
-            IntPtr handle;
+            IntPtr handle = IntPtr.Zero;
             int menuIndex;
             string[] dropDownItems;
+            bool hasDropDownItems;
 
             Input.Block(ParentToolStrip.ParentForm.Handle, Identity.Handle);
             try
             {
                 SingleClick(MouseButton.Left);
+                hasDropDownItems = HasDropDownItems();
 
-                GUI.Log(logMessageAction, LogItemType.Action);
-
-                dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
-                menuIndex = -1;
-                handle = GetDropDown();
-
-                for (int item = 0; item < dropDownItems.Length; item++)
+                if (string.IsNullOrEmpty(dropDownItem))
                 {
-                    if (item > 0)
+                    if (hasDropDownItems)
                     {
-                        handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                        handle = GetDropDown();
                     }
+                }
+                else
+                {
+                    GUI.Log(logMessageAction, LogItemType.Action);
+                    dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
+                    menuIndex = -1;
+                    handle = GetDropDown();
 
-                    menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
-                    m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                    for (int item = 0; item < dropDownItems.Length; item++)
+                    {
+                        if (item > 0)
+                        {
+                            handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                        }
+
+                        menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+                        hasDropDownItems = m_MenuUtils.HasDropDownItems(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
+                        m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                    }
                 }
 
-                bool hasDropDownItems = m_MenuUtils.HasDropDownItems(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                 if (hasDropDownItems)
                 {
                     CloseDropdown(handle);

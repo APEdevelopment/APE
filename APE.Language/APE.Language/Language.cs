@@ -332,6 +332,8 @@ namespace APE.Language
                 {
                     throw new Exception("Failed to locate process main window within " + GetTimeOut() + "ms timeout");
                 }
+
+                Thread.Sleep(50);
             }
             process.WaitForInputIdle();
 
@@ -956,38 +958,48 @@ namespace APE.Language
         {
             int items;
 
-            //Get the number of items on the menustrip
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //get the values returned
-            items = GUI.m_APE.GetValueFromMessage();
-
-            //Loop through looking for the item we want
-            for (int Item = 0; Item < items; Item++)
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
             {
+
+                //Get the number of items on the menustrip
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
-                string ItemText = GUI.m_APE.GetValueFromMessage();
+                items = GUI.m_APE.GetValueFromMessage();
 
-                if (ItemText == menuItem)
+                //Loop through looking for the item we want
+                for (int Item = 0; Item < items; Item++)
                 {
-                    //found it
-                    return Item;
-                }
-            }
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //get the values returned
+                    string ItemText = GUI.m_APE.GetValueFromMessage();
 
-            //Failed to find it            
-            throw new Exception("Failed to find menu item [" + menuItem + "]");
+                    if (ItemText == menuItem)
+                    {
+                        //found it
+                        return Item;
+                    }
+                }
+
+                if (timer.ElapsedMilliseconds > 3000)
+                {
+                    //Failed to find it            
+                    throw new Exception("Failed to find menu item [" + menuItem + "]");
+                }
+
+                Thread.Sleep(15);
+            }
         }
     }
 }

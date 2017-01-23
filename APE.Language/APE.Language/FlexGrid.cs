@@ -751,6 +751,82 @@ namespace APE.Language
             return false;
         }
 
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowText">The row of the cell to check if its editable</param>
+        /// <param name="columnText">The column of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(string rowText, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
+        /// <param name="columnText">The column of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(int rowIndex, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowText">The row of the cell to check if its editable</param>
+        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(string rowText, int columnIndex)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
+        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public bool IsCellEditable(int rowIndex, int columnIndex)
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "AllowEditing", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool rowAllowEditing = GUI.m_APE.GetValueFromMessage();
+            if (!rowAllowEditing)
+            {
+                return false;
+            }
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "AllowEditing", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            bool columnAllowEditing = GUI.m_APE.GetValueFromMessage();
+            if (!columnAllowEditing)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         internal override bool SetCellValueInternal<T>(string rowText, string columnText, int rowIndex, int columnIndex, T value, T expectedValue, string submitKey, ComparisonMethod compareMethod)
         {
             string rowFriendlyText;
@@ -791,17 +867,31 @@ namespace APE.Language
                 throw new Exception("Must supply a column index greater than 0 in the " + Description);
             }
 
+            CellProperty propertyToCheck;
+
+            // Get the data type of the cell we want to set
+            string cellDataType = this.GetCell(rowIndex, columnIndex, CellProperty.DataType);
+
+            //Check if its checkbox
+            string cellCheckBox = this.GetCell(rowIndex, columnIndex, CellProperty.CheckBox);
+            if (cellCheckBox == "None")
+            {
+                propertyToCheck = CellProperty.TextDisplay;
+            }
+            else
+            {
+                cellDataType = "System.Boolean";
+                propertyToCheck = CellProperty.CheckBox;
+            }
+
             // Check if the cell is already set to the correct value
-            string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+            string currentValue = this.GetCell(rowIndex, columnIndex, propertyToCheck);
             T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
             if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
             {
                 GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
                 return false;
             }                    
-            
-            // Get the data type of the cell we want to set
-            string cellDataType = this.GetCell(rowIndex, columnIndex, CellProperty.DataType);
 
             if (IsEnabled)
             {
@@ -817,7 +907,14 @@ namespace APE.Language
                 case "System.Boolean":  //checkbox
                     // Click on the checkbox
                     GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
-                    this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+                    if (IsTreeView())
+                    {
+                        this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.LeftSideOfTreeItem, MouseKeyModifier.None);
+                    }
+                    else
+                    {
+                        this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.LeftSideOfCell, MouseKeyModifier.None);
+                    }
                     break;
                 default:
                     // Select the cell if its not selected
@@ -957,7 +1054,7 @@ namespace APE.Language
                     timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+                        currentValue = this.GetCell(rowIndex, columnIndex, propertyToCheck);
                         currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
                         if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
                         {
