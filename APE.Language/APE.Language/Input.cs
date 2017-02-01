@@ -554,7 +554,7 @@ namespace APE.Language
                     // Fall back to the Hotkey (which will have SetForegroundWindow permission)
                     GUI.m_ViewPort.Foreground = ActualParent;
 
-                    while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
+                    while (!GUI.m_ViewPort.Processing)
                     {
                         // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
                         NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
@@ -568,6 +568,8 @@ namespace APE.Language
 
                         Thread.Sleep(0);
                     }
+
+                    GUI.m_ViewPort.Foreground = IntPtr.Zero;
                 }
 
                 while (!HasFocus(IntPtr.Zero, ActualParent))

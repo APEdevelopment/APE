@@ -45,7 +45,7 @@ namespace APE
         private object m_lock = new object();
         internal IntPtr Foreground = IntPtr.Zero;
         internal bool Acknowledge = false;
-        private bool Processing = false;
+        internal bool Processing = false;
         private uint m_DoubleClickTimer = 0;
 
         private delegate void AppendToLogCallback(string text, LogItemType type);
@@ -128,14 +128,13 @@ namespace APE
                 if (!Processing)
                 {
                     Processing = true;
-
                     if (msg.WParam.ToInt32() == 1)
                     {   
                         if (Foreground != IntPtr.Zero)
                         {
                             if (!NM.SetForegroundWindow(Foreground))
                             {
-                                Foreground = IntPtr.Zero;
+                                //Foreground = IntPtr.Zero;
                                 throw new Exception("SetForegroundWindow failed");
                             }
                         }
@@ -144,8 +143,6 @@ namespace APE
                             Break();
                         }
                     }
-
-                    Foreground = IntPtr.Zero;
                     Processing = false;
                 }
             }
@@ -165,22 +162,29 @@ namespace APE
             {
                 Process CurrentProcess = Process.GetCurrentProcess();
                 Process VisualStudio = GetParentProcess(CurrentProcess);
-                if (VisualStudio.ProcessName == "msvsmon")
+                if (VisualStudio.ProcessName.ToLower() == "msvsmon")
                 {
                     VisualStudio = GetParentProcess(VisualStudio);
                 }
 
-                if (!NM.SetForegroundWindow(VisualStudio.MainWindowHandle))
+                if (VisualStudio.ProcessName.ToLower() == "devenv" && VisualStudio.MainWindowHandle != IntPtr.Zero)
                 {
-                    throw new Exception("SetForegroundWindow VisualStudio failed");
-                }
+                    if (!NM.SetForegroundWindow(VisualStudio.MainWindowHandle))
+                    {
+                        throw new Exception("SetForegroundWindow VisualStudio failed");
+                    }
 
-                NM.keybd_event(NM.VK_CONTROL, 0x1d, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
-                NM.keybd_event(NM.VK_MENU, 0x38, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
-                NM.keybd_event(NM.VK_CANCEL, 0x46, NM.KEYEVENTF_KEYDOWN | NM.KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
-                NM.keybd_event(NM.VK_CANCEL, 0x46, NM.KEYEVENTF_KEYUP | NM.KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
-                NM.keybd_event(NM.VK_MENU, 0x38, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-                NM.keybd_event(NM.VK_CONTROL, 0x1d, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_CONTROL, 0x1d, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_MENU, 0x38, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_CANCEL, 0x46, NM.KEYEVENTF_KEYDOWN | NM.KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_CANCEL, 0x46, NM.KEYEVENTF_KEYUP | NM.KEYEVENTF_EXTENDEDKEY, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_MENU, 0x38, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_CONTROL, 0x1d, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                }
+                else
+                {
+                    Debugger.Launch();
+                }
             }
             else
             {
