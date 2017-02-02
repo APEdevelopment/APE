@@ -866,7 +866,7 @@ namespace APE.Language
         {
             if (GUI.IsElevatedAdmin)
             {
-                bool doEvents = IsCapsLockOn | IsNumLockOn | IsScrollLockOn;
+                bool doCheck = IsCapsLockOn | IsNumLockOn | IsScrollLockOn;
                 byte[] state = new byte[256];
 
                 // reset toggle buttons
@@ -888,7 +888,7 @@ namespace APE.Language
                     NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
                 }
 
-                if (doEvents)
+                if (doCheck)
                 {
                     while (true)
                     {
