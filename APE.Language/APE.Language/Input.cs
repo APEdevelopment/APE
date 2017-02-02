@@ -25,10 +25,13 @@ namespace APE.Language
 {
     internal static class Input
     {
-        public static int m_Count = 0;
-        private static Process m_Process = null;
-        private static int m_ProcessId = 0;
-        private static bool m_MouseDown = false;
+        public static int BlockCount = 0;
+        private static Process WaitForInputIdleProcess = null;
+        private static int WaitForInputIdleProcessId = 0;
+        private static bool IsMouseDown = false;
+        private static bool IsCapsLockOn = false;
+        private static bool IsNumLockOn = false;
+        private static bool IsScrollLockOn = false;
 
         private static void WaitToBeVisibleAndEnabled(GUIObject control)
         {
@@ -99,7 +102,7 @@ namespace APE.Language
                 throw new Exception("Window did not go idle within timeout");
             }
 
-            m_MouseDown = false;
+            IsMouseDown = false;
             uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
             Block(ParentHandle, Handle);
             try
@@ -166,7 +169,7 @@ namespace APE.Language
                 throw new Exception("Window did not go idle within timeout");
             }
 
-            m_MouseDown = false;
+            IsMouseDown = false;
             try
             {
                 Block(ParentHandle, Handle);
@@ -238,7 +241,7 @@ namespace APE.Language
                 throw new Exception("Window did not go idle within timeout");
             }
 
-            m_MouseDown = false;
+            IsMouseDown = false;
             try
             {
                 Block(ParentHandle, Handle);
@@ -360,7 +363,7 @@ namespace APE.Language
                 {
                     TimerResolution.UnsetMaxTimerResolution();
                     Unblock();
-                    m_MouseDown = true;
+                    IsMouseDown = true;
                 }
             }
         }
@@ -450,7 +453,7 @@ namespace APE.Language
                 {
                     TimerResolution.UnsetMaxTimerResolution();
                     Unblock();
-                    m_MouseDown = false;
+                    IsMouseDown = false;
                 }
             }
         }
@@ -675,105 +678,185 @@ namespace APE.Language
 
         public static void Block(IntPtr ParentHandle, IntPtr ControlHandle)
         {
-            if (m_Count == 0)
+            if (BlockCount == 0)
             {
                 if (GUI.IsElevatedAdmin)
                 {
+                    bool doCheck = false;
                     bool Return = NM.BlockInput(true);
                     if (!Return)
                     {
                         throw new Exception("Failed to block input");
                     }
 
-                    Byte[] state = new byte[256];
+                    byte[] state = new byte[256];
 
-                    //dummy call to make the GetKeyboardState accurate
-                    NM.GetKeyState(0);
 
-                    //get the current thread keyboard state
-                    NM.GetKeyboardState(state);
+                    GetCurrentInputState(ref state);
 
                     //reset the global mouse states
-                    if (m_MouseDown == false)
+                    if (IsMouseDown == false)
                     {
-                        if ((state[NM.VK_LBUTTON] & 0x80) != 0)
+                        if (IsButtonDown(state[NM.VK_LBUTTON]))
                         {
                             NM.mouse_event(NM.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                            doCheck = true;
                         }
 
-                        if ((state[NM.VK_MBUTTON] & 0x80) != 0)
+                        if (IsButtonDown(state[NM.VK_MBUTTON]))
                         {
                             NM.mouse_event(NM.MOUSEEVENTF_MIDDLEUP, 0, 0, 0, UIntPtr.Zero);
+                            doCheck = true;
                         }
 
-                        if ((state[NM.VK_RBUTTON] & 0x80) != 0)
+                        if (IsButtonDown(state[NM.VK_RBUTTON]))
                         {
                             NM.mouse_event(NM.MOUSEEVENTF_RIGHTUP, 0, 0, 0, UIntPtr.Zero);
+                            doCheck = true;
                         }
 
-                        if ((state[NM.VK_XBUTTON1] & 0x80) != 0)
+                        if (IsButtonDown(state[NM.VK_XBUTTON1]))
                         {
                             NM.mouse_event(NM.MOUSEEVENTF_XUP, 0, 0, 0, new UIntPtr(1));
+                            doCheck = true;
                         }
 
-                        if ((state[NM.VK_XBUTTON2] & 0x80) != 0)
+                        if (IsButtonDown(state[NM.VK_XBUTTON2]))
                         {
                             NM.mouse_event(NM.MOUSEEVENTF_XUP, 0, 0, 0, new UIntPtr(2));
+                            doCheck = true;
                         }
                     }
 
                     // 3 is VK_CANCEL
-                    if ((state[NM.VK_CANCEL] & 0x80) != 0)
+                    if (IsButtonDown(state[NM.VK_CANCEL]))
                     {
                         NM.keybd_event(NM.VK_CANCEL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_CANCEL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        doCheck = true;
                     }
 
                     // 7+ is non-mouse (apart from 3) and 255 seems to break things so we do till 254
-                    for (byte vk = 7; vk < unchecked((byte)255); vk++)
+                    for (byte vk = 7; vk < unchecked(255); vk++)
                     {
-                        if ((state[vk] & 0x80) != 0)
+                        if (IsButtonDown(state[vk]))
                         {
                             NM.keybd_event(vk, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                             NM.keybd_event(vk, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                            doCheck = true;
                         }
                     }
 
                     //check for toggle keys
-                    if ((state[NM.VK_CAPITAL] & 0x1) != 0)
+                    if (IsToggleKeyOn(state[NM.VK_CAPITAL]))
                     {
+                        IsCapsLockOn = true;
                         NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        doCheck = true;
                     }
 
-                    if ((state[NM.VK_NUMLOCK] & 0x1) != 0)
+                    if (IsToggleKeyOn(state[NM.VK_NUMLOCK]))
                     {
+                        IsNumLockOn = true;
                         NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        doCheck = true;
                     }
 
-                    if ((state[NM.VK_SCROLL] & 0x1) != 0)
+                    if (IsToggleKeyOn(state[NM.VK_SCROLL]))
                     {
+                        IsScrollLockOn = true;
                         NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        doCheck = true;
                     }
 
-                    //make sure any key / mouse presses are detected
-                    Application.DoEvents();                    
+                    if (doCheck)
+                    {
+                        bool ok = false;
+                        while (!ok)
+                        {
+                            ok = true;
+                            GetCurrentInputState(ref state);
+
+                            // Check mouse button state
+                            if (!IsMouseDown)
+                            {
+                                if (IsButtonDown(state[NM.VK_LBUTTON]) || IsButtonDown(state[NM.VK_MBUTTON]) || IsButtonDown(state[NM.VK_RBUTTON]) || IsButtonDown(state[NM.VK_XBUTTON1]) || IsButtonDown(state[NM.VK_XBUTTON2]))
+                                {
+                                    ok = false;
+                                }
+                            }
+
+                            // Check cancel
+                            if (IsButtonDown(state[NM.VK_CANCEL]))
+                            {
+                                ok = false;
+                            }
+
+                            // Check other keys
+                            for (byte vk = 7; vk < unchecked(255); vk++)
+                            {
+                                if (IsButtonDown(state[vk]))
+                                {
+                                    ok = false;
+                                    break;
+                                }
+                            }
+                            
+                            // check toggle keys
+                            if (IsToggleKeyOn(state[NM.VK_CAPITAL]) || IsToggleKeyOn(state[NM.VK_NUMLOCK]) || IsToggleKeyOn(state[NM.VK_SCROLL]))
+                            {
+                                ok = false;
+                            }
+                        }
+                    }
                 }
             }
 
-            m_Count++;
+            BlockCount++;
+        }
+
+        private static void GetCurrentInputState(ref byte[] state)
+        {
+            Application.DoEvents();
+            NM.GetKeyState(0);
+            NM.GetKeyboardState(state);
+        }
+
+        private static bool IsToggleKeyOn(byte key)
+        {
+            if ((key & 0x1) == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private static bool IsButtonDown(byte button)
+        {
+            if ((button & 0x80) == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public static void Unblock()
         {
-            if (m_Count > 0)
+            if (BlockCount > 0)
             {
-                m_Count--;
+                BlockCount--;
             }
 
-            if (m_Count == 0)
+            if (BlockCount == 0)
             {
                 Reset();
             }
@@ -783,10 +866,54 @@ namespace APE.Language
         {
             if (GUI.IsElevatedAdmin)
             {
-                bool Return = NM.BlockInput(false);
+                bool doEvents = IsCapsLockOn | IsNumLockOn | IsScrollLockOn;
+                byte[] state = new byte[256];
+
+                // reset toggle buttons
+                if (IsCapsLockOn)
+                {
+                    NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                }
+
+                if (IsNumLockOn)
+                {
+                    NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                }
+
+                if (IsScrollLockOn)
+                {
+                    NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+                    NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                }
+
+                if (doEvents)
+                {
+                    while (true)
+                    {
+                        GetCurrentInputState(ref state);
+                        if (IsCapsLockOn == IsToggleKeyOn(state[NM.VK_CAPITAL]))
+                        {
+                            if (IsNumLockOn == IsToggleKeyOn(state[NM.VK_NUMLOCK]))
+                            {
+                                if (IsScrollLockOn == IsToggleKeyOn(state[NM.VK_SCROLL]))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    IsCapsLockOn = false;
+                    IsNumLockOn = false;
+                    IsScrollLockOn = false;
+                }
+
+                NM.BlockInput(false);
             }
 
-            m_Count = 0;
+            BlockCount = 0;
         }
 
         public static bool WaitForInputIdle(IntPtr handle, uint timeoutMs)
@@ -799,21 +926,21 @@ namespace APE.Language
                 throw new Exception("Failed to get thread for window");
             }
 
-            if (processId != m_ProcessId)
+            if (processId != WaitForInputIdleProcessId)
             {
-                m_ProcessId = processId;
-                m_Process = Process.GetProcessById(processId);
+                WaitForInputIdleProcessId = processId;
+                WaitForInputIdleProcess = Process.GetProcessById(processId);
             }
             else
             {
-                m_Process.Refresh();
+                WaitForInputIdleProcess.Refresh();
             }
 
             Stopwatch timer = Stopwatch.StartNew();
             int x = 0;
             while (true)
             {
-                ProcessThreadCollection threadCollection = m_Process.Threads;
+                ProcessThreadCollection threadCollection = WaitForInputIdleProcess.Threads;
 
                 for (int i = 0; i < threadCollection.Count; i++)
                 {
@@ -848,7 +975,7 @@ namespace APE.Language
                 }
 
                 Thread.Sleep(0);
-                m_Process.Refresh();
+                WaitForInputIdleProcess.Refresh();
             }
         }
 

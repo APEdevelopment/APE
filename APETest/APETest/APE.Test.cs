@@ -1162,9 +1162,9 @@ namespace APE.Test
                     //PanelText = ssStatusBar.PanelText("toolStripStatusLabel5");
 
                     btnStatusBar.SingleClick(MouseButton.Left);
-                    statusBarFirstPanel.PollForText("6");
-                    statusBarFirstPanel.PollForText("");
-                    Stopwatch doo = Stopwatch.StartNew();
+                    //statusBarFirstPanel.PollForText("6");
+                    //statusBarFirstPanel.PollForText("");
+                    //Stopwatch doo = Stopwatch.StartNew();
                     statusBarFirstPanel.PollForText("");
                     //Debug.WriteLine(doo.ElapsedMilliseconds.ToString());
 //                    while (ssStatusBar.PanelText(0) != "")
