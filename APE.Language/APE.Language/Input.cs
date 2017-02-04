@@ -748,25 +748,25 @@ namespace APE.Language
                     }
 
                     //check for toggle keys
-                    if (IsToggleKeyOn(state[NM.VK_CAPITAL]))
+                    IsCapsLockOn = IsToggleKeyOn(state[NM.VK_CAPITAL]);
+                    if (IsCapsLockOn)
                     {
-                        IsCapsLockOn = true;
                         NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
                         doCheck = true;
                     }
 
-                    if (IsToggleKeyOn(state[NM.VK_NUMLOCK]))
+                    IsNumLockOn = IsToggleKeyOn(state[NM.VK_NUMLOCK]);
+                    if (IsNumLockOn)
                     {
-                        IsNumLockOn = true;
                         NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
                         doCheck = true;
                     }
 
-                    if (IsToggleKeyOn(state[NM.VK_SCROLL]))
+                    IsScrollLockOn = IsToggleKeyOn(state[NM.VK_SCROLL]);
+                    if (IsScrollLockOn)
                     {
-                        IsScrollLockOn = true;
                         NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                         NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
                         doCheck = true;
@@ -866,7 +866,7 @@ namespace APE.Language
         {
             if (GUI.IsElevatedAdmin)
             {
-                bool doCheck = IsCapsLockOn | IsNumLockOn | IsScrollLockOn;
+                bool doCheck = false;
                 byte[] state = new byte[256];
 
                 // reset toggle buttons
@@ -874,18 +874,21 @@ namespace APE.Language
                 {
                     NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                     NM.keybd_event(NM.VK_CAPITAL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    doCheck = true;
                 }
 
                 if (IsNumLockOn)
                 {
                     NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                     NM.keybd_event(NM.VK_NUMLOCK, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    doCheck = true;
                 }
 
                 if (IsScrollLockOn)
                 {
                     NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                     NM.keybd_event(NM.VK_SCROLL, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    doCheck = true;
                 }
 
                 if (doCheck)
@@ -904,10 +907,6 @@ namespace APE.Language
                             }
                         }
                     }
-                    
-                    IsCapsLockOn = false;
-                    IsNumLockOn = false;
-                    IsScrollLockOn = false;
                 }
 
                 NM.BlockInput(false);
