@@ -770,6 +770,8 @@ namespace APE.Language
             Point location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
             // Find the actual native grid to click on
             GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
+            nativeGrid.MoveTo(location.X, location.Y);
+            Thread.Sleep(50);
             nativeGrid.SingleClickInternal(location.X, location.Y, button, keyModifier);
         }
 

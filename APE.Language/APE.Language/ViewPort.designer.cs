@@ -54,11 +54,10 @@
             // 
             this.breakButton.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.breakButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.breakButton.Location = new System.Drawing.Point(5, 46);
-            this.breakButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.breakButton.Location = new System.Drawing.Point(3, 30);
             this.breakButton.Name = "breakButton";
-            this.breakButton.Size = new System.Drawing.Size(204, 34);
-            this.breakButton.TabIndex = 0;
+            this.breakButton.Size = new System.Drawing.Size(136, 22);
+            this.breakButton.TabIndex = 3;
             this.breakButton.Text = "Break";
             this.breakButton.UseVisualStyleBackColor = true;
             this.breakButton.Click += new System.EventHandler(this.btnBreak_Click);
@@ -66,10 +65,9 @@
             // abortButton
             // 
             this.abortButton.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.abortButton.Location = new System.Drawing.Point(5, 8);
-            this.abortButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.abortButton.Location = new System.Drawing.Point(3, 5);
             this.abortButton.Name = "abortButton";
-            this.abortButton.Size = new System.Drawing.Size(100, 34);
+            this.abortButton.Size = new System.Drawing.Size(67, 22);
             this.abortButton.TabIndex = 1;
             this.abortButton.Text = "Abort";
             this.abortButton.UseVisualStyleBackColor = true;
@@ -86,55 +84,57 @@
             this.panel1.Controls.Add(this.elevatedAdministratorLabel);
             this.panel1.Controls.Add(this.abortButton);
             this.panel1.Controls.Add(this.breakButton);
-            this.panel1.Location = new System.Drawing.Point(241, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.panel1.Location = new System.Drawing.Point(161, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(214, 142);
+            this.panel1.Size = new System.Drawing.Size(143, 92);
             this.panel1.TabIndex = 6;
             // 
             // aboutButton
             // 
             this.aboutButton.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.aboutButton.Location = new System.Drawing.Point(108, 8);
-            this.aboutButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.aboutButton.Location = new System.Drawing.Point(72, 5);
             this.aboutButton.Name = "aboutButton";
-            this.aboutButton.Size = new System.Drawing.Size(100, 34);
-            this.aboutButton.TabIndex = 6;
+            this.aboutButton.Size = new System.Drawing.Size(67, 22);
+            this.aboutButton.TabIndex = 2;
             this.aboutButton.Text = "About";
             this.aboutButton.UseVisualStyleBackColor = true;
             this.aboutButton.Click += new System.EventHandler(this.AboutButton_Click);
             // 
             // formAnimationDisabledPictureBox
             // 
-            this.formAnimationDisabledPictureBox.Location = new System.Drawing.Point(184, 108);
+            this.formAnimationDisabledPictureBox.Location = new System.Drawing.Point(123, 70);
+            this.formAnimationDisabledPictureBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.formAnimationDisabledPictureBox.Name = "formAnimationDisabledPictureBox";
-            this.formAnimationDisabledPictureBox.Size = new System.Drawing.Size(24, 24);
+            this.formAnimationDisabledPictureBox.Size = new System.Drawing.Size(16, 16);
             this.formAnimationDisabledPictureBox.TabIndex = 5;
             this.formAnimationDisabledPictureBox.TabStop = false;
             // 
             // formAnimationDisabledLabel
             // 
             this.formAnimationDisabledLabel.AutoSize = true;
-            this.formAnimationDisabledLabel.Location = new System.Drawing.Point(0, 112);
+            this.formAnimationDisabledLabel.Location = new System.Drawing.Point(0, 73);
+            this.formAnimationDisabledLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.formAnimationDisabledLabel.Name = "formAnimationDisabledLabel";
-            this.formAnimationDisabledLabel.Size = new System.Drawing.Size(187, 20);
+            this.formAnimationDisabledLabel.Size = new System.Drawing.Size(123, 13);
             this.formAnimationDisabledLabel.TabIndex = 4;
             this.formAnimationDisabledLabel.Text = "Form Animation Disabled";
             // 
             // elevatedAdminPictureBox
             // 
-            this.elevatedAdminPictureBox.Location = new System.Drawing.Point(184, 82);
+            this.elevatedAdminPictureBox.Location = new System.Drawing.Point(123, 53);
+            this.elevatedAdminPictureBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.elevatedAdminPictureBox.Name = "elevatedAdminPictureBox";
-            this.elevatedAdminPictureBox.Size = new System.Drawing.Size(24, 24);
+            this.elevatedAdminPictureBox.Size = new System.Drawing.Size(16, 16);
             this.elevatedAdminPictureBox.TabIndex = 3;
             this.elevatedAdminPictureBox.TabStop = false;
             // 
             // elevatedAdministratorLabel
             // 
             this.elevatedAdministratorLabel.AutoSize = true;
-            this.elevatedAdministratorLabel.Location = new System.Drawing.Point(0, 86);
+            this.elevatedAdministratorLabel.Location = new System.Drawing.Point(0, 56);
+            this.elevatedAdministratorLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.elevatedAdministratorLabel.Name = "elevatedAdministratorLabel";
-            this.elevatedAdministratorLabel.Size = new System.Drawing.Size(169, 20);
+            this.elevatedAdministratorLabel.Size = new System.Drawing.Size(112, 13);
             this.elevatedAdministratorLabel.TabIndex = 2;
             this.elevatedAdministratorLabel.Text = "Elevated Administrator";
             // 
@@ -144,12 +144,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtbLogViewer.ContextMenuStrip = this.ctxtMenuViewPort;
-            this.rtbLogViewer.Location = new System.Drawing.Point(8, 8);
-            this.rtbLogViewer.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.rtbLogViewer.Location = new System.Drawing.Point(5, 5);
             this.rtbLogViewer.Name = "rtbLogViewer";
             this.rtbLogViewer.ReadOnly = true;
-            this.rtbLogViewer.Size = new System.Drawing.Size(234, 126);
-            this.rtbLogViewer.TabIndex = 7;
+            this.rtbLogViewer.Size = new System.Drawing.Size(157, 83);
+            this.rtbLogViewer.TabIndex = 0;
             this.rtbLogViewer.Text = "";
             // 
             // ctxtMenuViewPort
@@ -162,49 +161,48 @@
             this.selectAllToolStripMenuItem,
             this.clearToolStripMenuItem});
             this.ctxtMenuViewPort.Name = "ctxtMenuViewPort";
-            this.ctxtMenuViewPort.Size = new System.Drawing.Size(169, 130);
+            this.ctxtMenuViewPort.Size = new System.Drawing.Size(123, 98);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(168, 30);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(168, 30);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // sepToolStripMenuItem
             // 
             this.sepToolStripMenuItem.Name = "sepToolStripMenuItem";
-            this.sepToolStripMenuItem.Size = new System.Drawing.Size(165, 6);
+            this.sepToolStripMenuItem.Size = new System.Drawing.Size(119, 6);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(168, 30);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(168, 30);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
             // 
             // ViewPort
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(455, 142);
+            this.ClientSize = new System.Drawing.Size(303, 92);
             this.Controls.Add(this.rtbLogViewer);
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ViewPort";
             this.Text = "APE ViewPort";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmViewPort_FormClosing);

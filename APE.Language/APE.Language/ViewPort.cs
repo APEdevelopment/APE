@@ -158,8 +158,6 @@ namespace APE
                 NM.SetDoubleClickTime(m_DoubleClickTimer);
             }
 
-            Input.Reset();
-
             if (Debugger.IsAttached)
             {
                 Process CurrentProcess = Process.GetCurrentProcess();
