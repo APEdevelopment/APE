@@ -41,12 +41,11 @@ namespace APE
     /// </summary>
     internal partial class ViewPort : AppBar
     {
-        private int m_Lines;
-        private object m_lock = new object();
+        private int Lines;
+        private object Lock = new object();
         internal IntPtr Foreground = IntPtr.Zero;
         internal bool Acknowledge = false;
-        internal bool Processing = false;
-        private uint m_DoubleClickTimer = 0;
+        private uint DoubleClickTimer = 0;
 
         private delegate void AppendToLogCallback(string text, LogItemType type);
 
@@ -118,33 +117,29 @@ namespace APE
             AppStartup.WorkingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             Process.Start(AppStartup);
 
-            m_DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
+            DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
         }
 
         protected override void WndProc(ref Message msg)
         {
             if (msg.Msg == NM.WM_HOTKEY)
             {
-                if (!Processing)
-                {
-                    Processing = true;
-                    if (msg.WParam.ToInt32() == 1)
-                    {   
-                        if (Foreground != IntPtr.Zero)
+                if (msg.WParam.ToInt32() == 1)
+                {   
+                    if (Foreground != IntPtr.Zero)
+                    {
+                        if (!NM.SetForegroundWindow(Foreground))
                         {
-                            if (!NM.SetForegroundWindow(Foreground))
-                            {
-                                //Foreground = IntPtr.Zero;
-                                throw new Exception("SetForegroundWindow failed");
-                            }
-                        }
-                        else
-                        {
-                            Break();
+                            Foreground = IntPtr.Zero;
+                            throw new Exception("SetForegroundWindow failed");
                         }
                     }
-                    Processing = false;
+                    else
+                    {
+                        Break();
+                    }
                 }
+                Foreground = IntPtr.Zero;
             }
 
             base.WndProc(ref msg);
@@ -155,7 +150,7 @@ namespace APE
             // Restore the double click time if need be
             if (SystemInformation.DoubleClickTime == 1)
             {
-                NM.SetDoubleClickTime(m_DoubleClickTimer);
+                NM.SetDoubleClickTime(DoubleClickTimer);
             }
 
             if (Debugger.IsAttached)
@@ -265,9 +260,9 @@ namespace APE
 
                 string TextToAdd;
 
-                m_Lines += 1;
+                Lines += 1;
                     
-                if (m_Lines == 1)
+                if (Lines == 1)
                 {
                     TextToAdd = text;
                 }
@@ -285,7 +280,7 @@ namespace APE
                 rtbLogViewer.ScrollToCaret();
                 
                 // If we have more than 40 lines
-                if (m_Lines > 40)
+                if (Lines > 40)
                 {
                     // Remove the first line currently in the rich text box
                     rtbLogViewer.SelectionStart = 0;
@@ -293,7 +288,7 @@ namespace APE
                     rtbLogViewer.ReadOnly = false;
                     rtbLogViewer.SelectedText = "";
                     rtbLogViewer.ReadOnly = true;
-                    m_Lines -= 1;
+                    Lines -= 1;
                     rtbLogViewer.SelectionStart = rtbLogViewer.TextLength;
                 }
             }
@@ -319,7 +314,7 @@ namespace APE
             rtbLogViewer.SelectedText = "";
             int after = rtbLogViewer.Lines.GetLength(0);
             rtbLogViewer.ReadOnly = true;
-            m_Lines -= before - after;
+            Lines -= before - after;
         }
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -333,7 +328,7 @@ namespace APE
             rtbLogViewer.ReadOnly = false;
             rtbLogViewer.SelectedText = "";
             rtbLogViewer.ReadOnly = true;
-            m_Lines = 0;
+            Lines = 0;
         }
 
         private void ctxtMenuViewPort_Opened(object sender, EventArgs e)
