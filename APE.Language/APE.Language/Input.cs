@@ -474,36 +474,21 @@ namespace APE.Language
 
         public static bool HasFocus(IntPtr parent, IntPtr control)
         {
-            NM.GUITHREADINFO CurrentGuiInfo = new NM.GUITHREADINFO();
-            CurrentGuiInfo.cbSize = Marshal.SizeOf(CurrentGuiInfo);
-            NM.GetGUIThreadInfo(0, ref CurrentGuiInfo);
-
-            //Debug.Listeners[0].WriteLine("\t CurrentGuiInfo.hwndActive: " + CurrentGuiInfo.hwndActive.ToString());
-            //Debug.Listeners[0].WriteLine("\t CurrentGuiInfo.hwndFocus: " + CurrentGuiInfo.hwndFocus.ToString());
-
             if (parent == IntPtr.Zero)
             {
-                if (CurrentGuiInfo.hwndActive == control || NM.IsChild(control, CurrentGuiInfo.hwndActive) || NM.IsChild(CurrentGuiInfo.hwndActive, control))
-                {
-                    return true;
-                }
+                return IsActiveWindow(control);
             }
             else
             {
-                if (CurrentGuiInfo.hwndActive == parent || NM.IsChild(parent, CurrentGuiInfo.hwndActive) || NM.IsChild(CurrentGuiInfo.hwndActive, parent))
+                if (IsActiveWindow(parent))
                 {
-                    if (CurrentGuiInfo.hwndFocus == control)
-                    {
-                        return true;
-                    }
-                    else if (NM.IsChild(control, CurrentGuiInfo.hwndFocus))
-                    {
-                        return true;
-                    }
+                    return IsFocusWindow(control);
+                }
+                else
+                {
+                    return false;
                 }
             }
-
-            return false;
         }
 
         /// <summary>
@@ -632,11 +617,6 @@ namespace APE.Language
                 // Temporary debug message
                 //GUI.Log(debugMessage, LogItemType.Warning);
             }
-
-            //if (ret)
-            //{
-            //    Thread.Sleep(100);
-            //}
 
             return ret;
         }

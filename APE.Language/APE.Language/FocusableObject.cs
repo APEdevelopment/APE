@@ -67,7 +67,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Sets focus to the control
+        /// Sets focus to the control if it or a child of it doesn't currently have focus
         /// </summary>
         public void SetFocus()
         {
