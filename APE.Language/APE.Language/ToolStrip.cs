@@ -834,7 +834,7 @@ namespace APE.Language
             string[] dropDownItems;
             bool hasDropDownItems;
 
-            Input.Block(ParentToolStrip.ParentForm.Handle, Identity.Handle);
+            Input.Block();
             try
             {
                 SingleClick(MouseButton.Left);
@@ -863,7 +863,7 @@ namespace APE.Language
 
                         menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
                         hasDropDownItems = m_MenuUtils.HasDropDownItems(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
-                        m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                        m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, Identity.Description, menuIndex, dropDownItems[item], ref Identity);
                     }
                 }
 

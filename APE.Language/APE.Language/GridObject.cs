@@ -594,7 +594,7 @@ namespace APE.Language
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
             SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -625,7 +625,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -656,7 +656,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -683,7 +683,7 @@ namespace APE.Language
         /// <param name="keyModifier">The key to press while clicking</param>
         public void SingleClickCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Single " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Single " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             SingleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -718,7 +718,7 @@ namespace APE.Language
             int columnIndex = FindColumn(columnText);
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            GUI.Log("Double " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
             DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -749,7 +749,7 @@ namespace APE.Language
         {
             int columnIndex = FindColumn(columnText);
 
-            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            GUI.Log("Double " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -780,7 +780,7 @@ namespace APE.Language
         {
             int rowIndex = FindRow(rowText, columnIndex);
 
-            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Double " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 
@@ -807,7 +807,7 @@ namespace APE.Language
         /// <param name="keyModifier">The key to press while clicking</param>
         public void DoubleClickCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
-            GUI.Log("Double " + button.ToString() + " click while pressinig key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            GUI.Log("Double " + button.ToString() + " click while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             DoubleClickCellInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
         }
 

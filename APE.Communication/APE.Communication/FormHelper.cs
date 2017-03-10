@@ -14,7 +14,10 @@
 //limitations under the License.
 //
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Security;
+using System.Threading;
 using NM = APE.Native.NativeMethods;
 using WF = System.Windows.Forms;
 
@@ -23,6 +26,16 @@ namespace APE.Communication
     public partial class APEIPC
     {
         private Type m_ScrollableControl = typeof(WF.ScrollableControl);
+
+        /// <summary>
+        /// Initialise the form helper delegates for use
+        /// </summary>
+        private void SetupFormHelperDelegates()
+        {
+            m_ScrollControlIntoViewDelegater = new ScrollControlIntoViewDelegate(ScrollControlIntoViewInternal);
+            m_PeakMessageDelegater = new PeakMessageDelegate(PeakMessageInternal);
+            m_SetFocusDelegater = new SetFocusDelegate(SetFocusInternal);
+        }
 
         //
         //  GetTitleBarItemRectangle
@@ -128,6 +141,9 @@ namespace APE.Communication
         //  ScrollControlIntoView
         //
 
+        private delegate void ScrollControlIntoViewDelegate(IntPtr handle);
+        private ScrollControlIntoViewDelegate m_ScrollControlIntoViewDelegater;
+
         unsafe public void AddFirstMessageScrollControlIntoView(IntPtr handle)
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
@@ -150,12 +166,21 @@ namespace APE.Communication
             //must be first message
             if (messageNumber != 1)
             {
-                throw new Exception("ScrollControlIntoView must be first message");
+                throw new Exception("ScrollControlIntoView must be the first message");
             }
 
             // p1  = handle
             IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+            object[] theParameters = { handle };
 
+            //TODO WPF etc
+            WF.Control childControl = WF.Control.FromHandle(handle);
+            childControl.Invoke(m_ScrollControlIntoViewDelegater, theParameters);
+            CleanUpMessage(ptrMessage);
+        }
+
+        private unsafe void ScrollControlIntoViewInternal(IntPtr handle)
+        {
             WF.Control childControl = WF.Control.FromHandle(handle);
             if (childControl != null)
             {
@@ -170,7 +195,175 @@ namespace APE.Communication
                     control = control.Parent;
                 }
             }
+        }
+
+        //
+        //  setfocus
+        //
+
+        private delegate void SetFocusDelegate(IntPtr control);
+        private SetFocusDelegate m_SetFocusDelegater;
+
+        unsafe public void AddFirstMessageSetFocus(IntPtr control)
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.SetFocus;
+
+            Parameter HandleParam = new Parameter(this, control);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void SetFocus(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("SetFocus must be the first message");
+            }
+
+            // p1  = handle
+            IntPtr control = GetParameterIntPtr(ptrMessage, 0);
+
             //TODO WPF etc
+            WF.Control childControl = WF.Control.FromHandle(control);
+            if (childControl != null)
+            {
+                object[] theParameters = { control };
+                childControl.Invoke(m_SetFocusDelegater, theParameters);
+            }
+            CleanUpMessage(ptrMessage);
+        }
+
+        private unsafe void SetFocusInternal(IntPtr control)
+        {
+            WF.Control childControl = WF.Control.FromHandle(control);
+
+            if (childControl != null)
+            {
+                if (childControl.CanFocus)
+                {
+                    if (!childControl.ContainsFocus)
+                    {
+                        childControl.Focus();
+                    }
+                }
+            }
+        }
+
+        //
+        //  PeakMessage
+        //
+
+        private delegate bool PeakMessageDelegate();
+        private PeakMessageDelegate m_PeakMessageDelegater;
+
+        unsafe public void AddFirstMessagePeakMessage(IntPtr handle)
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.PeakMessage;
+
+            Parameter HandleParam = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void PeakMessage(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("PeakMessage must be the first message");
+            }
+
+            // p1  = handle
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+            object[] theParameters = { handle };
+
+            //TODO WPF etc
+            WF.Control control = WF.Control.FromHandle(handle);
+
+            if (control != null)
+            {
+                Stopwatch timer = Stopwatch.StartNew();
+                while (true)
+                {
+                    bool messageAvailble = false;
+                    if (!control.IsDisposed)
+                    {
+                        try
+                        {
+                            messageAvailble = (bool)control.Invoke(m_PeakMessageDelegater, null);
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                        }
+                    }
+                    if (!messageAvailble)
+                    {
+                        break;
+                    }
+
+                    if (!NM.IsWindowEnabled(handle))
+                    {
+                        break;
+                    }
+
+                    if (timer.ElapsedMilliseconds > m_TimeOut)
+                    {
+                        throw new Exception("Thread failed to have zero messages within timeout");
+                    }
+
+                    Thread.Sleep(50);
+                }
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        private unsafe bool PeakMessageInternal()
+        {
+            NativeMessage msg;
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
+            return messageAvailble;
+        }
+
+        [SuppressUnmanagedCodeSecurity]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("User32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool PeekMessage(out NativeMessage message, IntPtr handle, uint filterMin, uint filterMax, PeekMessageFlags flags);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct NativeMessage
+        {
+            public IntPtr handle;
+            public uint msg;
+            public IntPtr wParam;
+            public IntPtr lParam;
+            public uint time;
+            public System.Drawing.Point p;
+        }
+
+        [Flags]
+        public enum PeekMessageFlags : uint
+        {
+            NoRemove = 0,
+            Remove = 1,
+            NoYield = 2,
         }
     }
 }

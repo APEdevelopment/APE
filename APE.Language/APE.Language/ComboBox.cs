@@ -93,7 +93,7 @@ namespace APE.Language
 
             IntPtr ListBox = IntPtr.Zero;
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 if (Style == "Simple")
@@ -243,7 +243,7 @@ namespace APE.Language
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             IntPtr EditBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));

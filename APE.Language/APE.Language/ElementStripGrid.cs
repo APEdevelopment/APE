@@ -680,7 +680,7 @@ namespace APE.Language
         /// <returns>The cell property</returns>
         internal override dynamic GetCellInternal(int rowIndex, int columnIndex, CellProperty property)
         {
-            int titleRows;
+            //int titleRows;
             switch (property)
             {
                 case CellProperty.TextDisplay:
@@ -1294,6 +1294,28 @@ namespace APE.Language
                     {
                         GUI.Log("Single " + MouseButton.Left.ToString() + " click on the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
                         SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+
+                        //Wait for cell selection and paint to happen
+                        timer = Stopwatch.StartNew();
+                        while (true)
+                        {
+                            if (this.CursorCellRow() == rowIndex && this.CursorCellColumn() == columnIndex)
+                            {
+                                break;
+                            }
+
+                            if (timer.ElapsedMilliseconds > 3000)
+                            {
+                                throw new Exception("row " + rowFriendlyText + " column " + columnFriendlyText + " failed be selected for the " + Description);
+                            }
+
+                            Thread.Sleep(15);
+                        }
+
+                        // TODO is this actually needed run some tests
+                        GUI.m_APE.AddFirstMessagePeakMessage(this.Identity.Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
 
                     // Put the cell into edit mode
@@ -1518,7 +1540,7 @@ namespace APE.Language
             }
 
             // Display the drop down
-            GUI.Log("Single Left click on the " + Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            GUI.Log("Single Left click on the right side of the " + Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             location = GetLocationInCell(rowIndex, columnIndex, CellClickLocation.RightSideOfCell);
             MouseDownInternal(location.X, location.Y, MouseButton.Left, MouseKeyModifier.None);
 

@@ -118,7 +118,7 @@ namespace APE.Language
             Handle = GetContextMenu(Identity.ParentHandle, Identity.Handle);
             //WaitForAnimation(Handle, false);
 
-            if (Input.ActiveWindow(Handle))
+            if (Input.IsActiveWindow(Handle))
             {
                 MenuParent = Handle;
             }
@@ -127,7 +127,7 @@ namespace APE.Language
                 MenuParent = Identity.ParentHandle;
             }
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 for (int Item = 0; Item < Menus.Length; Item++)
@@ -138,7 +138,7 @@ namespace APE.Language
                         //WaitForAnimation(Handle, false);
                     }
                     MenuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, Handle, Menus[Item]);
-                    m_MenuUtils.ClickMenuItem(MenuParent, Handle, MenuIndex, Menus[Item], ref Identity);
+                    m_MenuUtils.ClickMenuItem(MenuParent, Handle, this.Description, MenuIndex, Menus[Item], ref Identity);
                 }
             }
             catch
@@ -270,7 +270,7 @@ namespace APE.Language
 
         internal void SingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
+            Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace APE.Language
 
         internal void DoubleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
+            Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace APE.Language
 
         internal void TripleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
+            Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
         }
 
         /// <summary>
@@ -400,7 +400,7 @@ namespace APE.Language
 
         internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseDown(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
+            Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
         }
 
         /// <summary>
@@ -432,7 +432,7 @@ namespace APE.Language
 
         internal void MouseUpInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseUp(Identity.ParentHandle, Identity.Handle, X, Y, button, keys);
+            Input.MouseUp(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
         }
 
         /// <summary>

@@ -43,8 +43,6 @@ namespace APE.Language
         {
             //When a form is opened it is animated, so wait for it to finish
             WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
-
-            Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
         }
 
         /// <summary>
@@ -60,8 +58,6 @@ namespace APE.Language
         {
             //When a form is opened it is animated, so wait for it to finish
             WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
-
-            Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
         }
 
         /// <summary>
@@ -100,7 +96,7 @@ namespace APE.Language
                     int X = Left + ((Right - Left) / 2) - WindowRect.left;
                     int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
-                    Input.Block(Identity.ParentHandle, Identity.Handle);
+                    Input.Block();
                     try
                     {
                         GUI.Log("Close the " + Identity.Description, LogItemType.Action);
@@ -229,7 +225,7 @@ namespace APE.Language
             int X = Left + ((Right - Left) / 2) - WindowRect.left;
             int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
@@ -302,7 +298,7 @@ namespace APE.Language
             int X = Left + ((Right - Left) / 2) - WindowRect.left;
             int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
@@ -356,7 +352,7 @@ namespace APE.Language
 
             if (windowState == "Minimized")
             {
-                Input.Block(Identity.ParentHandle, Identity.Handle);
+                Input.Block();
                 try
                 {
                     NM.ShowWindow(Identity.Handle, NM.SW_RESTORE);
@@ -420,7 +416,7 @@ namespace APE.Language
                 int X = Left + ((Right - Left) / 2) - WindowRect.left;
                 int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
-                Input.Block(Identity.ParentHandle, Identity.Handle);
+                Input.Block();
                 try
                 {
                     base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
@@ -484,7 +480,7 @@ namespace APE.Language
             NM.tagRect WindowRect;
             NM.GetWindowRect(Identity.Handle, out WindowRect);
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 base.MouseDownInternal(MouseDownX, MouseDownY, MouseButton.Left, MouseKeyModifier.None);
@@ -494,18 +490,6 @@ namespace APE.Language
             {
                 Input.Unblock();
             }
-        }
-
-        public void Scroll()
-        {
-            //TODO
-            throw new Exception("Not implemented, yet!");
-        }
-
-        public void Resize()
-        {
-            //TODO
-            throw new Exception("Not implemented, yet!");
         }
     }
 }

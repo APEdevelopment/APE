@@ -224,7 +224,7 @@ namespace APE.Language
             int Bottom = GUI.m_APE.GetValueFromMessage();
             int Right = GUI.m_APE.GetValueFromMessage();
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 // Listview group selecting has issue if the mouse up is recieved to quickly after the mouse down

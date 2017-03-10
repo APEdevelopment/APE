@@ -69,7 +69,7 @@ namespace APE.Language
                 return;
             }
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);

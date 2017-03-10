@@ -232,7 +232,7 @@ namespace APE.Language
                 return;
             }
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 //click on the left side of the control

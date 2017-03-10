@@ -596,6 +596,45 @@ namespace APE.Language
                     // Click on the cell
                     GUI.Log("Single " + MouseButton.Left.ToString() + " click on the cell in the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
                     this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+                    // The override column is a pain as the checkbox doesn't always get checked (even though the row is does get selected so the control 
+                    // is recieving the click events) so we work around the issue
+                    if (columnFriendlyText == "Override") 
+                    {
+                        timer = Stopwatch.StartNew();
+                        while (true)
+                        {
+                            Thread.Sleep(15);
+
+                            currentValue = GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+                            currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+                            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                            {
+                                break;
+                            }
+
+                            // If the form it belongs to isn't enabled then there is likely a modal form displayed
+                            // so exit the loop so the code can continue (its up to the caller to validate the
+                            // value is set in these cases)
+                            if (!ParentForm.IsEnabled)
+                            {
+                                break;
+                            }
+
+                            if (columnText != null)
+                            {
+                                // Look for the column again as the act of setting the value may have changed its position
+                                columnIndex = FindColumn(columnText);
+                            }
+
+                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                            {
+                                throw new Exception("Failed to set the " + Description + " cell value");
+                            }
+
+                            this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+                        }
+                    }
+
                     break;
                 case VSFlexgridColumnDataType.flexDTBoolean:
                     // Click on the checkbox
@@ -770,8 +809,6 @@ namespace APE.Language
             Point location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
             // Find the actual native grid to click on
             GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
-            nativeGrid.MoveTo(location.X, location.Y);
-            Thread.Sleep(50);
             nativeGrid.SingleClickInternal(location.X, location.Y, button, keyModifier);
         }
 
@@ -898,28 +935,33 @@ namespace APE.Language
             return value;
         }
 
-        public int ColumnWidth(int column)
-        {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
-            GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ColWidth", MemberTypes.Property, new Parameter(GUI.m_APE, column));
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int widthTwips = GUI.m_APE.GetValueFromMessage();
-            return widthTwips;
-        }
+        //public int ColumnWidth(int column)
+        //{
+        //    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+        //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
+        //    GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+        //    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ColWidth", MemberTypes.Property, new Parameter(GUI.m_APE, column));
+        //    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+        //    GUI.m_APE.SendMessages(EventSet.APE);
+        //    GUI.m_APE.WaitForMessages(EventSet.APE);
+        //    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+        //    int widthTwips = GUI.m_APE.GetValueFromMessage();
+        //    return widthTwips;
+        //}
 
-
-
-        // TODO treeview stuff
+        /// <summary>
+        /// Determines if the grid has a tree view column
+        /// </summary>
+        /// <returns>True if the grid has a tree view column otherwise false</returns>
         public bool IsTreeView()
         {
             return false;
         }
 
+        /// <summary>
+        /// Gets the tree view column
+        /// </summary>
+        /// <returns>The tree view column index or -1</returns>
         public int TreeViewColumn()
         {
             return -1;
@@ -929,7 +971,6 @@ namespace APE.Language
         {
             return -1;
         }
-
 
         /// <summary>
         /// Returns a range of cell values column separated by \t and row separated by \r

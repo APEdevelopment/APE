@@ -160,6 +160,7 @@ namespace APE.Communication
         Process AUTProcess = null;
         bool m_Abort = false;
         uint m_TimeOut = 0;
+        uint m_HangTimeOut = 30000;
         //int m_Sleep = 62;               //sleep time ms best to use one of the following values rounded down (or a multiple)
         //15.625
         //31.25
@@ -297,6 +298,7 @@ namespace APE.Communication
 
             m_eventIPC = new EventWaitHandle(false, EventResetMode.AutoReset, apeProcessId + "_EventIPC_" + appDomain + "_" + autProcessId);
             Side = EventSet.APE;
+            m_Abort = false;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -636,6 +638,19 @@ namespace APE.Communication
 
         unsafe public dynamic GetValueFromMessage()
         {
+            // Checking if a process has exited is slow so we only check once every second or so
+            if (m_Abort == true)
+            {
+                if (AUTProcess == null)
+                {
+                    throw new Exception("Not attached to a process");
+                }
+                if (AUTProcess.HasExited)
+                {
+                    throw new Exception(AUTProcess.ProcessName + " has exited");
+                }
+            }
+
             m_MessageNumber++;
 
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((m_MessageNumber - 1) * m_SizeOfMessage));
@@ -767,6 +782,7 @@ namespace APE.Communication
         {
             //signal the other process
             m_eventIPC.Set();
+            Stopwatch timer = Stopwatch.StartNew();
 
             // Yield the current process until the other process wakes up and notifies us via the mmf
 
@@ -789,23 +805,33 @@ namespace APE.Communication
                 if (WhoIsSending == EventSet.APE)
                 {
                     // Check if the AUT is still running
+
+                    if (AUTProcess == null)
+                    {
+                        m_Abort = true;
+                        throw new Exception("Not attached to a process");
+                    }
+
                     // If its being debugged HasExited will throw a permission denined exception
-                    bool exited = false;
+                    bool hasExited = false;
                     try
                     {
-                        if (AUTProcess == null || AUTProcess.HasExited)
-                        {
-                            exited = true;
-                        }
+                        hasExited = AUTProcess.HasExited;
                     }
                     catch
                     {
                     }
-
-                    if (exited)
+                    if (hasExited)
                     {
                         m_Abort = true;
-                        throw new Exception("AUT has exited!");
+                        throw new Exception(AUTProcess.ProcessName + " has exited");
+                    }
+
+                    //if last awake hasn't been set in m_TimeOut + m_HangTimeout ms then report a hang (might happen if the process still exists but is showing a 'stopped working dialog')
+                    if (timer.ElapsedMilliseconds > m_TimeOut + m_HangTimeOut)
+                    {
+                        m_Abort = true;
+                        throw new Exception(AUTProcess.ProcessName + " has hung");
                     }
                 }
                 else
@@ -840,72 +866,63 @@ namespace APE.Communication
 
         unsafe public void WaitForMessages(EventSet WhoIsWaiting)
         {
-            // We know the other process is awake so wait for it to signal us via the event
+            int waitTimeMs;
+            Process processToCheck;
+            bool signaled;
+            Stopwatch timer = null;
+
             if (Side == EventSet.APE)
             {
-                while (true)
-                {
-                    // TODO probably want to have some time out in here incase the AUT hangs
-                    if (m_eventIPC.WaitOne(100))
-                    {
-                        m_PtrMessageStore->LastWake = WhoIsWaiting;
-                        GetResultMessage();
-                        break;
-                    }
-                    else
-                    {
-                        // Check if the AUT is still running
-                        // If its being debugged HasExited will throw a permission denined exception
-                        bool exited = false;
-                        try
-                        {
-                            if (AUTProcess == null || AUTProcess.HasExited)
-                            {
-                                exited = true;
-                            }
-                        }
-                        catch
-                        {
-                        }
-
-                        if (exited)
-                        {
-                            m_Abort = true;
-                            // We may be expecting it to have exited (IE if the form was closed)
-                            break;
-                        }
-                    }
-                }
+                waitTimeMs = 1000;
+                processToCheck = AUTProcess;
+                timer = Stopwatch.StartNew();
             }
             else
             {
-                while (true)
-                {
-                    if (m_eventIPC.WaitOne(30000))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        //check if the APE is still running (if it crashed it wont ask us to unload)
-                        //if its being debugged HasExited will throw a permission denined exception
-                        try
-                        {
-                            if (ApeProcess == null || ApeProcess.HasExited)
-                            {
-                                m_Abort = true;
-                                break;
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
-                }
+                waitTimeMs = 30000;
+                processToCheck = ApeProcess;
             }
 
-            //writes to the mmf to let the other process know we have woken up
-            m_PtrMessageStore->LastWake = WhoIsWaiting;
+            while (true)
+            {
+                signaled = m_eventIPC.WaitOne(waitTimeMs);
+
+                // Check if the process is still running
+                // If its being debugged HasExited will throw a permission denied exception
+                try
+                {
+                    if (processToCheck == null || processToCheck.HasExited)
+                    {
+                        // We may be expecting it to have exited (IE if the form was closed)
+                        m_Abort = true;
+                        break;
+                    }
+                }
+                catch
+                {
+                }
+
+                if (signaled)
+                {
+                    //writes to the mmf to let the other process know we have woken up
+                    m_PtrMessageStore->LastWake = WhoIsWaiting;
+                    if (Side == EventSet.APE)
+                    {
+                        GetResultMessage();
+                    }
+                    break;
+                }
+
+                //if a response hasn't been recieved in m_TimeOut + m_HangTimeout ms then report a hang
+                if (Side == EventSet.APE)
+                {
+                    if (timer.ElapsedMilliseconds > m_TimeOut + m_HangTimeOut)
+                    {
+                        m_Abort = true;
+                        throw new Exception(processToCheck.ProcessName + " has hung");
+                    }
+                }
+            }            
         }
 
         unsafe public void AddRetrieveMessageGetValue(DataStores SourceStore)
@@ -3625,7 +3642,7 @@ namespace APE.Communication
                 Fasterflect.ConstructorInvoker ConstructorInvoker;
                 Fasterflect.MethodInvoker MethodInvoker;
                 Fasterflect.MemberGetter MemberGetter;
-                Fasterflect.ArrayElementGetter ArrayElementGetter;
+                //Fasterflect.ArrayElementGetter ArrayElementGetter;
 
                 if (PtrMessage->NameLength == -1)
                 {
@@ -3884,6 +3901,18 @@ namespace APE.Communication
                 AddFirstMessageSetTimeOuts();
                 SendMessages(EventSet.APE);
                 WaitForMessages(EventSet.APE);
+            }
+        }
+
+        public uint HangTimeOut
+        {
+            get
+            {
+                return m_HangTimeOut;
+            }
+            set
+            {
+                m_HangTimeOut = value;
             }
         }
     }

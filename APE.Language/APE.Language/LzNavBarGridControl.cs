@@ -42,11 +42,28 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified node by scrolling it into view and clicking on it
         /// </summary>
+        /// <param name="nodeIndex">The index of the node to click on</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void SingleClickItem(int nodeIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            string nodeText = GetNodePath(nodeIndex);
+            if (nodeText == null)
+            {
+                GUI.Log("Failed to find node index " + nodeIndex.ToString(), LogItemType.Information);
+                throw new Exception("Failed to find node index");
+            }
+            SingleClickItem(nodeText, button, locationInCell);
+        }
+
+        /// <summary>
+        /// Selects the specified node by scrolling it into view and clicking on it
+        /// </summary>
         /// <param name="nodeText">The node to look for delimited by -> for example Order -> Id</param>
         /// <param name="button">The button with which to click</param>
         /// <param name="locationInCell">The location in the cell to click</param>
         public void SingleClickItem(string nodeText, MouseButton button, CellClickLocation locationInCell)
-        {   
+        {
             GUIFlexgrid grid = new GUIFlexgrid(ParentForm, Identity.Description + " grid", new Identifier(Identifiers.Name, "Grid"), new Identifier(Identifiers.ChildOf, this));
             string uid = FindNodeUid(nodeText);
             if (uid == null)
@@ -54,6 +71,7 @@ namespace APE.Language
                 GUI.Log("Failed to find node " + nodeText, LogItemType.Information);
                 throw new Exception("Failed to find node");
             }
+
             int row = grid.FindRow(uid, 1);     // hidden column 1 contains the uid for each row
             if (row == -1)
             {
@@ -76,6 +94,33 @@ namespace APE.Language
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Gets the index of the specified node
+        /// </summary>
+        /// <param name="nodeText">The node to look for delimited by -> for example Order -> Id</param>
+        /// <returns>The index of the node</returns>
+        public int ItemIndex(string nodeText)
+        {
+            string uid = FindNodeUid(nodeText);
+            if (uid == null)
+            {
+                GUI.Log("Failed to find node " + nodeText, LogItemType.Information);
+                throw new Exception("Failed to find node");
+            }
+            int row = GetNodeIndexForUid(uid);
+            return row;
+        }
+
+        /// <summary>
+        /// Gets the text of the specified node index
+        /// </summary>
+        /// <param name="nodeIndex">The index of the node to click on</param>
+        /// <returns>The text of the node</returns>
+        public string ItemText(int nodeIndex)
+        {
+            return GetNodePath(nodeIndex);
         }
 
         private string FindNodeUid(string nodeText)
@@ -221,10 +266,14 @@ namespace APE.Language
             int nodes = GetNodeCount();
             for (int nodeIndex = 0; nodeIndex < nodes; nodeIndex++)
             {
-                string currentNodeUid = GetNodeUid(nodeIndex);
-                if (currentNodeUid == uid)
+                string nodeType = GetNodeType(nodeIndex);
+                if (nodeType == "LzNavBarData.NBNode")
                 {
-                    return nodeIndex;
+                    string currentNodeUid = GetNodeUid(nodeIndex);
+                    if (currentNodeUid == uid)
+                    {
+                        return nodeIndex;
+                    }
                 }
             }
 

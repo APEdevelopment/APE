@@ -60,7 +60,7 @@ namespace APE.Language
             Stopwatch timer;
             string currentText;
 
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 IntPtr textboxHandle;
@@ -90,7 +90,7 @@ namespace APE.Language
 
                 GUITextBox textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
-                currentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
+                currentText = textbox.Text;
 
                 if (text == currentText)
                 {
@@ -219,7 +219,7 @@ namespace APE.Language
                     timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        currentText = GUI.m_APE.GetWindowTextViaWindowMessage(textboxHandle);
+                        currentText = textbox.Text;
 
                         if (currentText == unescapedText)
                         {
@@ -236,9 +236,6 @@ namespace APE.Language
 
                     GUI.Log("Press Enter to set the value", LogItemType.Action);
                     base.SendKeysInternal("{Enter}");
-
-                    // Wait for the input to be idle after entering the value
-                    GUI.WaitForInputIdle(this);
 
                     if (Identity.TypeNameSpace == "LzGenericWalker")
                     {

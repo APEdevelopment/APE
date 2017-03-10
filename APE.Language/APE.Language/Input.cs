@@ -38,20 +38,28 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                if (NM.IsWindowVisible(control.Handle))
                 {
-                    throw new Exception(control.Description + " is not enabled");
-                }
-
-                if (NM.IsWindowEnabled(control.Handle))
-                {
-                    if (NM.IsWindowVisible(control.Handle))
+                    if (NM.IsWindowEnabled(control.Handle))
                     {
                         break;
                     }
                 }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    if (NM.IsWindowVisible(control.Handle))
+                    {
+                        throw new Exception(control.Description + " failed to become enabled");
+                    }
+                    else
+                    {
+                        throw new Exception(control.Description + " failed to become visible");
+                    }
+                }
+
+                Thread.Sleep(15);
             }
-            timer.Stop();
         }
 
         //TODO remove theses and replace with above so we get better error messages
@@ -81,55 +89,61 @@ namespace APE.Language
             WaitToBeVisibleAndEnabled(focusableObject);
             if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
             {
-                throw new Exception("Window did not go idle within timeout");
+                throw new Exception(focusableObject.Description + " did not go idle within timeout");
             }
             if (!focusableObject.HasFocus)
             {
                 focusableObject.SetFocus();
+
+                // We have changed the focus which likely updates the GUI so make sure it has painted
+                GUI.m_APE.AddFirstMessagePeakMessage(focusableObject.Handle);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
             }
             TimerResolution.SetMaxTimerResolution();
+
             System.Windows.Forms.SendKeys.SendWait(text);
             TimerResolution.UnsetMaxTimerResolution();
         }
 
-        public static void MouseSingleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(Handle);
-            if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
+            WaitToBeVisibleAndEnabled(control);
+            if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception("Window did not go idle within timeout");
+                throw new Exception(description + " did not go idle within timeout");
             }
 
             IsMouseDown = false;
             uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
-            Block(ParentHandle, Handle);
+            Block();
             try
             {
                 TimerResolution.SetMaxTimerResolution();
                 NM.SetDoubleClickTime(1);
                 
-                ClickCommon(ParentHandle, Handle, X, Y);
+                ClickCommon(parent, control, description, x, y);
 
-                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 hooked = true;
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
-
+                
                 // Some controls don't like it if the mouse is released too quick (For instance Listview
                 // group selecting) but rather than slowing all clicks down put specific code in the problematic
                 // control to handle it (see SelectGroup in ListView.cs for an example)
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
@@ -145,7 +159,7 @@ namespace APE.Language
                 {
                     if (hooked)
                     {
-                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(control);
                         GUI.m_APE.SendMessages(EventSet.APE);
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
@@ -159,51 +173,51 @@ namespace APE.Language
             }
         }
 
-        public static void MouseDoubleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        public static void MouseDoubleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(Handle);
-            if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
+            WaitToBeVisibleAndEnabled(control);
+            if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception("Window did not go idle within timeout");
+                throw new Exception(description + " did not go idle within timeout");
             }
 
             IsMouseDown = false;
             try
             {
-                Block(ParentHandle, Handle);
+                Block();
                 
                 TimerResolution.SetMaxTimerResolution();
 
-                ClickCommon(ParentHandle, Handle, X, Y);
+                ClickCommon(parent, control, description, x, y);
 
-                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 hooked = true;
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, false);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, false);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
@@ -218,7 +232,7 @@ namespace APE.Language
                 {
                     if (hooked)
                     {
-                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(control);
                         GUI.m_APE.SendMessages(EventSet.APE);
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
@@ -231,63 +245,63 @@ namespace APE.Language
             }
         }
 
-        public static void MouseTripleClick(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        public static void MouseTripleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(Handle);
-            if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
+            WaitToBeVisibleAndEnabled(control);
+            if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception("Window did not go idle within timeout");
+                throw new Exception(description + " did not go idle within timeout");
             }
 
             IsMouseDown = false;
             try
             {
-                Block(ParentHandle, Handle);
+                Block();
                 
                 TimerResolution.SetMaxTimerResolution();
 
-                ClickCommon(ParentHandle, Handle, X, Y);
+                ClickCommon(parent, control, description, x, y);
 
-                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 hooked = true;
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, false);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, false);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, false);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, false);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
@@ -302,7 +316,7 @@ namespace APE.Language
                 {
                     if (hooked)
                     {
-                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(control);
                         GUI.m_APE.SendMessages(EventSet.APE);
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
@@ -315,31 +329,31 @@ namespace APE.Language
             }
         }
 
-        public static void MouseDown(IntPtr ParentHandle, IntPtr Handle, int X, int Y, MouseButton Button, MouseKeyModifier Keys)
+        public static void MouseDown(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(Handle);
-            if (!WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
+            WaitToBeVisibleAndEnabled(control);
+            if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception("Window did not go idle within timeout");
+                throw new Exception(description + " did not go idle within timeout");
             }
 
-            Block(ParentHandle, Handle);
+            Block();
             try
             {
                 TimerResolution.SetMaxTimerResolution();
 
-                ClickCommon(ParentHandle, Handle, X, Y);
+                ClickCommon(parent, control, description, x, y);
 
-                GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
+                GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 hooked = true;
 
-                MouseClick(Button, true, false, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, true, true);
+                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
@@ -354,7 +368,7 @@ namespace APE.Language
                 {
                     if (hooked)
                     {
-                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(control);
                         GUI.m_APE.SendMessages(EventSet.APE);
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
@@ -368,12 +382,12 @@ namespace APE.Language
             }
         }
 
-        public static void MouseUp(IntPtr ParentHandle, IntPtr Handle, int x, int y, MouseButton Button, MouseKeyModifier Keys)
+        public static void MouseUp(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(Handle);
-            Block(ParentHandle, Handle);
+            WaitToBeVisibleAndEnabled(control);
+            Block();
             try
             {
                 NM.tagPoint thePoint = new NM.tagPoint();
@@ -382,7 +396,7 @@ namespace APE.Language
                 IntPtr TopLevelHandle = NM.ChildWindowFromPoint(NM.GetDesktopWindow(), thePoint);
 
                 NM.tagRect WindowSize;
-                NM.GetWindowRect(Handle, out WindowSize);
+                NM.GetWindowRect(control, out WindowSize);
 
                 thePoint.x = x + WindowSize.left;
                 thePoint.y = y + WindowSize.top;
@@ -390,18 +404,18 @@ namespace APE.Language
 
                 if (!WaitForInputIdle(ChildHandle, GUI.m_APE.TimeOut))
                 {
-                    throw new Exception("Window did not go idle within timeout");
+                    throw new Exception(description + " did not go idle within timeout");
                 }
 
                 IntPtr ActualParent;
 
-                if (ParentHandle == IntPtr.Zero)
+                if (parent == IntPtr.Zero)
                 {
-                    ActualParent = Handle;
+                    ActualParent = control;
                 }
                 else
                 {
-                    ActualParent = ParentHandle;
+                    ActualParent = parent;
                 }
 
                 TimerResolution.SetMaxTimerResolution();
@@ -409,26 +423,26 @@ namespace APE.Language
                 //TODO this looks wrong should use clickcommon only for this
                 if (ChildHandle == ActualParent)
                 {
-                    ClickCommon(ParentHandle, Handle, x, y);
+                    ClickCommon(parent, control, description, x, y);
                 }
                 else
                 {
-                    MouseMove(Handle, x, y, false);
+                    MouseMove(control, x, y, false);
                 }
 
-                if (Handle == ActualParent)
+                if (control == ActualParent)
                 {
-                    GUI.m_APE.AddFirstMessageAddMouseHook(Handle);
+                    GUI.m_APE.AddFirstMessageAddMouseHook(control);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     hooked = true;
                 }
 
-                MouseClick(Button, false, true, 1, Keys.HasFlag(MouseKeyModifier.Control), Keys.HasFlag(MouseKeyModifier.Shift));
+                MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                if (Handle == ActualParent)
+                if (control == ActualParent)
                 {
-                    GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)Button, false, true);
+                    GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                 }
@@ -444,7 +458,7 @@ namespace APE.Language
                 {
                     if (hooked)
                     {
-                        GUI.m_APE.AddFirstMessageRemoveMouseHook(Handle);
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(control);
                         GUI.m_APE.SendMessages(EventSet.APE);
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
@@ -458,13 +472,49 @@ namespace APE.Language
             }
         }
 
-        public static bool ActiveWindow(IntPtr Parent)
+        public static bool HasFocus(IntPtr parent, IntPtr control)
         {
             NM.GUITHREADINFO CurrentGuiInfo = new NM.GUITHREADINFO();
             CurrentGuiInfo.cbSize = Marshal.SizeOf(CurrentGuiInfo);
             NM.GetGUIThreadInfo(0, ref CurrentGuiInfo);
 
-            if (CurrentGuiInfo.hwndActive == Parent)
+            //Debug.Listeners[0].WriteLine("\t CurrentGuiInfo.hwndActive: " + CurrentGuiInfo.hwndActive.ToString());
+            //Debug.Listeners[0].WriteLine("\t CurrentGuiInfo.hwndFocus: " + CurrentGuiInfo.hwndFocus.ToString());
+
+            if (parent == IntPtr.Zero)
+            {
+                if (CurrentGuiInfo.hwndActive == control || NM.IsChild(control, CurrentGuiInfo.hwndActive) || NM.IsChild(CurrentGuiInfo.hwndActive, control))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (CurrentGuiInfo.hwndActive == parent || NM.IsChild(parent, CurrentGuiInfo.hwndActive) || NM.IsChild(CurrentGuiInfo.hwndActive, parent))
+                {
+                    if (CurrentGuiInfo.hwndFocus == control)
+                    {
+                        return true;
+                    }
+                    else if (NM.IsChild(control, CurrentGuiInfo.hwndFocus))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the control or one of its children / parents is currently the active window
+        /// </summary>
+        /// <param name="control">Handle of the control to check the active window state of</param>
+        /// <returns>True if the control or a child / parent of the control is the active window otherwise false</returns>
+        public static bool IsActiveWindow(IntPtr control)
+        {
+            IntPtr active = GetActive();
+            if (active == control || NM.IsChild(control, active) || NM.IsChild(active, control))
             {
                 return true;
             }
@@ -474,56 +524,28 @@ namespace APE.Language
             }
         }
 
-        public static bool HasFocus(IntPtr Parent, IntPtr Control)
+        /// <summary>
+        /// Checks if the control or one of its children currently has focus
+        /// </summary>
+        /// <param name="control">Handle of the control to check the focus state of</param>
+        /// <returns>True if the control or a child of the control has focus otherwise false</returns>
+        public static bool IsFocusWindow(IntPtr control)
         {
-            NM.GUITHREADINFO CurrentGuiInfo = new NM.GUITHREADINFO();
-            CurrentGuiInfo.cbSize = Marshal.SizeOf(CurrentGuiInfo);
-            NM.GetGUIThreadInfo(0, ref CurrentGuiInfo);
-
-            //Debug.Listeners[0].WriteLine("\t CurrentGuiInfo.hwndActive: " + CurrentGuiInfo.hwndActive.ToString());
-            //Debug.Listeners[0].WriteLine("\t CurrentGuiInfo.hwndFocus: " + CurrentGuiInfo.hwndFocus.ToString());
-
-            if (Parent == IntPtr.Zero)
+            IntPtr focus = GetFocus();
+            if (focus == control || NM.IsChild(control, focus))
             {
-                if (CurrentGuiInfo.hwndActive == Control)
-                {
-                    return true;
-                }
+                return true;
             }
             else
             {
-                if (CurrentGuiInfo.hwndActive == Parent)
-                {
-
-                    if (CurrentGuiInfo.hwndFocus == Control)
-                    {
-                        return true;
-                    }
-                    else if (NM.IsChild(Control, CurrentGuiInfo.hwndFocus))
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (CurrentGuiInfo.hwndActive == Control)
-                    {
-
-                        if (CurrentGuiInfo.hwndFocus == Control)
-                        {
-                            return true;
-                        }
-                        else if (NM.IsChild(Control, CurrentGuiInfo.hwndFocus))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                return false;
             }
-
-            return false;
         }
 
+        /// <summary>
+        /// Gets the handle of the control which currently has keyboard focus
+        /// </summary>
+        /// <returns>Handle of the control</returns>
         public static IntPtr GetFocus()
         {
             NM.GUITHREADINFO CurrentGuiInfo = new NM.GUITHREADINFO();
@@ -533,148 +555,139 @@ namespace APE.Language
             return CurrentGuiInfo.hwndFocus;
         }
 
-        public static void SetFocus(IntPtr Parent, IntPtr Control)
+        /// <summary>
+        /// Gets the handle of the control which currently is the active window
+        /// </summary>
+        /// <returns>Handle of the control</returns>
+        public static IntPtr GetActive()
         {
-            Stopwatch timer = Stopwatch.StartNew();
-            IntPtr ActualParent;
-            
-            if (Parent == IntPtr.Zero)
+            NM.GUITHREADINFO CurrentGuiInfo = new NM.GUITHREADINFO();
+            CurrentGuiInfo.cbSize = Marshal.SizeOf(CurrentGuiInfo);
+            NM.GetGUIThreadInfo(0, ref CurrentGuiInfo);
+
+            return CurrentGuiInfo.hwndActive;
+        }
+
+        public static bool SetFocus(IntPtr parent, IntPtr control, string description)
+        {
+            string debugMessage = "";
+            bool ret = false;
+
+            IntPtr actualParent;
+            if (parent == IntPtr.Zero)
             {
-                ActualParent = Control;
+                actualParent = control;
             }
             else
             {
-                ActualParent = Parent;
+                actualParent = parent;
             }
 
-            if (!HasFocus(IntPtr.Zero, ActualParent))
+            if (!IsFocusWindow(control))
             {
-                NM.BringWindowToTop(ActualParent);
+                debugMessage += "1 ";
+                GUI.m_APE.AddFirstMessageSetFocus(control);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                ret = true;
+            }
 
-                if (!NM.SetForegroundWindow(ActualParent))
+            if (!IsActiveWindow(actualParent))
+            {
+                debugMessage += "2 ";
+                NM.SetForegroundWindow(actualParent);
+                ret = true;
+            }
+
+            if (!HasFocus(parent, control))
+            {
+                debugMessage += "3 ";
+                if (!NM.SetForegroundWindow(control))
                 {
-                    Debug.WriteLine("Falling back to Hotkey method for parent");
+                    debugMessage += "4 ";
+                    //GUI.Log("doing Hotkey method", LogItemType.Warning);
                     // Fall back to the Hotkey (which will have SetForegroundWindow permission)
-                    GUI.m_ViewPort.Foreground = ActualParent;
+                    GUI.m_ViewPort.Foreground = control;
 
                     // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
                     NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                     NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
+                    Stopwatch timer = Stopwatch.StartNew();
                     while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
                     {
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            timer.Stop();
                             throw new Exception("Viewport SetForegroundWindow appeared to not trigger");
                         }
 
                         Thread.Sleep(0);
                     }
                 }
-
-                while (!HasFocus(IntPtr.Zero, ActualParent))
-                {
-                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                    {
-                        timer.Stop();
-                        throw new Exception("Failed to set focus to the toplevel window");
-                    }
-
-                    Thread.Sleep(0);
-                }
+                ret = true;
             }
 
-            if (Parent != IntPtr.Zero)
+            if (debugMessage != "")
             {
-                if (!HasFocus(Parent, Control))
-                {
-                    if (!NM.SetForegroundWindow(Control))
-                    {
-                        Debug.WriteLine("Falling back to Hotkey method for child");
-                        // Fall back to the Hotkey (which will have SetForegroundWindow permission)
-                        GUI.m_ViewPort.Foreground = Control;
-
-                        // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
-                        NM.keybd_event(NM.VK_PAUSE, 0x8f, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
-                        NM.keybd_event(NM.VK_PAUSE, 0x8f, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-
-                        while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
-                        {
-                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                            {
-                                timer.Stop();
-                                throw new Exception("SetForegroundWindow failed to set focus to the window");
-                            }
-
-                            Thread.Sleep(0);
-                        }
-                    }
-
-                    while (!HasFocus(Parent, Control))
-                    {
-                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                        {
-                            timer.Stop();
-                            throw new Exception("Failed to set focus to the window");
-                        }
-                        
-                        Thread.Sleep(0);
-                    }
-                    timer.Stop();
-                }
+                // Temporary debug message
+                //GUI.Log(debugMessage, LogItemType.Warning);
             }
 
-            return;
+            //if (ret)
+            //{
+            //    Thread.Sleep(100);
+            //}
+
+            return ret;
         }
 
-        public static void ClickCommon(IntPtr Parent, IntPtr Handle, int X, int Y)
+        public static void ClickCommon(IntPtr parent, IntPtr control, string description, int x, int y)
         {
-            if (!NM.IsWindowVisible(Handle))
+            if (!NM.IsWindowVisible(control))
             {
-                throw new Exception("Window is not visible");
+                throw new Exception(description +" is not visible");
             }
 
-            if (!NM.IsWindowEnabled(Handle))
+            if (!NM.IsWindowEnabled(control))
             {
-                throw new Exception("Window is not enabled");
+                throw new Exception(description + " is not enabled");
             }
 
-            IntPtr ActualParent;
+            IntPtr actualParent;
 
-            if (Parent == IntPtr.Zero)
+            if (parent == IntPtr.Zero)
             {
-                ActualParent = Handle;
+                actualParent = control;
             }
             else
             {
-                ActualParent = Parent;
+                actualParent = parent;
             }
 
-            if (NM.IsIconic(ActualParent))
+            if (NM.IsIconic(actualParent))
             {
-                throw new Exception("Window is minimised");
+                throw new Exception(description + " is minimised");
             }
 
-            if (!ActiveWindow(ActualParent))
+            //Make sure the parent form is the active window
+            if (SetFocus(IntPtr.Zero, actualParent, description))
             {
-                SetFocus(Parent, Handle);
-            }
-            else
-            {
-                NM.BringWindowToTop(ActualParent);
+                // We have changed the focus which likely updates the GUI so make sure it has painted
+                GUI.m_APE.AddFirstMessagePeakMessage(control);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
             }
 
-            NM.tagPoint thePoint = MouseMove(Handle, X, Y);
+            NM.tagPoint thePoint = MouseMove(control, x, y);
             IntPtr WindowAtPoint = NM.WindowFromPoint(thePoint);
 
-            if (WindowAtPoint != Handle)
+            if (WindowAtPoint != control)
             {
-                throw new Exception("Window is obscured");
+                throw new Exception(description + " is obscured");
             }
         }
 
-        public static void Block(IntPtr ParentHandle, IntPtr ControlHandle)
+        public static void Block()
         {
             if (BlockCount == 0)
             {
@@ -948,10 +961,16 @@ namespace APE.Language
                             if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
                             {
                                 x++;
+
                                 if (x == 2) //Wait for it to match twice in a row as sometimes the process will go idle then immediately go not idle
                                 {
                                     return true;
                                 }
+
+                                // Make sure there are no outstanding messages including paint messages
+                                GUI.m_APE.AddFirstMessagePeakMessage(handle);
+                                GUI.m_APE.SendMessages(EventSet.APE);
+                                GUI.m_APE.WaitForMessages(EventSet.APE);
                             }
                             else
                             {
@@ -976,8 +995,6 @@ namespace APE.Language
             }
         }
 
-        private const int MoveSize = 4;
-
         public static NM.tagPoint MouseMove(IntPtr Handle, int x, int y, bool PerformCheck = true)
         {
             NM.tagRect WindowRect;
@@ -985,6 +1002,7 @@ namespace APE.Language
             NM.tagPoint thePoint;
             int xOffset;
             int yOffset;
+            int loops =0;
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
@@ -992,7 +1010,7 @@ namespace APE.Language
                 NM.GetWindowRect(Handle, out WindowRect);
                 NM.GetClientRect(Handle, out ClientRect);
 
-                //TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
+                // TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
                 if (x == -1)
                 {
                     xOffset = ClientRect.right / 2;
@@ -1011,13 +1029,13 @@ namespace APE.Language
                     yOffset = y;
                 }
 
-                //Convert the window area to screen point
+                // Convert the window area to screen point
                 thePoint.x = WindowRect.left + xOffset;
                 thePoint.y = WindowRect.top + yOffset;
 
                 if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
                 {
-                    throw new Exception("coordinate appears to be offscreen");
+                    throw new Exception("Coordinates offscreen");
                 }
 
                 if (PerformCheck)
@@ -1029,17 +1047,25 @@ namespace APE.Language
 
                     ChildHandle = NM.WindowFromPoint(thePoint);
 
-                    //Make sure we are inside the controls window area
+                    // Make sure we are inside the controls window area
                     if (Handle == ChildHandle)
                     {
                         break;
                     }
                     else
                     {
-                        //Try to scroll it into view
-                        GUI.m_APE.AddFirstMessageScrollControlIntoView(Handle);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        if (loops == 100)
+                        {
+                            // Try to scroll it into view
+                            GUI.m_APE.AddFirstMessageScrollControlIntoView(Handle);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                            // Make sure the AUT has painted
+                            GUI.m_APE.AddFirstMessagePeakMessage(Handle);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                        }
 
                         if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                         {
@@ -1051,93 +1077,16 @@ namespace APE.Language
                 {
                     break;
                 }
+
+                loops++;
             }
 
-            //Get the current mouse location
-            NM.tagPoint currentPoint;
-            NM.GetCursorPos(out currentPoint);
+            MoveMouse(WindowRect.left + xOffset, WindowRect.top + yOffset);
 
-            //X direction
-            int DirectionX;
-            if (currentPoint.x <= WindowRect.left + xOffset)
-            {
-                DirectionX = 1;     //right
-            }
-            else
-            {
-                DirectionX = -1;    //left
-            }
-
-            //Y direction
-            int DirectionY;
-            if (currentPoint.y <= WindowRect.top + yOffset)
-            {
-                DirectionY = 1;     //down
-            }
-            else
-            {
-                DirectionY = -1;    //up
-            }
-
-            int MoveX = currentPoint.x;
-            int MoveY = currentPoint.y;
-
-            while (MoveX != WindowRect.left + xOffset || MoveY != WindowRect.top + yOffset)
-            {
-                if (MoveX != WindowRect.left + xOffset)
-                {
-                    if (DirectionX == 1)
-                    {
-                        if (MoveX + MoveSize > WindowRect.left + xOffset)
-                        {
-                            MoveX = MoveX + 1;
-                        }
-                        else
-                        {
-                            MoveX = MoveX + MoveSize;
-                        }
-                    }
-                    else
-                    {
-                        if (MoveX - MoveSize < WindowRect.left + xOffset)
-                        {
-                            MoveX = MoveX - 1;
-                        }
-                        else
-                        {
-                            MoveX = MoveX - MoveSize;
-                        }
-                    }
-                }
-
-                if (MoveY != WindowRect.top + yOffset)
-                {
-                    if (DirectionY == 1)
-                    {
-                        if (MoveY + MoveSize > WindowRect.top + yOffset)
-                        {
-                            MoveY = MoveY + 1;
-                        }
-                        else
-                        {
-                            MoveY = MoveY + MoveSize;
-                        }
-                    }
-                    else
-                    {
-                        if (MoveY - MoveSize < WindowRect.top + yOffset)
-                        {
-                            MoveY = MoveY - 1;
-                        }
-                        else
-                        {
-                            MoveY = MoveY - MoveSize;
-                        }
-                    }
-                }
-
-                MoveMouse(MoveX, MoveY);
-            }
+            // Make sure the AUT recieves the mouse move message and has painted
+            GUI.m_APE.AddFirstMessagePeakMessage(Handle);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
 
             return thePoint;
         }

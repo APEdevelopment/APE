@@ -71,7 +71,7 @@ namespace APE.Language
         /// </summary>
         public void SetFocus()
         {
-            Input.SetFocus(Identity.ParentHandle, Identity.Handle);
+            Input.SetFocus(Identity.ParentHandle, Identity.Handle, Identity.Description);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace APE.Language
         /// <param name="textToSend">The text to send to the control</param>
         protected void SendKeysInternal(string textToSend)
         {
-            Input.Block(Identity.ParentHandle, Identity.Handle);
+            Input.Block();
             try
             {
                 Input.SendKeys(this, textToSend);

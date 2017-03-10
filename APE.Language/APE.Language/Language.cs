@@ -406,6 +406,21 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// The additional time on top of the normal timeout value that will be waited for a response before declaring the application to be hung, in milliseconds
+        /// </summary>
+        public static int HangTimeOut
+        {
+            set
+            {
+                m_APE.HangTimeOut = (uint)value;
+            }
+            get
+            {
+                return (int)m_APE.HangTimeOut;
+            }
+        }
+
+        /// <summary>
         /// Performs a max generation garbage collection in both this and the application being automated
         /// </summary>
         public static void GarbageCollect()
@@ -651,8 +666,8 @@ namespace APE.Language
         void Minimise();
         void Move(int X, int Y);
         void Restore();
-        void Scroll();
-        void Resize();
+        //void Scroll();
+        //void Resize();
     }
 
     internal class AnimationUtils
@@ -799,7 +814,7 @@ namespace APE.Language
 
     internal class MenuUtils
     {
-        public void ClickMenuItem(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        public void ClickMenuItem(IntPtr parent, IntPtr control, string description, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
         {
             //Check its enabled and visible then click on it
             Stopwatch timer = Stopwatch.StartNew();
@@ -836,7 +851,7 @@ namespace APE.Language
                 {
                     if (isEnabled)
                     {
-                        Input.MouseSingleClick(parent, control, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None);
+                        Input.MouseSingleClick(parent, control, description, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None);
                         break;
                     }
                 }
@@ -845,11 +860,11 @@ namespace APE.Language
                 {
                     if (!isVisible)
                     {
-                        throw new Exception("Menu item " + menuItem + " not visible");
+                        throw new Exception(description + " menu item " + menuItem + " is not visible");
                     }
                     else
                     {
-                        throw new Exception("Menu item " + menuItem + " not enabled");
+                        throw new Exception(description + " menu item " + menuItem + " is not enabled");
                     }
                 }
 

@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Text;
 using System.Diagnostics;
+using System.Security;
 
 namespace APE.Native
 {
