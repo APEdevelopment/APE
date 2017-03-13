@@ -586,11 +586,13 @@ namespace APE.Language
 
             if (!HasFocus(parent, control))
             {
+                Thread.Sleep(1);    //This seems to help when stepping through code in visual studio
+
                 debugMessage += "3 ";
+                Stopwatch timer = Stopwatch.StartNew();
                 if (!NM.SetForegroundWindow(control))
                 {
                     debugMessage += "4 ";
-                    //GUI.Log("doing Hotkey method", LogItemType.Warning);
                     // Fall back to the Hotkey (which will have SetForegroundWindow permission)
                     GUI.m_ViewPort.Foreground = control;
 
@@ -598,7 +600,6 @@ namespace APE.Language
                     NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
                     NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
-                    Stopwatch timer = Stopwatch.StartNew();
                     while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
                     {
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
@@ -606,10 +607,20 @@ namespace APE.Language
                             throw new Exception("Viewport SetForegroundWindow appeared to not trigger");
                         }
 
-                        Thread.Sleep(0);
+                        Thread.Yield();
                     }
                 }
                 ret = true;
+
+                while (!HasFocus(parent, control))
+                {
+                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                    {
+                        throw new Exception("Failed to setfocus to the " + description);
+                    }
+
+                    Thread.Yield();
+                }
             }
 
             if (debugMessage != "")
