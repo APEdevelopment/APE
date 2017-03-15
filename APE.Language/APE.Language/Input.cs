@@ -33,44 +33,21 @@ namespace APE.Language
         private static bool IsNumLockOn = false;
         private static bool IsScrollLockOn = false;
 
-        private static void WaitToBeVisibleAndEnabled(GUIObject control)
-        {
-            Stopwatch timer = Stopwatch.StartNew();
-            while (true)
-            {
-                if (NM.IsWindowVisible(control.Handle))
-                {
-                    if (NM.IsWindowEnabled(control.Handle))
-                    {
-                        break;
-                    }
-                }
-
-                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                {
-                    if (NM.IsWindowVisible(control.Handle))
-                    {
-                        throw new Exception(control.Description + " failed to become enabled");
-                    }
-                    else
-                    {
-                        throw new Exception(control.Description + " failed to become visible");
-                    }
-                }
-
-                Thread.Sleep(15);
-            }
-        }
-
-        //TODO remove theses and replace with above so we get better error messages
-        private static void WaitToBeVisibleAndEnabled(IntPtr handle)
+        private static void WaitToBeVisibleAndEnabled(IntPtr handle, string description)
         {
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
                 if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
-                    throw new Exception("Control is not enabled");
+                    if (NM.IsWindowVisible(handle))
+                    {
+                        throw new Exception(description + " failed to become enabled");
+                    }
+                    else
+                    {
+                        throw new Exception(description + " failed to become visible");
+                    }
                 }
 
                 if (NM.IsWindowEnabled(handle))
@@ -86,7 +63,7 @@ namespace APE.Language
 
         public static void SendKeys(GUIFocusableObject focusableObject, string text)
         {
-            WaitToBeVisibleAndEnabled(focusableObject);
+            WaitToBeVisibleAndEnabled(focusableObject.Handle, focusableObject.Description);
             if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception(focusableObject.Description + " did not go idle within timeout");
@@ -110,7 +87,7 @@ namespace APE.Language
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(control);
+            WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
                 throw new Exception(description + " did not go idle within timeout");
@@ -177,7 +154,7 @@ namespace APE.Language
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(control);
+            WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
                 throw new Exception(description + " did not go idle within timeout");
@@ -249,7 +226,7 @@ namespace APE.Language
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(control);
+            WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
                 throw new Exception(description + " did not go idle within timeout");
@@ -333,7 +310,7 @@ namespace APE.Language
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(control);
+            WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
                 throw new Exception(description + " did not go idle within timeout");
@@ -386,7 +363,7 @@ namespace APE.Language
         {
             bool hooked = false;
 
-            WaitToBeVisibleAndEnabled(control);
+            WaitToBeVisibleAndEnabled(control, description);
             Block();
             try
             {
