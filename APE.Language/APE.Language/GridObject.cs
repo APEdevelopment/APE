@@ -60,6 +60,11 @@ namespace APE.Language
         /// Supported in GetCellValue only
         /// </summary>
         FontStyle,
+        /// <summary>
+        /// The type of the user data associated with a cell (if any) as a string
+        /// Supported in GetCellValue only
+        /// </summary>
+        UserDataType,
     }
 
     /// <summary>

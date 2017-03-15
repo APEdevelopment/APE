@@ -871,12 +871,17 @@ namespace APE.Language
 
             // Get the data type of the cell we want to set
             string cellDataType = this.GetCell(rowIndex, columnIndex, CellProperty.DataType);
+            string cellUserDataType = this.GetCell(rowIndex, columnIndex, CellProperty.UserDataType);
 
             //Check if its checkbox
             string cellCheckBox = this.GetCell(rowIndex, columnIndex, CellProperty.CheckBox);
             if (cellCheckBox == "None")
             {
                 propertyToCheck = CellProperty.TextDisplay;
+                if (cellUserDataType == "LzFGCheckBoxSupport.CellCheckedStatus")
+                {
+                    cellDataType = "System.Boolean";
+                }
             }
             else
             {
@@ -909,13 +914,15 @@ namespace APE.Language
                 case "System.Boolean":  //checkbox
                     // Click on the checkbox
                     GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
-                    if (IsTreeView())
+                    int treeColumn = TreeViewColumn();
+                    if (treeColumn == columnIndex)
                     {
                         this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.LeftSideOfTreeItem, MouseKeyModifier.None);
                     }
                     else
                     {
-                        this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.LeftSideOfCell, MouseKeyModifier.None);
+                        // May need to determine location to click at some point
+                        this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     }
                     break;
                 default:
@@ -1243,6 +1250,25 @@ namespace APE.Language
                     string fontStyleText = GUI.m_APE.GetValueFromMessage();
                     FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                     return fontStyle;
+                case CellProperty.UserDataType:
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "UserData", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "GetType", MemberTypes.Method);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Namespace", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Name", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string cellUserDataTypeNamespace = GUI.m_APE.GetValueFromMessage();
+                    string cellUserDataTypeName = GUI.m_APE.GetValueFromMessage();
+                    if (cellUserDataTypeName == null || cellUserDataTypeName == null)
+                    {
+                        return null;
+                    }
+                    return cellUserDataTypeNamespace + "." + cellUserDataTypeName;
                 default:
                     throw new Exception("Implement support for getting cell property " + property.ToString());
             }
