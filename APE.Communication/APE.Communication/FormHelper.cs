@@ -33,7 +33,9 @@ namespace APE.Communication
         private void SetupFormHelperDelegates()
         {
             m_ScrollControlIntoViewDelegater = new ScrollControlIntoViewDelegate(ScrollControlIntoViewInternal);
-            m_PeakMessageDelegater = new PeakMessageDelegate(PeakMessageInternal);
+            m_PeakMessagePaintDelegater = new PeakMessageDelegate(PeakMessagePaintInternal);
+            m_PeakMessageKeyDelegater = new PeakMessageDelegate(PeakMessageKeyInternal);
+            m_PeakMessageMouseDelegater = new PeakMessageDelegate(PeakMessageMouseInternal);
             m_SetFocusDelegater = new SetFocusDelegate(SetFocusInternal);
         }
 
@@ -263,7 +265,15 @@ namespace APE.Communication
         //
 
         private delegate bool PeakMessageDelegate();
-        private PeakMessageDelegate m_PeakMessageDelegater;
+        private PeakMessageDelegate m_PeakMessagePaintDelegater;
+        private PeakMessageDelegate m_PeakMessageKeyDelegater;
+        private PeakMessageDelegate m_PeakMessageMouseDelegater;
+
+        private const uint WM_PAINT = 0x000F;
+        private const uint WM_KEYFIRST = 0x0100;
+        private const uint WM_KEYLAST = 0x0108;
+        private const uint WM_MOUSEFIRST = 0x0200;
+        private const uint WM_MOUSELAST = 0x020D;
 
         unsafe public void AddFirstMessagePeakMessage(IntPtr handle)
         {
@@ -307,7 +317,17 @@ namespace APE.Communication
                     {
                         try
                         {
-                            messageAvailble = (bool)control.Invoke(m_PeakMessageDelegater, null);
+                            // Might want to include time here as well at some point
+
+                            messageAvailble = (bool)control.Invoke(m_PeakMessageKeyDelegater, null);
+                            if (!messageAvailble)
+                            {
+                                messageAvailble = (bool)control.Invoke(m_PeakMessageMouseDelegater, null);
+                                if (!messageAvailble)
+                                {
+                                    messageAvailble = (bool)control.Invoke(m_PeakMessagePaintDelegater, null);
+                                }
+                            }
                         }
                         catch (ObjectDisposedException)
                         {
@@ -335,10 +355,24 @@ namespace APE.Communication
             CleanUpMessage(ptrMessage);
         }
 
-        private unsafe bool PeakMessageInternal()
+        private unsafe bool PeakMessagePaintInternal()
         {
             NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_PAINT, WM_PAINT, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
+            return messageAvailble;
+        }
+
+        private unsafe bool PeakMessageKeyInternal()
+        {
+            NativeMessage msg;
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_KEYFIRST, WM_KEYLAST, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
+            return messageAvailble;
+        }
+
+        private unsafe bool PeakMessageMouseInternal()
+        {
+            NativeMessage msg;
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_MOUSEFIRST, WM_MOUSELAST, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
             return messageAvailble;
         }
 

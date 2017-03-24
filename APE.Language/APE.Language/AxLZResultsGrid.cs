@@ -650,6 +650,8 @@ namespace APE.Language
                 case ComparisonMethod.CompareUsingDefaultEqualityComparer:
                     //Check the value was set
                     timer = Stopwatch.StartNew();
+                    int loop = 0;
+                    int sleep = 15;
                     while (true)
                     {
                         currentValue = GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
@@ -678,7 +680,19 @@ namespace APE.Language
                             throw new Exception("Failed to set the " + Description + " cell value");
                         }
 
-                        Thread.Sleep(15);
+                        // Increase the sleep time at certain loop thresholds
+                        switch (loop)
+                        {
+                            case 100:
+                                sleep = 50;
+                                break;
+                            case 200:
+                                sleep = 250;
+                                break;
+                        }
+
+                        loop++;
+                        Thread.Sleep(sleep);
                     }
                     break;
                 case ComparisonMethod.DoNotCompare:

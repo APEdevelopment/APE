@@ -1058,9 +1058,15 @@ namespace APE.Language
 
             if (IsEnabled)
             {
-                Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
                 // Set focus to the grid, we can't use SetFocus() here as we want the grid to get focus regardless
                 // of whether a child of the grid has it or not
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Focus", MemberTypes.Method);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //
+                Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
+                //
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Focus", MemberTypes.Method);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -1072,6 +1078,8 @@ namespace APE.Language
                 case ComparisonMethod.CompareUsingDefaultEqualityComparer:
                     // Check the value was set
                     timer = Stopwatch.StartNew();
+                    int loop = 0;
+                    int sleep = 15;
                     while (true)
                     {
                         currentValue = this.GetCell(rowIndex, columnIndex, propertyToCheck);
@@ -1100,7 +1108,19 @@ namespace APE.Language
                             throw new Exception("Failed to set the " + Description + " cell value");
                         }
 
-                        Thread.Sleep(15);
+                        // Increase the sleep time at certain loop thresholds
+                        switch (loop)
+                        {
+                            case 100:
+                                sleep = 50;
+                                break;
+                            case 200:
+                                sleep = 250;
+                                break;
+                        }
+
+                        loop++;
+                        Thread.Sleep(sleep);
                     }
                     break;
                 case ComparisonMethod.DoNotCompare:
