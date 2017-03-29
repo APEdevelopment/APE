@@ -1056,19 +1056,17 @@ namespace APE.Language
                     break;
             }
 
-            if (IsEnabled)
+            if (IsEnabled && ParentForm.IsEnabled)
             {
                 // Set focus to the grid, we can't use SetFocus() here as we want the grid to get focus regardless
                 // of whether a child of the grid has it or not
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Focus", MemberTypes.Method);
+                GUI.m_APE.AddFirstMessageSetFocusAsync(Identity.Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 //
                 Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
                 //
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Focus", MemberTypes.Method);
+                GUI.m_APE.AddFirstMessageSetFocusAsync(Identity.Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }

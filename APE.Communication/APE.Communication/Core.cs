@@ -99,6 +99,7 @@ namespace APE.Communication
         ScrollControlIntoView = 37,
         PeakMessage = 38,
         SetFocus = 39,
+        SetFocusAsync = 40,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -348,6 +349,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.SetFocus:
                                     SetFocus(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.SetFocusAsync:
+                                    SetFocusAsync(ptrMessage, messageNumber);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());

@@ -38,6 +38,7 @@ namespace APE.Communication
             m_PeakMessageMouseDelegater = new PeakMessageDelegate(PeakMessageMouseInternal);
             m_PeakMessageFocusDelegater = new PeakMessageDelegate(PeakMessageFocusInternal);
             m_SetFocusDelegater = new SetFocusDelegate(SetFocusInternal);
+            m_SetFocusAsyncDelegater = new SetFocusDelegate(SetFocusAsyncInternal);
         }
 
         //
@@ -149,7 +150,6 @@ namespace APE.Communication
 
         unsafe public void AddFirstMessageScrollControlIntoView(IntPtr handle)
         {
-            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
 
             Message* ptrMessage = GetPointerToNextMessage();
@@ -209,7 +209,6 @@ namespace APE.Communication
 
         unsafe public void AddFirstMessageSetFocus(IntPtr control)
         {
-            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
 
             Message* ptrMessage = GetPointerToNextMessage();
@@ -262,6 +261,64 @@ namespace APE.Communication
         }
 
         //
+        //  setfocusasync
+        //
+
+        private delegate void SetFocusAsyncDelegate(IntPtr control);
+        private SetFocusDelegate m_SetFocusAsyncDelegater;
+
+        unsafe public void AddFirstMessageSetFocusAsync(IntPtr control)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.SetFocusAsync;
+
+            Parameter HandleParam = new Parameter(this, control);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void SetFocusAsync(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("SetFocusAsync must be the first message");
+            }
+
+            // p1  = handle
+            IntPtr control = GetParameterIntPtr(ptrMessage, 0);
+
+            //TODO WPF etc
+            WF.Control childControl = WF.Control.FromHandle(control);
+            if (childControl != null)
+            {
+                object[] theParameters = { control };
+                childControl.BeginInvoke(m_SetFocusAsyncDelegater, theParameters);
+            }
+            CleanUpMessage(ptrMessage);
+        }
+
+        private unsafe void SetFocusAsyncInternal(IntPtr control)
+        {
+            WF.Control childControl = WF.Control.FromHandle(control);
+
+            if (childControl != null)
+            {
+                if (childControl.CanFocus)
+                {
+                    // We dont want to check if childControl.ContainsFocus for this call unlike SetFocusInternal
+                    childControl.Focus();
+                }
+            }
+        }
+
+        //
         //  PeakMessage
         //
 
@@ -281,7 +338,6 @@ namespace APE.Communication
 
         unsafe public void AddFirstMessagePeakMessage(IntPtr handle)
         {
-            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
 
             Message* ptrMessage = GetPointerToNextMessage();
