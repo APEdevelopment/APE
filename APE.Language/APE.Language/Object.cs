@@ -221,7 +221,7 @@ namespace APE.Language
         /// <param name="Y">How far from the top edge of the control to move the mouse</param>
         public void MoveTo(int X, int Y)
         {
-            Input.MouseMove(Identity.Handle, X, Y);
+            Input.MouseMove(Identity.Handle, Identity.Description, X, Y);
         }
 
         /// <summary>

@@ -404,7 +404,7 @@ namespace APE.Language
                 }
                 else
                 {
-                    MouseMove(control, x, y, false);
+                    MouseMove(control, description, x, y, false);
                 }
 
                 if (control == ActualParent)
@@ -646,7 +646,7 @@ namespace APE.Language
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
 
-            NM.tagPoint thePoint = MouseMove(control, x, y);
+            NM.tagPoint thePoint = MouseMove(control, description, x, y);
             IntPtr WindowAtPoint = NM.WindowFromPoint(thePoint);
 
             if (WindowAtPoint != control)
@@ -963,7 +963,7 @@ namespace APE.Language
             }
         }
 
-        public static NM.tagPoint MouseMove(IntPtr Handle, int x, int y, bool PerformCheck = true)
+        public static NM.tagPoint MouseMove(IntPtr handle, string description, int x, int y, bool performCheck = true)
         {
             NM.tagRect WindowRect;
             NM.tagRect ClientRect;
@@ -975,8 +975,8 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                NM.GetWindowRect(Handle, out WindowRect);
-                NM.GetClientRect(Handle, out ClientRect);
+                NM.GetWindowRect(handle, out WindowRect);
+                NM.GetClientRect(handle, out ClientRect);
 
                 // TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
                 if (x == -1)
@@ -1006,7 +1006,7 @@ namespace APE.Language
                     throw new Exception("Coordinates offscreen");
                 }
 
-                if (PerformCheck)
+                if (performCheck)
                 {
                     IntPtr ChildHandle;
 
@@ -1016,7 +1016,7 @@ namespace APE.Language
                     ChildHandle = NM.WindowFromPoint(thePoint);
 
                     // Make sure we are inside the controls window area
-                    if (Handle == ChildHandle)
+                    if (handle == ChildHandle)
                     {
                         break;
                     }
@@ -1025,19 +1025,26 @@ namespace APE.Language
                         if (loops == 100)
                         {
                             // Try to scroll it into view
-                            GUI.m_APE.AddFirstMessageScrollControlIntoView(Handle);
+                            GUI.m_APE.AddFirstMessageScrollControlIntoView(handle);
                             GUI.m_APE.SendMessages(EventSet.APE);
                             GUI.m_APE.WaitForMessages(EventSet.APE);
 
                             // Make sure the AUT has painted
-                            GUI.m_APE.AddFirstMessagePeakMessage(Handle);
+                            GUI.m_APE.AddFirstMessagePeakMessage(handle);
                             GUI.m_APE.SendMessages(EventSet.APE);
                             GUI.m_APE.WaitForMessages(EventSet.APE);
                         }
 
                         if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                         {
-                            throw new Exception("Coordinates are not inside the controls area");
+                            if (NM.IsWindowEnabled(handle) && NM.IsWindowEnabled(NM.GetAncestor(handle, NM.GetAncestorFlags.GetParent)))
+                            {
+                                throw new Exception("Coordinates are not inside the " + description + " control area");
+                            }
+                            else
+                            {
+                                throw new Exception(description + " is not enabled");
+                            }
                         }
                     }
                 }
@@ -1052,7 +1059,7 @@ namespace APE.Language
             MoveMouse(WindowRect.left + xOffset, WindowRect.top + yOffset);
 
             // Make sure the AUT recieves the mouse move message and has painted
-            GUI.m_APE.AddFirstMessagePeakMessage(Handle);
+            GUI.m_APE.AddFirstMessagePeakMessage(handle);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
 
