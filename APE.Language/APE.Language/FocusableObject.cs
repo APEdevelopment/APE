@@ -95,15 +95,20 @@ namespace APE.Language
             {
                 Input.SendKeys(this, textToSend);
             }
-            catch
+            catch when (ResetInputFilter())
             {
-                Input.Reset();  //Reset the input blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
                 Input.Unblock();
             }
+        }
+
+        private bool ResetInputFilter()
+        {
+            Input.Reset();  //Reset the input blocking
+            return false;
         }
     }
 }

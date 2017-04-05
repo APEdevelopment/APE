@@ -872,6 +872,7 @@ namespace APE.Language
 
                 if (doCheck)
                 {
+                    Stopwatch timer = Stopwatch.StartNew();
                     while (true)
                     {
                         GetCurrentInputState(ref state);
@@ -884,6 +885,13 @@ namespace APE.Language
                                     break;
                                 }
                             }
+                        }
+
+                        if (timer.ElapsedMilliseconds > 7500)
+                        {
+                            // Not fatal so just break out the loop (rather than hang the code)
+                            Debug.WriteLine("Failed to reset the toggle key state");
+                            break;
                         }
                     }
                 }

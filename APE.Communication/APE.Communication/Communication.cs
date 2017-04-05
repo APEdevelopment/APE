@@ -1763,7 +1763,7 @@ namespace APE.Communication
                     {
                         if (m_WPF)  //Only look for WPF forms if the application has WPF loaded
                         {
-                            if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                            if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
                             {
                                 Handle = Identifier.Handle;
                                 wpfFindFormByHandle(Handle, ref Name, ref theText, ref theType, ref FoundControl);
