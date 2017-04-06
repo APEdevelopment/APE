@@ -33,6 +33,7 @@ namespace APE.Communication
         private void SetupFormHelperDelegates()
         {
             m_ScrollControlIntoViewDelegater = new ScrollControlIntoViewDelegate(ScrollControlIntoViewInternal);
+            m_PeakMessagDelegater = new PeakMessageDelegate(PeakMessageInternal);
             m_PeakMessagePaintDelegater = new PeakMessageDelegate(PeakMessagePaintInternal);
             m_PeakMessageKeyDelegater = new PeakMessageDelegate(PeakMessageKeyInternal);
             m_PeakMessageMouseDelegater = new PeakMessageDelegate(PeakMessageMouseInternal);
@@ -323,6 +324,7 @@ namespace APE.Communication
         //
 
         private delegate bool PeakMessageDelegate();
+        private PeakMessageDelegate m_PeakMessagDelegater;
         private PeakMessageDelegate m_PeakMessagePaintDelegater;
         private PeakMessageDelegate m_PeakMessageKeyDelegater;
         private PeakMessageDelegate m_PeakMessageMouseDelegater;
@@ -377,20 +379,21 @@ namespace APE.Communication
                     {
                         try
                         {
+                            messageAvailble = (bool)control.Invoke(m_PeakMessagDelegater, null);
                             // Might want to include time here as well at some point
-                            messageAvailble = (bool)control.Invoke(m_PeakMessageFocusDelegater, null);
-                            if (!messageAvailble)
-                            {
-                                messageAvailble = (bool)control.Invoke(m_PeakMessageKeyDelegater, null);
-                                if (!messageAvailble)
-                                {
-                                    messageAvailble = (bool)control.Invoke(m_PeakMessageMouseDelegater, null);
-                                    if (!messageAvailble)
-                                    {
-                                        messageAvailble = (bool)control.Invoke(m_PeakMessagePaintDelegater, null);
-                                    }
-                                }
-                            }
+                            //messageAvailble = (bool)control.Invoke(m_PeakMessageFocusDelegater, null);
+                            //if (!messageAvailble)
+                            //{
+                            //    messageAvailble = (bool)control.Invoke(m_PeakMessageKeyDelegater, null);
+                            //    if (!messageAvailble)
+                            //    {
+                            //        messageAvailble = (bool)control.Invoke(m_PeakMessageMouseDelegater, null);
+                            //        if (!messageAvailble)
+                            //        {
+                            //            messageAvailble = (bool)control.Invoke(m_PeakMessagePaintDelegater, null);
+                            //        }
+                            //    }
+                            //}
                         }
                         catch (ObjectDisposedException)
                         {
@@ -411,11 +414,18 @@ namespace APE.Communication
                         throw new Exception("Thread failed to have zero messages within timeout");
                     }
 
-                    Thread.Sleep(50);
+                    Thread.Sleep(15);
                 }
             }
 
             CleanUpMessage(ptrMessage);
+        }
+
+        private unsafe bool PeakMessageInternal()
+        {
+            NativeMessage msg;
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
+            return messageAvailble;
         }
 
         private unsafe bool PeakMessagePaintInternal()
