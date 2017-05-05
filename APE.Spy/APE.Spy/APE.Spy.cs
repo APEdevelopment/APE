@@ -546,6 +546,10 @@ namespace APE.Spy
             PropertyListbox.Items.Add("Control Handle\t: " + m_Identity.Handle);
             PropertyListbox.Items.Add("Form Handle\t: " + m_Identity.ParentHandle);
             PropertyListbox.Items.Add("Name\t\t: " + m_Identity.Name);
+            if (m_Identity.Text == null)
+            {
+                m_Identity.Text = "";
+            }
             PropertyListbox.Items.Add("Text\t\t: " + m_Identity.Text.Replace("\r", @"\r").Replace("\n", @"\n").Replace("\t", @"\t"));
             PropertyListbox.Items.Add("TypeName\t: " + m_Identity.TypeName);
             PropertyListbox.Items.Add("TypeNameSpace\t: " + m_Identity.TypeNameSpace);

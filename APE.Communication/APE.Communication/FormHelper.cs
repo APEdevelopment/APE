@@ -371,6 +371,7 @@ namespace APE.Communication
 
             if (control != null)
             {
+                bool sleepBeforeBreak = false;
                 Stopwatch timer = Stopwatch.StartNew();
                 while (true)
                 {
@@ -380,7 +381,7 @@ namespace APE.Communication
                         try
                         {
                             messageAvailble = (bool)control.Invoke(m_PeakMessagDelegater, null);
-                            // Might want to include time here as well at some point
+                            // Might want to include timer here as well at some point
                             //messageAvailble = (bool)control.Invoke(m_PeakMessageFocusDelegater, null);
                             //if (!messageAvailble)
                             //{
@@ -399,8 +400,17 @@ namespace APE.Communication
                         {
                         }
                     }
-                    if (!messageAvailble)
+
+                    if (messageAvailble)
                     {
+                        sleepBeforeBreak = true;
+                    }
+                    else
+                    {
+                        if (sleepBeforeBreak)
+                        {
+                            Thread.Sleep(15);
+                        }
                         break;
                     }
 

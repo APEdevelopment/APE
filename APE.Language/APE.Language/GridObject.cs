@@ -819,6 +819,254 @@ namespace APE.Language
         internal abstract void DoubleClickCellInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier);
 
         /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseDownCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Press " + button.ToString() + " button on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseDownCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Press " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseDownCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Press " + button.ToString() + " button on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseDownCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Press " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseDownCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Press " + button.ToString() + " button on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseDownCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Press " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseDownCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            GUI.Log("Press " + button.ToString() + " button on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseDownCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            GUI.Log("Press " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseDownInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        internal abstract void MouseDownInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier);
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseUpCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Release " + button.ToString() + " button on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseUpCell(string rowText, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Release " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseUpCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Release " + button.ToString() + " button on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnText">The column text of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseUpCell(int rowIndex, string columnText, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Release " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseUpCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Release " + button.ToString() + " button on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowText">The row text of the cell to select in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseUpCell(string rowText, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Release " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        public void MouseUpCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell)
+        {
+            GUI.Log("Release " + button.ToString() + " button on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, MouseKeyModifier.None);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        public void MouseUpCell(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            GUI.Log("Release " + button.ToString() + " button while pressing key " + keyModifier.ToString() + " on the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            MouseUpInternal(rowIndex, columnIndex, button, locationInCell, keyModifier);
+        }
+
+        internal abstract void MouseUpInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier);
+
+        /// <summary>
         /// Moves the mouse cursor to the specified location the specified cell
         /// </summary>
         /// <param name="rowIndex">The row index of the cell to move the cursor to</param>

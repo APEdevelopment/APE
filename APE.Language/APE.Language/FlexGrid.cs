@@ -97,26 +97,26 @@ namespace APE.Language
             //TODO this is bit inefficent, it would be better to find from parent to child rather than child to parent
             string[] SplitNodeText = NodeText.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
 
-            int Column = TreeViewColumn();
-            int CurrentRow = FixedRows();
-            string ChildNodeText = SplitNodeText[SplitNodeText.GetUpperBound(0)];
-            string CurrentNodeText;
+            int column = TreeViewColumn();
+            int currentRow = FixedRows() - 1;
+            string childNodeText = SplitNodeText[SplitNodeText.GetUpperBound(0)];
+            string currentNodeText;
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
                 //Find a row which matches the child node we are after
-                CurrentRow = FindRowInternal(ChildNodeText, Column, CurrentRow);
+                currentRow = FindRowInternal(childNodeText, column, currentRow + 1);
 
-                if (CurrentRow == -1)
+                if (currentRow == -1)
                 {
                     break;
                 }
 
                 //Check if its parents match the node we are after
-                CurrentNodeText = GetNodePath(CurrentRow, Column);
+                currentNodeText = GetNodePath(currentRow, column);
 
-                if (CurrentNodeText == NodeText)
+                if (currentNodeText == NodeText)
                 {
                     break;
                 }
@@ -127,7 +127,7 @@ namespace APE.Language
                 }
             }
 
-            return CurrentRow;
+            return currentRow;
         }
 
         private string GetNodePath(int Row, int Column)
@@ -693,6 +693,45 @@ namespace APE.Language
             int FrozenColumns = GUI.m_APE.GetValueFromMessage();
 
             return FrozenColumns;
+        }
+
+        /// <summary>
+        /// Returns the number of title (column header) rows in the grid
+        /// </summary>
+        /// <returns>The number of title rows</returns>
+        public int TitleRows()
+        {
+            // bit of a hack as the flexgrid doesn't tell you
+            int fixedRows = FixedRows();
+
+            if (fixedRows == 0)
+            {
+                return 0;
+            }
+
+            // get the colour of each cell background of the first visible column for the fixed rows and return the number of rows which match the first row
+            int firstVisibleColumn = FirstVisibleColumn();
+            string backColourName = GetCellRange(0, firstVisibleColumn, fixedRows - 1, firstVisibleColumn, CellProperty.BackColourName);
+
+            char[] splitSeparator = { '\r' };
+            string[] backColourNameArray = backColourName.Split(splitSeparator);
+
+            string headerBackColour = backColourNameArray[0];
+
+            int titleRows = 1;
+            for (int headerRow = 1; headerRow < backColourNameArray.GetLength(0); headerRow++)
+            {
+                if (backColourNameArray[headerRow] == headerBackColour)
+                {
+                    titleRows++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return titleRows;
         }
 
         /// <summary>
@@ -1420,6 +1459,34 @@ namespace APE.Language
         {
             Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
             DoubleClickInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        internal override void MouseDownInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            MouseDownInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        internal override void MouseUpInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            MouseUpInternal(Location.X, Location.Y, button, keyModifier);
         }
 
         /// <summary>

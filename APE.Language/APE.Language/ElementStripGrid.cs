@@ -1024,6 +1024,34 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        internal override void MouseDownInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            MouseDownInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        internal override void MouseUpInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            MouseUpInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
         /// Gets the location given a row and column and position in a cell
         /// </summary>
         /// <param name="rowIndex">The row index of the cell</param>

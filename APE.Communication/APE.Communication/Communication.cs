@@ -2589,6 +2589,8 @@ namespace APE.Communication
                             return "GUIDocumentContainer";
                         case "DockableWindow":
                             return "GUIDockableWindow";
+                        case "DockContainer":
+                            return "GUIDockContainer";
                         default:
                             return "";
                     }

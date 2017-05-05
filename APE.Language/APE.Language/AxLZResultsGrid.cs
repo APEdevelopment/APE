@@ -473,6 +473,24 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns the number of title (column header) rows in the grid
+        /// </summary>
+        /// <returns>The number of title rows</returns>
+        public int TitleRows()
+        {
+            // bit of a hack as the flexgrid doesn't tell you
+            int fixedRows = FixedRows();
+
+            if (fixedRows == 0)
+            {
+                return 0;
+            }
+
+            // The sentinel results grid only has one header row if it is populated
+            return 1;
+        }
+
+        /// <summary>
         /// Returns the number of rows in the grid, including those which are hidden
         /// </summary>
         /// <returns>The number of rows</returns>
@@ -840,6 +858,38 @@ namespace APE.Language
             // Find the actual native grid to click on
             GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
             nativeGrid.DoubleClickInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
+        /// Presses the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        internal override void MouseDownInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            // Find the actual native grid to click on
+            GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
+            nativeGrid.MouseDownInternal(Location.X, Location.Y, button, keyModifier);
+        }
+
+        /// <summary>
+        /// Releases the mouse button on the specified cell after scrolling it into view
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to select</param>
+        /// <param name="columnIndex">The column index of the cell to select</param>
+        /// <param name="button">The button with which to click</param>
+        /// <param name="locationInCell">The location in the cell to click</param>
+        /// <param name="keyModifier">The key to press while clicking</param>
+        internal override void MouseUpInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
+        {
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            // Find the actual native grid to click on
+            GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
+            nativeGrid.MouseUpInternal(Location.X, Location.Y, button, keyModifier);
         }
 
         /// <summary>
