@@ -27,6 +27,7 @@ using NM = APE.Native.NativeMethods;
 using System.Xml;
 using System.Text.RegularExpressions;
 using System.Text;
+using APE.Language;
 
 namespace APE.Spy
 {
@@ -152,6 +153,9 @@ namespace APE.Spy
                     GC.WaitForPendingFinalizers();
 
                     NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
+
+                    // Set up APE without calling AttachToProcess as we are already setup
+                    typeof(GUI).GetField("m_APE", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, m_APE);
                 }
             }
             //restore m_Identity
@@ -642,7 +646,9 @@ namespace APE.Spy
 
             PropertyListbox.Items.Add("");
 
-            switch (APEType)
+            AddCommonPropertiesToPropertyListbox();
+
+            switch (APEType.TrimEnd(new char[] { '*' }))
             {
                 case "GUIToolStrip":
                 case "GUIMenuStrip":
@@ -657,6 +663,9 @@ namespace APE.Spy
                     break;
                 case "GUIElementStripGrid":
                     AddGUIElementStripGridToPropertyListbox();
+                    break;
+                case "GUIFlexgrid":
+                    AddGUIFlexGridToPropertyListbox();
                     break;
                 default:
                     switch (m_Identity.TypeName)
@@ -705,92 +714,72 @@ namespace APE.Spy
             m_Identity.ParentHandle = temp;
         }
 
+        private void AddCommonPropertiesToPropertyListbox()
+        {
+            PropertyListbox.Items.Add("Visible\t\t: " + NM.IsWindowVisible(m_Identity.Handle).ToString());
+            PropertyListbox.Items.Add("Enabled\t\t: " + NM.IsWindowEnabled(m_Identity.Handle).ToString());
+
+            NM.tagRect windowPosition;
+            NM.tagRect windowSize;
+            NM.GetWindowRect(m_Identity.Handle, out windowPosition);
+            NM.GetClientRect(m_Identity.Handle, out windowSize);
+
+            PropertyListbox.Items.Add("Location\t\t: " + windowPosition.left.ToString() + ", " + windowPosition.top.ToString());
+            PropertyListbox.Items.Add("Size\t\t: " + windowSize.right.ToString() + ", " + windowSize.bottom.ToString());
+        }
+
         private void AddGUIElementStripGridToPropertyListbox()
         {
-            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetColumnInfoXML", MemberTypes.Method);
-            m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            m_APE.SendMessages(EventSet.APE);
-            m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string ColumnInfoXML = m_APE.GetValueFromMessage();
+            // Locate the form and the grid
+            GUIForm elementStripGridForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIElementStripGrid elementStripGrid = new GUIElementStripGrid(elementStripGridForm, "grid", new Identifier(Identifiers.Handle, m_Identity.Handle));
 
-            XmlDocument columnDocument = new XmlDocument();
-            columnDocument.LoadXml(ColumnInfoXML);
+            PropertyListbox.Items.Add("Title Rows\t: " + elementStripGrid.TitleRows().ToString());
+            PropertyListbox.Items.Add("Fixed Rows\t: " + elementStripGrid.FixedRows().ToString());
+            PropertyListbox.Items.Add("Rows\t\t: " + elementStripGrid.Rows().ToString());
+            PropertyListbox.Items.Add("First Visible Row\t: " + elementStripGrid.FirstVisibleRow().ToString());
+            PropertyListbox.Items.Add("Fixed Columns\t: " + elementStripGrid.FixedColumns().ToString());
+            PropertyListbox.Items.Add("Columns\t\t: " + elementStripGrid.Columns().ToString());
+            PropertyListbox.Items.Add("First Visible Column\t: " + elementStripGrid.FirstVisibleColumn().ToString());
+        }
 
-            int maxLevels = -1;
-            int currentLevel = -1;
-            foreach (XmlNode node in columnDocument.SelectSingleNode("Columns").ChildNodes)
-            {
-                if (int.TryParse(node.Attributes.GetNamedItem("ColumnHeaderLevel").Value, out currentLevel))
-                {
-                    if (currentLevel > maxLevels)
-                    {
-                        maxLevels = currentLevel;
-                    }
-                }
-            }
-
-            PropertyListbox.Items.Add("Title Rows\t: " + (maxLevels + 1).ToString());
-
-            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NumRows", MemberTypes.Property);
-            m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            m_APE.SendMessages(EventSet.APE);
-            m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Rows = m_APE.GetValueFromMessage();
-
-            PropertyListbox.Items.Add("Rows\t\t: " + (Rows + maxLevels + 1).ToString());
-
-            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NumFrozenRows", MemberTypes.Method);
-            m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            m_APE.SendMessages(EventSet.APE);
-            m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FixedRows = m_APE.GetValueFromMessage();
-
-            PropertyListbox.Items.Add("Fixed Rows\t: " + (FixedRows + maxLevels + 1).ToString());
+        private void AddGUIFlexGridToPropertyListbox()
+        {
+            // Locate the form and the grid
+            GUIForm flexGridForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIFlexgrid flexGrid = new GUIFlexgrid(flexGridForm, "grid", new Identifier(Identifiers.Handle, m_Identity.Handle));
+            
+            PropertyListbox.Items.Add("Title Rows\t: " + flexGrid.TitleRows().ToString());
+            PropertyListbox.Items.Add("Fixed Rows\t: " + flexGrid.FixedRows().ToString());
+            PropertyListbox.Items.Add("Rows\t\t: " + flexGrid.Rows().ToString());
+            PropertyListbox.Items.Add("First Visible Row\t: " + flexGrid.FirstVisibleRow().ToString());
+            PropertyListbox.Items.Add("Fixed Columns\t: " + flexGrid.FixedColumns().ToString());
+            PropertyListbox.Items.Add("Columns\t\t: " + flexGrid.Columns().ToString());
+            PropertyListbox.Items.Add("First Visible Column\t: " + flexGrid.FirstVisibleColumn().ToString());
         }
 
         private void AddGUIStatusBarToPropertyListbox()
         {
-            m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-            m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-            m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            m_APE.SendMessages(EventSet.APE);
-            m_APE.WaitForMessages(EventSet.APE);
-            // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int items = m_APE.GetValueFromMessage();
+            // Locate the form and the status bar
+            GUIForm statusBarForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIStatusBar statusBar = new GUIStatusBar(statusBarForm, "status bar", new Identifier(Identifiers.Handle, m_Identity.Handle));
 
-            for (int item = 0; item < items; item++)
+            int panels = statusBar.PanelCount();
+
+            for (int panel = 0; panel < panels; panel++)
             {
-                m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
-                m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
-                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, item));
-                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
-                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
-                m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
-                m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-                m_APE.SendMessages(EventSet.APE);
-                m_APE.WaitForMessages(EventSet.APE);
-                // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                string itemName = m_APE.GetValueFromMessage();
-                string itemType = m_APE.GetValueFromMessage();
+                string panelName = statusBar.PanelName(panel);
 
-                //string APESubType = "GUIStatusBarPanel";
-
-                PropertyListbox.Items.Add("Item Name\t: " + itemName);
-                //PropertyListbox.Items.Add("APESubType\t: " + APESubType);
-                PropertyListbox.Items.Add("");
+                PropertyListbox.Items.Add("Panel " + panel.ToString() + " Name\t: " + panelName);
             }
         }
 
         private void AddGUITitleFrameToPropertyListbox()
         {
+            // Locate the form and the title frame
+            GUIForm titleFrameForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUITitleFrame titleFrame = new GUITitleFrame(titleFrameForm, "title frame", new Identifier(Identifiers.Handle, m_Identity.Handle));
+
             m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
             m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_toolButtons", MemberTypes.Field);
             m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
@@ -826,14 +815,17 @@ namespace APE.Spy
                         break;
                 }
 
-                PropertyListbox.Items.Add("Item Name\t: " + itemName);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Name\t: " + itemName);
                 PropertyListbox.Items.Add("APESubType\t: " + APESubType);
-                PropertyListbox.Items.Add("");
             }
         }
 
         private void AddGUIToolStripToPropertyListbox()
         {
+            // Locate the form and the tool strip
+            GUIForm toolStripForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIToolStrip toolStrip = new GUIToolStrip(toolStripForm, "toolstrip", new Identifier(Identifiers.Handle, m_Identity.Handle));
+            
             m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
             m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
             m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
@@ -893,9 +885,8 @@ namespace APE.Spy
                         break;
                 }
 
-                PropertyListbox.Items.Add("Item Name\t: " + itemName);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Name\t: " + itemName);
                 PropertyListbox.Items.Add("APESubType\t: " + APESubType);
-                PropertyListbox.Items.Add("");
             }
         }
 

@@ -80,7 +80,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of fixed / frozen rows, that is a row which doesn't scroll, in the grid
+        /// Returns the number of fixed / frozen rows, that is a row which doesn't scroll, in the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed / frozen rows</returns>
         public int FixedRows()
@@ -92,8 +92,25 @@ namespace APE.Language
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int frozenRows = GUI.m_APE.GetValueFromMessage();
-
             return frozenRows + TitleRows();
+        }
+
+        /// <summary>
+        /// Returns the number of fixed / frozen columns, that is a row which doesn't scroll, in the grid (columns may or may not be hidden)
+        /// </summary>
+        /// <returns>The number of fixed / frozen columns</returns>
+        public int FixedColumns()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "DataColumns", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "LastFrozenColumnIndex", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int frozenColumns = GUI.m_APE.GetValueFromMessage();
+            return frozenColumns;
         }
 
         /// <summary>

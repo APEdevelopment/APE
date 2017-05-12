@@ -28,21 +28,22 @@
     <ApplicationIcon>Resources\APESPY256x256.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="APE.Capture, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="APE.Capture">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Capture\APE.Capture\bin\Debug\APE.Capture.dll</HintPath>
     </Reference>
     <Reference Include="APE.Communication">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Communication\APE.Communication\bin\Debug\APE.Communication.dll</HintPath>
     </Reference>
     <Reference Include="APE.Language">
       <HintPath>..\..\APE.Language\APE.Language\bin\Debug\APE.Language.dll</HintPath>
     </Reference>
-    <Reference Include="APE.Native, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="APE.Native">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Native\APE.Native\bin\Debug\APE.Native.dll</HintPath>
     </Reference>
-    <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="stdole">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>C:\Program Files (x86)\Microsoft.NET\Primary Interop Assemblies\stdole.dll</HintPath>

@@ -39,14 +39,11 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the index of the specified panel name
+        /// Returns the number of panels
         /// </summary>
-        /// <param name="PanelName">The name of the panel to get the index of</param>
-        /// <returns>The index of the panel</returns>
-        public int PanelIndex(String PanelName)
+        /// <returns>The number of panels</returns>
+        public int PanelCount()
         {
-            int Items;
-
             //Get the number of items
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);
@@ -55,10 +52,21 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
-            Items = GUI.m_APE.GetValueFromMessage();
+            int items = GUI.m_APE.GetValueFromMessage();
+            return items;
+        }
+
+        /// <summary>
+        /// Returns the index of the specified panel name
+        /// </summary>
+        /// <param name="PanelName">The name of the panel to get the index of</param>
+        /// <returns>The index of the panel</returns>
+        public int PanelIndex(String PanelName)
+        {
+            int items = PanelCount();
 
             //Loop through looking for the item we want
-            for (int Item = 0; Item < Items; Item++)
+            for (int Item = 0; Item < items; Item++)
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panels", MemberTypes.Property);

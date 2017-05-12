@@ -625,7 +625,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of fixed rows, that is a row which makes up the header of the grid
+        /// Returns the number of fixed rows, that is a row which makes up the header of the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed rows</returns>
         public int FixedRows()
@@ -643,7 +643,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of frozen rows, that is a row which doesn't scroll, in the grid
+        /// Returns the number of frozen rows, that is a row which doesn't scroll, in the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of frozen rows</returns>
         public int FrozenRows()
@@ -660,7 +660,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of fixed columns, that is a column which doesn't scroll, in the grid
+        /// Returns the number of fixed columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed columns</returns>
         public int FixedColumns()
@@ -672,13 +672,12 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int FixedColumns = GUI.m_APE.GetValueFromMessage();
-
-            return FixedColumns;
+            int fixedColumns = GUI.m_APE.GetValueFromMessage();
+            return fixedColumns;
         }
 
         /// <summary>
-        /// Returns the number of frozen columns, that is a column which doesn't scroll, in the grid
+        /// Returns the number of frozen columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
         /// </summary>
         /// <returns>The number of frozen columns</returns>
         public int FrozenColumns()
@@ -696,7 +695,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of title (column header) rows in the grid
+        /// Returns the number of title (column header) rows in the grid (the rows may or may not be visible)
         /// </summary>
         /// <returns>The number of title rows</returns>
         public int TitleRows()
@@ -727,6 +726,15 @@ namespace APE.Language
                         visibleNonSelectedColumn = column;
                         break;
                     }
+                }
+            }
+
+            if (visibleNonSelectedColumn == -1)
+            {
+                visibleNonSelectedColumn = FirstVisibleColumn();
+                if (visibleNonSelectedColumn == -1)
+                {
+                    visibleNonSelectedColumn = 0;
                 }
             }
 

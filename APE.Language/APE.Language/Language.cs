@@ -210,14 +210,6 @@ namespace APE.Language
             WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             m_IsElevatedAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-
-            if (m_threadViewPort == null)
-            {
-                m_threadViewPort = new Thread(new ThreadStart(DisplayViewPort));
-                m_threadViewPort.SetApartmentState(ApartmentState.STA);
-                m_threadViewPort.IsBackground = true;
-                m_threadViewPort.Start();
-            }
         }
 
         /// <summary>
@@ -290,6 +282,14 @@ namespace APE.Language
         /// <param name="type"></param>
         public static void Log(string textToLog, LogItemType type)
         {
+            if (m_threadViewPort == null)
+            {
+                m_threadViewPort = new Thread(new ThreadStart(DisplayViewPort));
+                m_threadViewPort.SetApartmentState(ApartmentState.STA);
+                m_threadViewPort.IsBackground = true;
+                m_threadViewPort.Start();
+            }
+
             while (m_ViewPort == null || m_ViewPort.IsHandleCreated == false || m_ViewPort.Visible == false)
             {
                 Thread.Sleep(15);

@@ -26,11 +26,11 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="APE.Capture, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="APE.Capture">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Capture\APE.Capture\bin\Debug\APE.Capture.dll</HintPath>
     </Reference>
-    <Reference Include="APE.Language, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="APE.Language">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Language\APE.Language\bin\Debug\APE.Language.dll</HintPath>
     </Reference>

@@ -30,7 +30,7 @@
     <Reference Include="APE.Dock">
       <HintPath>..\..\APE.Dock\APE.Dock\bin\Debug\APE.Dock.dll</HintPath>
     </Reference>
-    <Reference Include="APE.Native, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="APE.Native">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Native\APE.Native\bin\Debug\APE.Native.dll</HintPath>
     </Reference>

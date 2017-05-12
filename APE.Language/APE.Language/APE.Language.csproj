@@ -39,11 +39,11 @@
     <Reference Include="APE.Injector_x86">
       <HintPath>..\..\APE.Injector\APE.Injector\bin\Debug\APE.Injector_x86.exe</HintPath>
     </Reference>
-    <Reference Include="APE.Loader_x64, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+    <Reference Include="APE.Loader_x64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Loader\APE.Loader\bin\Debug\APE.Loader_x64.dll</HintPath>
     </Reference>
-    <Reference Include="APE.Loader_x86, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="APE.Loader_x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\APE.Loader\APE.Loader\bin\Debug\APE.Loader_x86.dll</HintPath>
     </Reference>
@@ -53,7 +53,7 @@
     <Reference Include="APE.Watcher">
       <HintPath>..\..\APE.Watcher\APE.Watcher\bin\Debug\APE.Watcher.exe</HintPath>
     </Reference>
-    <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="stdole">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>C:\Program Files (x86)\Microsoft.NET\Primary Interop Assemblies\stdole.dll</HintPath>
