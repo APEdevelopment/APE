@@ -1125,26 +1125,65 @@ namespace APE.Language
             int titleRows = TitleRows();
             rowIndex -= titleRows;
 
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellDisplayBounds", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int X = GUI.m_APE.GetValueFromMessage();
-            int Y = GUI.m_APE.GetValueFromMessage();
-            int Width = GUI.m_APE.GetValueFromMessage();
-            int Height = GUI.m_APE.GetValueFromMessage();
+            int x = -1;
+            int y = -1;
+            int width = -1;
+            int height = -1;
 
-            Rectangle CellRectangle = new Rectangle(X, Y, Width, Height);
-            return CellRectangle;
+            if (rowIndex < 0)
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "DataColumns", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "ViewWidth", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "IsFrozenColumn", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store7, "View", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "ColHeaderHeight", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store9, "CustomScrollPositionX", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                x = GUI.m_APE.GetValueFromMessage();
+                width = GUI.m_APE.GetValueFromMessage();
+                bool isFrozen = GUI.m_APE.GetValueFromMessage();
+                height = GUI.m_APE.GetValueFromMessage();
+                int customScrollPositionX = GUI.m_APE.GetValueFromMessage();
+                if (!isFrozen)
+                {
+                    x = x + customScrollPositionX;
+                }
+                y = (rowIndex + titleRows) * height;
+            }
+            else
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellDisplayBounds", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                x = GUI.m_APE.GetValueFromMessage();
+                y = GUI.m_APE.GetValueFromMessage();
+                width = GUI.m_APE.GetValueFromMessage();
+                height = GUI.m_APE.GetValueFromMessage();
+            }
+
+            Rectangle cellRectangle = new Rectangle(x, y, width, height);
+            return cellRectangle;
         }
 
         /// <summary>

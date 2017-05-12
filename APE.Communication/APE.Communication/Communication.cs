@@ -2579,6 +2579,10 @@ namespace APE.Communication
                             return "GUITabControl";
                         case "CheckedListBox":
                             return "GUICheckedListBox";
+                        case "HScrollBar":
+                            return "GUIHScrollBar";
+                        case "VScrollBar":
+                            return "GUIVScrollBar";
                         default:
                             return "";
                     }
@@ -2634,6 +2638,14 @@ namespace APE.Communication
                     {
                         case "ElementStripGrid":
                             return "GUIElementStripGrid";
+                        default:
+                            return "";
+                    }
+                case "LatentZero.Common.ModelControls.ElementStrip.Grouping":
+                    switch (TypeName)
+                    {
+                        case "GroupingBar":
+                            return "GUIGroupingBar";
                         default:
                             return "";
                     }

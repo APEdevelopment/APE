@@ -179,7 +179,12 @@ namespace APE.Communication
 
             //TODO WPF etc
             WF.Control childControl = WF.Control.FromHandle(handle);
-            childControl.Invoke(m_ScrollControlIntoViewDelegater, theParameters);
+
+            // Check we found the control, if not sliently ignore it as it shouldnt be fatal at this point
+            if (childControl != null)
+            {
+                childControl.Invoke(m_ScrollControlIntoViewDelegater, theParameters);
+            }
             CleanUpMessage(ptrMessage);
         }
 

@@ -84,6 +84,7 @@
     <Compile Include="FocusableObject.cs" />
     <Compile Include="Form.cs" />
     <Compile Include="GridObject.cs" />
+    <Compile Include="GroupingBar.cs" />
     <Compile Include="LzNavBarGridControl.cs" />
     <Compile Include="PictureBox.cs" />
     <Compile Include="PopupList.cs" />
@@ -93,6 +94,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ScrollBar.cs" />
     <Compile Include="StatusBar.cs" />
     <Compile Include="StretchyCombo.cs" />
     <Compile Include="TabControl.cs" />

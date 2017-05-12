@@ -703,15 +703,35 @@ namespace APE.Language
         {
             // bit of a hack as the flexgrid doesn't tell you
             int fixedRows = FixedRows();
-
             if (fixedRows == 0)
             {
                 return 0;
             }
 
-            // get the colour of each cell background of the first visible column for the fixed rows and return the number of rows which match the first row
-            int firstVisibleColumn = FirstVisibleColumn();
-            string backColourName = GetCellRange(0, firstVisibleColumn, fixedRows - 1, firstVisibleColumn, CellProperty.BackColourName);
+            int columnCount = Columns();
+            if (columnCount == 0)
+            {
+                return 0;
+            }
+
+            // Get the first visible column which isn't selected (selected columns may change the colour)
+            int visibleNonSelectedColumn = -1;
+            
+            int selectedColumn = SelectedColumn();
+            for (int column = 0; column < columnCount; column++)
+            {
+                if (!IsColumnHidden(column))
+                {
+                    if (column != selectedColumn)
+                    {
+                        visibleNonSelectedColumn = column;
+                        break;
+                    }
+                }
+            }
+
+            // get the colour of each cell background of the first visible nonselected column for the fixed rows and return the number of rows which match the first row
+            string backColourName = GetCellRange(0, visibleNonSelectedColumn, fixedRows - 1, visibleNonSelectedColumn, CellProperty.BackColourName);
 
             char[] splitSeparator = { '\r' };
             string[] backColourNameArray = backColourName.Split(splitSeparator);

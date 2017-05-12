@@ -1074,7 +1074,7 @@ namespace APE.Language
             return thePoint;
         }
 
-        private static void MoveMouse(int x, int y)
+        internal static void MoveMouse(int x, int y)
         {
             NM.INPUT[] MouseEvent = new NM.INPUT[1];
             MouseEvent[0].type = NM.INPUT_TYPE.INPUT_MOUSE;

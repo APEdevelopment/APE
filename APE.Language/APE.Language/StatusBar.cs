@@ -14,19 +14,8 @@
 //limitations under the License.
 //
 using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
 using System.Reflection;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using APE.Capture;
 using APE.Communication;
-using System.Threading;
-using System.Drawing.Imaging;
-using System.Security.Principal;
-using NM = APE.Native.NativeMethods;
 
 namespace APE.Language
 {

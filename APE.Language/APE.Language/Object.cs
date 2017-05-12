@@ -77,6 +77,22 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Gets the background image of the picturebox
+        /// </summary>
+        /// <returns>The background image</returns>
+        public Image BackgroundImage()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "BackgroundImage", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            Image theBackgroundImage = GUI.m_APE.GetValueFromMessage();
+            return theBackgroundImage;
+        }
+
+        /// <summary>
         /// Waits for the specified control to not be visible
         /// </summary>
         public void WaitForControlToNotBeVisible()

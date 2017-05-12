@@ -128,7 +128,7 @@ namespace APE.Language
 
                     if (DroppedDownHandle == null)
                     {
-                        throw new Exception("Failed to find the ComboBox dropdown");
+                        throw new Exception("Failed to find the " + Description + " dropdown");
                     }
 
                     ListBox = DroppedDownHandle;
@@ -138,7 +138,7 @@ namespace APE.Language
                 int Index = ItemIndex(item);
                 if (Index == NM.CB_ERR)
                 {
-                    throw new Exception("Failed to find the ComboBox item");
+                    throw new Exception("Failed to find the " + Description + " item");
                 }
 
                 IntPtr MessageResult;
@@ -149,7 +149,7 @@ namespace APE.Language
                 SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                 if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
                 {
-                    throw new Exception("Failed to access the combobox");
+                    throw new Exception("Failed to access the " + Description);
                 }
 
                 NM.tagRect ClientRect;
@@ -161,14 +161,14 @@ namespace APE.Language
                     SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                     if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
                     {
-                        throw new Exception("Failed to access the combobox");
+                        throw new Exception("Failed to access the " + Description);
                     }
 
                     //Locate the rect of the item
                     SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                     if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
                     {
-                        throw new Exception("Failed to access the combobox");
+                        throw new Exception("Failed to access the " + Description);
                     }
                 }
 
@@ -198,13 +198,18 @@ namespace APE.Language
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw new Exception("Failed to set the text of the ComboBox");
+                        throw new Exception("Failed to set the text of the " + Description);
                     }
 
                     Thread.Sleep(15);
                 }
                 while (true);
                 timer.Stop();
+            }
+            catch
+            {
+                Input.Reset();  //Reset the mouse blocking
+                throw;
             }
             finally
             {
@@ -230,7 +235,7 @@ namespace APE.Language
 
             if (Style == "DropDownList")
             {
-                throw new Exception("ComboBox Edit control is not editable");
+                throw new Exception("Style of the " + Description + " this is not an editable style");
             }
 
             //get the editbox child window
@@ -249,6 +254,11 @@ namespace APE.Language
                 GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboboxTextBox.SetText(text);
             }
+            catch
+            {
+                Input.Reset();  //Reset the mouse blocking
+                throw;
+            }
             finally
             {
                 Input.Unblock();
@@ -263,7 +273,7 @@ namespace APE.Language
             SendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_FINDSTRINGEXACT, new IntPtr(-1), Item, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
             if (SendResult == IntPtr.Zero) //Failed
             {
-                throw new Exception("Failed to access the combobox");
+                throw new Exception("Failed to access the " + Description);
             }
             else
             {

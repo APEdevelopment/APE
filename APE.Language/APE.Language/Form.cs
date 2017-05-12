@@ -102,6 +102,8 @@ namespace APE.Language
                         GUI.Log("Close the " + Identity.Description, LogItemType.Action);
                         base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
+                        Input.MoveMouse(0, 0);  //OOM
+
                         //Wait for the window to disappear
                         base.WaitForControlToNotBeVisible();
                     }
