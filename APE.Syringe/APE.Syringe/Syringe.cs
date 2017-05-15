@@ -14,7 +14,6 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.ComponentModel;
@@ -25,8 +24,19 @@ using System.Windows.Forms;
 
 namespace APE.Syringe
 {
+    /// <summary>
+    /// Class to inject a process with an assembly and call a method in that assembly
+    /// </summary>
     public static class Needle
     {
+        /// <summary>
+        /// Injects the specified process with the specified assembly and calls the specified method
+        /// </summary>
+        /// <param name="processToInject">The process to inject the assembly into</param>
+        /// <param name="apePid">The pid of the APE process to communicate with</param>
+        /// <param name="assembly">The assembly to inject</param>
+        /// <param name="method">The method in the assembly to call</param>
+        /// <returns>The injection thread exit code</returns>
         public static uint Inject(Process processToInject, int apePid, string assembly, string method)
         {
             try
@@ -168,8 +178,12 @@ namespace APE.Syringe
             }
         }
 
-        // Loads the module as data, finds relative virtual address (RVA) of the method and uses 
-        // that to find the address in the target process
+        /// <summary>
+        /// Loads the module as data, finds relative virtual address (RVA) of the method and uses that to find the address in the target process
+        /// </summary>
+        /// <param name="module">The module we loaded</param>
+        /// <param name="methodName">The method name in the module</param>
+        /// <returns></returns>
         private static IntPtr FindExport(ProcessModule module, string methodName)
         {
             IntPtr hModule = IntPtr.Zero;
@@ -182,7 +196,7 @@ namespace APE.Syringe
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
-                // Grt the address of the function in the module locally
+                // Get the address of the function in the module locally
                 IntPtr pFunc = NM.GetProcAddress(hModule, methodName);
                 if (pFunc == IntPtr.Zero)
                 {

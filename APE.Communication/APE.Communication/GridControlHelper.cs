@@ -17,6 +17,7 @@ using System;
 using WF = System.Windows.Forms;
 using System.Reflection;
 using System.Text;
+using System.Drawing;
 
 namespace APE.Communication
 {
@@ -35,6 +36,104 @@ namespace APE.Communication
             GridControlGetTitleRowsDelegater = new GridControlGetTitleRowsDelegate(GridControlGetTitleRowsInternal);
             GridControlGetTitleRowCountDelegater = new GridControlGetTitleRowCountDelegate(GridControlGetTitleRowCountInternal);
             GridControlGetAllColumnsVisibleDelegater = new GridControlGetAllColumnsVisibleDelegate(GridControlGetAllColumnsVisibleInternal);
+            GridControlEnsureTitleCellVisibleDelegater = new GridControlEnsureTitleCellVisibleDelegate(GridControlEnsureTitleCellVisibleInternal);
+        }
+
+        //
+        // EnsureTitleCellVisible
+        //
+
+        private delegate void GridControlEnsureTitleCellVisibleDelegate(dynamic grid, int titleColumn);
+        private GridControlEnsureTitleCellVisibleDelegate GridControlEnsureTitleCellVisibleDelegater;
+        private PropertyInfo DataColumnsTotalFrozenColumnWidthPropertyInfo = null;
+        private PropertyInfo DataColumnIsFrozenColumnPropertyInfo = null;
+
+        /// <summary>
+        /// Calls into the AUT to ensure the title column is visible
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="titleColumn">The title column to ensure is visible</param>
+        unsafe public void AddQueryMessageGridControlEnsureTitleCellVisible(DataStores sourceStore, int titleColumn)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Need to find the control before querying it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+
+            Parameter itemParam = new Parameter(this, titleColumn);
+
+            ptrMessage->Action = MessageAction.GridControlEnsureTitleCellVisible;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Calls the GridControlEnsureTitleCellVisibleInternal method on the correct thread to ensure the title column is visible
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void GridControlEnsureTitleCellVisible(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+
+            // p1  = title column
+            int titleColumn = GetParameterInt32(ptrMessage, 0);
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject, titleColumn };
+                ((WF.Control)tempStore0).Invoke(GridControlEnsureTitleCellVisibleDelegater, theParameters);
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Ensures the title column is visible
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <param name="titleColumn">The title column to ensure is visible</param>
+        private void GridControlEnsureTitleCellVisibleInternal(dynamic grid, int titleColumn)
+        {
+            dynamic column = grid.Columns.DataColumns[titleColumn];
+            
+            if (DataColumnIsFrozenColumnPropertyInfo == null)
+            {
+                DataColumnIsFrozenColumnPropertyInfo = column.GetType().GetProperty("IsFrozenColumn", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+            bool isFrozen = (bool)DataColumnIsFrozenColumnPropertyInfo.GetValue(column);
+
+            if (!isFrozen)
+            {
+                if (DataColumnsTotalFrozenColumnWidthPropertyInfo == null)
+                {
+                    DataColumnsTotalFrozenColumnWidthPropertyInfo = grid.Columns.DataColumns.GetType().GetProperty("TotalFrozenColumnWidth", BindingFlags.NonPublic | BindingFlags.Instance);
+                }
+                int totalFrozenColumnWidth = (int)DataColumnsTotalFrozenColumnWidthPropertyInfo.GetValue(grid.Columns.DataColumns);
+
+                Rectangle screenBounds = new Rectangle(totalFrozenColumnWidth, 0, grid.DisplayRectangle.Width - totalFrozenColumnWidth, 0);
+                Rectangle columnDisplayBounds = new Rectangle(column.Left + grid.CustomScrollPositionX, 0, column.Width, 0);
+
+                bool isOffLeft = columnDisplayBounds.Left < screenBounds.Left;
+                bool isOffRight = columnDisplayBounds.Right > screenBounds.Right;
+
+                if (isOffLeft)
+                {
+                    int customScrollPositionX = screenBounds.Width - column.Width - column.Left;
+                    grid.CustomScrollPositionX += (screenBounds.Left - columnDisplayBounds.Left);
+                }
+                else if (isOffRight)
+                {
+                    int maxRightDelta = columnDisplayBounds.Left - screenBounds.Left;
+                    if (maxRightDelta != 0)
+                    {
+                        grid.CustomScrollPositionX -= Math.Min(maxRightDelta, (columnDisplayBounds.Right - screenBounds.Right));
+                    }
+                }
+            }
         }
 
         //

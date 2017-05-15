@@ -100,6 +100,7 @@ namespace APE.Communication
         PeakMessage = 38,
         SetFocus = 39,
         SetFocusAsync = 40,
+        GridControlEnsureTitleCellVisible = 41,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -352,6 +353,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.SetFocusAsync:
                                     SetFocusAsync(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.GridControlEnsureTitleCellVisible:
+                                    GridControlEnsureTitleCellVisible(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
