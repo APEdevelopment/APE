@@ -14,21 +14,12 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using APE.Communication;
 using APE.Dock;
 using NM = APE.Native.NativeMethods;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using APE.Language;
 using System.IO;
 using System.Reflection;
@@ -47,7 +38,11 @@ namespace APE
         internal bool Acknowledge = false;
         private uint DoubleClickTimer = 0;
 
-        private delegate void AppendToLogCallback(string text, LogItemType type);
+        private delegate void AppendToLogDelegate(string text, LogItemType type);
+        AppendToLogDelegate AppendToLogDelegater = null;
+
+        private delegate void CloseViewPortDelegate();
+        CloseViewPortDelegate CloseViewPortDelegater = null;
 
         internal ViewPort()
         {
@@ -75,32 +70,6 @@ namespace APE
             this.ControlBox = false;
             this.Shown += new EventHandler(frmViewPort_Shown);
         }
-
-        //TODO move this to capture? have in out image instead of width/height?
-        //private static Bitmap ResizeImage(Image image, int width, int height)
-        //{
-        //    Rectangle destRect = new Rectangle(0, 0, width, height);
-        //    Bitmap destImage = new Bitmap(width, height);
-
-        //    destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-
-        //    using (Graphics imageGraphics = Graphics.FromImage(destImage))
-        //    {
-        //        imageGraphics.CompositingMode = CompositingMode.SourceCopy;
-        //        imageGraphics.CompositingQuality = CompositingQuality.HighQuality;
-        //        imageGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        //        imageGraphics.SmoothingMode = SmoothingMode.HighQuality;
-        //        imageGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-        //        using (ImageAttributes wrapMode = new ImageAttributes())
-        //        {
-        //            wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-        //            imageGraphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
-        //        }
-        //    }
-
-        //    return destImage;
-        //}
 
         private void frmViewPort_Shown(Object sender, EventArgs e)
         {
@@ -190,7 +159,6 @@ namespace APE
         private void frmViewPort_FormClosing(Object sender, FormClosingEventArgs e)
         {
             NM.UnregisterHotKey(this.Handle, 1);
-            Exit();
         }
 
         private void btnBreak_Click(object sender, EventArgs e)
@@ -200,20 +168,36 @@ namespace APE
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
-            Exit();
+            AppbarRemove();
+            Environment.Exit(0);
         }
 
-        private void Exit()
+        internal void CloseViewPort()
         {
-            Environment.Exit(0);
+            if (InvokeRequired)
+            {
+                if (CloseViewPortDelegater == null)
+                {
+                    CloseViewPortDelegater = new CloseViewPortDelegate(CloseViewPort);
+                }
+                Invoke(CloseViewPortDelegater);
+            }
+            else
+            {
+                AppbarRemove();
+                Close();
+            }
         }
 
         internal void AppendToLog(string text, LogItemType type)
         {
             if (InvokeRequired)
             {
-                AppendToLogCallback cbAppendToLog = new AppendToLogCallback(AppendToLog);
-                Invoke(cbAppendToLog, new object[] { text, type });
+                if (AppendToLogDelegater == null)
+                {
+                    AppendToLogDelegater = new AppendToLogDelegate(AppendToLog);
+                }
+                Invoke(AppendToLogDelegater, new object[] { text, type });
             }
             else
             {

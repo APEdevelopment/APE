@@ -287,6 +287,7 @@ namespace APE.Language
                 m_threadViewPort = new Thread(new ThreadStart(DisplayViewPort));
                 m_threadViewPort.SetApartmentState(ApartmentState.STA);
                 m_threadViewPort.IsBackground = true;
+                m_threadViewPort.Name = "ViewPort";
                 m_threadViewPort.Start();
             }
 
@@ -301,7 +302,20 @@ namespace APE.Language
                 Logger.Invoke(textToLog, type);
             }
         }
-        
+
+        /// <summary>
+        /// Closes the viewport form
+        /// </summary>
+        public static void CloseViewPort()
+        {
+            if (m_threadViewPort != null)
+            {
+                m_ViewPort.CloseViewPort();
+                m_ViewPort = null;
+                m_threadViewPort = null;
+            }
+        }
+
         /// <summary>
         /// Attaches APE to the specified process so it can automate it
         /// </summary>
