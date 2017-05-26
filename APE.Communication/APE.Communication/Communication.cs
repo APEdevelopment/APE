@@ -51,6 +51,7 @@ namespace APE.Communication
         public string Text;
         public IntPtr ChildOf;
         public IntPtr SiblingOf;
+        public IntPtr ParentOf;
         public string Description;
     }
 
@@ -780,6 +781,8 @@ namespace APE.Communication
 
         unsafe public void SendMessages(EventSet WhoIsSending)
         {
+            //TODO check if m_Abort is set as if it is probably don't actually want to try send the messages
+
             //signal the other process
             m_eventIPC.Set();
             Stopwatch timer = Stopwatch.StartNew();
@@ -1151,6 +1154,9 @@ namespace APE.Communication
             p = new Parameter(this, Identifier.SiblingOf);
 
             //p13
+            p = new Parameter(this, Identifier.ParentOf);
+
+            //p14
             p = new Parameter(this, Identifier.Description);
 
             m_PtrMessageStore->NumberOfMessages++;
@@ -1564,16 +1570,26 @@ namespace APE.Communication
                     throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[11])).ToString());
                 }
 
-                // p13  = Description
-                if (PtrMessage->Parameter.StringLength[12] > 0)
+                // p13 = ParentOf
+                if ((PtrMessage->Parameter.TypeCode[12]) == (int)ApeTypeCode.IntPtr)
                 {
-                    if ((PtrMessage->Parameter.TypeCode[12]) == (Int32)ApeTypeCode.String)
+                    Identifier.ParentOf = (IntPtr)PtrMessage->Parameter.IntPtr[12];
+                }
+                else
+                {
+                    throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[12])).ToString());
+                }
+
+                // p14  = Description
+                if (PtrMessage->Parameter.StringLength[13] > 0)
+                {
+                    if ((PtrMessage->Parameter.TypeCode[13]) == (Int32)ApeTypeCode.String)
                     {
-                        Identifier.Description = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[12]), 0, PtrMessage->Parameter.StringLength[12]);
+                        Identifier.Description = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[13]), 0, PtrMessage->Parameter.StringLength[13]);
                     }
                     else
                     {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[12])).ToString());
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[13])).ToString());
                     }
                 }
             }
@@ -2106,6 +2122,14 @@ namespace APE.Communication
                                             }
                                         }
 
+                                        if (Identifier.ParentOf != IntPtr.Zero)
+                                        {
+                                            if (!NM.IsChild(Handle, Identifier.ParentOf))
+                                            {
+                                                continue;
+                                            }
+                                        }
+
                                         object[] parameters = { control };
                                         theText = (string)control.Invoke(m_GetTextDelegater, parameters);
                                         if (Identifier.Text != null)
@@ -2175,6 +2199,14 @@ namespace APE.Communication
                                     if (Identifier.SiblingOf != IntPtr.Zero)
                                     {
                                         if (!NM.IsSibling(Identifier.SiblingOf, Handle))
+                                        {
+                                            continue;
+                                        }
+                                    }
+
+                                    if (Identifier.ParentOf != IntPtr.Zero)
+                                    {
+                                        if (!NM.IsChild(Handle, Identifier.ParentOf))
                                         {
                                             continue;
                                         }

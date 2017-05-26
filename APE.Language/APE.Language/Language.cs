@@ -131,7 +131,11 @@ namespace APE.Language
         /// <summary>
         /// A control which the control we are identifying is a sibling of
         /// </summary>
-        SiblingOf = 11
+        SiblingOf = 11,
+        /// <summary>
+        /// A control which the control we are identifying is a parent of
+        /// </summary>
+        ParentOf = 12,
     }
 
     /// <summary>
@@ -531,6 +535,9 @@ namespace APE.Language
                         break;
                     case Identifiers.SiblingOf:
                         Identity.SiblingOf = i.IdentifierValue.Handle;
+                        break;
+                    case Identifiers.ParentOf:
+                        Identity.ParentOf = i.IdentifierValue.Handle;
                         break;
                     default:
                         throw new Exception("Unsupported identifier: " + i.ToString());
