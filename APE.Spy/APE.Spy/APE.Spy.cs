@@ -156,6 +156,7 @@ namespace APE.Spy
 
                     // Set up APE without calling AttachToProcess as we are already setup
                     typeof(GUI).GetField("m_APE", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, m_APE);
+                    typeof(GUI).GetField("m_APESpy", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, true);
                 }
             }
             //restore m_Identity
@@ -670,6 +671,7 @@ namespace APE.Spy
                 default:
                     switch (m_Identity.TypeName)
                     {
+                        case "ContextMenuStrip":
                         case "ToolStripDropDownMenu":
                             AddToolStripDropDownMenuToPropertyListbox();
                             break;

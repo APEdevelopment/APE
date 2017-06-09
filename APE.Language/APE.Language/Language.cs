@@ -25,6 +25,7 @@ using System.Threading;
 using System.Drawing.Imaging;
 using Microsoft.Win32;
 using System.Security.Principal;
+using System.Text;
 
 namespace APE.Language
 {
@@ -185,6 +186,7 @@ namespace APE.Language
         internal static APEIPC m_APE;
         internal static Process m_AttachedProcess;
         internal static ViewPort m_ViewPort;
+        internal static bool m_APESpy = false;
         private static Thread m_threadViewPort;
         private static bool m_IsElevatedAdmin = false;
         private static int m_MsTimeOut = 30000;
@@ -489,6 +491,59 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Escapes a minimal set of characters ({, }, (, ), +, ^, %, ~, [, ]) by replacing them with their escaped sequence so that 
+        /// SendKeys treats these characters literally rather than as metacharacters.
+        /// </summary>
+        /// <param name="text">The text to escape</param>
+        /// <returns>Escaped text</returns>
+        public static string EscapeText(string text)
+        {
+            StringBuilder escaped = new StringBuilder(text.Length * 2);
+
+            for (int characterIndex = 0; characterIndex < text.Length; characterIndex++)
+            {
+                string character = text.Substring(characterIndex, 1);
+                switch (character)
+                {
+                    case "{":
+                        escaped.Append("{{}");
+                        break;
+                    case "}":
+                        escaped.Append("{}}");
+                        break;
+                    case "(":
+                        escaped.Append("{(}");
+                        break;
+                    case ")":
+                        escaped.Append("{)}");
+                        break;
+                    case "+":
+                        escaped.Append("{+}");
+                        break;
+                    case "^":
+                        escaped.Append("{^}");
+                        break;
+                    case "%":
+                        escaped.Append("{%}");
+                        break;
+                    case "~":
+                        escaped.Append("{~}");
+                        break;
+                    case "[":
+                        escaped.Append("{[}");
+                        break;
+                    case "]":
+                        escaped.Append("{]}");
+                        break;
+                    default:
+                        escaped.Append(character);
+                        break;
+                }
+            }
+            return escaped.ToString();
+        }
+
         internal static ControlIdentifier BuildIdentity(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
         {
             ControlIdentifier Identity = new ControlIdentifier();
@@ -578,6 +633,11 @@ namespace APE.Language
         {
             get
             {
+                if (m_APESpy)
+                {
+                    return true;
+                }
+
                 string MinAnimate = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics", "MinAnimate", "-1");
                 if (MinAnimate == "0")
                 {

@@ -904,6 +904,11 @@ namespace APE.Language
 
         public static bool WaitForInputIdle(IntPtr handle, uint timeoutMs)
         {
+            if (GUI.m_APESpy)
+            {
+                return true;
+            }
+
             int processId;
             int threadId = NM.GetWindowThreadProcessId(handle, out processId);
 
