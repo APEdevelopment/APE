@@ -3283,5 +3283,33 @@ namespace APE.Native
 
         [DllImport("ntdll.dll", SetLastError = false, ExactSpelling = false, CharSet = CharSet.Unicode)]
         public static extern uint NtSetTimerResolution(uint DesiredResolution, bool SetResolution, out uint CurrentResolution);
+
+        [DllImport("gdi32.dll")]
+        private static extern GetClipBoxReturn GetClipBox(IntPtr hdc, out tagRect lprc);
+
+        private enum GetClipBoxReturn : int
+        {
+            Error = 0,
+            NullRegion = 1,
+            SimpleRegion = 2,
+            ComplexRegion = 3
+        }
+
+        public static bool WindowObscured(IntPtr control)
+        {
+            tagRect rect;
+            IntPtr hdc = GetWindowDC(control);
+            GetClipBoxReturn ret = GetClipBox(hdc, out rect);
+            ReleaseDC(control, hdc);
+            if (ret == GetClipBoxReturn.Error)
+            {
+                throw new Exception("GetClipBox failed");
+            }
+            if (ret == GetClipBoxReturn.NullRegion)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

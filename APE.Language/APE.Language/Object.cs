@@ -118,94 +118,35 @@ namespace APE.Language
             Thread.Sleep(20);
         }
 
+        
+
         /// <summary>
-        /// Selects the specified item on the currently displayed context menu
+        /// Gets the currently displayed context menu of the control
         /// </summary>
-        /// <param name="ContextMenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
-        public void ContextMenuSelect(string ContextMenuItem)
+        /// <returns>The context menu</returns>
+        public GUIContextMenu GetContextMenu()
         {
-            GUI.Log("Select context menu item [" + ContextMenuItem + "]", LogItemType.Action);
-
-            string[] Menus = ContextMenuItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
-            int MenuIndex = 0;
-            IntPtr Handle;
-            IntPtr MenuParent;
-
-            Handle = GetContextMenu(Identity.ParentHandle, Identity.Handle);
-            //WaitForAnimation(Handle, false);
-
-            if (Input.IsActiveWindow(Handle))
+            //TODO implement support for ContextMenu and native context menus (as well as the ContextMenuStrip thats currently implemented)
+            if (GUIContextMenuStrip.ContextMenuExists(Identity.ParentHandle, Identity.Handle))
             {
-                MenuParent = Handle;
+                
+                GUIContextMenuStrip contextMenu = new GUIContextMenuStrip(Identity.ParentHandle, Description + " conext menu", new Identifier(Identifiers.Handle, Identity.Handle));
+                return contextMenu;
             }
-            else
-            {
-                MenuParent = Identity.ParentHandle;
-            }
-
-            Input.Block();
-            try
-            {
-                for (int Item = 0; Item < Menus.Length; Item++)
-                {
-                    if (Item > 0)
-                    {
-                        Handle = m_MenuUtils.GetDropDown(Identity.ParentHandle, Handle, MenuIndex);
-                        //WaitForAnimation(Handle, false);
-                    }
-                    MenuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, Handle, Menus[Item]);
-                    m_MenuUtils.ClickMenuItem(MenuParent, Handle, this.Description, MenuIndex, Menus[Item], ref Identity);
-                }
-            }
-            catch
-            {
-                Input.Reset();  //Reset the mouse blocking
-                throw;
-            }
-            finally
-            {
-                Input.Unblock();
-            }
+            throw new Exception("Failed to find context menu");
         }
 
-        private IntPtr GetContextMenu(IntPtr Parent, IntPtr Control)
+        /// <summary>
+        /// Deprecated will be removed in a future version of APE, use ContextMenu instead.  
+        /// Selects the specified item on the currently displayed context menu
+        /// </summary>
+        /// <param name="contextMenuItem">The text of the menu path to select, sub menu items are delimited by the \ character for instance File\Exit</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void ContextMenuSelect(string contextMenuItem)
         {
-            //TODO implement support for ContextMenu (as well as the ContextMenuStrip thats currently implemented)
-
-            IntPtr contextMenuHandle = IntPtr.Zero;
-
-            //If all controls set the contextmenu / contextmenustrip property we could find it using the below
-            //but some don't so we use an alternative method to find them
-            ////Get the ContextMenuStrip handle
-            //GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Parent, Control);
-            //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "ContextMenuStrip", MemberTypes.Property);
-            //GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
-            //GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-            //GUI.m_APE.SendMessages(EventSet.APE);
-            //GUI.m_APE.WaitForMessages(EventSet.APE);
-            ////get the values returned
-            //contextMenuHandle = GUI.m_APE.GetValueFromMessage();
-
-            Stopwatch timer = Stopwatch.StartNew();
-            do
-            {
-                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                {
-                    throw new Exception("Failed to find context menu of the " + Description);
-                }
-
-                //Get the ContextMenuStrip handle
-                GUI.m_APE.AddFirstMessageGetContextMenuStrip(Control);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //get the values returned
-                contextMenuHandle = GUI.m_APE.GetValueFromMessage();
-
-                Thread.Sleep(15);
-            }
-            while (contextMenuHandle == IntPtr.Zero);
-
-            return contextMenuHandle;
+            GUI.Log("ContextMenuSelect is deprecated, please use GetContextMenu().SingleClickItem instead", LogItemType.Warning);
+            GUIContextMenuStrip contextMenu = new GUIContextMenuStrip(Identity.ParentHandle, Description + " conext menu", new Identifier(Identifiers.Handle, Identity.Handle));
+            contextMenu.SingleClickItem(contextMenuItem);
         }
 
         /// <summary>

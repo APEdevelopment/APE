@@ -2689,6 +2689,14 @@ namespace APE.Communication
                         default:
                             return "";
                     }
+                case "LzcDealingResults":
+                    switch (TypeName)
+                    {
+                        case "lzDealingResults":
+                            return "GUILzDealingResults";
+                        default:
+                            return "";
+                    }
                 case "XPExplorerBar":
                     switch (TypeName)
                     {

@@ -75,6 +75,7 @@
     <Compile Include="CheckedListBox.cs" />
     <Compile Include="CheckStateControl.cs" />
     <Compile Include="ComboBox.cs" />
+    <Compile Include="ContextMenu.cs" />
     <Compile Include="DateTimePicker.cs" />
     <Compile Include="DockableWindow.cs" />
     <Compile Include="DockContainer.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Form.cs" />
     <Compile Include="GridObject.cs" />
     <Compile Include="GroupingBar.cs" />
+    <Compile Include="LzDealingResults.cs" />
     <Compile Include="LzNavBarGridControl.cs" />
     <Compile Include="PictureBox.cs" />
     <Compile Include="PopupList.cs" />

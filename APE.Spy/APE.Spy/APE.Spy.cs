@@ -172,7 +172,7 @@ namespace APE.Spy
             {
                 NM.tagRect WindowSize;
                 NM.GetClientRect(hWnd, out WindowSize);
-
+                
                 if (WindowSize.right > 0)   //If the window has 0 width then ignore it
                 {
                     if (!m_Pid.ContainsKey(Pid))
@@ -202,6 +202,10 @@ namespace APE.Spy
                         GetIdentity(IntPtr.Zero, hWnd);
                         string APEType = GetAPEType(m_Identity);
                         ListOfTopLevelWindows.Add(hWnd, m_Identity.Name);
+
+                        NM.tagRect WindowLoc;
+                        NM.GetWindowRect(hWnd, out WindowLoc);
+
                         if (m_Identity.TechnologyType == "Windows Native")
                         {
                             ParentNode = WindowTree.Nodes.Add("0:" + hWnd.ToString(), APEType + " (Windows Native) [" + hWnd.ToString() + "]");
@@ -461,18 +465,30 @@ namespace APE.Spy
 
         private void Highlight(IntPtr hWnd)
         {
-            m_Area = Display.GetWindowRectangleDIP(hWnd);
+            bool doHighlight = false;
+            try
+            {
+                m_Area = Display.GetWindowRectangleDIP(hWnd);
+                doHighlight = true;
+            }
+            catch (OutOfMemoryException ex)
+            {
+                // Ignore
+            }
 
-            IntPtr hWindowDC = NM.GetDC(IntPtr.Zero);
-            IntPtr hRectanglePen = NM.CreatePen(NM.PenStyle.PS_SOLID, 3, (uint)ColorTranslator.ToWin32(Color.Red));
-            IntPtr hPrevPen = NM.SelectObject(hWindowDC, hRectanglePen);
-            IntPtr hPrevBrush = NM.SelectObject(hWindowDC, NM.GetStockObject(NM.StockObjects.HOLLOW_BRUSH));
+            if (doHighlight)
+            {
+                IntPtr hWindowDC = NM.GetDC(IntPtr.Zero);
+                IntPtr hRectanglePen = NM.CreatePen(NM.PenStyle.PS_SOLID, 3, (uint)ColorTranslator.ToWin32(Color.Red));
+                IntPtr hPrevPen = NM.SelectObject(hWindowDC, hRectanglePen);
+                IntPtr hPrevBrush = NM.SelectObject(hWindowDC, NM.GetStockObject(NM.StockObjects.HOLLOW_BRUSH));
 
-            NM.Rectangle(hWindowDC, m_Area.left, m_Area.top, m_Area.right, m_Area.bottom);
+                NM.Rectangle(hWindowDC, m_Area.left, m_Area.top, m_Area.right, m_Area.bottom);
 
-            NM.SelectObject(hWindowDC, hPrevPen);
-            NM.SelectObject(hWindowDC, hPrevBrush);
-            NM.ReleaseDC(Handle, hWindowDC);
+                NM.SelectObject(hWindowDC, hPrevPen);
+                NM.SelectObject(hWindowDC, hPrevBrush);
+                NM.ReleaseDC(Handle, hWindowDC);
+            }
         }
         private void ObjectSpy_Activate(object sender, System.EventArgs e)
         {
@@ -896,10 +912,17 @@ namespace APE.Spy
         {           
             string APEType = "";
 
-            // TODO will this always be the case?
             if (Identity.ParentHandle == IntPtr.Zero)
             {
-                APEType = "GUIForm";
+                if (m_Identity.TypeName == "ContextMenuStrip")
+                {
+                    // TODO add support for ContextMenu and native menus
+                    APEType = "GUIContextMenu";
+                }
+                else
+                {
+                    APEType = "GUIForm";
+                }
             }
 
             if (Identity.TechnologyType == "Windows Forms (WinForms)")
