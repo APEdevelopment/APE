@@ -71,14 +71,13 @@ namespace APE.Language
             if (!focusableObject.HasFocus)
             {
                 focusableObject.SetFocus();
-
-                // We have changed the focus which likely updates the GUI so make sure it has painted
-                GUI.m_APE.AddFirstMessagePeakMessage(focusableObject.Handle);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
+                // Changed focus which probably will mean a repaint so wait for gui thread to be idle again
+                if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
+                {
+                    throw new Exception(focusableObject.Description + " did not go idle within timeout");
+                }
             }
             TimerResolution.SetMaxTimerResolution();
-
             System.Windows.Forms.SendKeys.SendWait(text);
             TimerResolution.UnsetMaxTimerResolution();
         }
@@ -640,10 +639,11 @@ namespace APE.Language
             //Make sure the parent form is the active window
             if (SetFocus(IntPtr.Zero, actualParent, description))
             {
-                // We have changed the focus which likely updates the GUI so make sure it has painted
-                GUI.m_APE.AddFirstMessagePeakMessage(control);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
+                // Changed focus which probably will mean a repaint so wait for gui thread to be idle again
+                if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
+                {
+                    throw new Exception(description + " did not go idle within timeout");
+                }
             }
 
             NM.tagPoint thePoint = MouseMove(control, description, x, y);
@@ -1042,10 +1042,11 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(EventSet.APE);
                             GUI.m_APE.WaitForMessages(EventSet.APE);
 
-                            // Make sure the AUT has painted
-                            GUI.m_APE.AddFirstMessagePeakMessage(handle);
-                            GUI.m_APE.SendMessages(EventSet.APE);
-                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            // Make sure the AUT has painted and is idle
+                            if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
+                            {
+                                throw new Exception(description + " did not go idle within timeout");
+                            }
                         }
 
                         if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
@@ -1072,9 +1073,10 @@ namespace APE.Language
             MoveMouse(WindowRect.left + xOffset, WindowRect.top + yOffset);
 
             // Make sure the AUT recieves the mouse move message and has painted
-            GUI.m_APE.AddFirstMessagePeakMessage(handle);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
+            if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
+            {
+                throw new Exception(description + " did not go idle within timeout");
+            }
 
             return thePoint;
         }

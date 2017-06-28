@@ -1010,12 +1010,22 @@ namespace APE.Language
                     GUIGenericWalker genericWalker = null;
                     for (int index = 1; index < 200; index++)
                     {
+                        bool found = false;
                         if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
                         {
+                            found = true;
                             genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
                             walkers.Add(genericWalker.Handle);
                         }
-                        else
+
+                        if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                        {
+                            found = true;
+                            genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                            walkers.Add(genericWalker.Handle);
+                        }
+
+                        if (!found)
                         {
                             genericWalker = null;
                             break;
@@ -1056,8 +1066,10 @@ namespace APE.Language
                             // Search for a generic walker which is new
                             for (int index = 1; index < 200; index++)
                             {
+                                bool found = false;
                                 if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
                                 {
+                                    found = true;
                                     genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
                                     if (!walkers.Contains(genericWalker.Handle))
                                     {
@@ -1065,7 +1077,19 @@ namespace APE.Language
                                         break;
                                     }
                                 }
-                                else
+
+                                if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                                {
+                                    found = true;
+                                    genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                                    if (!walkers.Contains(genericWalker.Handle))
+                                    {
+                                        EditorHandle = IntPtr.Zero;
+                                        break;
+                                    }
+                                }
+
+                                if (!found)
                                 {
                                     genericWalker = null;
                                     break;

@@ -116,6 +116,16 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Send the specified text to the control
+        /// </summary>
+        /// <param name="text">The text to send to the control</param>
+        public void Type(string text)
+        {
+            SetFocus();
+            SendKeys(text);
+        }
+
         internal int ItemIndex(string itemText)
         {
             return ListBox.ItemIndex(itemText);

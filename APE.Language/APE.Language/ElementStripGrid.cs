@@ -1672,7 +1672,8 @@ namespace APE.Language
             if (currentValue != "")
             {
                 checkedListBox.SingleClickItem("[All]");
-                filterTextBox.SingleClick();
+                //filterTextBox.SingleClick();  // TODO look into this as it causes 100% cpu (mouse down over textbox then move mouse over listbox and mouse up)
+                checkedListBox.Type("{Enter}");
 
                 if (filter.ToString() != "[All]")
                 {
@@ -1696,7 +1697,8 @@ namespace APE.Language
                 {
                     checkedListBox.ItemCheck(filterItems[i]);
                 }
-                filterTextBox.SingleClick();
+                //filterTextBox.SingleClick();
+                checkedListBox.Type("{Enter}");
             }
 
             return true;
