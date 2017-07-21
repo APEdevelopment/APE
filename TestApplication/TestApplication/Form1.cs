@@ -143,5 +143,10 @@ namespace TestApplication
             //foo.Index
             //ook.a
         }
+
+        private void item2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("A native message box test", "Native Message Box");
+        }
     }
 }

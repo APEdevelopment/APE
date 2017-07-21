@@ -185,6 +185,10 @@ namespace APE.Capture
             else
             {
                 NM.GetWindowRect(Window, out ControlRect);
+                NM.tagRect clipBox = NM.GetClipBox(Window);
+
+                ControlRect.right = ControlRect.left + clipBox.right;
+                ControlRect.bottom = ControlRect.top + clipBox.bottom;
 
                 if (topLevelWindow && WindowState == "Maximized")
                 {

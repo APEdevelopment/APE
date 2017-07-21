@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APE.Capture", "..\APE.Capture\APE.Capture\APE.Capture.csproj", "{9DCC9BB7-CA01-4171-9B9E-5F6E0AD4A158}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -109,7 +109,6 @@ Global
 		{AA1F7069-E972-4683-B7EF-74C400C7CB55}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{2C73D860-61D1-40AF-B98C-E0F5C0E7D312}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{2C73D860-61D1-40AF-B98C-E0F5C0E7D312}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{2C73D860-61D1-40AF-B98C-E0F5C0E7D312}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{2C73D860-61D1-40AF-B98C-E0F5C0E7D312}.Debug|x64.ActiveCfg = Debug|x64
 		{2C73D860-61D1-40AF-B98C-E0F5C0E7D312}.Debug|x64.Build.0 = Debug|x64
 		{2C73D860-61D1-40AF-B98C-E0F5C0E7D312}.Debug|x86.ActiveCfg = Debug|x86
@@ -122,7 +121,6 @@ Global
 		{E199B35B-265F-4E0F-8CBD-F97946CF0802}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{79BDBAA7-62F3-4BE2-A364-708BCBC7068E}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{79BDBAA7-62F3-4BE2-A364-708BCBC7068E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{79BDBAA7-62F3-4BE2-A364-708BCBC7068E}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{79BDBAA7-62F3-4BE2-A364-708BCBC7068E}.Debug|x64.ActiveCfg = Debug|x64
 		{79BDBAA7-62F3-4BE2-A364-708BCBC7068E}.Debug|x64.Build.0 = Debug|x64
 		{79BDBAA7-62F3-4BE2-A364-708BCBC7068E}.Debug|x86.ActiveCfg = Debug|x86
@@ -171,7 +169,6 @@ Global
 		{792D9A7D-8742-4546-AA6A-DC684F802002}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Any CPU.ActiveCfg = Debug
 		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Mixed Platforms.Build.0 = Debug
 		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|Mixed Platforms.Deploy.0 = Debug
 		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|x64.ActiveCfg = Debug
 		{CACEBE20-83D0-4BED-8047-274D236A1E36}.Debug|x86.ActiveCfg = Debug

@@ -21,6 +21,7 @@ using APE.Communication;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
+using NM = APE.Native.NativeMethods;
 
 namespace APE.Language
 {
@@ -1108,22 +1109,33 @@ namespace APE.Language
                 throw new Exception("Must supply a column index greater than 0 in the " + Description);
             }
 
-            //Check to make sure the row isn't hidden
+            // Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
                 throw new Exception("Row is hidden in the " + Description);
             }
 
-            //Check to make sure the column isn't hidden
+            // Check to make sure the column isn't hidden
             if (IsColumnHidden(columnIndex))
             {
                 throw new Exception("Column is hidden in the " + Description);
             }
 
-            //Scroll the cell into view
+            // Scroll the cell into view
             ShowCell(rowIndex, columnIndex);
 
             Rectangle CellRectangle = GetCellRectangle(rowIndex, columnIndex);
+
+            // Check the cell can be scrolled into view
+            if (CellRectangle.Top > Height)
+            {
+                throw new Exception("Row can not be scrolled into view in the " + Description);
+            }
+
+            if (CellRectangle.Left > Width)
+            {
+                throw new Exception("Column can not be scrolled into view in the " + Description);
+            }
 
             Point Location = new Point();
 
@@ -1153,6 +1165,17 @@ namespace APE.Language
                 //    break;
                 default:
                     throw new Exception("Implement for CellClickLocation: " + Location.ToString());
+            }
+
+            // Handle partial rows / columns
+            if (Location.X >= Width)
+            {
+                Location.X = Width - 1;
+            }
+
+            if (Location.Y >= Height)
+            {
+                Location.Y = Height - 1;
             }
 
             return Location;

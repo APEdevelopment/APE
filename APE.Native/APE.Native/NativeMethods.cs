@@ -1529,6 +1529,9 @@ namespace APE.Native
         public static extern bool LockWindowUpdate([In] IntPtr hWndLock);
 
         [DllImport("user32.dll")]
+        public static extern bool UpdateWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
         public static extern Boolean RedrawWindow(IntPtr hWnd, IntPtr lpRectUpdate, IntPtr hrgnUpdate, RedrawWindowFlags RedrawWindowFlags);
 
         [Flags]
@@ -3311,5 +3314,19 @@ namespace APE.Native
             }
             return false;
         }
+
+        public static tagRect GetClipBox(IntPtr control)
+        {
+            tagRect rect;
+            IntPtr hdc = GetWindowDC(control);
+            GetClipBoxReturn ret = GetClipBox(hdc, out rect);
+            ReleaseDC(control, hdc);
+            if (ret == GetClipBoxReturn.Error)
+            {
+                throw new Exception("GetClipBox failed");
+            }
+            return rect;
+        }
+
     }
 }

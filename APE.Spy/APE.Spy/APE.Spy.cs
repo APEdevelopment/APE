@@ -740,7 +740,8 @@ namespace APE.Spy
             NM.tagRect windowPosition;
             NM.tagRect windowSize;
             NM.GetWindowRect(m_Identity.Handle, out windowPosition);
-            NM.GetClientRect(m_Identity.Handle, out windowSize);
+            windowSize = NM.GetClipBox(m_Identity.Handle);
+            //NM.GetClientRect(m_Identity.Handle, out windowSize);
 
             PropertyListbox.Items.Add("Location\t\t: " + windowPosition.left.ToString() + ", " + windowPosition.top.ToString());
             PropertyListbox.Items.Add("Size\t\t: " + windowSize.right.ToString() + ", " + windowSize.bottom.ToString());

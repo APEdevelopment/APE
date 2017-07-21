@@ -50,6 +50,7 @@ namespace APE.Loader
                 key.Close();
 
                 Assembly assembly = Assembly.LoadFrom(APEPath + @"\APE.Domain.dll");
+                Assembly native = Assembly.LoadFrom(APEPath + @"\APE.Native.dll");
                 Type myAPEDomainType = assembly.GetType("APE.Domain.DomainSearch");
                 AppDomain appDom = null;
 

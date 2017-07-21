@@ -432,9 +432,11 @@ namespace APE.Language
         {
             get
             {
-                NM.tagRect WindowSize;
-                NM.GetClientRect(Identity.Handle, out WindowSize);
-                return WindowSize.bottom;
+                NM.tagRect clipBox = NM.GetClipBox(this.Handle);
+                return clipBox.bottom;
+                //NM.tagRect WindowSize;
+                //NM.GetClientRect(Identity.Handle, out WindowSize);
+                //return WindowSize.bottom;
             }
         }
 
@@ -563,9 +565,11 @@ namespace APE.Language
         {
             get
             {
-                NM.tagRect WindowSize;
-                NM.GetClientRect(Identity.Handle, out WindowSize);
-                return WindowSize.right;
+                NM.tagRect clipBox = NM.GetClipBox(this.Handle);
+                return clipBox.right;
+                //NM.tagRect WindowSize;
+                //NM.GetClientRect(Identity.Handle, out WindowSize);
+                //return WindowSize.right;
             }
         }
 

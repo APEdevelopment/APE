@@ -14,6 +14,8 @@
 //limitations under the License.
 //
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -371,67 +373,96 @@ namespace APE.Communication
             IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
             object[] theParameters = { handle };
 
-            //TODO WPF etc
-            WF.Control control = WF.Control.FromHandle(handle);
+            m_AllControls = new List<IntPtr>();
+            //0 for the thread seems to enumerate all threads
+            NM.EnumThreadWindows(0, EnumThreadProcedue, IntPtr.Zero);
 
-            if (control != null)
+            //bool sleepBeforeReturn = false;
+            Stopwatch timer = Stopwatch.StartNew();
+            for (int loop = 0; loop < 2; loop++)
             {
-                bool sleepBeforeBreak = false;
-                Stopwatch timer = Stopwatch.StartNew();
-                while (true)
+                foreach (IntPtr hWnd in m_AllControls)  //TODO maybe only once per thread rather than once per window handle on a thread?
                 {
-                    bool messageAvailble = false;
-                    if (!control.IsDisposed)
-                    {
-                        try
-                        {
-                            messageAvailble = (bool)control.Invoke(m_PeakMessagDelegater, null);
-                            // Might want to include timer here as well at some point
-                            //messageAvailble = (bool)control.Invoke(m_PeakMessageFocusDelegater, null);
-                            //if (!messageAvailble)
-                            //{
-                            //    messageAvailble = (bool)control.Invoke(m_PeakMessageKeyDelegater, null);
-                            //    if (!messageAvailble)
-                            //    {
-                            //        messageAvailble = (bool)control.Invoke(m_PeakMessageMouseDelegater, null);
-                            //        if (!messageAvailble)
-                            //        {
-                            //            messageAvailble = (bool)control.Invoke(m_PeakMessagePaintDelegater, null);
-                            //        }
-                            //    }
-                            //}
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                        }
-                    }
+                    NM.UpdateWindow(hWnd);
 
-                    if (messageAvailble)
+                    WF.Control control = WF.Control.FromHandle(handle);
+
+                    if (control != null)
                     {
-                        sleepBeforeBreak = true;
-                    }
-                    else
-                    {
-                        if (sleepBeforeBreak)
+                        while (true)
                         {
+                            bool messageAvailble = false;
+                            if (control.IsDisposed)
+                            {
+                                // Nothing
+                            }
+                            else if (control.Disposing)
+                            {
+                                messageAvailble = true; // Don't invoke anything just continue to loop till the control is fully disposed
+                            }
+                            else if (!control.IsHandleCreated)
+                            {
+                                // Nothing as to get to here the handle must have existed at some point so it must have been destroyed
+                            }
+                            else if (control.RecreatingHandle)
+                            {
+                                messageAvailble = true; // Don't invoke anything just continue to loop till the control has recreated the handle
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    messageAvailble = (bool)control.Invoke(m_PeakMessagDelegater, null);
+                                    // Might want to include timer here as well at some point
+                                    //messageAvailble = (bool)control.Invoke(m_PeakMessageFocusDelegater, null);
+                                    //if (!messageAvailble)
+                                    //{
+                                    //    messageAvailble = (bool)control.Invoke(m_PeakMessageKeyDelegater, null);
+                                    //    if (!messageAvailble)
+                                    //    {
+                                    //        messageAvailble = (bool)control.Invoke(m_PeakMessageMouseDelegater, null);
+                                    //        if (!messageAvailble)
+                                    //        {
+                                    //            messageAvailble = (bool)control.Invoke(m_PeakMessagePaintDelegater, null);
+                                    //        }
+                                    //    }
+                                    //}
+                                }
+                                catch (ObjectDisposedException) { }
+                                catch (InvalidAsynchronousStateException) { }
+                                catch (NullReferenceException) { }
+                                catch (InvalidOperationException) { }
+                            }
+
+                            if (messageAvailble)
+                            {
+                                //sleepBeforeReturn = true;
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            //if (!NM.IsWindowEnabled(handle))
+                            //{
+                            //    break;
+                            //}
+
+                            if (timer.ElapsedMilliseconds > m_TimeOut)
+                            {
+                                throw new Exception("Thread failed to have zero messages within timeout");
+                            }
+
                             Thread.Sleep(15);
                         }
-                        break;
                     }
-
-                    if (!NM.IsWindowEnabled(handle))
-                    {
-                        break;
-                    }
-
-                    if (timer.ElapsedMilliseconds > m_TimeOut)
-                    {
-                        throw new Exception("Thread failed to have zero messages within timeout");
-                    }
-
-                    Thread.Sleep(15);
                 }
             }
+
+            //if (sleepBeforeReturn)  //TODO is this needed?
+            //{
+            //    Thread.Sleep(15);
+            //}
 
             CleanUpMessage(ptrMessage);
         }

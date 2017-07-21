@@ -80,6 +80,11 @@ namespace APE.Language
             TimerResolution.SetMaxTimerResolution();
             System.Windows.Forms.SendKeys.SendWait(text);
             TimerResolution.UnsetMaxTimerResolution();
+
+            //if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
+            //{
+            //    throw new Exception(focusableObject.Description + " did not go idle within timeout");
+            //}
         }
 
         public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
@@ -147,6 +152,11 @@ namespace APE.Language
                     Unblock();
                 }
             }
+
+            //if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
+            //{
+            //    throw new Exception(description + " did not go idle within timeout");
+            //}
         }
 
         public static void MouseDoubleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
@@ -914,7 +924,8 @@ namespace APE.Language
 
             if (threadId == 0)
             {
-                throw new Exception("Failed to get thread for window");
+                return true;
+                //throw new Exception("Failed to get thread for window");
             }
 
             if (processId != WaitForInputIdleProcessId)
@@ -931,12 +942,23 @@ namespace APE.Language
             int x = 0;
             while (true)
             {
-                ProcessThreadCollection threadCollection = WaitForInputIdleProcess.Threads;
+                ProcessThreadCollection threadCollection;
+                try
+                {
+                    if (WaitForInputIdleProcess.HasExited) { return true; }
+                    threadCollection = WaitForInputIdleProcess.Threads;
+                }
+                catch (InvalidOperationException ex) when (ex.Message.Contains("Process has exited"))
+                {
+                    return true;
+                }
 
+                bool found = false;
                 for (int i = 0; i < threadCollection.Count; i++)
                 {
                     if (threadCollection[i].Id == threadId)
                     {
+                        found = true;
                         if (threadCollection[i].ThreadState == System.Diagnostics.ThreadState.Wait)
                         {
                             if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
@@ -949,9 +971,17 @@ namespace APE.Language
                                 }
 
                                 // Make sure there are no outstanding messages including paint messages
-                                GUI.m_APE.AddFirstMessagePeakMessage(handle);
-                                GUI.m_APE.SendMessages(EventSet.APE);
-                                GUI.m_APE.WaitForMessages(EventSet.APE);
+                                try
+                                {
+                                    if (WaitForInputIdleProcess.HasExited) { return true; }
+                                    GUI.m_APE.AddFirstMessagePeakMessage(handle);
+                                    GUI.m_APE.SendMessages(EventSet.APE);
+                                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                                }
+                                catch (Exception ex) when (ex.Message.Contains("has exited"))
+                                {
+                                    return true;
+                                }
                             }
                             else
                             {
@@ -964,6 +994,11 @@ namespace APE.Language
                         }
                         break;
                     }
+                }
+
+                if (!found)
+                {
+                    return true;
                 }
 
                 if (timer.ElapsedMilliseconds > timeoutMs)
