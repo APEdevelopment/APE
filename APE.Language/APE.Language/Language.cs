@@ -790,6 +790,19 @@ namespace APE.Language
             }
             while (NM.IsWindowVisible(Handle) == false);
 
+            if (Source == WaitForAnimationSource.Form)
+            {
+                // The window animations we care about are the following:
+                // newly opened window
+                // maximising a window
+                // restoring a window
+                // in all these cases the window should have focus, so if the window doesn't then return
+                if (!Input.HasFocus(IntPtr.Zero, Handle))
+                {
+                    return;
+                }
+            }
+
             NM.tagRect theRect = Display.GetWindowRectangleDIP(Handle);
 
             int Width;
@@ -827,7 +840,7 @@ namespace APE.Language
                 {
                     Display.GetWindowBitmap(Handle, theRect.left, theRect.top, ref A, false, ClearClientArea);
 
-                    //A.Save(@"c:\temp\" + y.ToString() + ".png");
+                    //A.Save(@"c:\temp\" + Loops.ToString() + ".png");
                     //A.Save(@"c:\temp\a.png");
                     i++;
                 }
@@ -835,7 +848,7 @@ namespace APE.Language
                 {
                     Display.GetWindowBitmap(Handle, theRect.left, theRect.top, ref B, false, ClearClientArea);
 
-                    //B.Save(@"c:\temp\" + y.ToString() + ".png");
+                    //B.Save(@"c:\temp\" + Loops.ToString() + ".png");
                     //B.Save(@"c:\temp\b.png");
                     i--;
                 }

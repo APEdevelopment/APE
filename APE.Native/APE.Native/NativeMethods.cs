@@ -3298,22 +3298,22 @@ namespace APE.Native
             ComplexRegion = 3
         }
 
-        public static bool WindowObscured(IntPtr control)
-        {
-            tagRect rect;
-            IntPtr hdc = GetWindowDC(control);
-            GetClipBoxReturn ret = GetClipBox(hdc, out rect);
-            ReleaseDC(control, hdc);
-            if (ret == GetClipBoxReturn.Error)
-            {
-                throw new Exception("GetClipBox failed");
-            }
-            if (ret == GetClipBoxReturn.NullRegion)
-            {
-                return true;
-            }
-            return false;
-        }
+        //public static bool WindowObscured(IntPtr control) //This wont work when DWM is enabled (which it pretty much is everywhere now)
+        //{
+        //    tagRect rect;
+        //    IntPtr hdc = GetDC(control);
+        //    GetClipBoxReturn ret = GetClipBox(hdc, out rect);
+        //    ReleaseDC(control, hdc);
+        //    if (ret == GetClipBoxReturn.Error)
+        //    {
+        //        throw new Exception("GetClipBox failed");
+        //    }
+        //    if (ret == GetClipBoxReturn.NullRegion)
+        //    {
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         public static tagRect GetClipBox(IntPtr control)
         {
