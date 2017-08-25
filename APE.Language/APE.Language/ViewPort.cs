@@ -319,11 +319,11 @@ namespace APE
         {
             if (Cursor.Position.Y + ctxtMenuViewPort.Height > SystemInformation.PrimaryMonitorSize.Height)
             {
-                NM.SetWindowPos(ctxtMenuViewPort.Handle, IntPtr.Zero, Cursor.Position.X, Cursor.Position.Y - ctxtMenuViewPort.Height, 0, 0, NM.SWP_NOSIZE | NM.SWP_NOZORDER);
+                NM.SetWindowPos(ctxtMenuViewPort.Handle, IntPtr.Zero, Cursor.Position.X, Cursor.Position.Y - ctxtMenuViewPort.Height, 0, 0, NM.SetWindowPosFlags.IgnoreResize | NM.SetWindowPosFlags.IgnoreZOrder);
             }
             else
             {
-                NM.SetWindowPos(ctxtMenuViewPort.Handle, IntPtr.Zero, Cursor.Position.X, Cursor.Position.Y, 0, 0, 5);
+                NM.SetWindowPos(ctxtMenuViewPort.Handle, IntPtr.Zero, Cursor.Position.X, Cursor.Position.Y, 0, 0, NM.SetWindowPosFlags.IgnoreResize | NM.SetWindowPosFlags.IgnoreZOrder);
             }
         }
 

@@ -432,7 +432,12 @@ namespace APE.Language
         {
             get
             {
-                NM.tagRect clipBox = NM.GetClipBox(this.Handle);
+                // Try to scroll it into view
+                GUI.m_APE.AddFirstMessageScrollControlIntoView(Handle);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                NM.tagRect clipBox = NM.GetClipBox(Handle);
                 return clipBox.bottom;
                 //NM.tagRect WindowSize;
                 //NM.GetClientRect(Identity.Handle, out WindowSize);
@@ -565,7 +570,12 @@ namespace APE.Language
         {
             get
             {
-                NM.tagRect clipBox = NM.GetClipBox(this.Handle);
+                // Try to scroll it into view
+                GUI.m_APE.AddFirstMessageScrollControlIntoView(Handle);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                NM.tagRect clipBox = NM.GetClipBox(Handle);
                 return clipBox.right;
                 //NM.tagRect WindowSize;
                 //NM.GetClientRect(Identity.Handle, out WindowSize);

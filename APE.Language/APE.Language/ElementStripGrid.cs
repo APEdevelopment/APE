@@ -1121,73 +1121,35 @@ namespace APE.Language
                 throw new Exception("Column is hidden in the " + Description);
             }
 
+            Input.SetFocus(IntPtr.Zero, Identity.ParentHandle, Identity.Description);
+
             // Scroll the cell into view
             Rectangle CellRectangle;
-            bool throwException = false;
-            Stopwatch timer = Stopwatch.StartNew();
-            while (true)
+            
+            ShowCell(rowIndex, columnIndex);
+            CellRectangle = GetCellRectangle(rowIndex, columnIndex);
+
+            // Check the cell can be scrolled into view
+            if (CellRectangle.Top > Height)
             {
-                ShowCell(rowIndex, columnIndex);
-
-                if (timer.ElapsedMilliseconds > 5000)
-                {
-                    throwException = true;
-                }
-
-                CellRectangle = GetCellRectangle(rowIndex, columnIndex);
-
-                // Check the cell can be scrolled into view
-                if (CellRectangle.Top > Height)
-                {
-                    if (throwException)
-                    {
-                        throw new Exception("Row can not be scrolled into view (below bottom) in the " + Description);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                if (CellRectangle.Left > Width)
-                {
-                    if (throwException)
-                    {
-                        throw new Exception("Column can not be scrolled into view (after right) in the " + Description);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                if (CellRectangle.Top < 0)
-                {
-                    if (throwException)
-                    {
-                        throw new Exception("Row can not be scrolled into view (above top) in the " + Description);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                if (CellRectangle.Left < 0)
-                {
-                    if (throwException)
-                    {
-                        throw new Exception("Column can not be scrolled into view (before left) in the " + Description);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                break;
+                throw new Exception("Row can not be scrolled into view (below bottom) in the " + Description);
             }
 
+            if (CellRectangle.Left > Width)
+            {
+                throw new Exception("Column can not be scrolled into view (after right) in the " + Description);
+            }
+
+            if (CellRectangle.Top < 0)
+            {
+                throw new Exception("Row can not be scrolled into view (above top) in the " + Description);
+            }
+
+            if (CellRectangle.Left < 0)
+            {
+                throw new Exception("Column can not be scrolled into view (before left) in the " + Description);
+            }
+            
             Point Location = new Point();
 
             //Adjust for where we want to click in the cell

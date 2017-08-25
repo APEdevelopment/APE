@@ -758,6 +758,9 @@ namespace APE.Language
             Form = 1,
         }
 
+        private static Form WhiteWindow = null;
+        private const long WS_EX_TOOLWINDOW = 0x0080;
+
         private static bool IsTopLevelWindow(IntPtr Window)
         {
             NM.WindowStyles Style = (NM.WindowStyles)(long)NM.GetWindowLongPtr(Window, NM.GWL.GWL_STYLE);
@@ -828,52 +831,75 @@ namespace APE.Language
             Bitmap A = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
             Bitmap B = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
 
-            int SameCount = 0;
-            int i = 0;
-            int Loops = 0;
-            //Debug.WriteLine("till bitmap loop " + timer.ElapsedMilliseconds.ToString());
-            do
+            try
             {
-                Loops++;
-
-                if (i == 0)
+                if (WhiteWindow == null)
                 {
-                    Display.GetWindowBitmap(Handle, theRect.left, theRect.top, ref A, false, ClearClientArea);
-
-                    //A.Save(@"c:\temp\" + Loops.ToString() + ".png");
-                    //A.Save(@"c:\temp\a.png");
-                    i++;
+                    // If the window has transparency and a window is animating in behind the window then we won't be able to determine
+                    // when the window we are interested in has finished animating, so place a solid white window behind the window we are
+                    // interested in to remove any possible background animations.  Making the white window have WS_EX_TOOLWINDOW extended
+                    // style stops it animating when shown or hidden.
+                    WhiteWindow = new Form();
+                    WhiteWindow.BackColor = Color.White;
+                    WhiteWindow.ShowInTaskbar = false;
+                    WhiteWindow.FormBorderStyle = FormBorderStyle.None;
+                    NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, Width, Height, NM.SetWindowPosFlags.HideWindow);
+                    long currentExStyle = NM.GetWindowLongPtr(Handle, NM.GWL.GWL_EXSTYLE).ToInt64();
+                    NM.SetWindowLongPtr(WhiteWindow.Handle, NM.GWL.GWL_EXSTYLE, currentExStyle | WS_EX_TOOLWINDOW);
                 }
-                else
+                
+                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, Width, Height, NM.SetWindowPosFlags.ShowWindow);
+
+                int SameCount = 0;
+                int i = 0;
+                int Loops = 0;
+                //Debug.WriteLine("till bitmap loop " + timer.ElapsedMilliseconds.ToString());
+                do
                 {
-                    Display.GetWindowBitmap(Handle, theRect.left, theRect.top, ref B, false, ClearClientArea);
+                    Loops++;
 
-                    //B.Save(@"c:\temp\" + Loops.ToString() + ".png");
-                    //B.Save(@"c:\temp\b.png");
-                    i--;
-                }
+                    if (i == 0)
+                    {
+                        Display.GetWindowBitmap(Handle, theRect.left, theRect.top, ref A, false, ClearClientArea);
 
-                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                {
-                    timer.Stop();
-                    throw new Exception("Failed to detect window finishing animation");
-                }
+                        //A.Save(@"c:\temp\" + Loops.ToString() + ".png");
+                        //A.Save(@"c:\temp\a.png");
+                        i++;
+                    }
+                    else
+                    {
+                        Display.GetWindowBitmap(Handle, theRect.left, theRect.top, ref B, false, ClearClientArea);
 
-                if (Display.CompareBitmap(A, B))
-                {
-                    SameCount++;
-                    //Debug.WriteLine("same " + SameCount.ToString() + " " + timer.ElapsedMilliseconds.ToString());
-                }
-                else
-                {
-                    SameCount = 0;
-                    //Debug.WriteLine("reset " + timer.ElapsedMilliseconds.ToString());
-                }
+                        //B.Save(@"c:\temp\" + Loops.ToString() + ".png");
+                        //B.Save(@"c:\temp\b.png");
+                        i--;
+                    }
 
-                //Thread.Sleep(15);
+                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                    {
+                        timer.Stop();
+                        throw new Exception("Failed to detect window finishing animation");
+                    }
+
+                    if (Display.CompareBitmap(A, B))
+                    {
+                        SameCount++;
+                        //Debug.WriteLine("same " + SameCount.ToString() + " " + timer.ElapsedMilliseconds.ToString());
+                    }
+                    else
+                    {
+                        SameCount = 0;
+                        //Debug.WriteLine("reset " + timer.ElapsedMilliseconds.ToString());
+                    }
+
+                    //Thread.Sleep(15);
+                }
+                while (SameCount < 2 || Loops < 9);
             }
-            while (SameCount < 2 || Loops < 9);
-
+            finally
+            {
+                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, Width, Height, NM.SetWindowPosFlags.HideWindow);
+            }
             timer.Stop();
             //Debug.Listeners[0].WriteLine("\t Loops: " + Loops.ToString() + " Time: " + timer.ElapsedMilliseconds.ToString());
         }
