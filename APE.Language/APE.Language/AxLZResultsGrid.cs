@@ -634,7 +634,7 @@ namespace APE.Language
                     this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     // The override column is a pain as the checkbox doesn't always get checked (even though the row is does get selected so the control 
                     // is recieving the click events) so we work around the issue
-                    if (columnFriendlyText == "Override") 
+                    if (columnFriendlyText == "Override")
                     {
                         timer = Stopwatch.StartNew();
                         while (true)

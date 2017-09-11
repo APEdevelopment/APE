@@ -309,10 +309,16 @@ namespace APE.Language
             {
                 if (visibleColumns[column])
                 {
-                    if (titles[columnHeader.GetLength(0) - 1, column] == columnHeader[columnHeader.GetLength(0) - 1])
+                    int startHeaderRow = columnHeader.GetLength(0) - 1;
+
+                    if (titles[startHeaderRow, column] == columnHeader[startHeaderRow] || titles.GetLength(0) > columnHeader.GetLength(0)) 
                     {
+                        if (titles.GetLength(0) > columnHeader.GetLength(0))
+                        {
+                            startHeaderRow++;
+                        }
                         Found = true;
-                        for (row = columnHeader.GetLength(0) - 2; row > -1; row--)
+                        for (row = startHeaderRow - 1; row > -1; row--)
                         {
                             int tempColumn = column;
 
@@ -320,7 +326,14 @@ namespace APE.Language
                             {
                                 while (titles[row, tempColumn] == "")
                                 {
-                                    tempColumn--;
+                                    if (tempColumn == 0)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        tempColumn--;
+                                    }
                                 }
                             }
 
@@ -1167,6 +1180,11 @@ namespace APE.Language
                     Location.X = CellRectangle.Left + CellRectangle.Width - 5;
                     Location.Y = CellRectangle.Top + (CellRectangle.Height / 2);
                     break;
+                case CellClickLocation.ChildColumnPicker:
+                    Rectangle childColumnPicker = GetColumnGroupPickChildColsToDisplayIconRect(rowIndex, columnIndex);
+                    Location.X = childColumnPicker.Left + (childColumnPicker.Width / 2);
+                    Location.Y = childColumnPicker.Top + (childColumnPicker.Height / 2);
+                    break;
                 //TODO
                 //case CellClickLocation.ExpandCollapseIconOfCell:
                 //    Location.X = CellRectangle.Left + 5 + 2 + BorderWidth() + (TreeViewIndent() * NodeLevel(Row));
@@ -1177,7 +1195,7 @@ namespace APE.Language
                 //    Location.Y = CellRectangle.Top + (CellRectangle.Height / 2);
                 //    break;
                 default:
-                    throw new Exception("Implement for CellClickLocation: " + Location.ToString());
+                    throw new Exception("Implement for CellClickLocation: " + locationInCell.ToString());
             }
 
             // Handle partial rows / columns
@@ -1192,6 +1210,34 @@ namespace APE.Language
             }
 
             return Location;
+        }
+
+        private Rectangle GetColumnGroupPickChildColsToDisplayIconRect(int rowIndex, int columnIndex)
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "DataColumns", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store4, "View", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "GetColumnGroupPickChildColsToDisplayIconRect", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3), new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "X", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Y", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store8, "Width", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store9, "Height", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int x = GUI.m_APE.GetValueFromMessage();
+            int y = GUI.m_APE.GetValueFromMessage();
+            int width = GUI.m_APE.GetValueFromMessage();
+            int height = GUI.m_APE.GetValueFromMessage();
+        
+            Rectangle cellRectangle = new Rectangle(x, y, width, height);
+            return cellRectangle;
         }
 
         internal override Rectangle GetCellRectangleInternal(int rowIndex, int columnIndex)

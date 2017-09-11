@@ -92,6 +92,10 @@ namespace APE.Language
         /// Slightly to the right of the expand / collapse icon of a tree view cell, centred vertically
         /// </summary>
         LeftSideOfTreeItem = 4,
+        /// <summary>
+        /// The child column picker icon the elementstripgrid
+        /// </summary>
+        ChildColumnPicker = 5,
     }
 
     /// <summary>
