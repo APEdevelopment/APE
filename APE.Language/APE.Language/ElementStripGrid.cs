@@ -252,11 +252,15 @@ namespace APE.Language
             string selectedRowIndexesString = GUI.m_APE.GetValueFromMessage();
 
             int titleRows = TitleRows();
+            int[] selectedRowIndexesintArray = null;
 
-            char[] splitSeparator = { ',' };
-            string[] selectedRowIndexesStringArray = selectedRowIndexesString.Split(splitSeparator);
-            int[] selectedRowIndexesintArray = Array.ConvertAll(selectedRowIndexesStringArray, s => int.Parse(s) + titleRows);
-
+            if (selectedRowIndexesString != "")
+            {
+                char[] splitSeparator = { ',' };
+                string[] selectedRowIndexesStringArray = selectedRowIndexesString.Split(splitSeparator);
+                selectedRowIndexesintArray = Array.ConvertAll(selectedRowIndexesStringArray, s => int.Parse(s) + titleRows);
+            }
+            
             return selectedRowIndexesintArray;
         }
 
@@ -407,18 +411,22 @@ namespace APE.Language
 
         private bool[] GetColumnsVisibilityState()
         {
-            string[] separatorComma = { "," };
-
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageGridControlGetAllColumnsVisible(DataStores.Store0, DataStores.Store1);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string columnsVisibleText = GUI.m_APE.GetValueFromMessage();
 
-            string[] columnsVisibleTextArray = columnsVisibleText.Split(separatorComma, StringSplitOptions.None);
-            bool[] columnsVisibleArray = Array.ConvertAll(columnsVisibleTextArray, item => bool.Parse(item));
+            bool[] columnsVisibleArray = null;
 
+            if (columnsVisibleText != "")
+            {
+                char[] splitSeparator = { ',' };
+                string[] columnsVisibleTextArray = columnsVisibleText.Split(splitSeparator, StringSplitOptions.None);
+                columnsVisibleArray = Array.ConvertAll(columnsVisibleTextArray, item => bool.Parse(item));
+            }
             return columnsVisibleArray;
         }
 
