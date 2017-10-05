@@ -1980,6 +1980,10 @@ namespace APE.Communication
                             {
                                 //Ignore
                             }
+                            else if (ex.Message.Contains("Cannot access a disposed object."))
+                            {
+                                //Ignore
+                            }
                             else
                             {
                                 throw;
