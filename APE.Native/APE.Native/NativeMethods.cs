@@ -367,11 +367,38 @@ namespace APE.Native
         {
             DATETIMEPICKERINFO info = new DATETIMEPICKERINFO();
             info.cbSize  = (uint)Marshal.SizeOf(typeof(DATETIMEPICKERINFO));
+            info.rcButton.top = -1;
+            info.rcButton.left = -1;
+            info.rcButton.bottom = -1;
+            info.rcButton.right = -1;
+            info.rcCheck.top = -1;
+            info.rcCheck.left = -1;
+            info.rcCheck.bottom = -1;
+            info.rcCheck.right = -1;
             IntPtr theResult = IntPtr.Zero;
             IntPtr theReturn = SendMessageTimeout(hWnd, DTM_GETDATETIMEPICKERINFO, IntPtr.Zero, ref info, SendMessageTimeoutFlags.SMTO_ABORTIFHUNG, 30, out theResult);
             if (theReturn == IntPtr.Zero)
             {
                 throw new Exception("SendMessageTimeout failed, does the window exists?");
+            }
+            
+            if (info.rcCheck.top == -1 && info.rcCheck.left == -1 && info.rcCheck.bottom == -1 && info.rcCheck.right == -1)
+            {
+                // probably 5.82 version of the common controls which doesn't support this message so guess the coordinates
+                info.rcCheck.top = 2;
+                info.rcCheck.left = 2;
+                info.rcCheck.bottom = 18;
+                info.rcCheck.right = 18;
+            }
+
+            if (info.rcButton.top == -1 && info.rcButton.left == -1 && info.rcButton.bottom == -1 && info.rcButton.right == -1)
+            {
+                // probably 5.82 version of the common controls which doesn't support this message so guess the coordinates
+                tagRect rect = GetClipBox(hWnd);
+                info.rcButton.top = 2;
+                info.rcButton.left = rect.right - 19;
+                info.rcButton.bottom = 18;
+                info.rcButton.right = rect.right - 2;
             }
             return info;
         }
