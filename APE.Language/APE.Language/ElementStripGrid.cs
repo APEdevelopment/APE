@@ -252,9 +252,13 @@ namespace APE.Language
             string selectedRowIndexesString = GUI.m_APE.GetValueFromMessage();
 
             int titleRows = TitleRows();
-            int[] selectedRowIndexesintArray = null;
+            int[] selectedRowIndexesintArray;
 
-            if (selectedRowIndexesString != "")
+            if (selectedRowIndexesString == "")
+            {
+                selectedRowIndexesintArray = new int[0];
+            }
+            else
             {
                 char[] splitSeparator = { ',' };
                 string[] selectedRowIndexesStringArray = selectedRowIndexesString.Split(splitSeparator);
@@ -419,9 +423,13 @@ namespace APE.Language
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string columnsVisibleText = GUI.m_APE.GetValueFromMessage();
 
-            bool[] columnsVisibleArray = null;
+            bool[] columnsVisibleArray;
 
-            if (columnsVisibleText != "")
+            if (columnsVisibleText == "")
+            {
+                columnsVisibleArray = new bool[0];
+            }
+            else
             {
                 char[] splitSeparator = { ',' };
                 string[] columnsVisibleTextArray = columnsVisibleText.Split(splitSeparator, StringSplitOptions.None);
