@@ -15,6 +15,7 @@
 //
 using APE.Communication;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
@@ -225,7 +226,7 @@ namespace APE.Language
         /// <summary>
         /// The top panel in the split container
         /// </summary>
-        public class TopPanelInternal
+        [EditorBrowsable(EditorBrowsableState.Never)]public class TopPanelInternal
         {
             GUISplitContainer Container;
 
@@ -292,6 +293,7 @@ namespace APE.Language
         /// <summary>
         /// The bottom panel in the split container
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public class BottomPanelInternal
         {
             GUISplitContainer Container;
@@ -334,7 +336,7 @@ namespace APE.Language
                 {
                     GUI.Log("Warning new height adjusted to " + actualNewHeight + " due to size restrictions of the " + Container.Description, LogItemType.Warning);
                 }
-                    
+
                 if (actualNewHeight == currentHeight)
                 {
                     GUI.Log("Make sure the height of the bottom panel in the " + Container.Description + " is " + actualNewHeight.ToString(), LogItemType.Action);
@@ -359,6 +361,7 @@ namespace APE.Language
         /// <summary>
         /// The left panel in the split container
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public class LeftPanelInternal
         {
             GUISplitContainer Container;
@@ -396,7 +399,7 @@ namespace APE.Language
 
                 int currentWidth = Container.GetPanelDimension(SplitterPanel.Panel1, SplitterDimension.Width);
                 int adjustment = 0 - (actualNewWidth - currentWidth);
-                    
+
                 if (actualNewWidth != newWidth)
                 {
                     GUI.Log("Warning new width adjusted to " + actualNewWidth + " due to size restrictions of the " + Container.Description, LogItemType.Warning);
@@ -427,6 +430,7 @@ namespace APE.Language
         /// <summary>
         /// The right panel in the split container
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public class RightPanelInternal
         {
             GUISplitContainer Container;
@@ -469,7 +473,7 @@ namespace APE.Language
                 {
                     GUI.Log("Warning new width adjusted to " + actualNewWidth + " due to size restrictions of the " + Container.Description, LogItemType.Warning);
                 }
-                
+
                 if (actualNewWidth == currentWidth)
                 {
                     GUI.Log("Make sure the width of the right panel in the " + Container.Description + " is " + actualNewWidth.ToString(), LogItemType.Action);
