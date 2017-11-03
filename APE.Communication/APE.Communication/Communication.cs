@@ -2619,6 +2619,8 @@ namespace APE.Communication
                             return "GUIHScrollBar";
                         case "VScrollBar":
                             return "GUIVScrollBar";
+                        case "SplitContainer":
+                            return "GUISplitContainer";
                         default:
                             return "";
                     }
