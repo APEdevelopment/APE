@@ -97,6 +97,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ScrollBar.cs" />
+    <Compile Include="SplitContainser.cs" />
     <Compile Include="StatusBar.cs" />
     <Compile Include="StretchyCombo.cs" />
     <Compile Include="TabControl.cs" />

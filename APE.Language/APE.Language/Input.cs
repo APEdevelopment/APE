@@ -406,8 +406,7 @@ namespace APE.Language
 
                 TimerResolution.SetMaxTimerResolution();
 
-                //TODO this looks wrong should use clickcommon only for this
-                if (ChildHandle == ActualParent)
+                if (ChildHandle == control)
                 {
                     ClickCommon(parent, control, description, x, y);
                 }
@@ -416,7 +415,7 @@ namespace APE.Language
                     MouseMove(control, description, x, y, false);
                 }
 
-                if (control == ActualParent)
+                if (control == ActualParent || ActualParent == NM.GetAncestor(control, NM.GetAncestorFlags.GetParent))
                 {
                     GUI.m_APE.AddFirstMessageAddMouseHook(control);
                     GUI.m_APE.SendMessages(EventSet.APE);
@@ -1018,7 +1017,7 @@ namespace APE.Language
             NM.tagPoint thePoint;
             int xOffset;
             int yOffset;
-            int loops =0;
+            int loops = 0;
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
