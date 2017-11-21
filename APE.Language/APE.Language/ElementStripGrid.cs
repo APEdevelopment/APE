@@ -838,29 +838,107 @@ namespace APE.Language
             int treeColumn = TreeViewColumn();
             if (columnIndex == -1)
             {
-                //TODO treeview
-                //if (IsTreeView())
-                //{
-                //    rowIndex = FindNodeRow(rowText);
-                //}
-                //else
-                //{
-                columnIndex = FirstVisibleColumn();
-                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
-                //}
+                if (IsTreeView())
+                {
+                    rowIndex = FindNodeRow(rowText);
+                }
+                else
+                {
+                    columnIndex = FirstVisibleColumn();
+                    rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+                }
             }
             else
             {
-                //if (columnIndex == treeColumn)
-                //{
-                //    rowIndex = FindNodeRow(rowText);
-                //}
-                //else
-                //{
-                rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
-                //}
+                if (columnIndex == treeColumn)
+                {
+                    rowIndex = FindNodeRow(rowText);
+                }
+                else
+                {
+                    rowIndex = FindRowInternal(rowText, columnIndex, startAtRow);
+                }
             }
             return rowIndex;
+        }
+
+        private int FindNodeRow(string NodeText)
+        {
+            //TODO this is bit inefficent, it would be better to find from parent to child rather than child to parent
+            string[] SplitNodeText = NodeText.Split(GUI.GridDelimiterAsArray, StringSplitOptions.None);
+
+            int column = TreeViewColumn();
+            int currentRow = FixedRows() - 1;
+            string childNodeText = SplitNodeText[SplitNodeText.GetUpperBound(0)];
+            string currentNodeText;
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                //Find a row which matches the child node we are after
+                currentRow = FindRowInternal(childNodeText, column, currentRow + 1);
+
+                if (currentRow == -1)
+                {
+                    break;
+                }
+
+                //Check if its parents match the node we are after
+                currentNodeText = GetNodePath(currentRow, column);
+
+                if (currentNodeText == NodeText)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception("Failed to find the row of the node in the " + Description);
+                }
+            }
+
+            return currentRow;
+        }
+
+        private string GetNodePath(int Row, int Column)
+        {
+            string NodePath = GetCell(Row, Column, CellProperty.TextDisplay);
+            int CurrentRow = GetNodeParentRow(Row);
+
+            while (CurrentRow > -1)
+            {
+                NodePath = GetCell(CurrentRow, Column, CellProperty.TextDisplay) + GUI.GridDelimiter + NodePath;
+                CurrentRow = GetNodeParentRow(CurrentRow);
+            }
+
+            return NodePath;
+        }
+
+        private int GetNodeParentRow(int rowIndex)
+        {
+            int titleRows = TitleRows();
+            rowIndex -= titleRows;
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Parent", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Index", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            dynamic parentIndex = GUI.m_APE.GetValueFromMessage();
+
+            if (parentIndex == null)
+            {
+                parentIndex = -1;
+            }
+            else
+            {
+                parentIndex += titleRows;
+            }
+            
+            return parentIndex;
         }
 
         /// <summary>

@@ -808,28 +808,33 @@ namespace APE.Language
 
             NM.tagRect theRect = Display.GetWindowRectangleDIP(Handle);
 
-            int Width;
+            int width;
             //if (theRect.Right - theRect.Left > 50)
             //{
             //    Width = 50;
             //}
             //else
             //{
-                Width = theRect.right - theRect.left;
+                width = theRect.right - theRect.left;
             //}
 
-            int Height;
+            int height;
             //if (theRect.Bottom - theRect.Top > 50)
             //{
             //    Height = 50;
             //}
             //else
             //{
-                Height = theRect.bottom - theRect.top;
+                height = theRect.bottom - theRect.top;
             //}
 
-            Bitmap A = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
-            Bitmap B = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
+            if (width < 1 || height < 1)
+            {
+                return;
+            }
+
+            Bitmap A = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            Bitmap B = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
             try
             {
@@ -843,12 +848,12 @@ namespace APE.Language
                     WhiteWindow.BackColor = Color.White;
                     WhiteWindow.ShowInTaskbar = false;
                     WhiteWindow.FormBorderStyle = FormBorderStyle.None;
-                    NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, Width, Height, NM.SetWindowPosFlags.HideWindow);
+                    NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.HideWindow);
                     long currentExStyle = NM.GetWindowLongPtr(Handle, NM.GWL.GWL_EXSTYLE).ToInt64();
                     NM.SetWindowLongPtr(WhiteWindow.Handle, NM.GWL.GWL_EXSTYLE, currentExStyle | WS_EX_TOOLWINDOW);
                 }
                 
-                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, Width, Height, NM.SetWindowPosFlags.ShowWindow);
+                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.ShowWindow);
 
                 int SameCount = 0;
                 int i = 0;
@@ -898,7 +903,7 @@ namespace APE.Language
             }
             finally
             {
-                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, Width, Height, NM.SetWindowPosFlags.HideWindow);
+                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.HideWindow);
             }
             timer.Stop();
             //Debug.Listeners[0].WriteLine("\t Loops: " + Loops.ToString() + " Time: " + timer.ElapsedMilliseconds.ToString());
