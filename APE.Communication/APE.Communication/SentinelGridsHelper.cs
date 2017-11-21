@@ -36,10 +36,10 @@ namespace APE.Communication
         }
 
         /// <summary>
-        /// Casts the provided object as an ILZGrid
+        /// Casts the provided object as an ILZGrid and returns the underlying grid
         /// </summary>
         /// <param name="resultsGrid">The object to cast to an ILZGrid</param>
-        /// <returns>The object cast as an ILZGrid</returns>
+        /// <returns>The underlying grid</returns>
         private object SentinelGridsGetUnderlyingGridInternal(object resultsGrid)
         {
             //runtime late binding for COM uses the dispatch interface but we don't want the default (ILZResultsGrid)
@@ -53,7 +53,7 @@ namespace APE.Communication
         /// Calls into the AUT to cast the specified object as an ILZGrid
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the object to cast to an ILZGrid</param>
-        /// <param name="destinationStore">The datastore to put the resultant ILZGrid into</param>
+        /// <param name="destinationStore">The datastore to put the underlying grid into</param>
         unsafe public void AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores sourceStore, DataStores destinationStore)
         {
             if (m_DoneFind == false)
