@@ -218,7 +218,7 @@ namespace APE.Communication
             if (Marshal.GetLastWin32Error() != ERROR_ALREADY_EXISTS)
             {
                 Process Injector = new Process();
-                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
+                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE", RegistryKeyPermissionCheck.Default, RegistryOptions.Volatile);
                 string tempPath = null;
                 try
                 {
