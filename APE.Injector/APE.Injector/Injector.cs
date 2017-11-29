@@ -50,7 +50,7 @@ namespace APE.Injector
                 int SourcePID = int.Parse(args[3]);
 
                 Process p = Process.GetProcessById(TargetPID);
-                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
+                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE", RegistryKeyPermissionCheck.Default, RegistryOptions.Volatile);
                 key.SetValue(SourcePID + "_Attach_Status", "In_Process");
                 int result = (int)Needle.Inject(p, SourcePID, Assembly, Method);
                 key.SetValue(SourcePID + "_Attach_Status", "Success");
