@@ -42,7 +42,7 @@ namespace APE.Loader
                 string APEProcessId = apePid.ToString();
                 string AUTProcessId = Process.GetCurrentProcess().Id.ToString();
 
-                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE");
+                RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE", RegistryKeyPermissionCheck.Default, RegistryOptions.Volatile);
                 string APEPath = (string)key.GetValue(APEProcessId + "_Path_" + AUTProcessId, null);
                 string AppDomainToLoadInto = (string)key.GetValue(APEProcessId + "_AppDomain_" + AUTProcessId, null);
                 key.DeleteValue(APEProcessId + "_Path_" + AUTProcessId);
