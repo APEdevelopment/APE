@@ -52,11 +52,120 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Sets the text of the generic walker control
+        /// Gets the number of characters after which the drop down appears for the default search
+        /// </summary>
+        /// <returns>The number of characters</returns>
+        public int GetSearchAfter()
+        {
+            //TODO support prefix .N .D .F etc rather than just the default
+            int after = -1;
+            if (Identity.TypeNameSpace == "LzGenericWalker")
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "_m_oWalkerState", MemberTypes.Field);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_oDefaultSearch", MemberTypes.Field);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "After", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                after = GUI.m_APE.GetValueFromMessage();
+            }
+            else
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "GetType", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                string name = GUI.m_APE.GetValueFromMessage();
+
+                if (name.Contains("DatabaseWalkerDriver"))
+                {
+                    //DatabaseWalkerDriver
+                    //DynamicFilterDatabaseWalkerDriver
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "m_walkerType", MemberTypes.Field);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DefaultSearch", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "SearchAfter", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                    after = GUI.m_APE.GetValueFromMessage();
+                }
+                else if (name.Contains("MinervaWalkerDriver"))
+                {
+                    //MinervaWalkerDriverBase
+                    //MinervaWalkerDriverInstrument
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "m_state", MemberTypes.Field);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_oDefaultSearch", MemberTypes.Field);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "After", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                    dynamic afterOrNull = GUI.m_APE.GetValueFromMessage();
+
+                    if (afterOrNull == null)
+                    {
+                        //Setup the state variable
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "WalkerType", MemberTypes.Property);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store9, "GetWalkerStateFromAPI", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store2), new Parameter(GUI.m_APE, ""), new Parameter(GUI.m_APE, false));
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "m_state", MemberTypes.Field);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "m_oDefaultSearch", MemberTypes.Field);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "After", MemberTypes.Property);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                        after = GUI.m_APE.GetValueFromMessage();
+                    }
+                    else
+                    {
+                        after = afterOrNull;
+                    }
+                }
+                else
+                {
+                    throw new Exception("Unsupported walker type name:" + Name);
+                }
+            }
+
+            return after;
+        }
+
+        /// <summary>
+        /// Sets the text of the generic walker control using the default search
         /// </summary>
         /// <param name="text">The text to set the control to</param>
         public void SetText(string text)
         {
+            int after = GetSearchAfter();
+            if (after == -1)
+            {
+                throw new Exception("Failed to determine after how many characters the walker dropdown should appear");
+            }
+            SetText(text, after);
+        }
+
+        /// <summary>
+        /// Sets the text of the generic walker control
+        /// </summary>
+        /// <param name="text">The text to set the control to</param>
+        /// <param name="searchAfter">The number of characters after which the drop down appears</param>
+        public void SetText(string text, int searchAfter)
+        {
+            //TODO support prefix .N .D .F etc
             Stopwatch timer;
             string currentText;
 
@@ -143,14 +252,20 @@ namespace APE.Language
                     {
                         case 0:
                             break;
-                        case 1:
-                            GUI.Log("Type [" + unescapedText.Substring(0, 1) + "] into the " + Identity.Description, LogItemType.Action);
-                            base.SendKeysInternal(tokens[0]);
+                        case int tokensLength when tokensLength < searchAfter:
+                            GUI.Log("Type [" + unescapedText.Substring(0, tokensLength) + "] into the " + Identity.Description, LogItemType.Action);
+                            base.SendKeysInternal(string.Join("", tokens));
                             break;
                         default:
-                            //Send first 2 characters
-                            GUI.Log("Type [" + unescapedText.Substring(0, 2) + "] into the " + Identity.Description, LogItemType.Action);
-                            base.SendKeysInternal(tokens[0] + tokens[1]);
+                            //Send first <searchAfter> characters
+                            GUI.Log("Type [" + unescapedText.Substring(0, searchAfter) + "] into the " + Identity.Description, LogItemType.Action);
+                            string[] initialTokens = new string[searchAfter];
+                            for (int token = 0; token < searchAfter; token++)
+                            {
+                                initialTokens[token] = tokens[token];
+                                tokens[token] = "";
+                            }
+                            base.SendKeysInternal(string.Join("", initialTokens));
 
                             //Wait for popup
                             GUI.Log("Wait for the generic walker popup to appear", LogItemType.Action);
@@ -204,12 +319,9 @@ namespace APE.Language
                             }
 
                             //Send rest of characters
-                            if (tokens.Length > 2)
+                            if (tokens.Length > searchAfter)
                             {
-                                // Clear the first 2 characters as they have already been sent
-                                tokens[0] = "";
-                                tokens[1] = "";
-                                GUI.Log("Type [" + unescapedText.Substring(2) + "] into the " + Identity.Description, LogItemType.Action);
+                                GUI.Log("Type [" + unescapedText.Substring(searchAfter) + "] into the " + Identity.Description, LogItemType.Action);
                                 base.SendKeysInternal(string.Join("", tokens));
                             }
                             break;
