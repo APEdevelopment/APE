@@ -303,8 +303,19 @@ namespace APE.Communication
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public unsafe APEIPC(int APEPID, string AppDomainToLoadInto, bool WPF)
+        public unsafe APEIPC(int APEPID, string AppDomainToLoadInto)
         {
+            bool WPF;
+            Assembly assemblyWPF = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "WindowsBase");
+            if (assemblyWPF == null)
+            {
+                WPF = false;
+            }
+            else
+            {
+                WPF = true;
+            }
+
             try
             {
                 Thread myThread = new Thread(() => ProcessMessages(APEPID, AppDomainToLoadInto, WPF));
@@ -1954,6 +1965,14 @@ namespace APE.Communication
                                             {
                                                 continue;
                                             }
+                                        }
+
+                                        //Confirm its the correct process
+                                        int pid;
+                                        NM.GetWindowThreadProcessId(Handle, out pid);
+                                        if (AUTProcess.Id != pid)
+                                        {
+                                            continue;
                                         }
 
                                         //we have a match

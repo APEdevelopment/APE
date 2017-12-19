@@ -161,7 +161,8 @@ namespace APE.Communication
         {
             try
             {
-                string AUTProcessId = Process.GetCurrentProcess().Id.ToString();
+                AUTProcess = Process.GetCurrentProcess();
+                string AUTProcessId = AUTProcess.Id.ToString();
                 string APEProcessId = APEPID.ToString();
 
                 // Set the thread name so its easy to find in the debugger
