@@ -355,7 +355,6 @@ namespace APE.Language
 
                 Thread.Sleep(50);
             }
-            process.WaitForInputIdle();
 
             //Instead of GUI.m_APE.RemoveFileMapping we could do a
             //GUI.m_APE = null;
