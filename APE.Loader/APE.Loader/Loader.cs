@@ -71,18 +71,7 @@ namespace APE.Loader
                     throw new Exception("Failed to find the appdomain " + AppDomainToLoadInto);
                 }
 
-                bool WPF;
-                Assembly assemblyWPF = appDom.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "WindowsBase");
-                if (assemblyWPF == null)
-                {
-                    WPF = false;
-                }
-                else
-                {
-                    WPF = true;
-                }
-
-                appDom.CreateInstanceFrom(APEPath + @"\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto, WPF }, null, null);
+                appDom.CreateInstanceFrom(APEPath + @"\APE.Communication.dll", "APE.Communication.APEIPC", false, BindingFlags.Default, null, new object[] { APEPID, AppDomainToLoadInto }, null, null);
 
                 return 0;
             }
