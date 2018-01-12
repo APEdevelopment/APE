@@ -23,6 +23,7 @@ using System.Drawing;
 using APE.Communication;
 using NM = APE.Native.NativeMethods;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace APE.Language
 {
@@ -358,6 +359,38 @@ namespace APE.Language
         internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
+            {
+                throw new Exception(Identity.Description + " did not go idle within timeout");
+            }
+
+            // If we are doing separate calls to mouse down and up then its very likely we want to drag so make sure we are in dragmode
+            NM.tagRect WindowRect;
+            NM.tagRect ClientRect;
+            NM.GetWindowRect(Handle, out WindowRect);
+            NM.GetClientRect(Handle, out ClientRect);
+
+            int middleOfClientAreaX = (ClientRect.right / 2);
+            int middleOfClientAreaY = (ClientRect.bottom / 2);
+
+            int dragTriggerHeight = SystemInformation.DragSize.Height;
+            int dragTriggerWidth = SystemInformation.DragSize.Width;
+
+            if (middleOfClientAreaX < dragTriggerWidth || middleOfClientAreaY < dragTriggerHeight)
+            {
+                throw new Exception(Description + " is to small to reliably enter drag mode");
+            }
+
+            // Move the mouse a few times to make sure we are in drag mode
+            for (int i = 0; i < 10; i++)
+            {
+                Input.MoveMouse(WindowRect.left, WindowRect.top);
+                Input.MoveMouse(WindowRect.left + middleOfClientAreaX, WindowRect.top + middleOfClientAreaY);
+            }
+            if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
+            {
+                throw new Exception(Identity.Description + " did not go idle within timeout");
+            }
         }
 
         /// <summary>
