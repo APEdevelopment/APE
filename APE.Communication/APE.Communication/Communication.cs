@@ -2746,10 +2746,10 @@ namespace APE.Communication
                         default:
                             return "";
                     }
-                        default:
-                            return "";
-                    }
+                default:
+                    return "";
             }
+        }
 
         unsafe private void GetRecognisedType(int MessageNumber)
         {

@@ -36,10 +36,6 @@ namespace APE.Communication
         {
             m_ScrollControlIntoViewDelegater = new ScrollControlIntoViewDelegate(ScrollControlIntoViewInternal);
             m_PeakMessagDelegater = new PeakMessageDelegate(PeakMessageInternal);
-            m_PeakMessagePaintDelegater = new PeakMessageDelegate(PeakMessagePaintInternal);
-            m_PeakMessageKeyDelegater = new PeakMessageDelegate(PeakMessageKeyInternal);
-            m_PeakMessageMouseDelegater = new PeakMessageDelegate(PeakMessageMouseInternal);
-            m_PeakMessageFocusDelegater = new PeakMessageDelegate(PeakMessageFocusInternal);
             m_SetFocusDelegater = new SetFocusDelegate(SetFocusInternal);
             m_SetFocusAsyncDelegater = new SetFocusDelegate(SetFocusAsyncInternal);
         }
@@ -332,18 +328,6 @@ namespace APE.Communication
 
         private delegate bool PeakMessageDelegate();
         private PeakMessageDelegate m_PeakMessagDelegater;
-        private PeakMessageDelegate m_PeakMessagePaintDelegater;
-        private PeakMessageDelegate m_PeakMessageKeyDelegater;
-        private PeakMessageDelegate m_PeakMessageMouseDelegater;
-        private PeakMessageDelegate m_PeakMessageFocusDelegater;
-
-        private const uint WM_PAINT = 0x000F;
-        private const uint WM_SETFOCUS = 0x0007;
-        private const uint WM_KILLFOCUS = 0x0008;
-        private const uint WM_KEYFIRST = 0x0100;
-        private const uint WM_KEYLAST = 0x0108;
-        private const uint WM_MOUSEFIRST = 0x0200;
-        private const uint WM_MOUSELAST = 0x020D;
 
         unsafe public void AddFirstMessagePeakMessage(IntPtr handle)
         {
@@ -413,20 +397,6 @@ namespace APE.Communication
                                 try
                                 {
                                     messageAvailble = (bool)control.Invoke(m_PeakMessagDelegater, null);
-                                    // Might want to include timer here as well at some point
-                                    //messageAvailble = (bool)control.Invoke(m_PeakMessageFocusDelegater, null);
-                                    //if (!messageAvailble)
-                                    //{
-                                    //    messageAvailble = (bool)control.Invoke(m_PeakMessageKeyDelegater, null);
-                                    //    if (!messageAvailble)
-                                    //    {
-                                    //        messageAvailble = (bool)control.Invoke(m_PeakMessageMouseDelegater, null);
-                                    //        if (!messageAvailble)
-                                    //        {
-                                    //            messageAvailble = (bool)control.Invoke(m_PeakMessagePaintDelegater, null);
-                                    //        }
-                                    //    }
-                                    //}
                                 }
                                 catch (ObjectDisposedException) { }
                                 catch (InvalidAsynchronousStateException) { }
@@ -434,19 +404,10 @@ namespace APE.Communication
                                 catch (InvalidOperationException) { }
                             }
 
-                            if (messageAvailble)
-                            {
-                                //sleepBeforeReturn = true;
-                            }
-                            else
+                            if (!messageAvailble)
                             {
                                 break;
                             }
-
-                            //if (!NM.IsWindowEnabled(handle))
-                            //{
-                            //    break;
-                            //}
 
                             if (timer.ElapsedMilliseconds > m_TimeOut)
                             {
@@ -459,46 +420,14 @@ namespace APE.Communication
                 }
             }
 
-            //if (sleepBeforeReturn)  //TODO is this needed?
-            //{
-            //    Thread.Sleep(15);
-            //}
-
             CleanUpMessage(ptrMessage);
         }
 
         private unsafe bool PeakMessageInternal()
         {
+            // Might want to include timer here as well at some point ( PM_QS_POSTMESSAGE ) but it might effect things to much
             NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
-            return messageAvailble;
-        }
-
-        private unsafe bool PeakMessagePaintInternal()
-        {
-            NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_PAINT, WM_PAINT, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
-            return messageAvailble;
-        }
-
-        private unsafe bool PeakMessageKeyInternal()
-        {
-            NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_KEYFIRST, WM_KEYLAST, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
-            return messageAvailble;
-        }
-
-        private unsafe bool PeakMessageMouseInternal()
-        {
-            NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_MOUSEFIRST, WM_MOUSELAST, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
-            return messageAvailble;
-        }
-
-        private unsafe bool PeakMessageFocusInternal()
-        {
-            NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, WM_SETFOCUS, WM_KILLFOCUS, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield);
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield | PeekMessageFlags.PM_QS_INPUT | PeekMessageFlags.PM_QS_PAINT);
             return messageAvailble;
         }
 
@@ -518,12 +447,30 @@ namespace APE.Communication
             public System.Drawing.Point p;
         }
 
+        private const int QS_KEY = 0x0001,
+                            QS_MOUSEMOVE = 0x0002,
+                            QS_MOUSEBUTTON = 0x0004,
+                            QS_POSTMESSAGE = 0x0008,
+                            QS_TIMER = 0x0010,
+                            QS_PAINT = 0x0020,
+                            QS_SENDMESSAGE = 0x0040,
+                            QS_HOTKEY = 0x0080,
+                            QS_ALLPOSTMESSAGE = 0x0100,
+                            QS_MOUSE = QS_MOUSEMOVE | QS_MOUSEBUTTON,
+                            QS_INPUT = QS_MOUSE | QS_KEY,
+                            QS_ALLEVENTS = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY,
+                            QS_ALLINPUT = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY | QS_SENDMESSAGE;
+
         [Flags]
         public enum PeekMessageFlags : uint
         {
             NoRemove = 0,
             Remove = 1,
             NoYield = 2,
-        }
+            PM_QS_INPUT = unchecked(QS_INPUT << 16),
+            PM_QS_PAINT = unchecked(QS_PAINT << 16),
+            PM_QS_POSTMESSAGE = unchecked((QS_POSTMESSAGE | QS_HOTKEY | QS_TIMER) << 16),
+            PM_QS_SENDMESSAGE = unchecked(QS_SENDMESSAGE << 16),
+    }
     }
 }
