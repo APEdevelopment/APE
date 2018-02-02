@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\APE.Language.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\APE.Language.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="APE.Capture">

@@ -338,12 +338,17 @@ namespace APE.Language
         /// <param name="domain">The domain in the process to attach to</param>
         public static void AttachToProcess(Process process, string domain)
         {
-            Log("Attached to process [" + process.ProcessName + "]", LogItemType.Information);
+            m_AttachedProcess = process;
+            if (m_AttachedProcess.HasExited)
+            {
+                throw new Exception("Process " + m_AttachedProcess.ProcessName + " has exited");
+            }
+            Log("Attached to process [" + m_AttachedProcess.ProcessName + "]", LogItemType.Information);
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                if (process.MainWindowHandle != IntPtr.Zero)
+                if (m_AttachedProcess.MainWindowHandle != IntPtr.Zero)
                 {
                     break;
                 }
@@ -364,9 +369,8 @@ namespace APE.Language
             {
                 m_APE.RemoveFileMapping();
             }
-            m_APE = new APEIPC(process, domain);
-            m_AttachedProcess = process;
-
+            m_APE = new APEIPC(m_AttachedProcess, domain);
+            
             //Set the default timeout
             SetTimeOut(GetTimeOut());
         }
