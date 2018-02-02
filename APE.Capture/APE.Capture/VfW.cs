@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
 using NM = APE.Native.NativeMethods;
+using System.Collections.Generic;
 
 namespace APE.Capture
 {
@@ -45,7 +46,7 @@ namespace APE.Capture
         private static int m_Rate = 25;
         // Current frame in the file
         private static int m_CurrentFrame;
-        // Codec used for video compression
+        // Four Character Code of the Codec used for video compression
         private static string m_Codec = "DIB ";
 
         public static int FrameRate
@@ -103,11 +104,62 @@ namespace APE.Capture
 
         private static int mmioFOURCC(string str)
         {
-            return (
-                ((int)(byte)(str[0])) |
-                ((int)(byte)(str[1]) << 8) |
-                ((int)(byte)(str[2]) << 16) |
-                ((int)(byte)(str[3]) << 24));
+            return
+                (byte)(str[0]) |
+                (byte)(str[1]) << 8 |
+                (byte)(str[2]) << 16 |
+                (byte)(str[3]) << 24;
+        }
+
+        private static string FourCCToAscii(int fourCC)
+        {
+            return new VfW.FourCC(fourCC).Ascii;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct FourCC
+        {
+            [FieldOffset(0)]
+            public int Int;
+            [FieldOffset(0)]
+            private byte First;
+            [FieldOffset(1)]
+            private byte Second;
+            [FieldOffset(2)]
+            private byte Third;
+            [FieldOffset(3)]
+            private byte Fourth;
+
+            public FourCC(int fourCC)
+            {
+                First = 0;
+                Second = 0;
+                Third = 0;
+                Fourth = 0;
+                Int = fourCC;
+            }
+
+            public string Ascii
+            {
+                get
+                {
+                    return $"{(char)First}{(char)Second}{(char)Third}{(char)Fourth}";
+                }
+            }
+        }
+
+        public static List<string> Codecs()
+        {
+            List<string> codecs = new List<string>();
+            NM.ICINFO installedCompresssorInfo = new NM.ICINFO();
+            installedCompresssorInfo.dwSize = Marshal.SizeOf(installedCompresssorInfo);
+
+            for (int x = 0; NM.ICInfo(mmioFOURCC("vidc"), x, ref installedCompresssorInfo); x++)
+            {
+                codecs.Add(FourCCToAscii(installedCompresssorInfo.fccHandler));
+            }
+
+            return codecs;
         }
 
         public static Bitmap Open(string fileName, int width, int height, PixelFormat format)
@@ -258,7 +310,7 @@ namespace APE.Capture
             }
 
             // Unlock the bitmap
-            frameImage.UnlockBits(imageData); ;
+            frameImage.UnlockBits(imageData);
 
             // Write the frame to the stream
             if (NM.AVIStreamWrite(m_StreamCompressed, m_CurrentFrame, 1, m_FlippedFrameBuffer, m_Stride * m_Height, 0, IntPtr.Zero, IntPtr.Zero) != 0)

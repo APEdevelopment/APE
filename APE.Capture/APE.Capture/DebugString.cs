@@ -96,12 +96,12 @@ namespace APE.Capture
 
         /// <summary>
         /// Starts the debug string capture
-        /// <param name="Filename">The file of the zipfile to capture the debug string output in</param>
-        /// <param name="Process">The process to filter the debug string output for</param>
+        /// <param name="filename">The file of the zipfile to capture the debug string output in</param>
+        /// <param name="process">The process to filter the debug string output for</param>
         /// </summary>
-        public static void StartCapture(string Filename, Process process)
+        public static void StartCapture(string filename, Process process)
         {
-            m_Filename = Filename;
+            m_Filename = filename;
 
             if (process == null)
             {
@@ -120,8 +120,7 @@ namespace APE.Capture
                 }
 
                 // Check for multiple instances	
-                bool createdNew = false;
-                m_Mutex = new Mutex(false, typeof(DebugString).Namespace, out createdNew);
+                m_Mutex = new Mutex(false, typeof(DebugString).Namespace, out bool createdNew);
                 if (!createdNew)
                 {
                     throw new ApplicationException("There is already an instance running");
@@ -169,9 +168,6 @@ namespace APE.Capture
             }
         }
 
-        /// <summary>
-        /// Captures 
-        /// </summary>
         private static void Capture()
         {
             try
@@ -212,9 +208,6 @@ namespace APE.Capture
             }
         }
 
-        /// <summary>
-        /// Output the debug string
-        /// </summary>
         private static void OnOutputDebugString(int pid, string text)
         {
             try
@@ -230,9 +223,6 @@ namespace APE.Capture
             }
         }
 
-        /// <summary>
-        /// Dispose all resources
-        /// </summary>
         private static void Dispose()
         {
             // Close AckEvent
@@ -284,7 +274,7 @@ namespace APE.Capture
         }
 
         /// <summary>
-        /// Stops this debug string capture.
+        /// Stops capturing the debug string
         /// </summary>
         public static void StopCapture()
         {

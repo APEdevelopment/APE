@@ -26,6 +26,7 @@ using NM = APE.Native.NativeMethods;
                                 //http://nquant.codeplex.com/license
 using nQuant;                   //Install-Package nQuant
 using System.IO;
+using System.Collections.Generic;
 
 namespace APE.Capture
 {
@@ -39,7 +40,7 @@ namespace APE.Capture
         private static string m_VideoFilename = "";
         private static IntPtr m_VideoCaptureWindow = IntPtr.Zero;
         private static string m_VideoCodec = "SCPR";
-        private static int m_VideoFrameRate = 8;
+        private static int m_VideoFrameRate = 25;
         private static PixelFormat m_VideoPixelFormat = PixelFormat.Format16bppRgb555;
         private static int m_VideoQuality = 100;
         private static int m_VideoKeyFrameEvery = 500;
@@ -52,6 +53,20 @@ namespace APE.Capture
         {
         }
 
+        /// <summary>
+        /// Returns a list of the four character codes for all video compression codecs installed
+        /// </summary>
+        public static List<string> Codecs
+        {
+            get
+            {
+                return VfW.Codecs();
+            }
+        }
+
+        /// <summary>
+        /// The pixel format to to use when capturing screenshots.  Default PixelFormat.Format8bppIndexed
+        /// </summary>
         public static PixelFormat ScreenPixelFormat
         {
             set
@@ -60,6 +75,9 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// The handle of the window to capture video of, zero means the whole primary monitor.  Default 0
+        /// </summary>
         public static IntPtr VideoCaptureWindow
         {
             set
@@ -69,6 +87,9 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// The four character code of the codec to use for compression of video.  Default SCPR
+        /// </summary>
         public static string VideoCodec
         {
             set
@@ -78,6 +99,9 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// The frame rate to use to when capturing video.  Default 25
+        /// </summary>
         public static int VideoFrameRate
         {
             set
@@ -87,6 +111,9 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// The pixel format to to use when capturing video.  Default PixelFormat.Format16bppRgb555
+        /// </summary>
         public static PixelFormat VideoPixelFormat
         {
             set
@@ -96,6 +123,9 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// The quality to use in the compression of the video.  Default 100
+        /// </summary>
         public static int VideoQuality
         {
             set
@@ -105,6 +135,9 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// How often a key fram should be written to the video.  Default 500
+        /// </summary>
         public static int VideoKeyFrameEvery
         {
             set
@@ -138,27 +171,31 @@ namespace APE.Capture
             ScreenCapture(fileName, IntPtr.Zero);
         }
 
-        public static NM.tagRect GetWindowRectangleDIP(IntPtr Window)
+        /// <summary>
+        /// Gets the rectangle representing the window in device independant pixels
+        /// </summary>
+        /// <param name="window">The handle of the widown to to get the rectangle of</param>
+        /// <returns>Rectangle representing the window</returns>
+        public static NM.tagRect GetWindowRectangleDIP(IntPtr window)
         {
             int Adjustment = 1;
             int TitleBarRight = 0;
             string WindowState = "";
             NM.tagRect ControlRect;
-            bool desktopWindowManagerEnabled;
-            bool topLevelWindow = NM.IsTopLevelWindow(Window);
+            bool topLevelWindow = NM.IsTopLevelWindow(window);
 
             if (topLevelWindow)
             {
                 // Get the titlebar rectangle
                 NM.TITLEBARINFO CurrentTitleBarInfo = new NM.TITLEBARINFO();
                 CurrentTitleBarInfo.cbSize = (uint)Marshal.SizeOf(CurrentTitleBarInfo);
-                NM.GetTitleBarInfo(Window, ref CurrentTitleBarInfo);
+                NM.GetTitleBarInfo(window, ref CurrentTitleBarInfo);
                 TitleBarRight = CurrentTitleBarInfo.rcTitleBar.right;
 
                 // Get the windows current state
                 NM.WindowPlacement CurrentWindowPlacement = new NM.WindowPlacement();
                 CurrentWindowPlacement.length = (uint)Marshal.SizeOf(CurrentWindowPlacement);
-                NM.GetWindowPlacement(Window, ref CurrentWindowPlacement);
+                NM.GetWindowPlacement(window, ref CurrentWindowPlacement);
                 if (CurrentWindowPlacement.showCmd.ToString() == "ShowMaximized")
                 {
                     WindowState = "Maximized";
@@ -166,11 +203,11 @@ namespace APE.Capture
             }
 
             //TODO screen capture broke for not toplevel windows / non dwm toplevel with dpi?
-            NM.DwmIsCompositionEnabled(out desktopWindowManagerEnabled);
+            NM.DwmIsCompositionEnabled(out bool desktopWindowManagerEnabled);
 
             if (desktopWindowManagerEnabled && topLevelWindow)
             {
-                NM.DwmGetWindowAttribute(Window, NM.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out ControlRect, Marshal.SizeOf(typeof(NM.tagRect)));
+                NM.DwmGetWindowAttribute(window, NM.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out ControlRect, Marshal.SizeOf(typeof(NM.tagRect)));
 
                 if (topLevelWindow && WindowState == "Maximized")
                 {
@@ -184,8 +221,8 @@ namespace APE.Capture
             }
             else
             {
-                NM.GetWindowRect(Window, out ControlRect);
-                NM.tagRect clipBox = NM.GetClipBox(Window);
+                NM.GetWindowRect(window, out ControlRect);
+                NM.tagRect clipBox = NM.GetClipBox(window);
 
                 ControlRect.right = ControlRect.left + clipBox.right;
                 ControlRect.bottom = ControlRect.top + clipBox.bottom;
@@ -196,7 +233,7 @@ namespace APE.Capture
                 }
 
                 float ScreenScalingFactor;
-                using (Graphics desktopGraphics = Graphics.FromHwnd(Window))
+                using (Graphics desktopGraphics = Graphics.FromHwnd(window))
                 {
                     IntPtr desktopDeviceContext = desktopGraphics.GetHdc();
                     int LogicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.VERTRES);
@@ -214,8 +251,13 @@ namespace APE.Capture
             return ControlRect;
         }
 
+        /// <summary>
+        /// Captures a screenshot of the specified window or whole screen and returns it as an image
+        /// </summary>
+        /// <param name="window">The handle of the window to to capture or 0 for the whole screen</param>
+        /// <returns>An image representation of the window</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Image ScreenCapture(IntPtr Window)
+        public static Image ScreenCapture(IntPtr window)
         {
             PixelFormat GrabFormat;
             Bitmap windowBitmap;
@@ -242,7 +284,7 @@ namespace APE.Capture
             int X;
             int Y;
 
-            if (Window == IntPtr.Zero)
+            if (window == IntPtr.Zero)
             {
                 Width = Screen.PrimaryScreen.Bounds.Width;
                 Height = Screen.PrimaryScreen.Bounds.Height;
@@ -252,24 +294,22 @@ namespace APE.Capture
             else
             {
                 NM.tagRect WindowRect;
-                if (NativeVersion.IsWindowsVistaOrHigher && NM.IsTopLevelWindow(Window))
+                if (NativeVersion.IsWindowsVistaOrHigher && NM.IsTopLevelWindow(window))
                 {
-                    bool DWMEnabled;
-
-                    NM.DwmIsCompositionEnabled(out DWMEnabled);
+                    NM.DwmIsCompositionEnabled(out bool DWMEnabled);
 
                     if (DWMEnabled)
                     {
-                        NM.DwmGetWindowAttribute(Window, NM.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out WindowRect, Marshal.SizeOf(typeof(NM.tagRect)));
+                        NM.DwmGetWindowAttribute(window, NM.DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out WindowRect, Marshal.SizeOf(typeof(NM.tagRect)));
                     }
                     else
                     {
-                        NM.GetWindowRect(Window, out WindowRect);
+                        NM.GetWindowRect(window, out WindowRect);
                     }
                 }
                 else
                 {
-                    NM.GetWindowRect(Window, out WindowRect);
+                    NM.GetWindowRect(window, out WindowRect);
                 }
 
                 Width = WindowRect.right - WindowRect.left;
@@ -279,7 +319,7 @@ namespace APE.Capture
             }
 
             windowBitmap = new Bitmap(Width, Height, GrabFormat);
-            GetWindowBitmap(Window, X, Y, ref windowBitmap, true, false);
+            GetWindowBitmap(window, X, Y, ref windowBitmap, true, false);
 
             if (m_ScreenPixelFormat == PixelFormat.Format8bppIndexed)
             {
@@ -293,6 +333,11 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// Captures a screenshot of the specified window or whole screen and saves it to the specified file
+        /// </summary>
+        /// <param name="fileName">The file name to save the image as</param>
+        /// <param name="window">The handle of the window to to capture or 0 for the whole screen</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void ScreenCapture(string fileName, IntPtr window)
         {
@@ -300,15 +345,22 @@ namespace APE.Capture
             bitmap.Save(fileName);
         }
 
+        /// <summary>
+        /// Stops capturing a video
+        /// </summary>
         public static void StopVideoCapture()
         {
             m_IsCapturingVideo = false;
             VideoThread.Join();
         }
 
-        public static void StartVideoCapture(string VideoFilename)
+        /// <summary>
+        /// Starts capturing a video and saving it as the specified filename
+        /// </summary>
+        /// <param name="videoFilename">The file name to save the video as</param>
+        public static void StartVideoCapture(string videoFilename)
         {
-            m_VideoFilename = VideoFilename;
+            m_VideoFilename = videoFilename;
             VideoThread = new Thread(new ThreadStart(CaptureVideo));
             VideoThread.SetApartmentState(ApartmentState.STA);
             VideoThread.Start();
@@ -355,9 +407,7 @@ namespace APE.Capture
                 NM.tagRect WindowRect;
                 if (NativeVersion.IsWindowsVistaOrHigher && NM.IsTopLevelWindow(m_VideoCaptureWindow))
                 {
-                    bool DWMEnabled;
-
-                    NM.DwmIsCompositionEnabled(out DWMEnabled);
+                    NM.DwmIsCompositionEnabled(out bool DWMEnabled);
 
                     if (DWMEnabled)
                     {
@@ -384,7 +434,7 @@ namespace APE.Capture
             VfW.Quality = m_VideoQuality;
             VfW.KeyFrameEvery = m_VideoKeyFrameEvery;
 
-            int TimeToSleep;
+            int TimeToSleep = 0;
             int Sleep = (int)(((float)1 / (float)m_VideoFrameRate) * (float)1000);
             Stopwatch timer = new Stopwatch();
 
@@ -393,18 +443,22 @@ namespace APE.Capture
             Bitmap screen = VfW.Open(m_VideoFilename, Width, Height, m_VideoPixelFormat);
             try
             {
-
                 while (m_IsCapturingVideo)
                 {
-                    timer.Reset();
-                    timer.Start();
+                    timer.Restart();
 
-                    GetWindowBitmap(m_VideoCaptureWindow, X, Y, ref screen, true, false);
-
+                    // If TimeToSleep is 0 or larger then we don't need to drop a frame so capture a new bitmap
+                    // otherwise if TimeToSleep is negative we need to drop a frame to preserve the frame rate 
+                    // so add the previous frame again
+                    if (TimeToSleep >= 0)
+                    {
+                        // This uses gdi so is relatively slow (as in maybe 30ms)
+                        GetWindowBitmap(m_VideoCaptureWindow, X, Y, ref screen, true, false);
+                        TimeToSleep = 0;
+                    }
                     VfW.AddFrame(screen);
-                    timer.Stop();
 
-                    TimeToSleep = Sleep - (int)timer.ElapsedMilliseconds - 4;
+                    TimeToSleep = Sleep - (int)timer.ElapsedMilliseconds + TimeToSleep;
 
                     if (TimeToSleep > 0)
                     {
@@ -418,10 +472,19 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// Captures the specified window as bitmap
+        /// </summary>
+        /// <param name="handle">Handle of the window to capture</param>
+        /// <param name="x">The left side of the window</param>
+        /// <param name="y">The top of the window</param>
+        /// <param name="windowBitmap">The bitmap to store the capture in</param>
+        /// <param name="captureMouse">Whether to include the mouse cursor in the capture</param>
+        /// <param name="clearClientArea">Whether to clear the client area portion of the window</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void GetWindowBitmap(IntPtr Handle, int X, int Y, ref Bitmap WindowBitmap, bool CaptureMouse, bool ClearClientArea)
+        public static void GetWindowBitmap(IntPtr handle, int x, int y, ref Bitmap windowBitmap, bool captureMouse, bool clearClientArea)
         {
-            using (Graphics gdest = Graphics.FromImage(WindowBitmap))
+            using (Graphics gdest = Graphics.FromImage(windowBitmap))
             {
                 using (Graphics gsrc = Graphics.FromHwnd(IntPtr.Zero))
                 {
@@ -431,20 +494,19 @@ namespace APE.Capture
                         IntPtr hDC = gdest.GetHdc();
 
                         // BitBlt is faster than CopyFromScreen
-                        bool retval = NM.BitBlt(hDC, 0, 0, WindowBitmap.Width, WindowBitmap.Height, hSrcDC, X, Y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
+                        bool retval = NM.BitBlt(hDC, 0, 0, windowBitmap.Width, windowBitmap.Height, hSrcDC, x, y, CopyPixelOperation.SourceCopy | CopyPixelOperation.CaptureBlt);
 
-                        if (ClearClientArea)
+                        if (clearClientArea)
                         {
-                            NM.tagRect theRect;
-                            NM.GetClientRect(Handle, out theRect);
+                            NM.GetClientRect(handle, out NM.tagRect theRect);
 
                             NM.tagPoint thePoint = new NM.tagPoint();
-                            NM.ClientToScreen(Handle, ref thePoint);
+                            NM.ClientToScreen(handle, ref thePoint);
 
-                            NM.Rectangle(hDC, thePoint.x - X, thePoint.y - Y, (thePoint.x - X) + theRect.right, (thePoint.y - Y) + theRect.bottom);
+                            NM.Rectangle(hDC, thePoint.x - x, thePoint.y - y, (thePoint.x - x) + theRect.right, (thePoint.y - y) + theRect.bottom);
                         }
 
-                        if (CaptureMouse)
+                        if (captureMouse)
                         {
                             NM.tagCURSORINFO cursorInfo = new NM.tagCURSORINFO();
                             cursorInfo.cbSize = Marshal.SizeOf(typeof(NM.tagCURSORINFO));
@@ -453,9 +515,7 @@ namespace APE.Capture
                             {
                                 if (cursorInfo.flags.HasFlag(NM.CursorFlags.Cursor_Showing))
                                 {
-                                    NM.ICONINFO iconInfo;
-
-                                    if (NM.GetIconInfo(cursorInfo.hCursor, out iconInfo))
+                                    if (NM.GetIconInfo(cursorInfo.hCursor, out NM.ICONINFO iconInfo))
                                     {
                                         NM.DrawIcon(hDC, cursorInfo.ptScreenPos.x - iconInfo.xHotspot, cursorInfo.ptScreenPos.y - iconInfo.yHotspot, cursorInfo.hCursor);
                                     }
@@ -473,6 +533,12 @@ namespace APE.Capture
             }
         }
 
+        /// <summary>
+        /// Compares two bitmaps
+        /// </summary>
+        /// <param name="b1">The first bitmap</param>
+        /// <param name="b2">The second bitmap</param>
+        /// <returns>True if they match otherwise false</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static bool CompareBitmap(Bitmap b1, Bitmap b2)
         {
