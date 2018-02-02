@@ -666,6 +666,26 @@ namespace APE.Native
         [DllImport("ntdll.dll", EntryPoint = "memcpy", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         public static extern IntPtr memcpy(IntPtr _Dst, [In] IntPtr _Src, IntPtr _Size);
 
+        [DllImport("msvfw32.dll", EntryPoint = "ICInfo", CharSet = CharSet.Unicode)]
+        public static extern bool ICInfo(int fccType, int fccHandler, ref ICINFO lpicinfo);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct ICINFO
+        {
+            public int dwSize;
+            public int fccType;
+            public int fccHandler;
+            public int dwFlags;
+            public int dwVersion;
+            public int dwVersionICM;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
+            public string szName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+            public string szDescription;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+            public string szDriver;
+        }
+
         [DllImport("avifil32.dll", EntryPoint = "AVIFileInit", CharSet = CharSet.Unicode)]
         public static extern void AVIFileInit();
 
@@ -1406,8 +1426,7 @@ namespace APE.Native
 
         private static bool IsWow64Process(IntPtr processHandle)
         {
-            bool retVal;
-            IsWow64Process(processHandle, out retVal);
+            IsWow64Process(processHandle, out bool retVal);
             return retVal;
         }
 
@@ -3421,9 +3440,8 @@ namespace APE.Native
 
         public static tagRect GetClipBox(IntPtr control)
         {
-            tagRect rect;
             IntPtr hdc = GetWindowDC(control);
-            GetClipBoxReturn ret = GetClipBox(hdc, out rect);
+            GetClipBoxReturn ret = GetClipBox(hdc, out tagRect rect);
             ReleaseDC(control, hdc);
             if (ret == GetClipBoxReturn.Error)
             {
