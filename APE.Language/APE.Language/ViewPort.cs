@@ -99,8 +99,7 @@ namespace APE
                     {
                         if (!NM.SetForegroundWindow(Foreground))
                         {
-                            Foreground = IntPtr.Zero;
-                            throw new Exception("SetForegroundWindow failed");
+                            AppendToLog("SetForegroundWindow failed", LogItemType.Warning);
                         }
                     }
                     else

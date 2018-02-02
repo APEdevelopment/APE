@@ -348,6 +348,7 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
+                // TODO maybe replace this with a visible top level non zero width / height window check instead?
                 if (m_AttachedProcess.MainWindowHandle != IntPtr.Zero)
                 {
                     break;
