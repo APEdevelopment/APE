@@ -102,13 +102,13 @@ namespace APE.Language
                         GUI.Log("Close the " + Identity.Description, LogItemType.Action);
                         
                         // OOM
-                        Input.ClickCommon(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y);
-                        Thread.Sleep(100);  //Move to SetFocus?
+                        //Input.ClickCommon(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y);
+                        //Thread.Sleep(100);  //Move to SetFocus?
 
                         base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
 
                         //OOM
-                        Input.MoveMouse(0, 0);
+                        //Input.MoveMouse(0, 0);
 
                         //Wait for the window to disappear
                         base.WaitForControlToNotBeVisible();

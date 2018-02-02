@@ -381,8 +381,7 @@ namespace APE.Language
                 thePoint.y = y;
                 IntPtr TopLevelHandle = NM.ChildWindowFromPoint(NM.GetDesktopWindow(), thePoint);
 
-                NM.tagRect WindowSize;
-                NM.GetWindowRect(control, out WindowSize);
+                NM.GetWindowRect(control, out NM.tagRect WindowSize);
 
                 thePoint.x = x + WindowSize.left;
                 thePoint.y = y + WindowSize.top;
@@ -918,8 +917,7 @@ namespace APE.Language
                 return true;
             }
 
-            int processId;
-            int threadId = NM.GetWindowThreadProcessId(handle, out processId);
+            int threadId = NM.GetWindowThreadProcessId(handle, out int processId);
 
             if (threadId == 0)
             {
@@ -1013,7 +1011,6 @@ namespace APE.Language
         public static NM.tagPoint MouseMove(IntPtr handle, string description, int x, int y, bool performCheck = true)
         {
             NM.tagRect WindowRect;
-            NM.tagRect ClientRect;
             NM.tagPoint thePoint;
             int xOffset;
             int yOffset;
@@ -1023,7 +1020,7 @@ namespace APE.Language
             while (true)
             {
                 NM.GetWindowRect(handle, out WindowRect);
-                NM.GetClientRect(handle, out ClientRect);
+                NM.GetClientRect(handle, out NM.tagRect ClientRect);
 
                 // TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
                 if (x == -1)
