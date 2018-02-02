@@ -69,6 +69,56 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns the number of items in the listbox
+        /// </summary>
+        /// <returns>The number of items</returns>
+        public int ItemCount()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int itemCount = GUI.m_APE.GetValueFromMessage();
+            return itemCount;
+        }
+
+        internal int ItemIndex(string itemText)
+        {
+            //Get the index
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, itemText));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int Index = GUI.m_APE.GetValueFromMessage();
+
+            return Index;
+        }
+
+        /// <summary>
+        /// Returns the text of the item at the specified index
+        /// </summary>
+        /// <param name="itemIndex">The index of the item</param>
+        /// <returns>The text of the item</returns>
+        public string ItemText(int itemIndex)
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string itemText = GUI.m_APE.GetValueFromMessage();
+            return itemText;
+        }
+
+        /// <summary>
         /// Selects the specified item in the listbox by clicking on it
         /// </summary>
         /// <param name="itemText">The item to select</param>
@@ -180,20 +230,6 @@ namespace APE.Language
             }
             while (SelectedIndex != Index);
             timer.Stop();
-        }
-
-        internal int ItemIndex(string itemText)
-        {
-            //Get the index
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, itemText));
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Index = GUI.m_APE.GetValueFromMessage();
-
-            return Index;
         }
     }
 }

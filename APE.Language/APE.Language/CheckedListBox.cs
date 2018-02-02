@@ -44,6 +44,30 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Returns the number of items in the checkedlistbox
+        /// </summary>
+        /// <returns>The number of items</returns>
+        public int ItemCount()
+        {
+            return ListBox.ItemCount();
+        }
+
+        internal int ItemIndex(string itemText)
+        {
+            return ListBox.ItemIndex(itemText);
+        }
+
+        /// <summary>
+        /// Returns the text of the item at the specified index
+        /// </summary>
+        /// <param name="itemIndex">The index of the item</param>
+        /// <returns>The text of the item</returns>
+        public string ItemText(int itemIndex)
+        {
+            return ListBox.ItemText(itemIndex);
+        }
+
+        /// <summary>
         /// Selects the specified item in the checkedlistbox by clicking on it
         /// </summary>
         /// <param name="itemText">The item to select</param>
@@ -124,11 +148,6 @@ namespace APE.Language
         {
             SetFocus();
             SendKeys(text);
-        }
-
-        internal int ItemIndex(string itemText)
-        {
-            return ListBox.ItemIndex(itemText);
         }
 
         private void PollForState(string itemText, bool state)
