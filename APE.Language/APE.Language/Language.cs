@@ -339,11 +339,11 @@ namespace APE.Language
         public static void AttachToProcess(Process process, string domain)
         {
             m_AttachedProcess = process;
+            Log("Attached to process [" + m_AttachedProcess.ProcessName + "]", LogItemType.Information);
             if (m_AttachedProcess.HasExited)
             {
                 throw new Exception("Process " + m_AttachedProcess.ProcessName + " has exited");
             }
-            Log("Attached to process [" + m_AttachedProcess.ProcessName + "]", LogItemType.Information);
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
