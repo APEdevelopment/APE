@@ -62,6 +62,7 @@
     <Compile Include="Core.cs" />
     <Compile Include="DateTimePickerHelper.cs" />
     <Compile Include="DebugLogging.cs" />
+    <Compile Include="DictionaryHelper.cs" />
     <Compile Include="FlexgridHelper.cs" />
     <Compile Include="FormHelper.cs" />
     <Compile Include="GridControlHelper.cs" />

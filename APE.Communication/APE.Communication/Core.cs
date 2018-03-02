@@ -101,6 +101,7 @@ namespace APE.Communication
         SetFocus = 39,
         SetFocusAsync = 40,
         GridControlEnsureTitleCellVisible = 41,
+        DictionaryContainsKey = 42,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -199,6 +200,7 @@ namespace APE.Communication
                 SetupComHelperDelegates();
                 SetupGridControlHelperDelegates();
                 SetupFormHelperDelegates();
+                SetupDictionaryHelperDelegates();
 
                 //Process all the messages
                 while (true)
@@ -357,6 +359,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.GridControlEnsureTitleCellVisible:
                                     GridControlEnsureTitleCellVisible(ptrMessage);
+                                    break;
+                                case MessageAction.DictionaryContainsKey:
+                                    DictionaryContainsKey(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
@@ -594,6 +599,32 @@ namespace APE.Communication
             else
             {
                 throw new Exception("Expected ApeTypeCode.Boolean got ApeTypeCode." + (ptrMessage->Parameter.TypeCode[parameter]).ToString());
+            }
+        }
+
+        /// <summary>
+        /// Gets the specified parameter from the message, validating it is the correct type
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        /// <param name="parameter">The parameter number (0 based)</param>
+        /// <returns>The value in the mssage for the specified parameter</returns>
+        unsafe private string GetParameterString(Message* ptrMessage, int parameter)
+        {
+            if ((ptrMessage->Parameter.TypeCode[parameter]) == (int)ApeTypeCode.String)
+            {
+                if (ptrMessage->Parameter.StringLength[parameter] == -1)
+                {
+                    string Empty = null;
+                    return Empty;
+                }
+                else
+                {
+                    return new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + ptrMessage->Parameter.StringOffset[parameter]), 0, ptrMessage->Parameter.StringLength[parameter]);
+                }
+            }
+            else
+            {
+                throw new Exception("Expected ApeTypeCode.String got ApeTypeCode." + (ptrMessage->Parameter.TypeCode[parameter]).ToString());
             }
         }
     }
