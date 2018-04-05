@@ -687,6 +687,9 @@ namespace APE.Spy
                 case "GUIStretchyCombo":
                     AddGUIStretchyComboToPropertyListbox();
                     break;
+                case "GUIDockContainer":
+                    AddGUIDockContainerToPropertyListbox();
+                    break;
                 default:
                     switch (m_Identity.TypeName)
                     {
@@ -782,11 +785,20 @@ namespace APE.Spy
 
         private void AddGUIStretchyComboToPropertyListbox()
         {
-            // Locate the form and the grid
+            // Locate the form and the stretchy combo
             GUIForm stretchyComboForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
             GUIStretchyCombo stretchyCombo = new GUIStretchyCombo(stretchyComboForm, "stretchy combo", new Identifier(Identifiers.Handle, m_Identity.Handle));
 
             PropertyListbox.Items.Add("Selected Item Text\t: " + stretchyCombo.SelectedItemText());
+        }
+
+        private void AddGUIDockContainerToPropertyListbox()
+        {
+            // Locate the form and the dock container to the grid
+            GUIForm dockContainerForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIDockContainer dockContainer = new GUIDockContainer(dockContainerForm, "dock container", new Identifier(Identifiers.Handle, m_Identity.Handle));
+
+            PropertyListbox.Items.Add("Active Tab\t: " + dockContainer.ActiveItem());
         }
 
         private void AddGUIStatusBarToPropertyListbox()
