@@ -242,7 +242,7 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ActiveTabbedDocument", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "FindMostRecentlyUsedWindow", MemberTypes.Method);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "TabText", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
