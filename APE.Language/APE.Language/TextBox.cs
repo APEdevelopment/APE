@@ -72,58 +72,85 @@ namespace APE.Language
             Input.Block();
             try
             {
-                currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
-
-                if (currentText != "")
-                {
-                    base.SingleClick(MouseButton.Left);
-
-                    //Select everything in the textbox
-                    base.SendKeys("{HOME}+{END}");
-
-                    string selectedText;
-
-                    //wait for .selectedText to = Text
-                    timer = Stopwatch.StartNew();
-                    do
-                    {
-                        int start = 0;
-                        int end = 0;
-                        IntPtr Return;
-                        IntPtr Result;
-
-                        currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
-                        Return = NM.SendMessageTimeout(Identity.Handle, NM.EM_GETSEL, ref start, ref end, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out Result);
-                        selectedText = currentText.Substring(start, end);
-
-                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                        {
-                            throw new Exception("Failed to select all the text in the TextBox");
-                        }
-
-                        Thread.Sleep(15);
-                    }
-                    while (currentText != selectedText);
-                    timer.Stop();
-                }
-                
-                base.SendKeys(text);
-                
-                //wait for .Text to == text
-                timer = Stopwatch.StartNew();
-                do
+                if (text != null)
                 {
                     currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
 
-                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                    if (currentText != "")
                     {
-                        throw new Exception("Failed to set the text of the TextBox");
+                        base.SingleClick(MouseButton.Left);
+
+                        //Select everything in the textbox
+                        base.SendKeys("{HOME}+{END}");
+
+                        string selectedText;
+
+                        //wait for .selectedText to = Text
+                        timer = Stopwatch.StartNew();
+                        do
+                        {
+                            int start = 0;
+                            int end = 0;
+                            IntPtr Return;
+                            IntPtr Result;
+
+                            currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                            Return = NM.SendMessageTimeout(Identity.Handle, NM.EM_GETSEL, ref start, ref end, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out Result);
+                            selectedText = currentText.Substring(start, end);
+
+                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                            {
+                                throw new Exception("Failed to select all the text in the TextBox");
+                            }
+
+                            Thread.Sleep(15);
+                        }
+                        while (currentText != selectedText);
+                        timer.Stop();
+
+                        if (text == "")
+                        {
+                            base.SendKeys("{BACKSPACE}");
+
+                            //wait for .Text to == ""
+                            timer = Stopwatch.StartNew();
+                            do
+                            {
+                                currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+
+                                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                                {
+                                    throw new Exception("Failed to set the text of the TextBox");
+                                }
+
+                                Thread.Sleep(15);
+                            }
+                            while (currentText != "");
+                            timer.Stop();
+                        }
                     }
 
-                    Thread.Sleep(15);
+                    if (text != "")
+                    {
+                        base.SendKeys(text);
+
+                        //wait for .Text to == text
+                        timer = Stopwatch.StartNew();
+                        do
+                        {
+                            currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+
+                            if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                            {
+                                throw new Exception("Failed to set the text of the TextBox");
+                            }
+
+                            Thread.Sleep(15);
+                        }
+                        while (currentText != text);
+                        timer.Stop();
+                    }
                 }
-                while (currentText != text);
-                timer.Stop();
 
                 if (!string.IsNullOrEmpty(submitKey))
                 {
