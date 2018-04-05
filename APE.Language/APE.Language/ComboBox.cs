@@ -173,17 +173,9 @@ namespace APE.Language
                 }
 
                 //click the item
-                IntPtr temp = Identity.Handle;
-                try
-                {
-                    Identity.Handle = ListBox;
-                    base.SingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
-                }
-                finally
-                {
-                    Identity.Handle = temp;
-                }
-
+                GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, ListBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+                comboBoxDropdown.SingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
+                
                 //wait for .Text to == text
                 string CurrentText;
                 timer = Stopwatch.StartNew();
