@@ -684,6 +684,9 @@ namespace APE.Spy
                 case "GUIFlexgrid":
                     AddGUIFlexGridToPropertyListbox();
                     break;
+                case "GUIStretchyCombo":
+                    AddGUIStretchyComboToPropertyListbox();
+                    break;
                 default:
                     switch (m_Identity.TypeName)
                     {
@@ -775,6 +778,15 @@ namespace APE.Spy
             PropertyListbox.Items.Add("Fixed Columns\t: " + flexGrid.FixedColumns().ToString());
             PropertyListbox.Items.Add("Columns\t\t: " + flexGrid.Columns().ToString());
             PropertyListbox.Items.Add("First Visible Column\t: " + flexGrid.FirstVisibleColumn().ToString());
+        }
+
+        private void AddGUIStretchyComboToPropertyListbox()
+        {
+            // Locate the form and the grid
+            GUIForm stretchyComboForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIStretchyCombo stretchyCombo = new GUIStretchyCombo(stretchyComboForm, "stretchy combo", new Identifier(Identifiers.Handle, m_Identity.Handle));
+
+            PropertyListbox.Items.Add("Selected Item Text\t: " + stretchyCombo.SelectedItemText());
         }
 
         private void AddGUIStatusBarToPropertyListbox()
