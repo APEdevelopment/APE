@@ -148,7 +148,7 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "IsNode", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -163,7 +163,7 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Node", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Collapsed", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -179,7 +179,7 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Node", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Children", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -467,7 +467,7 @@ namespace APE.Language
             // TODO include where height = 0 or 1?
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, row));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, row));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -498,7 +498,7 @@ namespace APE.Language
             // TODO include where width = 0 or 1?
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, column));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, column));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -585,7 +585,7 @@ namespace APE.Language
         public int SelectedRow()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "RowSel", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Row", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -602,7 +602,7 @@ namespace APE.Language
         public void SelectedRowPollForIndex(int rowIndex)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddMessagePollMember(DataStores.Store0, "RowSel", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, false));
+            GUI.m_APE.AddMessagePollMember(DataStores.Store0, "Row", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, false));
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
         }
@@ -614,7 +614,7 @@ namespace APE.Language
         public int SelectedColumn()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ColSel", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Col", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -865,7 +865,7 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "AllowEditing", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -879,7 +879,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "AllowEditing", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -955,15 +955,54 @@ namespace APE.Language
                 cellDataType = "System.Boolean";
                 propertyToCheck = CellProperty.CheckBox;
             }
-
-            // Check if the cell is already set to the correct value
+            
             string currentValue = this.GetCell(rowIndex, columnIndex, propertyToCheck);
             T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+
+            // Check if the cell is already set to the correct value
+            if (compareMethod == ComparisonMethod.DoNotCompare)
             {
-                GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                return false;
-            }                    
+                //we have a string and don't want to do a strict comparison so do some massaging on it to see if its already set
+                if (currentValueT is string)
+                {
+                    if (Microsoft.VisualBasic.Information.IsNumeric(currentValueT))
+                    {
+                        //numeric value in the string so comvert to a decimal and compare
+                        decimal currentValueAsDecimal = Convert.ToDecimal(currentValueT);
+                        decimal expectedValueAsDecimal = Convert.ToDecimal(expectedValue);
+                        if (currentValueAsDecimal == expectedValueAsDecimal)
+                        {
+                            GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //non numeric string so just do a trim and check if its equal
+                        if ((currentValueT as string).Trim() == (expectedValue as string).Trim())
+                        {
+                            GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                    {
+                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                {
+                    GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                    return false;
+                }
+            }
 
             if (IsEnabled)
             {
@@ -1114,6 +1153,18 @@ namespace APE.Language
                         Thread.Sleep(50);
                     }
 
+                    // Add event handlers
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageAddFlexgridCellChangedHandler(DataStores.Store0);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageAddFlexgridAfterRowColChangeHandler(DataStores.Store0);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                    // Change the cell value
                     string valueText = value.ToString();
                     if (genericWalker != null)
                     {
@@ -1144,6 +1195,25 @@ namespace APE.Language
                                 throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
                         }
                     }
+
+                    //Wait for the event handlers then remove them
+                    GUI.m_APE.AddFirstMessageWaitForAndRemoveFlexgridCellChangedHandler();
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                    if (this.SelectedColumn() == columnIndex && this.SelectedRow() == rowIndex)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveFlexgridAfterRowColChangeHandler();
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+                    else
+                    {
+                        GUI.m_APE.AddFirstMessageWaitForAndRemoveFlexgridAfterRowColChangeHandler();
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+
                     break;
             }
 
@@ -1226,7 +1296,7 @@ namespace APE.Language
         //{
         //    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
         //    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property); ;
-        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, col));
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, col));
         //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "DataType", MemberTypes.Property);
         //    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store4, "Namespace", MemberTypes.Property);
         //    GUI.m_APE.AddMessageQueryMember(DataStores.Store3, DataStores.Store5, "Name", MemberTypes.Property);
@@ -1244,7 +1314,7 @@ namespace APE.Language
         //{
         //    GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
         //    GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "Cols", MemberTypes.Property); ;
-        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, col));
+        //    GUI.m_APE.AddMessageQueryMember(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, col));
         //    GUI.m_APE.AddMessageQueryMember(DataStores.Store2, DataStores.Store3, "Format", MemberTypes.Property);
         //    GUI.m_APE.AddMessageGetValue(DataStores.Store3);
         //    GUI.m_APE.SendMessages(EventSet.APE);
@@ -1496,7 +1566,54 @@ namespace APE.Language
         internal override void SingleClickCellInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier)
         {
             Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+
+
+
+            //bool removeAfterHandler = false;
+            //bool removeBeforeHandler = false;
+            //if (SelectedColumn() == columnIndex && SelectedRow() == rowIndex)
+            //{
+            //    //Cell is selected so dont add a handler
+            //}
+            //else
+            //{
+            //    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            //    GUI.m_APE.AddQueryMessageAddFlexgridBeforeSelChangeHandler(DataStores.Store0);
+            //    GUI.m_APE.SendMessages(EventSet.APE);
+            //    GUI.m_APE.WaitForMessages(EventSet.APE);
+            //    removeBeforeHandler = true;
+
+            //    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            //    GUI.m_APE.AddQueryMessageAddFlexgridAfterSelChangeHandler(DataStores.Store0);
+            //    GUI.m_APE.SendMessages(EventSet.APE);
+            //    GUI.m_APE.WaitForMessages(EventSet.APE);
+            //    removeAfterHandler = true;
+            //}
+
             SingleClickInternal(Location.X, Location.Y, button, keyModifier);
+
+            //if (removeBeforeHandler)
+            //{
+            //    GUI.m_APE.AddFirstyMessageWaitForAndRemoveFlexgridBeforeSelChangeHandler();
+            //    GUI.m_APE.SendMessages(EventSet.APE);
+            //    GUI.m_APE.WaitForMessages(EventSet.APE);
+            //}
+
+            //if (removeAfterHandler)
+            //{
+            //    if (SelectedColumn() == columnIndex && SelectedRow() == rowIndex)
+            //    {
+            //        GUI.m_APE.AddFirstyMessageWaitForAndRemoveFlexgridAfterSelChangeHandler();
+            //        GUI.m_APE.SendMessages(EventSet.APE);
+            //        GUI.m_APE.WaitForMessages(EventSet.APE);
+            //    }
+            //    else
+            //    {
+            //        GUI.m_APE.AddFirstyMessageRemoveFlexgridAfterSelChangeHandler();
+            //        GUI.m_APE.SendMessages(EventSet.APE);
+            //        GUI.m_APE.WaitForMessages(EventSet.APE);
+            //    }
+            //}
         }
 
         /// <summary>
@@ -1847,7 +1964,7 @@ namespace APE.Language
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Node", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Level", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
