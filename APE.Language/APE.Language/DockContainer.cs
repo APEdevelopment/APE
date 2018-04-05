@@ -191,6 +191,7 @@ namespace APE.Language
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
+                                GUI.Log("Failed to select tab [" + tabText + "] the currently active tab is [" + activeTab + "] in the " + Description + " tab", LogItemType.Information);
                                 throw new Exception("Failed to select " + Description + " tab");
                             }
 
