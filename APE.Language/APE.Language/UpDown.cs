@@ -73,7 +73,7 @@ namespace APE.Language
             IntPtr UpDownEditHandle = UpDownEditControl;
 
             GUITextBox UpDownEdit = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, UpDownEditHandle));
-            
+            UpDownEdit.DisableMouseEvents = true;   // mouse events on the text box are passed to the parent
             UpDownEdit.SetText(text);
         }
 
@@ -101,7 +101,7 @@ namespace APE.Language
             IntPtr UpDownButtonHandle = UpDownButtonsControl;
 
             GUIButton UpDownButton = new GUIButton(ParentForm, Identity.Description + " up button", new Identifier(Identifiers.Handle, UpDownButtonHandle));
-
+            UpDownButton.DisableMouseEvents = true;   // mouse events on the text box are passed to the parent
             UpDownButton.SingleClick(UpDownButton.Width / 2, (UpDownButton.Height / 4) * 1, Button);
         }
 

@@ -78,6 +78,11 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Allows the disabling of checking for mouse events
+        /// </summary>
+        protected internal bool DisableMouseEvents { get; set; } = false;
+
+        /// <summary>
         /// Gets the background image of the picturebox
         /// </summary>
         /// <returns>The background image</returns>
@@ -119,8 +124,6 @@ namespace APE.Language
             Thread.Sleep(20);
         }
 
-        
-
         /// <summary>
         /// Gets the currently displayed context menu of the control
         /// </summary>
@@ -128,11 +131,14 @@ namespace APE.Language
         public GUIContextMenu GetContextMenu()
         {
             //TODO implement support for ContextMenu and native context menus (as well as the ContextMenuStrip thats currently implemented)
-            if (GUIContextMenuStrip.ContextMenuExists(Identity.ParentHandle, Identity.Handle))
+            for (int loop = 0; loop < 10; loop++)
             {
-                
-                GUIContextMenuStrip contextMenu = new GUIContextMenuStrip(Identity.ParentHandle, Description + " conext menu", new Identifier(Identifiers.Handle, Identity.Handle));
-                return contextMenu;
+                if (GUIContextMenuStrip.ContextMenuExists(Identity.ParentHandle))
+                {
+                    GUIContextMenuStrip contextMenu = new GUIContextMenuStrip(Identity.ParentHandle, Description + " context menu", null);
+                    return contextMenu;
+                }
+                Thread.Sleep(50);
             }
             throw new Exception("Failed to find context menu");
         }
@@ -146,7 +152,7 @@ namespace APE.Language
         public void ContextMenuSelect(string contextMenuItem)
         {
             GUI.Log("ContextMenuSelect is deprecated, please use GetContextMenu().SingleClickItem instead", LogItemType.Warning);
-            GUIContextMenuStrip contextMenu = new GUIContextMenuStrip(Identity.ParentHandle, Description + " conext menu", new Identifier(Identifiers.Handle, Identity.Handle));
+            GUIContextMenuStrip contextMenu = new GUIContextMenuStrip(Identity.ParentHandle, Description + " conext menu", null);
             contextMenu.SingleClickItem(contextMenuItem);
         }
 
@@ -228,7 +234,40 @@ namespace APE.Language
 
         internal void SingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            bool removeHandler = false;
+            try
+            {
+                if (Identity.TechnologyType == "Windows Forms (WinForms)")
+                {
+
+                    if (this is GUIForm || DisableMouseEvents)
+                    {
+                        //TODO / Oddities
+                        // GUIForm we want to exclude non client area clicks
+                        // GUITabControl If the tab scrolls then MouseClick may not fire but MouseUp does
+                        // GUIToolStrip Doesnt always fire MouseUp but MouseClick does
+                    }
+                    else
+                    {
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageAddMouseClickHandler(DataStores.Store0);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        removeHandler = true;
+                    }
+                }
+
+                Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            }
+            finally
+            {
+                if (removeHandler)
+                {
+                    GUI.m_APE.AddFirstyMessageWaitForAndRemoveMouseClickHandler();
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+            }
         }
 
         /// <summary>
@@ -538,7 +577,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the windows current text
         /// </summary>
-        public virtual string Text
+        public string Text
         {
             get
             {

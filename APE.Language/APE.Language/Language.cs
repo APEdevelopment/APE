@@ -185,6 +185,7 @@ namespace APE.Language
     {
         internal static APEIPC m_APE;
         internal static Process m_AttachedProcess;
+        internal static string m_AttachedProcessName;
         internal static ViewPort m_ViewPort;
         internal static bool m_APESpy = false;
         private static Thread m_threadViewPort;
@@ -339,11 +340,28 @@ namespace APE.Language
         public static void AttachToProcess(Process process, string domain)
         {
             m_AttachedProcess = process;
-            Log("Attached to process [" + m_AttachedProcess.ProcessName + "]", LogItemType.Information);
+            m_AttachedProcessName = null;
+
+            try
+            {
+                m_AttachedProcessName = m_AttachedProcess.ProcessName;
+            }
+            catch
+            {
+            }
+
             if (m_AttachedProcess.HasExited)
             {
-                throw new Exception("Process " + m_AttachedProcess.ProcessName + " has exited");
+                if (string.IsNullOrEmpty(m_AttachedProcessName))
+                {
+                    throw new Exception("Process has exited");
+                }
+                else
+                {
+                    throw new Exception("Process " + m_AttachedProcessName + " has exited");
+                }
             }
+            Log("Attached to process [" + m_AttachedProcessName + "]", LogItemType.Information);
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
@@ -450,6 +468,19 @@ namespace APE.Language
         public static void GarbageCollect()
         {
             GarbageCollect(GC.MaxGeneration);
+        }
+
+        /// <summary>
+        /// Checks if the attached application supports visual styles
+        /// </summary>
+        /// <returns>True if it does otherwise false</returns>
+        public static bool AttachedProcessVisualStyleSupported()
+        {
+            m_APE.AddFirstMessageVisualStyleSupported();
+            m_APE.SendMessages(EventSet.APE);
+            m_APE.WaitForMessages(EventSet.APE);
+            bool visualStyleSupported = GUI.m_APE.GetValueFromMessage();
+            return visualStyleSupported;
         }
 
         /// <summary>
@@ -943,7 +974,7 @@ namespace APE.Language
 
     internal class MenuUtils
     {
-        public void ClickMenuItem(IntPtr parent, IntPtr control, string description, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        public void ClickMenuItem(IntPtr parent, IntPtr control, string description, int menuIndex, string menuItem)
         {
             //Check its enabled and visible then click on it
             Stopwatch timer = Stopwatch.StartNew();
@@ -952,7 +983,7 @@ namespace APE.Language
                 //Get visible, enabled and bounds
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "Bounds", MemberTypes.Property);
@@ -1006,7 +1037,7 @@ namespace APE.Language
             //Get Visible state
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Visible", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -1016,12 +1047,12 @@ namespace APE.Language
             return isVisible;
         }
 
-        public bool MenuItemEnabled(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        public bool MenuItemEnabled(IntPtr parent, IntPtr control, int menuIndex, string menuItem)
         {
             //Get Enabled state
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Enabled", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -1031,12 +1062,12 @@ namespace APE.Language
             return isEnabled;
         }
 
-        public bool MenuItemChecked(IntPtr parent, IntPtr control, int menuIndex, string menuItem, ref ControlIdentifier controlIdentity)
+        public bool MenuItemChecked(IntPtr parent, IntPtr control, int menuIndex, string menuItem)
         {
             //Get Checked state
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Checked", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -1051,7 +1082,7 @@ namespace APE.Language
             //Get CheckOnClick state
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "CheckOnClick", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -1067,7 +1098,7 @@ namespace APE.Language
             //check we have a drop down
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDownItems", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -1088,7 +1119,7 @@ namespace APE.Language
             //get the dropdown and its handle
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DropDown", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -1121,7 +1152,7 @@ namespace APE.Language
                 {
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);

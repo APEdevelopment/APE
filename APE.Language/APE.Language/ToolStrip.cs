@@ -221,7 +221,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, item));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, item));
             if (Identity.Name != null)
             {
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
@@ -447,7 +447,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Enabled", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -467,7 +467,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Visible", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -552,7 +552,7 @@ namespace APE.Language
 
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -600,7 +600,7 @@ namespace APE.Language
 
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToolTipText", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -622,7 +622,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Image", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -638,7 +638,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Bounds", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
@@ -666,7 +666,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DropDown", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -689,7 +689,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "HasDropDownItems", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -863,7 +863,7 @@ namespace APE.Language
 
                         menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
                         hasDropDownItems = m_MenuUtils.HasDropDownItems(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
-                        m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, Identity.Description, menuIndex, dropDownItems[item], ref Identity);
+                        m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, Identity.Description, menuIndex, dropDownItems[item]);
                     }
                 }
 
@@ -962,7 +962,7 @@ namespace APE.Language
                 }
 
                 menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
-                isEnabled = m_MenuUtils.MenuItemEnabled(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                isEnabled = m_MenuUtils.MenuItemEnabled(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item]);
 
                 if (!isEnabled)
                 {
@@ -995,7 +995,7 @@ namespace APE.Language
 
                 if (item == dropDownItems.Length - 1)
                 {
-                    isChecked = m_MenuUtils.MenuItemChecked(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item], ref Identity);
+                    isChecked = m_MenuUtils.MenuItemChecked(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item]);
                 }
             }
             return isChecked;
@@ -1105,7 +1105,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ComboBox", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -1241,7 +1241,7 @@ namespace APE.Language
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "TextBox", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -1320,7 +1320,7 @@ namespace APE.Language
             
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ProgressBar", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Handle", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);

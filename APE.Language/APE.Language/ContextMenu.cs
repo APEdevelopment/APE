@@ -94,16 +94,15 @@ namespace APE.Language
         /// <param name="descriptionOfControl">A description of the control which would make sense to a human.
         /// <para/>This text is used in the logging method.  For example: OK button</param>
         /// <param name="identParams">One or more identifier object(s) used to locate the control.
-        /// <para/>Normally you would just use the name identifier</param>
+        /// <para/>Normally you would just use the identifier for the handle returned by GetContextMenu</param>
         internal GUIContextMenuStrip(IntPtr parentHandle, string descriptionOfControl, params Identifier[] identParams)
-            : base(descriptionOfControl, identParams)
+            : base(descriptionOfControl, new Identifier(Identifiers.Handle, GetContextMenu(parentHandle, descriptionOfControl)))
         {
-            Identity.Handle = GetContextMenu(parentHandle, Identity.Handle);
         }
 
-        internal static bool ContextMenuExists(IntPtr parent, IntPtr control)
+        internal static bool ContextMenuExists(IntPtr parent)
         {
-            IntPtr handle = GetContextMenuInternal(parent, control);
+            IntPtr handle = GetContextMenuInternal(parent);
             if (handle == IntPtr.Zero)
             {
                 return false;
@@ -134,7 +133,7 @@ namespace APE.Language
                     }
                     menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item]);
                     hasDropDownItems = m_MenuUtils.HasDropDownItems(handle, handle, menuIndex);
-                    m_MenuUtils.ClickMenuItem(handle, handle, Description, menuIndex, menus[item], ref Identity);
+                    m_MenuUtils.ClickMenuItem(handle, handle, Description, menuIndex, menus[item]);
                 }
 
                 if (hasDropDownItems)
@@ -153,14 +152,14 @@ namespace APE.Language
             }
         }
 
-        private IntPtr GetContextMenu(IntPtr parent, IntPtr control)
+        private static IntPtr GetContextMenu(IntPtr parent, string description)
         {
             IntPtr contextMenuHandle = IntPtr.Zero;
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                contextMenuHandle = GetContextMenuInternal(parent, control);
+                contextMenuHandle = GetContextMenuInternal(parent);
 
                 if (contextMenuHandle != IntPtr.Zero)
                 {
@@ -169,7 +168,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find context menu of the " + Description);
+                    throw new Exception("Failed to find context menu of the " + description);
                 }
 
                 Thread.Sleep(15);
@@ -177,10 +176,10 @@ namespace APE.Language
             return contextMenuHandle;
         }
 
-        private static IntPtr GetContextMenuInternal(IntPtr parent, IntPtr control)
+        private static IntPtr GetContextMenuInternal(IntPtr parent)
         {
             //Get the ContextMenuStrip handle
-            GUI.m_APE.AddFirstMessageGetContextMenuStrip(control);
+            GUI.m_APE.AddFirstMessageGetContextMenuStrip(parent);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
@@ -266,7 +265,7 @@ namespace APE.Language
                     handle = m_MenuUtils.GetDropDown(Identity.ParentHandle, handle, menuIndex);
                 }
                 menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item]);
-                isEnabled = m_MenuUtils.MenuItemEnabled(handle, handle, menuIndex, menus[item], ref Identity);
+                isEnabled = m_MenuUtils.MenuItemEnabled(handle, handle, menuIndex, menus[item]);
 
                 if (!isEnabled)
                 {
@@ -297,7 +296,7 @@ namespace APE.Language
                 menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item]);
                 if (item == contextMenuItem.Length - 1)
                 {
-                    isChecked = m_MenuUtils.MenuItemChecked(handle, handle, menuIndex, menus[item], ref Identity);
+                    isChecked = m_MenuUtils.MenuItemChecked(handle, handle, menuIndex, menus[item]);
                 }
             }
             return isChecked;
