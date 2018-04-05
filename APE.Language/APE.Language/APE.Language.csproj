@@ -53,6 +53,7 @@
     <Reference Include="APE.Watcher">
       <HintPath>..\..\APE.Watcher\APE.Watcher\bin\Debug\APE.Watcher.exe</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="stdole">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -76,6 +77,7 @@
     <Compile Include="CheckStateControl.cs" />
     <Compile Include="ComboBox.cs" />
     <Compile Include="ContextMenu.cs" />
+    <Compile Include="DataGridView.cs" />
     <Compile Include="DateTimePicker.cs" />
     <Compile Include="DockableWindow.cs" />
     <Compile Include="DockContainer.cs" />
