@@ -433,6 +433,18 @@ namespace APE.Communication
             Thread.Sleep(150);  //A small sleep after GC seems to make the performance timings more accurate
         }
 
+        private unsafe void VisualStyleSupported(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("VisualStyleSupported must be first message");
+            }
+
+            CleanUpMessage(ptrMessage);
+            AddReturnValue(new Parameter(this, WF.VisualStyles.VisualStyleRenderer.IsSupported));
+        }
+
         public unsafe void GetContextMenuStrip(int MessageNumber)
         {
             //must be first message
@@ -1315,6 +1327,20 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.GarbageCollect;
 
             Parameter generationParam = new Parameter(this, generation);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        unsafe public void AddFirstMessageVisualStyleSupported()
+        {
+            FirstMessageInitialise();
+
+            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+
+            PtrMessage->Action = MessageAction.VisualStyleSupported;
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;

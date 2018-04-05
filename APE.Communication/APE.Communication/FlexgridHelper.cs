@@ -14,7 +14,10 @@
 //limitations under the License.
 //
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using WF = System.Windows.Forms;
 
 namespace APE.Communication
@@ -804,6 +807,272 @@ namespace APE.Communication
             }
 
             return rowHeight.ToString();
+        }
+
+        //
+        //  AddFlexgridCellChangedHandler
+        //
+
+        private bool m_FlexgridCellChanged = false;
+        private Delegate m_FlexgridCellChangedHandler = null;
+        private EventInfo m_FlexgridCellChangedEventInfo = null;
+        private dynamic m_FlexgridControl = null;
+
+        /// <summary>
+        /// Calls into the AUT to add a cell changed handler to the specific control
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the control object</param>
+        unsafe public void AddQueryMessageAddFlexgridCellChangedHandler(DataStores sourceStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->Action = MessageAction.AddFlexgridCellChangedHandler;
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Adds a cell changed handler to the control
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void AddFlexgridCellChangedHandler(Message* ptrMessage)
+        {
+            m_FlexgridControl = GetObjectFromDatastore(ptrMessage->SourceStore);
+
+            m_FlexgridCellChanged = false;
+
+            if (m_FlexgridControl != null)
+            {
+                if (m_FlexgridCellChangedHandler == null)
+                {
+                    MethodInfo flexgridCellChangedMethodInfo = this.GetType().GetMethod("FlexgridCellChangedHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+                    m_FlexgridCellChangedEventInfo = m_FlexgridControl.GetType().GetEvent("CellChanged");
+                    m_FlexgridCellChangedHandler = Delegate.CreateDelegate(m_FlexgridCellChangedEventInfo.EventHandlerType, this, flexgridCellChangedMethodInfo);
+                }
+
+                m_FlexgridCellChangedEventInfo.AddEventHandler(m_FlexgridControl, m_FlexgridCellChangedHandler);
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        private void FlexgridCellChangedHandler(object sender, EventArgs e)
+        {
+            m_FlexgridCellChanged = true;
+        }
+
+        //
+        //  WaitForAndRemoveCellChangedHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to wait for then remove the cell changed handler
+        /// </summary>
+        unsafe public void AddFirstMessageWaitForAndRemoveFlexgridCellChangedHandler()
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.WaitForAndRemoveFlexgridCellChangedHandler;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Waits for the handler to set the m_FlexgridCellChanged variable to true then removes the handler
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void WaitForAndRemoveFlexgridCellChangedHandler(Message* ptrMessage)
+        {
+            if (m_FlexgridControl != null)
+            {
+                try
+                {
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        if (m_FlexgridCellChanged)
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > m_TimeOut)
+                        {
+                            throw new Exception("Failed to find flexgrid cell changed event");
+                        }
+
+                        Thread.Sleep(15);
+                    }
+                }
+                finally
+                {
+                    m_FlexgridCellChangedEventInfo.RemoveEventHandler(m_FlexgridControl, m_FlexgridCellChangedHandler);
+                    m_FlexgridControl = null;
+                }
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        //
+        //  AddFlexgridAfterRowColChangedHandler
+        //
+
+        private bool m_FlexgridAfterRowColChange = false;
+        private Delegate m_FlexgridAfterRowColChangeHandler = null;
+        private EventInfo m_FlexgridAfterRowColChangeEventInfo = null;
+
+        /// <summary>
+        /// Calls into the AUT to add a after row col change handler to the specific control
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the control object</param>
+        unsafe public void AddQueryMessageAddFlexgridAfterRowColChangeHandler(DataStores sourceStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->Action = MessageAction.AddFlexgridAfterRowColChangeHandler;
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Adds a after row col change handler to the control
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void AddFlexgridAfterRowColChangeHandler(Message* ptrMessage)
+        {
+            m_FlexgridControl = GetObjectFromDatastore(ptrMessage->SourceStore);
+
+            m_FlexgridAfterRowColChange = false;
+
+            if (m_FlexgridControl != null)
+            {
+                if (m_FlexgridAfterRowColChangeHandler == null)
+                {
+                    MethodInfo flexgridAfterRowColChangeMethodInfo = this.GetType().GetMethod("FlexgridAfterRowColChangeHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+                    m_FlexgridAfterRowColChangeEventInfo = m_FlexgridControl.GetType().GetEvent("AfterRowColChange");
+                    m_FlexgridAfterRowColChangeHandler = Delegate.CreateDelegate(m_FlexgridAfterRowColChangeEventInfo.EventHandlerType, this, flexgridAfterRowColChangeMethodInfo);
+                }
+
+                m_FlexgridAfterRowColChangeEventInfo.AddEventHandler(m_FlexgridControl, m_FlexgridAfterRowColChangeHandler);
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        private void FlexgridAfterRowColChangeHandler(object sender, EventArgs e)
+        {
+            m_FlexgridAfterRowColChange = true;
+        }
+
+        //
+        //  WaitForAndRemoveAfterRowColChangeHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to wait for then remove the after row col change handler
+        /// </summary>
+        unsafe public void AddFirstMessageWaitForAndRemoveFlexgridAfterRowColChangeHandler()
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.WaitForAndRemoveFlexgridAfterRowColChangeHandler;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Waits for the handler to set the m_FlexgridAfterRowColChange variable to true then removes the handler
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void WaitForAndRemoveFlexgridAfterRowColChangeHandler(Message* ptrMessage)
+        {
+            if (m_FlexgridControl != null)
+            {
+                try
+                {
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        if (m_FlexgridAfterRowColChange)
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > m_TimeOut)
+                        {
+                            throw new Exception("Failed to find flexgrid after row col change event");
+                        }
+
+                        Thread.Sleep(15);
+                    }
+                }
+                finally
+                {
+                    m_FlexgridAfterRowColChangeEventInfo.RemoveEventHandler(m_FlexgridControl, m_FlexgridAfterRowColChangeHandler);
+                    m_FlexgridControl = null;
+                }
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        //
+        //  RemoveAfterRowColChangeHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to remove the after row col change handler
+        /// </summary>
+        unsafe public void AddFirstMessageRemoveFlexgridAfterRowColChangeHandler()
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.RemoveFlexgridAfterRowColChangeHandler;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Removes the handler
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void RemoveFlexgridAfterRowColChangeHandler(Message* ptrMessage)
+        {
+            if (m_FlexgridControl != null)
+            {
+                m_FlexgridAfterRowColChangeEventInfo.RemoveEventHandler(m_FlexgridControl, m_FlexgridAfterRowColChangeHandler);
+                m_FlexgridControl = null;
+            }
+
+            CleanUpMessage(ptrMessage);
         }
     }
 }

@@ -102,6 +102,17 @@ namespace APE.Communication
         SetFocusAsync = 40,
         GridControlEnsureTitleCellVisible = 41,
         DictionaryContainsKey = 42,
+        AddMouseClickHandler = 43,
+        WaitForAndRemoveMouseClickHandler = 44,
+        AddFlexgridCellChangedHandler = 45,
+        WaitForAndRemoveFlexgridCellChangedHandler = 46,
+        AddFlexgridAfterRowColChangeHandler = 47,
+        WaitForAndRemoveFlexgridAfterRowColChangeHandler = 48,
+        RemoveFlexgridAfterRowColChangeHandler = 49,
+        AddGenericWalkerSelectedHandler = 50,
+        WaitForAndRemoveGenericWalkerSelectedHandler = 51,
+        VisualStyleSupported = 52,
+        DataGridViewShowCell = 53,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -201,6 +212,7 @@ namespace APE.Communication
                 SetupGridControlHelperDelegates();
                 SetupFormHelperDelegates();
                 SetupDictionaryHelperDelegates();
+                SetupDataGridViewHelperDelegates();
 
                 //Process all the messages
                 while (true)
@@ -213,14 +225,16 @@ namespace APE.Communication
                     }
 
                     string result = null;
+                    int messageNumber = -1;
+                    int numberOfMessages = -1;
 
                     try
                     {
-                        int NumberOfMessages = m_PtrMessageStore->NumberOfMessages;
+                        numberOfMessages = m_PtrMessageStore->NumberOfMessages;
                         m_PtrMessageStore->NumberOfMessages = 0;
                         m_StringStoreOffset = 0;
 
-                        for (int messageNumber = 1; messageNumber <= NumberOfMessages; messageNumber++)
+                        for (messageNumber = 1; messageNumber <= numberOfMessages; messageNumber++)
                         {
                             Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
 
@@ -363,6 +377,39 @@ namespace APE.Communication
                                 case MessageAction.DictionaryContainsKey:
                                     DictionaryContainsKey(ptrMessage);
                                     break;
+                                case MessageAction.AddMouseClickHandler:
+                                    AddMouseClickHandler(ptrMessage);
+                                    break;
+                                case MessageAction.WaitForAndRemoveMouseClickHandler:
+                                    WaitForAndRemoveMouseClickHandler(ptrMessage);
+                                    break;
+                                case MessageAction.AddFlexgridCellChangedHandler:
+                                    AddFlexgridCellChangedHandler(ptrMessage);
+                                    break;
+                                case MessageAction.WaitForAndRemoveFlexgridCellChangedHandler:
+                                    WaitForAndRemoveFlexgridCellChangedHandler(ptrMessage);
+                                    break;
+                                case MessageAction.AddFlexgridAfterRowColChangeHandler:
+                                    AddFlexgridAfterRowColChangeHandler(ptrMessage);
+                                    break;
+                                case MessageAction.WaitForAndRemoveFlexgridAfterRowColChangeHandler:
+                                    WaitForAndRemoveFlexgridAfterRowColChangeHandler(ptrMessage);
+                                    break;
+                                case MessageAction.RemoveFlexgridAfterRowColChangeHandler:
+                                    RemoveFlexgridAfterRowColChangeHandler(ptrMessage);
+                                    break;
+                                case MessageAction.AddGenericWalkerSelectedHandler:
+                                    AddGenericWalkerSelectedHandler(ptrMessage);
+                                    break;
+                                case MessageAction.WaitForAndRemoveGenericWalkerSelectedHandler:
+                                    WaitForAndRemoveGenericWalkerSelectedHandler(ptrMessage);
+                                    break;
+                                case MessageAction.VisualStyleSupported:
+                                    VisualStyleSupported(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.DataGridViewShowCell:
+                                    DataGridViewShowCell(ptrMessage);
+                                    break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
                             }
@@ -380,7 +427,8 @@ namespace APE.Communication
                     }
                     catch (Exception ex)
                     {
-                        result = ex.GetType().Name + " " + ex.Message + "\r\n" + ex.StackTrace;
+                        result = "Message " + messageNumber.ToString() + " of " + numberOfMessages + " failed:\r\n";
+                        result += ex.GetType().Name + " " + ex.Message + "\r\n" + ex.StackTrace;
                         if (ex.InnerException != null)
                         {
                             //TODO make this better?
@@ -391,7 +439,7 @@ namespace APE.Communication
                     if (result != null)
                     {
                         //clean up all the messages
-                        for (int messageNumber = 1; messageNumber <= MessageStore.MaxMessages; messageNumber++)
+                        for (messageNumber = 1; messageNumber <= MessageStore.MaxMessages; messageNumber++)
                         {
                             Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
                             CleanUpMessage(ptrMessage);

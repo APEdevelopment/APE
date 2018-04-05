@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using WF = System.Windows.Forms;
 
 namespace APE.Communication
 {
@@ -40,6 +41,10 @@ namespace APE.Communication
         private NM.HookProc MouseHookProcedure;
         private int m_hMouseHook = 0;
         private IntPtr m_HookWindow;
+
+        private bool m_MouseClicked = false;
+        private WF.MouseEventHandler m_MouseClick = null;
+        private object m_MouseClickControl = null;
 
         /// <summary>
         /// The mouse button to press or release while performing a mouse action
@@ -66,6 +71,7 @@ namespace APE.Communication
         private void SetupmouseHelperHooks()
         {
             MouseHookProcedure = new NM.HookProc(MouseHookProc);
+            m_MouseClick = new WF.MouseEventHandler(MouseClickHandler);
         }
         
         /// <summary>
@@ -393,7 +399,8 @@ namespace APE.Communication
             {
                 NM.MouseHookStruct MyMouseHookStruct = (NM.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(NM.MouseHookStruct));
 
-                if (MyMouseHookStruct.hwnd == m_HookWindow)
+                //Check if the window or its parent recieved a mouse message (we check for a parent as they have a bad habit of eating some clicks)
+                if (MyMouseHookStruct.hwnd == m_HookWindow || NM.IsChild(MyMouseHookStruct.hwnd, m_HookWindow))
                 {
                     if (nCode == NM.HC_ACTION)
                     {
@@ -475,6 +482,113 @@ namespace APE.Communication
                 }
                 return NM.CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
             }
+        }
+
+        //
+        //  AddMouseClickHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to add a mouse click handler to the specific control
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the control object</param>
+        unsafe public void AddQueryMessageAddMouseClickHandler(DataStores sourceStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the dictionary before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->Action = MessageAction.AddMouseClickHandler;
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Adds a mouse click handler to the control
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void AddMouseClickHandler(Message* ptrMessage)
+        {
+            m_MouseClickControl = GetObjectFromDatastore(ptrMessage->SourceStore);
+
+            m_MouseClicked = false;
+
+            if (m_MouseClickControl != null)
+            {
+                ((WF.Control)m_MouseClickControl).MouseClick += m_MouseClick;
+                ((WF.Control)m_MouseClickControl).MouseUp += m_MouseClick;
+                ((WF.Control)m_MouseClickControl).MouseDown += m_MouseClick;
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        private void MouseClickHandler(object sender, WF.MouseEventArgs e)
+        {
+            m_MouseClicked = true;
+        }
+
+        //
+        //  WaitForAndRemoveMouseClickHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to wait for then remove the mouse click handler
+        /// </summary>
+        unsafe public void AddFirstyMessageWaitForAndRemoveMouseClickHandler()
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.WaitForAndRemoveMouseClickHandler;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Waits for the handler to set the mouse click variable to true then removes the handler
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void WaitForAndRemoveMouseClickHandler(Message* ptrMessage)
+        {
+            if (m_MouseClickControl != null)
+            {
+                try
+                {
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        if (m_MouseClicked)
+                        {
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > m_TimeOut)
+                        {
+                            throw new Exception("Failed to detect mouse event");
+                        }
+
+                        Thread.Sleep(15);
+                    }
+                }
+                finally
+                {
+                    ((WF.Control)m_MouseClickControl).MouseClick -= m_MouseClick;
+                    ((WF.Control)m_MouseClickControl).MouseUp -= m_MouseClick;
+                    ((WF.Control)m_MouseClickControl).MouseDown -= m_MouseClick;
+                    m_MouseClickControl = null;
+                }
+            }
+
+            CleanUpMessage(ptrMessage);
         }
     }
 }
