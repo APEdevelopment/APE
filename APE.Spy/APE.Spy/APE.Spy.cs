@@ -794,11 +794,11 @@ namespace APE.Spy
 
         private void AddGUIDockContainerToPropertyListbox()
         {
-            // Locate the form and the dock container to the grid
+            // Locate the form and the dock container
             GUIForm dockContainerForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
             GUIDockContainer dockContainer = new GUIDockContainer(dockContainerForm, "dock container", new Identifier(Identifiers.Handle, m_Identity.Handle));
 
-            PropertyListbox.Items.Add("Active Tab\t: " + dockContainer.ActiveItem());
+            PropertyListbox.Items.Add("Active Item\t: " + dockContainer.ActiveItem());
         }
 
         private void AddGUIStatusBarToPropertyListbox()
