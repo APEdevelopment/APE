@@ -2666,6 +2666,8 @@ namespace APE.Communication
                             return "GUIVScrollBar";
                         case "SplitContainer":
                             return "GUISplitContainer";
+                        case "DataGridView":
+                            return "GUIDataGridView";
                         default:
                             return "";
                     }
