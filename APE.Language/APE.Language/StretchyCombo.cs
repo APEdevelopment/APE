@@ -133,7 +133,10 @@ namespace APE.Language
             return isDropped;
         }
 
-        private string SelectedItemText()
+        /// <summary>
+        /// Gets the currently selected item text
+        /// </summary>
+        public string SelectedItemText()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_sSelectedCaption", MemberTypes.Field);
@@ -160,7 +163,7 @@ namespace APE.Language
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_colItems", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Caption", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);

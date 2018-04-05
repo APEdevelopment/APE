@@ -70,7 +70,7 @@ namespace APE.Language
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -82,7 +82,7 @@ namespace APE.Language
                 {
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "EnsureVisible", MemberTypes.Method);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Index", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -108,7 +108,7 @@ namespace APE.Language
                     {
                         GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Selected", MemberTypes.Property);
                         GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                         GUI.m_APE.SendMessages(EventSet.APE);
@@ -178,7 +178,7 @@ namespace APE.Language
                     // Get the group header and id
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Header", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "ID", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
@@ -194,9 +194,9 @@ namespace APE.Language
                         // scroll to first item in group
                         GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, 0));
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, 0));
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "EnsureVisible", MemberTypes.Method);
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Index", MemberTypes.Property);
                         GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
@@ -250,7 +250,7 @@ namespace APE.Language
                             {
                                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Selected", MemberTypes.Property);
                                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -280,7 +280,7 @@ namespace APE.Language
                     // Get a count of the number of items in the group
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Count", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -297,9 +297,9 @@ namespace APE.Language
                             // Check if they are selected
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ItemInGroup));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, ItemInGroup));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Selected", MemberTypes.Property);
                             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                             GUI.m_APE.SendMessages(EventSet.APE);
@@ -358,7 +358,7 @@ namespace APE.Language
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Count", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -371,9 +371,9 @@ namespace APE.Language
                 {
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Index", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                     GUI.m_APE.SendMessages(EventSet.APE);
@@ -423,7 +423,7 @@ namespace APE.Language
                     {
                         GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                         GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                         GUI.m_APE.SendMessages(EventSet.APE);
@@ -435,7 +435,7 @@ namespace APE.Language
                         {
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "EnsureVisible", MemberTypes.Method);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Index", MemberTypes.Property);
                             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
@@ -461,7 +461,7 @@ namespace APE.Language
                             {
                                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Selected", MemberTypes.Property);
                                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -500,7 +500,7 @@ namespace APE.Language
                 {
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Header", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Items", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Count", MemberTypes.Property);
@@ -518,9 +518,9 @@ namespace APE.Language
                         {
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Text", MemberTypes.Property);
                             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                             GUI.m_APE.SendMessages(EventSet.APE);
@@ -532,9 +532,9 @@ namespace APE.Language
                             {
                                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Groups", MemberTypes.Property);
-                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
+                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Group));
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Items", MemberTypes.Property);
-                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "EnsureVisible", MemberTypes.Method);
                                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Index", MemberTypes.Property);
                                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
@@ -560,7 +560,7 @@ namespace APE.Language
                                 {
                                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
+                                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
                                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Selected", MemberTypes.Property);
                                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                                     GUI.m_APE.SendMessages(EventSet.APE);

@@ -81,7 +81,7 @@ namespace APE.Language
                 // Get the text of the root node
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Nodes", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Handle", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
@@ -118,7 +118,7 @@ namespace APE.Language
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, ChildItem));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Text", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Handle", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
