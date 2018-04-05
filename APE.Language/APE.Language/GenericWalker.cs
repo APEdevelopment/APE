@@ -106,9 +106,11 @@ namespace APE.Language
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "m_state", MemberTypes.Field);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_oDefaultSearch", MemberTypes.Field);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "After", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "PropertyBag", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Property", MemberTypes.Method, new Parameter(GUI.m_APE, "SearchesDefault"));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Value", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "After", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call;
@@ -122,9 +124,11 @@ namespace APE.Language
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "WalkerType", MemberTypes.Property);
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store9, "GetWalkerStateFromAPI", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store2), new Parameter(GUI.m_APE, ""), new Parameter(GUI.m_APE, false));
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "m_state", MemberTypes.Field);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "m_oDefaultSearch", MemberTypes.Field);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "After", MemberTypes.Property);
-                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "PropertyBag", MemberTypes.Property);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Property", MemberTypes.Method, new Parameter(GUI.m_APE, "SearchesDefault"));
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Value", MemberTypes.Property);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store6, DataStores.Store7, "After", MemberTypes.Property);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
                         GUI.m_APE.SendMessages(EventSet.APE);
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                         //Get the value(s) returned MUST be done straight after the WaitForMessages call;
@@ -303,10 +307,6 @@ namespace APE.Language
 
                                 if (isDropped)
                                 {
-                                    if (Identity.TypeNameSpace == "LzGenericWalker")
-                                    {
-                                        WaitForTimer("tmrResize");
-                                    }
                                     break;
                                 }
 
@@ -346,48 +346,35 @@ namespace APE.Language
                         Thread.Sleep(15);
                     }
 
-                    GUI.Log("Press Enter to set the value", LogItemType.Action);
-                    base.SendKeysInternal("{Enter}");
-
                     if (Identity.TypeNameSpace == "LzGenericWalker")
                     {
-                        WaitForTimer("tmrDelayedEvent");
+                        // Add event handler
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageAddGenericWalkerSelectedHandler(DataStores.Store0, Identity.ParentHandle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+
+                    try
+                    {
+                        GUI.Log("Press Enter to set the value", LogItemType.Action);
+                        base.SendKeysInternal("{Enter}");
+                    }
+                    finally
+                    {
+                        if (Identity.TypeNameSpace == "LzGenericWalker")
+                        {
+                            //Wait for the event handler then remove it
+                            GUI.m_APE.AddFirstMessageWaitForAndRemoveGenericWalkerSelectedHandler();
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                        }
                     }
                 }
             }
             finally
             {
                 Input.Unblock();
-            }
-        }
-
-        private void WaitForTimer(string timerName)
-        {
-            Stopwatch timer = Stopwatch.StartNew();
-            while (true)
-            {
-                // Wait for the tmrDelayedEvent to be disabled
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, timerName, MemberTypes.Field);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Enabled", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                bool timerEnabled = GUI.m_APE.GetValueFromMessage();
-
-                if (!timerEnabled)
-                {
-                    GUI.WaitForInputIdle(this);
-                    break;
-                }
-
-                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                {
-                    throw new Exception(timerName + " failed to become disabled for the " + Description);
-                }
-
-                Thread.Sleep(15);
             }
         }
 
