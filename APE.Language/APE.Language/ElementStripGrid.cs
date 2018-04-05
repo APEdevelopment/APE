@@ -1311,7 +1311,7 @@ namespace APE.Language
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "DataColumns", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store4, "View", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "GetColumnGroupPickChildColsToDisplayIconRect", MemberTypes.Method, new Parameter(GUI.m_APE, DataStores.Store3), new Parameter(GUI.m_APE, rowIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "X", MemberTypes.Property);
@@ -1349,7 +1349,7 @@ namespace APE.Language
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "DataColumns", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndex));
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "ViewWidth", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "IsFrozenColumn", MemberTypes.Property);
@@ -1517,13 +1517,52 @@ namespace APE.Language
                 throw new Exception("Use SetFilterCellValue to set a filter value in the " + Description);
             }
 
-            // Check if the cell is already set to the correct value
-            string currentValue = GetCell(rowIndex, columnIndex);
+            string currentValue = this.GetCell(rowIndex, columnIndex);
             T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+
+            // Check if the cell is already set to the correct value
+            if (compareMethod == ComparisonMethod.DoNotCompare)
             {
-                GUI.Log("Ensure the " + Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                return false;
+                //we have a string and don't want to do a strict comparison so do some massaging on it to see if its already set
+                if (currentValueT is string)
+                {
+                    if (Microsoft.VisualBasic.Information.IsNumeric(currentValueT))
+                    {
+                        //numeric value in the string so comvert to a decimal and compare
+                        decimal currentValueAsDecimal = Convert.ToDecimal(currentValueT);
+                        decimal expectedValueAsDecimal = Convert.ToDecimal(expectedValue);
+                        if (currentValueAsDecimal == expectedValueAsDecimal)
+                        {
+                            GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //non numeric string so just do a trim and check if its equal
+                        if ((currentValueT as string).Trim() == (expectedValue as string).Trim())
+                        {
+                            GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                    {
+                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                {
+                    GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                    return false;
+                }
             }
 
             // Wait for the cell to be editable
@@ -1947,6 +1986,73 @@ namespace APE.Language
             {
                 return "";
             }
+        }
+
+        /// <summary>
+        /// Gets the number of cells in the grid which are currently animating
+        /// </summary>
+        /// <returns>The number of cells currently animating</returns>
+        public int AnimationCount()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "View", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "AnimationController", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_animationKeyHash", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Count", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            int animationCount = GUI.m_APE.GetValueFromMessage();
+            return animationCount;
+        }
+
+        /// <summary>
+        /// Determines if the specified cell is animating
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its animating</param>
+        /// <param name="columnText">The column of the cell to check if its animating</param>
+        /// <returns>True if the cell is currently animating</returns>
+        public bool IsCellAnimating(int rowIndex, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            return IsCellAnimating(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Determines if the specified cell is animating
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its animating</param>
+        /// <param name="columnIndex">The column index of the cell to check if its animating</param>
+        /// <returns>True if the cell is currently animating</returns>
+        public bool IsCellAnimating(int rowIndex, int columnIndex)
+        {
+            int row = rowIndex - TitleRows();
+
+            if (row < 0)
+            {
+                throw new Exception("Title rows are not currently supported");
+            }
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetRow", MemberTypes.Method, new Parameter(GUI.m_APE, row));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "UniqueId", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            int uniqueRowId = GUI.m_APE.GetValueFromMessage();
+
+            string key = "CVC" + string.Concat(uniqueRowId.ToString(), "_", columnIndex.ToString());
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "View", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "AnimationController", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_animationKeyHash", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageDictionaryContainsKey(DataStores.Store3, DataStores.Store4, key);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            bool isCellAnimating = GUI.m_APE.GetValueFromMessage();;
+            return isCellAnimating;
         }
     }
 }
