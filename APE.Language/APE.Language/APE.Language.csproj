@@ -53,7 +53,6 @@
     <Reference Include="APE.Watcher">
       <HintPath>..\..\APE.Watcher\APE.Watcher\bin\Debug\APE.Watcher.exe</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="stdole">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>

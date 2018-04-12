@@ -955,40 +955,30 @@ namespace APE.Language
                 cellDataType = "System.Boolean";
                 propertyToCheck = CellProperty.CheckBox;
             }
-            
-            string currentValue = this.GetCell(rowIndex, columnIndex, propertyToCheck);
-            T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+
+            string currentValueAsString = this.GetCell(rowIndex, columnIndex);
+            T currentValue = (T)Convert.ChangeType(currentValueAsString, typeof(T));
 
             // Check if the cell is already set to the correct value
             if (compareMethod == ComparisonMethod.DoNotCompare)
             {
-                //we have a string and don't want to do a strict comparison so do some massaging on it to see if its already set
-                if (currentValueT is string)
+                string expectedValueAsString = expectedValue.ToString();
+                decimal currentValueAsDecimal;
+                decimal expectedValueAsDecimal;
+
+                if (decimal.TryParse(currentValueAsString, out currentValueAsDecimal) && decimal.TryParse(expectedValueAsString, out expectedValueAsDecimal))
                 {
-                    if (Microsoft.VisualBasic.Information.IsNumeric(currentValueT))
+                    //numeric value in the string so comvert to a decimal and compare
+                    if (currentValueAsDecimal == expectedValueAsDecimal)
                     {
-                        //numeric value in the string so comvert to a decimal and compare
-                        decimal currentValueAsDecimal = Convert.ToDecimal(currentValueT);
-                        decimal expectedValueAsDecimal = Convert.ToDecimal(expectedValue);
-                        if (currentValueAsDecimal == expectedValueAsDecimal)
-                        {
-                            GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        //non numeric string so just do a trim and check if its equal
-                        if ((currentValueT as string).Trim() == (expectedValue as string).Trim())
-                        {
-                            GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                            return false;
-                        }
+                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                        return false;
                     }
                 }
                 else
                 {
-                    if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                    //non numeric so just do a check if its equal
+                    if (currentValueAsString == expectedValueAsString)
                     {
                         GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
                         return false;
@@ -997,7 +987,7 @@ namespace APE.Language
             }
             else
             {
-                if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                if (EqualityComparer<T>.Default.Equals(currentValue, expectedValue))
                 {
                     GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
                     return false;
@@ -1242,9 +1232,9 @@ namespace APE.Language
                     int sleep = 15;
                     while (true)
                     {
-                        currentValue = this.GetCell(rowIndex, columnIndex, propertyToCheck);
-                        currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-                        if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                        currentValueAsString = this.GetCell(rowIndex, columnIndex, propertyToCheck);
+                        currentValue = (T)Convert.ChangeType(currentValueAsString, typeof(T));
+                        if (EqualityComparer<T>.Default.Equals(currentValue, expectedValue))
                         {
                             break;
                         }
