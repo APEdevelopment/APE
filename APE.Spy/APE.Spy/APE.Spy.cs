@@ -720,19 +720,29 @@ namespace APE.Spy
             Items = m_APE.GetValueFromMessage();
 
             //Loop through all items
-            for (int Item = 0; Item < Items; Item++)
+            for (int item = 0; item < Items; item++)
             {
                 m_APE.AddFirstMessageFindByHandle(DataStores.Store0, m_Identity.ParentHandle, m_Identity.Handle);
                 m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, Item));
+                m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(m_APE, item));
                 m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Name", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "AccessibilityObject", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Name", MemberTypes.Property);
                 m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
                 m_APE.SendMessages(EventSet.APE);
                 m_APE.WaitForMessages(EventSet.APE);
                 //get the values returned
-                string ItemText = m_APE.GetValueFromMessage();
+                string itemText = m_APE.GetValueFromMessage();
+                string itemName = m_APE.GetValueFromMessage();
+                string itemAccessibilityObjectName = m_APE.GetValueFromMessage();
 
-                PropertyListbox.Items.Add("Menu item\t: " + ItemText);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Name\t: " + itemName);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Text\t: " + itemText);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Accessibility");
+                PropertyListbox.Items.Add("    Object Name\t: " + itemAccessibilityObjectName);
             }
 
             m_Identity.ParentHandle = temp;
@@ -886,13 +896,20 @@ namespace APE.Spy
                 m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Name", MemberTypes.Property);
                 m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "GetType", MemberTypes.Method);
                 m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store6, "Text", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store7, "AccessibilityObject", MemberTypes.Property);
+                m_APE.AddQueryMessageReflect(DataStores.Store7, DataStores.Store8, "Name", MemberTypes.Property);
                 m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
                 m_APE.SendMessages(EventSet.APE);
                 m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
                 string itemName = m_APE.GetValueFromMessage();
                 string itemType = m_APE.GetValueFromMessage();
+                string itemText = m_APE.GetValueFromMessage();
+                string itemAccessibilityObjectName = m_APE.GetValueFromMessage();
 
                 string APESubType = "";
 
@@ -929,6 +946,9 @@ namespace APE.Spy
                 }
 
                 PropertyListbox.Items.Add("Item " + item.ToString() + " Name\t: " + itemName);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Text\t: " + itemText);
+                PropertyListbox.Items.Add("Item " + item.ToString() + " Accessibility");
+                PropertyListbox.Items.Add("    Object Name\t: " + itemAccessibilityObjectName);
                 PropertyListbox.Items.Add("APESubType\t: " + APESubType);
             }
         }
