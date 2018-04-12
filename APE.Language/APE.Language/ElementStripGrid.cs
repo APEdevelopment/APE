@@ -97,7 +97,7 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Returns the number of fixed / frozen columns, that is a row which doesn't scroll, in the grid (columns may or may not be hidden)
+        /// Returns the number of fixed / frozen columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed / frozen columns</returns>
         public int FixedColumns()
@@ -110,7 +110,7 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int frozenColumns = GUI.m_APE.GetValueFromMessage();
+            int frozenColumns = GUI.m_APE.GetValueFromMessage() + 1;
             return frozenColumns;
         }
 
