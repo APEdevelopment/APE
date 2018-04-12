@@ -214,7 +214,7 @@
             this.subItem1ToolStripMenuItem,
             this.subItem2ToolStripMenuItem});
             this.item1ToolStripMenuItem.Name = "item1ToolStripMenuItem";
-            this.item1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.item1ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.item1ToolStripMenuItem.Text = "Item1";
             // 
             // subItem1ToolStripMenuItem
@@ -232,7 +232,7 @@
             // item2ToolStripMenuItem
             // 
             this.item2ToolStripMenuItem.Name = "item2ToolStripMenuItem";
-            this.item2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.item2ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.item2ToolStripMenuItem.Text = "Item2";
             this.item2ToolStripMenuItem.Click += new System.EventHandler(this.item2ToolStripMenuItem_Click);
             // 
@@ -242,13 +242,13 @@
             this.opensPopupToolStripMenuItem});
             this.secondToolStripMenuItem.Name = "secondToolStripMenuItem";
             this.secondToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
-            this.secondToolStripMenuItem.Text = "Second";
+            this.secondToolStripMenuItem.Text = "&Second";
             // 
             // opensPopupToolStripMenuItem
             // 
             this.opensPopupToolStripMenuItem.Name = "opensPopupToolStripMenuItem";
-            this.opensPopupToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
-            this.opensPopupToolStripMenuItem.Text = "OpensPopup";
+            this.opensPopupToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.opensPopupToolStripMenuItem.Text = "Opens&Popup";
             this.opensPopupToolStripMenuItem.Click += new System.EventHandler(this.opensPopupToolStripMenuItem_Click);
             // 
             // StatusStrip
