@@ -53,6 +53,7 @@ namespace APE.Communication
         public IntPtr SiblingOf;
         public IntPtr ParentOf;
         public string Description;
+        public string AccessibilityObjectName;
     }
 
     public enum DataStores : int
@@ -149,6 +150,8 @@ namespace APE.Communication
 
         private delegate string GetTextDelegate(WF.Control theControl);
         private GetTextDelegate m_GetTextDelegater;
+        private delegate string GetAccessibilityObjectNameDelegate(WF.Control theControl);
+        private GetAccessibilityObjectNameDelegate m_GetAccessibilityObjectNameDelegater;
         private delegate object ConvertTypeDelegate(Type theTyoe, object theObject);
         private ConvertTypeDelegate m_ConvertTypeDelegater;
         private delegate void GetWPFHandleAndNameAndTitleDelegate(WPF.Window theWindow);
@@ -1182,6 +1185,9 @@ namespace APE.Communication
             //p14
             p = new Parameter(this, Identifier.Description);
 
+            //p15
+            p = new Parameter(this, Identifier.AccessibilityObjectName);
+
             m_PtrMessageStore->NumberOfMessages++;
         }
 
@@ -1629,6 +1635,19 @@ namespace APE.Communication
                         throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[13])).ToString());
                     }
                 }
+
+                // p15  = AccessibilityObjectName
+                if (PtrMessage->Parameter.StringLength[14] > 0)
+                {
+                    if ((PtrMessage->Parameter.TypeCode[14]) == (Int32)ApeTypeCode.String)
+                    {
+                        Identifier.AccessibilityObjectName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[14]), 0, PtrMessage->Parameter.StringLength[14]);
+                    }
+                    else
+                    {
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[14])).ToString());
+                    }
+                }
             }
 
             //cleanup the message
@@ -1789,6 +1808,7 @@ namespace APE.Communication
             Type theType = null;
             IntPtr Handle = IntPtr.Zero;
             string Name = null;
+            string accessibilityObjectName = null;
             string theText = null;
             bool FoundControl = false;
 
@@ -1808,6 +1828,7 @@ namespace APE.Communication
                             theType = TheControl.GetType();
                             object[] parameters = { TheControl };
                             theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
+                            accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
                             FoundControl = true;
                         }
                     }
@@ -1920,6 +1941,15 @@ namespace APE.Communication
                                                     {
                                                         continue;
                                                     }
+                                                }
+                                            }
+
+                                            accessibilityObjectName = (string)form.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                            if (Identifier.AccessibilityObjectName != null)
+                                            {
+                                                if (accessibilityObjectName != Identifier.AccessibilityObjectName)
+                                                {
+                                                    continue;
                                                 }
                                             }
 
@@ -2063,6 +2093,7 @@ namespace APE.Communication
                             Name = m_Name;
                             object[] parameters = { TheControl };
                             theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
+                            accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
                             theType = TheControl.GetType();
                             FoundControl = true;
                         }
@@ -2193,6 +2224,15 @@ namespace APE.Communication
                                                 {
                                                     continue;
                                                 }
+                                            }
+                                        }
+
+                                        accessibilityObjectName = (string)control.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                        if (Identifier.AccessibilityObjectName != null)
+                                        {
+                                            if (accessibilityObjectName != Identifier.AccessibilityObjectName)
+                                            {
+                                                continue;
                                             }
                                         }
 
@@ -2335,6 +2375,7 @@ namespace APE.Communication
                     NewIdentifier.TypeName = theType.Name;
                     NewIdentifier.ModuleName = theType.Module.Name;
                     NewIdentifier.AssemblyName = theType.Assembly.GetName().Name;
+                    NewIdentifier.AccessibilityObjectName = accessibilityObjectName;
                 }
                 NewIdentifier.Index = Identifier.Index;
                 NewIdentifier.Text = theText;
@@ -3322,6 +3363,11 @@ namespace APE.Communication
         private string GetText(WF.Control theControl)
         {
             return theControl.Text;
+        }
+
+        private string GetAccessibilityObjectName(WF.Control theControl)
+        {
+            return theControl.AccessibilityObject.Name;
         }
 
         unsafe private void Reflect(int MessageNumber)

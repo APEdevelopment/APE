@@ -206,6 +206,7 @@ namespace APE.Communication
                 m_GetWPFHandleAndNameAndTitleDelegater = new GetWPFHandleAndNameAndTitleDelegate(GetWPFHandleAndNameAndTitle);
                 m_ConvertTypeDelegater = new ConvertTypeDelegate(Cast);
                 m_GetTextDelegater = new GetTextDelegate(GetText);
+                m_GetAccessibilityObjectNameDelegater = new GetAccessibilityObjectNameDelegate(GetAccessibilityObjectName);
                 SetupSentinelGridsHelperDelegates();
                 SetupFlexgridHelperDelegates();
                 SetupComHelperDelegates();
