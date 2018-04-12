@@ -901,7 +901,7 @@ namespace APE.Communication
                     Stopwatch timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        if (m_FlexgridCellChanged)
+                        if (m_FlexgridCellChanged || m_FlexgridControl.Disposing || m_FlexgridControl.IsDisposed)
                         {
                             break;
                         }
@@ -1015,7 +1015,7 @@ namespace APE.Communication
                     Stopwatch timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        if (m_FlexgridAfterRowColChange)
+                        if (m_FlexgridAfterRowColChange || m_FlexgridControl.Disposing || m_FlexgridControl.IsDisposed)
                         {
                             break;
                         }

@@ -44,7 +44,7 @@ namespace APE.Communication
 
         private bool m_MouseClicked = false;
         private WF.MouseEventHandler m_MouseClick = null;
-        private object m_MouseClickControl = null;
+        private WF.Control m_MouseClickControl = null;
 
         /// <summary>
         /// The mouse button to press or release while performing a mouse action
@@ -512,15 +512,15 @@ namespace APE.Communication
         /// <param name="ptrMessage">A pointer to the message</param>
         unsafe private void AddMouseClickHandler(Message* ptrMessage)
         {
-            m_MouseClickControl = GetObjectFromDatastore(ptrMessage->SourceStore);
+            m_MouseClickControl = (WF.Control)GetObjectFromDatastore(ptrMessage->SourceStore);
 
             m_MouseClicked = false;
 
             if (m_MouseClickControl != null)
             {
-                ((WF.Control)m_MouseClickControl).MouseClick += m_MouseClick;
-                ((WF.Control)m_MouseClickControl).MouseUp += m_MouseClick;
-                ((WF.Control)m_MouseClickControl).MouseDown += m_MouseClick;
+                m_MouseClickControl.MouseClick += m_MouseClick;
+                m_MouseClickControl.MouseUp += m_MouseClick;
+                m_MouseClickControl.MouseDown += m_MouseClick;
             }
 
             CleanUpMessage(ptrMessage);
@@ -566,7 +566,7 @@ namespace APE.Communication
                     Stopwatch timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        if (m_MouseClicked)
+                        if (m_MouseClicked || m_MouseClickControl.Disposing || m_MouseClickControl.IsDisposed)
                         {
                             break;
                         }
@@ -581,9 +581,9 @@ namespace APE.Communication
                 }
                 finally
                 {
-                    ((WF.Control)m_MouseClickControl).MouseClick -= m_MouseClick;
-                    ((WF.Control)m_MouseClickControl).MouseUp -= m_MouseClick;
-                    ((WF.Control)m_MouseClickControl).MouseDown -= m_MouseClick;
+                    m_MouseClickControl.MouseClick -= m_MouseClick;
+                    m_MouseClickControl.MouseUp -= m_MouseClick;
+                    m_MouseClickControl.MouseDown -= m_MouseClick;
                     m_MouseClickControl = null;
                 }
             }

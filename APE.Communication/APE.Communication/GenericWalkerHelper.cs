@@ -133,7 +133,7 @@ namespace APE.Communication
                     Stopwatch timer = Stopwatch.StartNew();
                     while (true)
                     {
-                        if (m_GenericWalkerSelected)
+                        if (m_GenericWalkerSelected || m_GenericWalkerControl.Disposing || m_GenericWalkerControl.IsDisposed)
                         {
                             break;
                         }
