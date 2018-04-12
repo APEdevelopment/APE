@@ -31,8 +31,18 @@ namespace APE.Language
         /// <param name="contextMenuItem">The item to select from the context menu</param>
         public void SingleClickItem(string contextMenuItem)
         {
+            SingleClickItem(contextMenuItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Selects the specified item in the context menu by clicking on it
+        /// </summary>
+        /// <param name="contextMenuItem">The item to select from the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public void SingleClickItem(string contextMenuItem, ItemIdentifier itemIdentifier)
+        {
             string logMessageAction = "Single Left click on the item " + contextMenuItem + " from the " + Identity.Description;
-            SingleClickItemInternal(contextMenuItem, logMessageAction);
+            SingleClickItemInternal(contextMenuItem, logMessageAction, itemIdentifier);
         }
 
         internal void CloseContextMenu(IntPtr handle)
@@ -48,33 +58,75 @@ namespace APE.Language
             Thread.Sleep(20);
         }
 
-        internal abstract void SingleClickItemInternal(string contextMenuItem, string logMessageAction);
+        internal abstract void SingleClickItemInternal(string contextMenuItem, string logMessageAction, ItemIdentifier itemIdentifier);
 
         /// <summary>
         /// Checks the specified item in the context menu by clicking on it
         /// </summary>
         /// <param name="contextMenuItem">The item to check from the context menu</param>
-        public abstract void CheckItem(string contextMenuItem);
+        public void CheckItem(string contextMenuItem)
+        {
+            CheckItem(contextMenuItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Checks the specified item in the context menu by clicking on it
+        /// </summary>
+        /// <param name="contextMenuItem">The item to check from the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public abstract void CheckItem(string contextMenuItem, ItemIdentifier itemIdentifier);
 
         /// <summary>
         /// Unchecks the specified item in the context menu by clicking on it
         /// </summary>
         /// <param name="contextMenuItem">The item to uncheck from the context menu</param>
-        public abstract void UncheckItem(string contextMenuItem);
+        public void UncheckItem(string contextMenuItem)
+        {
+            UncheckItem(contextMenuItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Unchecks the specified item in the context menu by clicking on it
+        /// </summary>
+        /// <param name="contextMenuItem">The item to uncheck from the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public abstract void UncheckItem(string contextMenuItem, ItemIdentifier itemIdentifier);
 
         /// <summary>
         /// Determines if the specified item in the context menu is enabled
         /// </summary>
         /// <param name="contextMenuItem">The item to get the enabled state of in the context menu</param>
         /// <returns>True if the item is enabled otherwise false</returns>
-        public abstract bool ItemIsEnabled(string contextMenuItem);
+        public bool ItemIsEnabled(string contextMenuItem)
+        {
+            return ItemIsEnabled(contextMenuItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Determines if the specified item in the context menu is enabled
+        /// </summary>
+        /// <param name="contextMenuItem">The item to get the enabled state of in the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        /// <returns>True if the item is enabled otherwise false</returns>
+        public abstract bool ItemIsEnabled(string contextMenuItem, ItemIdentifier itemIdentifier);
 
         /// <summary>
         /// Determines if the specified item in the context menu is checked
         /// </summary>
         /// <param name="contextMenuItem">The item to get the checked state of in the context menu</param>
         /// <returns>True if the item is checked otherwise false</returns>
-        public abstract bool ItemIsChecked(string contextMenuItem);
+        public bool ItemIsChecked(string contextMenuItem)
+        {
+            return ItemIsChecked(contextMenuItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Determines if the specified item in the context menu is checked
+        /// </summary>
+        /// <param name="contextMenuItem">The item to get the checked state of in the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        /// <returns>True if the item is checked otherwise false</returns>
+        public abstract bool ItemIsChecked(string contextMenuItem, ItemIdentifier itemIdentifier);
     }
 
 
@@ -113,7 +165,7 @@ namespace APE.Language
             }
         }
 
-        internal override void SingleClickItemInternal(string contextMenuItem, string logMessageAction)
+        internal override void SingleClickItemInternal(string contextMenuItem, string logMessageAction, ItemIdentifier itemIdentifier)
         {
             GUI.Log(logMessageAction, LogItemType.Action);
 
@@ -131,7 +183,7 @@ namespace APE.Language
                     {
                         handle = m_MenuUtils.GetDropDown(Identity.ParentHandle, handle, menuIndex);
                     }
-                    menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item]);
+                    menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item], itemIdentifier);
                     hasDropDownItems = m_MenuUtils.HasDropDownItems(handle, handle, menuIndex);
                     m_MenuUtils.ClickMenuItem(handle, handle, Description, menuIndex, menus[item]);
                 }
@@ -191,9 +243,10 @@ namespace APE.Language
         /// Checks the specified item in the context menu by clicking on it
         /// </summary>
         /// <param name="contextMenuItem">The item to check from the context menu</param>
-        public override void CheckItem(string contextMenuItem)
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public override void CheckItem(string contextMenuItem, ItemIdentifier itemIdentifier)
         {
-            bool isChecked = ItemIsChecked(contextMenuItem);
+            bool isChecked = ItemIsChecked(contextMenuItem, itemIdentifier);
 
             if (isChecked)
             {
@@ -202,10 +255,10 @@ namespace APE.Language
             else
             {
                 string logMessageAction = "Check item " + contextMenuItem + " from the " + Identity.Description;
-                SingleClickItemInternal(contextMenuItem, logMessageAction);
+                SingleClickItemInternal(contextMenuItem, logMessageAction, itemIdentifier);
 
                 //Check it has been checked
-                isChecked = ItemIsChecked(contextMenuItem);
+                isChecked = ItemIsChecked(contextMenuItem, itemIdentifier);
 
                 if (!isChecked)
                 {
@@ -218,9 +271,10 @@ namespace APE.Language
         /// Unchecks the specified item in the context menu by clicking on it
         /// </summary>
         /// <param name="contextMenuItem">The item to uncheck from the context menu</param>
-        public override void UncheckItem(string contextMenuItem)
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public override void UncheckItem(string contextMenuItem, ItemIdentifier itemIdentifier)
         {
-            bool isChecked = ItemIsChecked(contextMenuItem);
+            bool isChecked = ItemIsChecked(contextMenuItem, itemIdentifier);
 
             if (!isChecked)
             {
@@ -229,10 +283,10 @@ namespace APE.Language
             else
             {
                 string logMessageAction = "Uncheck item " + contextMenuItem + " from the " + Identity.Description;
-                SingleClickItemInternal(contextMenuItem, logMessageAction);
+                SingleClickItemInternal(contextMenuItem, logMessageAction, itemIdentifier);
 
                 //Check it has been unchecked
-                isChecked = ItemIsChecked(contextMenuItem);
+                isChecked = ItemIsChecked(contextMenuItem, itemIdentifier);
 
                 if (isChecked)
                 {
@@ -245,8 +299,9 @@ namespace APE.Language
         /// Determines if the specified item in the context menu is enabled
         /// </summary>
         /// <param name="contextMenuItem">The item to get the enabled state of in the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
         /// <returns>True if the item is enabled otherwise false</returns>
-        public override bool ItemIsEnabled(string contextMenuItem)
+        public override bool ItemIsEnabled(string contextMenuItem, ItemIdentifier itemIdentifier)
         {
             if (!IsEnabled)
             {
@@ -264,7 +319,7 @@ namespace APE.Language
                 {
                     handle = m_MenuUtils.GetDropDown(Identity.ParentHandle, handle, menuIndex);
                 }
-                menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item]);
+                menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item], itemIdentifier);
                 isEnabled = m_MenuUtils.MenuItemEnabled(handle, handle, menuIndex, menus[item]);
 
                 if (!isEnabled)
@@ -279,8 +334,9 @@ namespace APE.Language
         /// Determines if the specified item in the context menu is checked
         /// </summary>
         /// <param name="contextMenuItem">The item to get the checked state of in the context menu</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
         /// <returns>True if the item is checked otherwise false</returns>
-        public override bool ItemIsChecked(string contextMenuItem)
+        public override bool ItemIsChecked(string contextMenuItem, ItemIdentifier itemIdentifier)
         {
             string[] menus = contextMenuItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
             int menuIndex = 0;
@@ -293,7 +349,7 @@ namespace APE.Language
                 {
                     handle = m_MenuUtils.GetDropDown(Identity.ParentHandle, handle, menuIndex);
                 }
-                menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item]);
+                menuIndex = m_MenuUtils.GetIndexOfMenuItem(Identity.ParentHandle, handle, menus[item], itemIdentifier);
                 if (item == contextMenuItem.Length - 1)
                 {
                     isChecked = m_MenuUtils.MenuItemChecked(handle, handle, menuIndex, menus[item]);

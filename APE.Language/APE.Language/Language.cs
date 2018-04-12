@@ -81,6 +81,21 @@ namespace APE.Language
     }
 
     /// <summary>
+    /// The property to use to use to identify a control item
+    /// </summary>
+    public enum ItemIdentifier : int
+    {
+        /// <summary>
+        /// The text associated with the control which can include the ampersand used to designate accelerator keys
+        /// </summary>
+        Text,
+        /// <summary>
+        /// The AccessibilityObject name of the control which normally is a name which makes sense to a human
+        /// </summary>
+        AccessibilityObjectName,
+    }
+
+    /// <summary>
     /// The property to use to use to identify a control
     /// </summary>
     public enum Identifiers : int
@@ -137,6 +152,10 @@ namespace APE.Language
         /// A control which the control we are identifying is a parent of
         /// </summary>
         ParentOf = 12,
+        /// <summary>
+        /// The AccessibilityObject name of the control which normally is a name which makes sense to a human
+        /// </summary>
+        AccessibilityObjectName = 13,
     }
 
     /// <summary>
@@ -629,6 +648,9 @@ namespace APE.Language
                     case Identifiers.ParentOf:
                         Identity.ParentOf = i.IdentifierValue.Handle;
                         break;
+                    case Identifiers.AccessibilityObjectName:
+                        Identity.AccessibilityObjectName = i.IdentifierValue;
+                        break;
                     default:
                         throw new Exception("Unsupported identifier: " + i.ToString());
                 }
@@ -796,16 +818,6 @@ namespace APE.Language
         private static Form WhiteWindow = null;
         private const long WS_EX_TOOLWINDOW = 0x0080;
 
-        private static bool IsTopLevelWindow(IntPtr Window)
-        {
-            NM.WindowStyles Style = (NM.WindowStyles)(long)NM.GetWindowLongPtr(Window, NM.GWL.GWL_STYLE);
-
-            // WS_OVERLAPPED and WS_POPUP indicate a top level window.
-            // WS_OVERLAPPED constant is 0, it does not make a good mask.  But all
-            // WS_OVERLAPPED windows MUST have a caption so use WS_CAPTION instead.
-            return Style.HasFlag(NM.WindowStyles.WS_CAPTION) || Style.HasFlag(NM.WindowStyles.WS_POPUP);
-        }
-
         internal void WaitForAnimation(IntPtr Handle, bool ClearClientArea, WaitForAnimationSource Source)
         {
             if (Source == WaitForAnimationSource.Form)
@@ -942,33 +954,6 @@ namespace APE.Language
             }
             timer.Stop();
             //Debug.Listeners[0].WriteLine("\t Loops: " + Loops.ToString() + " Time: " + timer.ElapsedMilliseconds.ToString());
-        }
-    }
-
-    internal static class VersionUtils
-    {
-        internal static bool IsWindowsVistaOrHigher
-        {
-            get
-            {
-                return (Environment.OSVersion.Platform == PlatformID.Win32NT) && (Environment.OSVersion.Version.Major >= 6);
-            }
-        }
-
-        internal static bool IsWindows7OrHigher
-        {
-            get
-            {
-                return (Environment.OSVersion.Platform == PlatformID.Win32NT) && (Environment.OSVersion.Version.Major >= 6) && (Environment.OSVersion.Version.Minor >= 1);
-            }
-        }
-
-        internal static bool IsWindows8OrHigher
-        {
-            get
-            {
-                return (Environment.OSVersion.Platform == PlatformID.Win32NT) && (Environment.OSVersion.Version.Major >= 6) && (Environment.OSVersion.Version.Minor >= 2);
-            }
         }
     }
 
@@ -1129,14 +1114,13 @@ namespace APE.Language
             return (IntPtr)GUI.m_APE.GetValueFromMessage();
         }
 
-        public int GetIndexOfMenuItem(IntPtr parent, IntPtr control, string menuItem)
+        public int GetIndexOfMenuItem(IntPtr parent, IntPtr control, string menuItem, ItemIdentifier itemIdentifier)
         {
             int items;
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-
                 //Get the number of items on the menustrip
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -1148,22 +1132,37 @@ namespace APE.Language
                 items = GUI.m_APE.GetValueFromMessage();
 
                 //Loop through looking for the item we want
-                for (int Item = 0; Item < items; Item++)
+                for (int itemIndex = 0; itemIndex < items; itemIndex++)
                 {
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, control);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, Item));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "AccessibilityObject", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Name", MemberTypes.Property);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //get the values returned
-                    string ItemText = GUI.m_APE.GetValueFromMessage();
+                    string itemText = GUI.m_APE.GetValueFromMessage();
+                    string itemAccessibilityObjectName = GUI.m_APE.GetValueFromMessage();
 
-                    if (ItemText == menuItem)
+                    if (itemIdentifier == ItemIdentifier.Text)
                     {
-                        //found it
-                        return Item;
+                        if (itemText == menuItem)
+                        {
+                            //found it
+                            return itemIndex;
+                        }
+                    }
+                    else
+                    {
+                        if (itemAccessibilityObjectName == menuItem)
+                        {
+                            //found it
+                            return itemIndex;
+                        }
                     }
                 }
 

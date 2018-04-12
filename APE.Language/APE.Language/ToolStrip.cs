@@ -218,6 +218,7 @@ namespace APE.Language
             string Text = null;
             string ModuleName = null;
             string AssemblyName = null;
+            string accessibilityObjectName = null;
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
@@ -307,6 +308,19 @@ namespace APE.Language
                 AssemblyName = GUI.m_APE.GetValueFromMessage();
             }
 
+            if (Identity.AccessibilityObjectName != null)
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentToolStrip.ParentForm.Handle, ParentToolStrip.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, item));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "AccessibilityObject", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                accessibilityObjectName = GUI.m_APE.GetValueFromMessage();
+            }
+
             if (Identity.Name != null)
             {
                 if (Name != Identity.Name)
@@ -358,6 +372,14 @@ namespace APE.Language
             if (Identity.Text != null)
             {
                 if (!System.Text.RegularExpressions.Regex.IsMatch(Text, Identity.Text))
+                {
+                    return false;
+                }
+            }
+
+            if (Identity.AccessibilityObjectName != null)
+            {
+                if (accessibilityObjectName != Identity.AccessibilityObjectName)
                 {
                     return false;
                 }
@@ -823,11 +845,21 @@ namespace APE.Language
         /// <param name="dropDownItem">The item to select from the drop down</param>
         public void SingleClickItem(string dropDownItem)
         {
-            string logMessageAction = "Single Left click on the item " + dropDownItem + " from the " + Identity.Description;
-            SingleClickItemInternal(dropDownItem, logMessageAction);
+            SingleClickItem(dropDownItem, ItemIdentifier.Text);
         }
 
-        internal void SingleClickItemInternal(string dropDownItem, string logMessageAction)
+        /// <summary>
+        /// Selects the specified item in the drop down by clicking on it
+        /// </summary>
+        /// <param name="dropDownItem">The item to select from the drop down</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public void SingleClickItem(string dropDownItem, ItemIdentifier itemIdentifier)
+        {
+            string logMessageAction = "Single Left click on the item " + dropDownItem + " from the " + Identity.Description;
+            SingleClickItemInternal(dropDownItem, logMessageAction, itemIdentifier);
+        }
+
+        internal void SingleClickItemInternal(string dropDownItem, string logMessageAction, ItemIdentifier itemIdentifier)
         {
             IntPtr handle = IntPtr.Zero;
             int menuIndex;
@@ -861,7 +893,7 @@ namespace APE.Language
                             handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                         }
 
-                        menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+                        menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item], itemIdentifier);
                         hasDropDownItems = m_MenuUtils.HasDropDownItems(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                         m_MenuUtils.ClickMenuItem(ParentToolStrip.ParentForm.Handle, handle, Identity.Description, menuIndex, dropDownItems[item]);
                     }
@@ -889,7 +921,17 @@ namespace APE.Language
         /// <param name="dropDownItem">The item to check from the drop down</param>
         public void CheckItem(string dropDownItem)
         {
-            bool isChecked = ItemIsChecked(dropDownItem);
+            CheckItem(dropDownItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Checks the specified item in the drop down by clicking on it
+        /// </summary>
+        /// <param name="dropDownItem">The item to check from the drop down</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public void CheckItem(string dropDownItem, ItemIdentifier itemIdentifier)
+        {
+            bool isChecked = ItemIsChecked(dropDownItem, itemIdentifier);
 
             if (isChecked)
             {
@@ -898,10 +940,10 @@ namespace APE.Language
             else
             {
                 string logMessageAction = "Check item " + dropDownItem + " from the " + Identity.Description;
-                SingleClickItemInternal(dropDownItem, logMessageAction);
+                SingleClickItemInternal(dropDownItem, logMessageAction, itemIdentifier);
 
                 //Check it has been checked
-                isChecked = ItemIsChecked(dropDownItem);
+                isChecked = ItemIsChecked(dropDownItem, itemIdentifier);
 
                 if (!isChecked)
                 {
@@ -916,7 +958,17 @@ namespace APE.Language
         /// <param name="dropDownItem">The item to uncheck from the drop down</param>
         public void UncheckItem(string dropDownItem)
         {
-            bool isChecked = ItemIsChecked(dropDownItem);
+            UncheckItem(dropDownItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Unchecks the specified item in the drop down by clicking on it
+        /// </summary>
+        /// <param name="dropDownItem">The item to uncheck from the drop down</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        public void UncheckItem(string dropDownItem, ItemIdentifier itemIdentifier)
+        {
+            bool isChecked = ItemIsChecked(dropDownItem, itemIdentifier);
 
             if (!isChecked)
             {
@@ -925,10 +977,10 @@ namespace APE.Language
             else
             {
                 string logMessageAction = "Uncheck item " + dropDownItem + " from the " + Identity.Description;
-                SingleClickItemInternal(dropDownItem, logMessageAction);
+                SingleClickItemInternal(dropDownItem, logMessageAction, itemIdentifier);
 
                 //Check it has been unchecked
-                isChecked = ItemIsChecked(dropDownItem);
+                isChecked = ItemIsChecked(dropDownItem, itemIdentifier);
 
                 if (isChecked)
                 {
@@ -943,6 +995,17 @@ namespace APE.Language
         /// <param name="dropDownItem">The item to get the enabled state of in the drop down</param>
         /// <returns>True if the item is enabled otherwise false</returns>
         public bool ItemIsEnabled(string dropDownItem)
+        {
+            return ItemIsEnabled(dropDownItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Determines if the specified item in the drop down is enabled
+        /// </summary>
+        /// <param name="dropDownItem">The item to get the enabled state of in the drop down</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        /// <returns>True if the item is enabled otherwise false</returns>
+        public bool ItemIsEnabled(string dropDownItem, ItemIdentifier itemIdentifier)
         {
             if (!IsEnabled())
             {
@@ -961,7 +1024,7 @@ namespace APE.Language
                     handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                 }
 
-                menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+                menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item], itemIdentifier);
                 isEnabled = m_MenuUtils.MenuItemEnabled(ParentToolStrip.ParentForm.Handle, handle, menuIndex, dropDownItems[item]);
 
                 if (!isEnabled)
@@ -979,6 +1042,17 @@ namespace APE.Language
         /// <returns>True if the item is checked otherwise false</returns>
         public bool ItemIsChecked(string dropDownItem)
         {
+            return ItemIsChecked(dropDownItem, ItemIdentifier.Text);
+        }
+
+        /// <summary>
+        /// Determines if the specified item in the drop down is checked
+        /// </summary>
+        /// <param name="dropDownItem">The item to get the checked state of in the drop down</param>
+        /// <param name="itemIdentifier">The property to identify the item by</param>
+        /// <returns>True if the item is checked otherwise false</returns>
+        public bool ItemIsChecked(string dropDownItem, ItemIdentifier itemIdentifier)
+        {
             string[] dropDownItems = dropDownItem.Split(GUI.MenuDelimiterAsArray, StringSplitOptions.None);
             int menuIndex = 0;
             IntPtr handle = GetDropDown();
@@ -991,7 +1065,7 @@ namespace APE.Language
                     handle = m_MenuUtils.GetDropDown(ParentToolStrip.ParentForm.Handle, handle, menuIndex);
                 }
 
-                menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item]);
+                menuIndex = m_MenuUtils.GetIndexOfMenuItem(ParentToolStrip.ParentForm.Handle, handle, dropDownItems[item], itemIdentifier);
 
                 if (item == dropDownItems.Length - 1)
                 {
