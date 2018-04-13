@@ -808,7 +808,15 @@ namespace APE.Spy
             GUIForm dockContainerForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
             GUIDockContainer dockContainer = new GUIDockContainer(dockContainerForm, "dock container", new Identifier(Identifiers.Handle, m_Identity.Handle));
 
+            int items = dockContainer.ItemsCount();
+
             PropertyListbox.Items.Add("Active Item\t: " + dockContainer.ActiveItem());
+            PropertyListbox.Items.Add("Item Count\t: " + items);
+
+            for (int item = 0; item < items; item++)
+            {
+                PropertyListbox.Items.Add("Item " + item.ToString() + "\t\t: " + dockContainer.ItemText(item));
+            }
         }
 
         private void AddGUIStatusBarToPropertyListbox()
