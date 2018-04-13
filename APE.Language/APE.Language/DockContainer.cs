@@ -183,7 +183,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " item");
+            throw new Exception("Failed to find the " + Description + " item");
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " item");
+            throw new Exception("Failed to find the " + Description + " item");
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " item");
+            throw new Exception("Failed to find the " + Description + " item");
         }
 
         internal void ClickTitlebar(int dockControlIndex, string itemText, MouseButton button)
@@ -335,7 +335,7 @@ namespace APE.Language
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
                     GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description, LogItemType.Information);
-                    throw new Exception("Failed to select " + Description + " item");
+                    throw new Exception("Failed to select the " + Description + " item");
                 }
 
                 Thread.Sleep(50);
@@ -367,7 +367,7 @@ namespace APE.Language
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
                     GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description, LogItemType.Information);
-                    throw new Exception("Failed to select " + Description + " item");
+                    throw new Exception("Failed to select the " + Description + " item");
                 }
 
                 Thread.Sleep(50);
@@ -458,6 +458,36 @@ namespace APE.Language
             return titlebarBounds;
         }
 
+        internal Rectangle GetCloseButtonBounds(int dockControlsIndex)
+        {
+            Rectangle closeButtonBounds = new Rectangle();
+
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Manager", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "GetDockControls", MemberTypes.Method);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "GetValue", MemberTypes.Method, new Parameter(GUI.m_APE, dockControlsIndex));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "LayoutSystem", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store3, "CloseButton", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "bounds", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store7, "Width", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store8, "Height", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            closeButtonBounds.X = GUI.m_APE.GetValueFromMessage();
+            closeButtonBounds.Y = GUI.m_APE.GetValueFromMessage();
+            closeButtonBounds.Width = GUI.m_APE.GetValueFromMessage();
+            closeButtonBounds.Height = GUI.m_APE.GetValueFromMessage();
+
+            return closeButtonBounds;
+        }
+
         /// <summary>
         /// The last active item in all dock containers
         /// </summary>
@@ -517,12 +547,19 @@ namespace APE.Language
                 {
                     if (Regex.IsMatch(tabText, itemPattern))
                     {
-                        Rectangle titlebarBounds = GetTitlebarBounds(dockControlIndex);
+                        Rectangle closeButtonBounds = GetCloseButtonBounds(dockControlIndex);
+                        if (closeButtonBounds.Width == 0 || closeButtonBounds.Height == 0)
+                        {
+                            throw new Exception("Failed to find the " + Description + " close button");
+                        }
 
-                        //Click 10 pixels in from the right hand side of the window and 10 pixels down
-                        base.MoveTo(titlebarBounds.Right - 10, titlebarBounds.Top + 10);
-                        Thread.Sleep(20);
-                        base.SingleClickInternal(titlebarBounds.Right - 10, titlebarBounds.Top + 10, MouseButton.Left, MouseKeyModifier.None);
+                        int x = closeButtonBounds.Left + (closeButtonBounds.Width / 2);
+                        int y = closeButtonBounds.Top + (closeButtonBounds.Height / 2);
+
+                        // Move the mouse then sleep for a bit before clicking
+                        base.MoveTo(x, y);
+                        Thread.Sleep(50);
+                        base.SingleClickInternal(x, y, MouseButton.Left, MouseKeyModifier.None);
 
                         //Wait for the number of items to decrease by one
                         Stopwatch timer = Stopwatch.StartNew();
@@ -552,11 +589,13 @@ namespace APE.Language
 
                             Thread.Sleep(50);
                         }
+
+                        return;
                     }
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " item");
+            throw new Exception("Failed to find the " + Description + " item");
         }
     }
 }
