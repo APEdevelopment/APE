@@ -183,7 +183,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " tab");
+            throw new Exception("Failed to find " + Description + " item");
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " tab");
+            throw new Exception("Failed to find " + Description + " item");
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " tab");
+            throw new Exception("Failed to find " + Description + " item");
         }
 
         internal void ClickTitlebar(int dockControlIndex, string itemText, MouseButton button)
@@ -334,7 +334,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description + " tab", LogItemType.Information);
+                    GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description, LogItemType.Information);
                     throw new Exception("Failed to select " + Description + " item");
                 }
 
@@ -366,7 +366,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description + " tab", LogItemType.Information);
+                    GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description, LogItemType.Information);
                     throw new Exception("Failed to select " + Description + " item");
                 }
 
@@ -547,7 +547,7 @@ namespace APE.Language
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
-                                throw new Exception("Failed to remove the " + Description + " tab");
+                                throw new Exception("Failed to remove the " + Description + " item");
                             }
 
                             Thread.Sleep(50);
@@ -556,7 +556,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find " + Description + " tab");
+            throw new Exception("Failed to find " + Description + " item");
         }
     }
 }
