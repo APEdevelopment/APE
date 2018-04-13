@@ -471,7 +471,7 @@ namespace APE.Spy
                 m_Area = Display.GetWindowRectangleDIP(hWnd);
                 doHighlight = true;
             }
-            catch (OutOfMemoryException ex)
+            catch (OutOfMemoryException)
             {
                 // Ignore
             }
