@@ -2721,6 +2721,10 @@ namespace APE.Communication
                             return "GUIDockableWindow";
                         case "DockContainer":
                             return "GUIDockContainer";
+                        case "AutoHideBar":
+                            return "GUIAutoHideBar";
+                        case "PopupContainer":
+                            return "GUIPopupContainer";
                         default:
                             return "";
                     }
