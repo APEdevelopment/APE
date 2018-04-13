@@ -88,15 +88,15 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string Style = GUI.m_APE.GetValueFromMessage();
-            bool DroppedDown = GUI.m_APE.GetValueFromMessage();
+            string style = GUI.m_APE.GetValueFromMessage();
+            dynamic droppedDown = GUI.m_APE.GetValueFromMessage();
 
-            IntPtr ListBox = IntPtr.Zero;
+            IntPtr listBox = IntPtr.Zero;
 
             Input.Block();
             try
             {
-                if (Style == "Simple")
+                if (style == "Simple")
                 {
                     //get the Simple mode listbox child window
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -106,11 +106,16 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    ListBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
+                    listBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
                 }
                 else
                 {
-                    if (!DroppedDown)
+                    if (droppedDown == null)
+                    {
+                        throw new Exception("Failed to determine the dropdown state of the " + Description);
+                    }
+
+                    if (!droppedDown)
                     {
                         //show the dropdown
                         base.SingleClickInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
@@ -124,14 +129,14 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    dynamic DroppedDownHandle = GUI.m_APE.GetValueFromMessage();
+                    dynamic droppedDownHandle = GUI.m_APE.GetValueFromMessage();
 
-                    if (DroppedDownHandle == null)
+                    if (droppedDownHandle == null)
                     {
                         throw new Exception("Failed to find the " + Description + " dropdown");
                     }
 
-                    ListBox = DroppedDownHandle;
+                    listBox = droppedDownHandle;
                 }
 
                 //locate the item
@@ -146,26 +151,26 @@ namespace APE.Language
                 NM.tagRect ItemRect = new NM.tagRect();
 
                 //Locate the rect of the item
-                SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
+                SendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                 if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
                 {
                     throw new Exception("Failed to access the " + Description);
                 }
 
                 NM.tagRect ClientRect;
-                NM.GetClientRect(ListBox, out ClientRect);
+                NM.GetClientRect(listBox, out ClientRect);
 
                 //scroll the item into view if needed
                 if (((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top > ClientRect.bottom || ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top < ClientRect.top)
                 {
-                    SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
+                    SendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                     if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
                     {
                         throw new Exception("Failed to access the " + Description);
                     }
 
                     //Locate the rect of the item
-                    SendResult = NM.SendMessageTimeout(ListBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
+                    SendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                     if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
                     {
                         throw new Exception("Failed to access the " + Description);
@@ -173,17 +178,17 @@ namespace APE.Language
                 }
 
                 //click the item
-                GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, ListBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+                GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, listBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboBoxDropdown.SingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
                 
                 //wait for .Text to == text
-                string CurrentText;
+                string currentText;
                 timer = Stopwatch.StartNew();
                 do
                 {
-                    CurrentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                    currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
 
-                    if (CurrentText == item)
+                    if (currentText == item)
                     {
                         break;
                     }
