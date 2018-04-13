@@ -87,6 +87,7 @@
     <Compile Include="Form.cs" />
     <Compile Include="GridObject.cs" />
     <Compile Include="GroupingBar.cs" />
+    <Compile Include="AutoHideBar.cs" />
     <Compile Include="LzDealingResults.cs" />
     <Compile Include="LzNavBarGridControl.cs" />
     <Compile Include="PictureBox.cs" />
@@ -140,6 +141,7 @@
     <Content Include="..\..\README.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Compile Include="PopupContainer.cs" />
     <None Include="Resources\APE256x256.ico" />
   </ItemGroup>
   <ItemGroup>
