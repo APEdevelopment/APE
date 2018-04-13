@@ -36,6 +36,7 @@ namespace APE
         private object Lock = new object();
         internal IntPtr Foreground = IntPtr.Zero;
         internal bool Acknowledge = false;
+        internal IntPtr m_ViewPortHandle;
         private uint DoubleClickTimer = 0;
 
         private delegate void AppendToLogDelegate(string text, LogItemType type);
@@ -69,6 +70,7 @@ namespace APE
             }
             this.ControlBox = false;
             this.Shown += new EventHandler(frmViewPort_Shown);
+            m_ViewPortHandle = this.Handle;
         }
 
         private void frmViewPort_Shown(Object sender, EventArgs e)
