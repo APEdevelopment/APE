@@ -209,8 +209,8 @@ namespace APE.Language
                                 else
                                 {
                                     string state = GetCurrentState();
-                                    
-                                    if (state == "Incomplete")
+
+                                    if (state == "Incomplete" || token == 0)
                                     {
                                         searchAfter = token + 1;
                                     }
