@@ -613,7 +613,7 @@ namespace APE.Language
                     index++;
                     if (index == itemIndex)
                     {
-                        return index;
+                        return dockControlIndex;
                     }
                 }
             }
