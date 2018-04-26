@@ -67,7 +67,7 @@ namespace APE.Language
 
             if (UpDownEditControl == null)
             {
-                throw new Exception("Failed to find the updown edit control");
+                throw GUI.ApeException("Failed to find the updown edit control");
             }
 
             IntPtr UpDownEditHandle = UpDownEditControl;
@@ -95,7 +95,7 @@ namespace APE.Language
 
             if (UpDownButtonsControl == null)
             {
-                throw new Exception("Failed to find the updown buttons control");
+                throw GUI.ApeException("Failed to find the updown buttons control");
             }
 
             IntPtr UpDownButtonHandle = UpDownButtonsControl;
@@ -123,7 +123,7 @@ namespace APE.Language
 
             if (UpDownButtonsControl == null)
             {
-                throw new Exception("Failed to find the updown buttons control");
+                throw GUI.ApeException("Failed to find the updown buttons control");
             }
 
             IntPtr UpDownButtonHandle = UpDownButtonsControl;

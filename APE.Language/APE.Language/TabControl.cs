@@ -76,7 +76,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find tab " + tabText);
+            throw GUI.ApeException("Failed to find tab " + tabText);
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
-                    throw new Exception("Failed to select tab " + tabName);
+                    throw GUI.ApeException("Failed to select tab " + tabName);
                 }
 
                 if (SelectedTabText() == tabName)

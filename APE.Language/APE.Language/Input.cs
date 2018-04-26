@@ -588,7 +588,7 @@ namespace APE.Language
                     {
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Viewport SetForegroundWindow appeared to not trigger");
+                            throw GUI.ApeException("Viewport SetForegroundWindow appeared to not trigger");
                         }
 
                         Thread.Yield();
@@ -600,7 +600,7 @@ namespace APE.Language
                 {
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw new Exception("Failed to setfocus to the " + description);
+                        throw GUI.ApeException("Failed to setfocus to the " + description);
                     }
 
                     Thread.Yield();
@@ -673,7 +673,7 @@ namespace APE.Language
                     bool Return = NM.BlockInput(true);
                     if (!Return)
                     {
-                        throw new Exception("Failed to block input");
+                        throw GUI.ApeException("Failed to block input");
                     }
 
                     byte[] state = new byte[256];
@@ -922,7 +922,7 @@ namespace APE.Language
             if (threadId == 0)
             {
                 return true;
-                //throw new Exception("Failed to get thread for window");
+                //throw GUI.ApeException("Failed to get thread for window");
             }
 
             if (processId != WaitForInputIdleProcessId)
@@ -1047,7 +1047,7 @@ namespace APE.Language
 
                 if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
                 {
-                    throw new Exception("Coordinates offscreen");
+                    throw GUI.ApeException("Coordinates offscreen");
                 }
 
                 if (performCheck)
@@ -1084,7 +1084,7 @@ namespace APE.Language
                         {
                             if (NM.IsWindowEnabled(handle) && NM.IsWindowEnabled(NM.GetAncestor(handle, NM.GetAncestorFlags.GetParent)))
                             {
-                                throw new Exception("Coordinates are not inside the " + description + " control area");
+                                throw GUI.ApeException("Coordinates are not inside the " + description + " control area");
                             }
                             else
                             {
@@ -1189,12 +1189,12 @@ namespace APE.Language
             {
                 if (!Up)
                 {
-                    throw new Exception("Can only single click when using MouseDown");
+                    throw GUI.ApeException("Can only single click when using MouseDown");
                 }
 
                 if (!Down)
                 {
-                    throw new Exception("Can only single click when using MouseUp");
+                    throw GUI.ApeException("Can only single click when using MouseUp");
                 }
             }
 

@@ -51,12 +51,12 @@ namespace APE.Language
         {
             if (!IsCollapsed())
             {
-                throw new Exception("Expando is already collapsed");
+                throw GUI.ApeException("Expando is already collapsed");
             }
 
             if (!CanCollapse())
             {
-                throw new Exception("Expando can not be collapsed");
+                throw GUI.ApeException("Expando can not be collapsed");
             }
 
             GUI.Log("Single Left click on the " + Identity.Description + " to expand it", LogItemType.Action);
@@ -64,7 +64,7 @@ namespace APE.Language
 
             if (IsCollapsed())
             {
-                throw new Exception("Failed to expand expando");
+                throw GUI.ApeException("Failed to expand expando");
             }
         }
 
@@ -75,12 +75,12 @@ namespace APE.Language
         {
             if (IsCollapsed())
             {
-                throw new Exception("Expando is already collapsed");
+                throw GUI.ApeException("Expando is already collapsed");
             }
 
             if (!CanCollapse())
             {
-                throw new Exception("Expando can not be collapsed");
+                throw GUI.ApeException("Expando can not be collapsed");
             }
 
             GUI.Log("Single Left click on the " + Identity.Description + " to collapse it", LogItemType.Action);
@@ -88,7 +88,7 @@ namespace APE.Language
 
             if (!IsCollapsed())
             {
-                throw new Exception("Failed to collapse expando");
+                throw GUI.ApeException("Failed to collapse expando");
             }
         }
 
@@ -182,7 +182,7 @@ namespace APE.Language
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw new Exception("Expando failed to stop animating");
+                        throw GUI.ApeException("Expando failed to stop animating");
                     }
 
                     Thread.Sleep(15);

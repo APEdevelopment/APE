@@ -71,7 +71,7 @@ namespace APE.Language
                 {
                     if (NM.IsIconic(Identity.Handle))
                     {
-                        throw new Exception("Can not close the window as it is minimised");
+                        throw GUI.ApeException("Can not close the window as it is minimised");
                     }
 
                     GUI.m_APE.AddFirstMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Close);
@@ -87,7 +87,7 @@ namespace APE.Language
                     // Check the close button is actually displayed
                     if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
                     {
-                        throw new Exception("Can not close the window as the close button is in state '" + State.ToString() + "'");
+                        throw GUI.ApeException("Can not close the window as the close button is in state '" + State.ToString() + "'");
                     }
 
                     NM.tagRect WindowRect;
@@ -184,12 +184,12 @@ namespace APE.Language
                 }
                 else
                 {
-                    throw new Exception("Form is not visible");
+                    throw GUI.ApeException("Form is not visible");
                 }
             }
             else
             {
-                throw new Exception("Form does not exist");
+                throw GUI.ApeException("Form does not exist");
             }
         }
 
@@ -203,12 +203,12 @@ namespace APE.Language
             string windowState = FormWindowState();
             if (windowState == "Minimized")
             {
-                throw new Exception("Can not maximise the window as it is minimised");
+                throw GUI.ApeException("Can not maximise the window as it is minimised");
             }
 
             if (windowState == "Maximized")
             {
-                throw new Exception("Can not maximise the window as it already is");
+                throw GUI.ApeException("Can not maximise the window as it already is");
             }
 
             GUI.m_APE.AddFirstMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Maximize);
@@ -224,7 +224,7 @@ namespace APE.Language
             // Check the maximise button is actually displayed
             if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
             {
-                throw new Exception("Can not maximise the window as the maximise button is in state '" + State.ToString() + "'");
+                throw GUI.ApeException("Can not maximise the window as the maximise button is in state '" + State.ToString() + "'");
             }
 
             NM.tagRect WindowRect;
@@ -257,7 +257,7 @@ namespace APE.Language
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
                         timer.Stop();
-                        throw new Exception("Failed to maximize the window");
+                        throw GUI.ApeException("Failed to maximize the window");
                     }
 
                     Thread.Sleep(15);
@@ -281,7 +281,7 @@ namespace APE.Language
             string windowState = FormWindowState();
             if (windowState == "Minimized")
             {
-                throw new Exception("Can not minimise the window as it already is");
+                throw GUI.ApeException("Can not minimise the window as it already is");
             }
 
             GUI.m_APE.AddFirstMessageGetTitleBarItemRectangle(Identity.Handle, NM.TitleBarStateElement.Minimize);
@@ -297,7 +297,7 @@ namespace APE.Language
             // Check the maximise button is actually displayed
             if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
             {
-                throw new Exception("Can not minimise the window as the minimised button is in state '" + State.ToString() + "'");
+                throw GUI.ApeException("Can not minimise the window as the minimised button is in state '" + State.ToString() + "'");
             }
 
             NM.tagRect WindowRect;
@@ -330,7 +330,7 @@ namespace APE.Language
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
                         timer.Stop();
-                        throw new Exception("Failed to minimise the window");
+                        throw GUI.ApeException("Failed to minimise the window");
                     }
 
                     Thread.Sleep(15);
@@ -355,7 +355,7 @@ namespace APE.Language
             string windowState = FormWindowState();
             if (windowState == "Normal")
             {
-                throw new Exception("Can not restore the window as it already is");
+                throw GUI.ApeException("Can not restore the window as it already is");
             }
 
             if (windowState == "Minimized")
@@ -387,7 +387,7 @@ namespace APE.Language
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
                             timer.Stop();
-                            throw new Exception("Failed to restore the window");
+                            throw GUI.ApeException("Failed to restore the window");
                         }
 
                         Thread.Sleep(15);
@@ -415,7 +415,7 @@ namespace APE.Language
                 // Check the maximise button is actually displayed
                 if (State != NM.StateSystem.STATE_SYSTEM_NORMAL && State != NM.StateSystem.STATE_SYSTEM_PRESSED)
                 {
-                    throw new Exception("Can not restore the window as the restore button is in state '" + State.ToString() + "'");
+                    throw GUI.ApeException("Can not restore the window as the restore button is in state '" + State.ToString() + "'");
                 }
 
                 NM.tagRect WindowRect;
@@ -448,7 +448,7 @@ namespace APE.Language
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
                             timer.Stop();
-                            throw new Exception("Failed to restore the window");
+                            throw GUI.ApeException("Failed to restore the window");
                         }
 
                         Thread.Sleep(15);

@@ -178,7 +178,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panel2MinSize", MemberTypes.Property);
                     break;
                 default:
-                    throw new Exception("Unknown splitter panel: " + panel.ToString());
+                    throw GUI.ApeException("Unknown splitter panel: " + panel.ToString());
             }
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -201,7 +201,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Panel2", MemberTypes.Property);
                     break;
                 default:
-                    throw new Exception("Unknown splitter panel: " + panel.ToString());
+                    throw GUI.ApeException("Unknown splitter panel: " + panel.ToString());
             }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ClientSize", MemberTypes.Property);
             switch (dimension)
@@ -213,7 +213,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Height", MemberTypes.Property);
                     break;
                 default:
-                    throw new Exception("Unknown splitter panel: " + panel.ToString());
+                    throw GUI.ApeException("Unknown splitter panel: " + panel.ToString());
             }
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -243,7 +243,7 @@ namespace APE.Language
             {
                 if (Container.SplitterOrientation() != "Horizontal")
                 {
-                    throw new Exception("Top panel does not exist");
+                    throw GUI.ApeException("Top panel does not exist");
                 }
 
                 // Resize the panel
@@ -311,7 +311,7 @@ namespace APE.Language
             {
                 if (Container.SplitterOrientation() != "Horizontal")
                 {
-                    throw new Exception("Bottom panel does not exist");
+                    throw GUI.ApeException("Bottom panel does not exist");
                 }
 
                 // Resize the panel
@@ -379,7 +379,7 @@ namespace APE.Language
             {
                 if (Container.SplitterOrientation() != "Vertical")
                 {
-                    throw new Exception("Left panel does not exist");
+                    throw GUI.ApeException("Left panel does not exist");
                 }
 
                 // Resize the panel
@@ -448,7 +448,7 @@ namespace APE.Language
             {
                 if (Container.SplitterOrientation() != "Vertical")
                 {
-                    throw new Exception("Right panel does not exist");
+                    throw GUI.ApeException("Right panel does not exist");
                 }
 
                 // Resize the panel

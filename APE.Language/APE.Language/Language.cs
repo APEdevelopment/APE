@@ -208,8 +208,13 @@ namespace APE.Language
         internal static ViewPort m_ViewPort;
         internal static bool m_APESpy = false;
         private static Thread m_threadViewPort;
-        private static bool m_IsElevatedAdmin = false;
         private static int m_MsTimeOut = 30000;
+        internal static bool IsElevatedAdmin { get; }
+
+        /// <summary>
+        /// The type of exception to throw when an automation action fails.  Defaults to System.Exception.
+        /// </summary>
+        public static Type ExceptionType { get; set; } = typeof(Exception);
 
         /// <summary>
         /// Delegate method to provide custom logging
@@ -230,12 +235,12 @@ namespace APE.Language
             if (NM.IsWow64Process(Process.GetCurrentProcess()))
             {
                 // On a 64-bit OS APE should run as a 64-bit process
-                throw new Exception("Detected running under Wow64, please untick 'prefer 32-bit' in the project build properties page");
+                throw GUI.ApeException("Detected running under Wow64, please untick 'prefer 32-bit' in the project build properties page");
             }
 
             WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(identity);
-            m_IsElevatedAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+            IsElevatedAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         /// <summary>
@@ -281,6 +286,17 @@ namespace APE.Language
             {
                 TreeViewDelimiterAsArray[0] = value;
             }
+        }
+
+        /// <summary>
+        /// Initialises a new instance of the ExceptionType type with the specified message
+        /// </summary>
+        /// <param name="message">The message that descibes the error</param>
+        /// <returns>The exception object</returns>
+        internal static Exception ApeException(string message)
+        {
+            object[] exceptionParameters = { message };
+            return (Exception)Activator.CreateInstance(ExceptionType, exceptionParameters);
         }
 
         /// <summary>
@@ -373,11 +389,11 @@ namespace APE.Language
             {
                 if (string.IsNullOrEmpty(m_AttachedProcessName))
                 {
-                    throw new Exception("Process has exited");
+                    throw GUI.ApeException("Process has exited");
                 }
                 else
                 {
-                    throw new Exception("Process " + m_AttachedProcessName + " has exited");
+                    throw GUI.ApeException("Process " + m_AttachedProcessName + " has exited");
                 }
             }
             Log("Attached to process [" + m_AttachedProcessName + "]", LogItemType.Information);
@@ -393,7 +409,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GetTimeOut())
                 {
-                    throw new Exception("Failed to locate process main window within " + GetTimeOut() + "ms timeout");
+                    throw GUI.ApeException("Failed to locate process main window within " + GetTimeOut() + "ms timeout");
                 }
 
                 Thread.Sleep(50);
@@ -652,7 +668,7 @@ namespace APE.Language
                         Identity.AccessibilityObjectName = i.IdentifierValue;
                         break;
                     default:
-                        throw new Exception("Unsupported identifier: " + i.ToString());
+                        throw GUI.ApeException("Unsupported identifier: " + i.ToString());
                 }
             }
 
@@ -676,14 +692,6 @@ namespace APE.Language
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }
-
-        internal static bool IsElevatedAdmin
-        {
-            get
-            {
-                return m_IsElevatedAdmin;
-            }
         }
 
         internal static bool FormAnimationDisabled
@@ -833,7 +841,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Window is not visible");
+                    throw GUI.ApeException("Window is not visible");
                 }
 
                 Thread.Sleep(15);
@@ -930,7 +938,7 @@ namespace APE.Language
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
                         timer.Stop();
-                        throw new Exception("Failed to detect window finishing animation");
+                        throw GUI.ApeException("Failed to detect window finishing animation");
                     }
 
                     if (Display.CompareBitmap(A, B))
@@ -1098,7 +1106,7 @@ namespace APE.Language
             bool hasDropDownItems = HasDropDownItems(parent, control, menuIndex);
             if (hasDropDownItems == false)
             {
-                throw new Exception("Menu does not have a drop down");
+                throw GUI.ApeException("Menu does not have a drop down");
             }
 
             //get the dropdown and its handle
@@ -1169,7 +1177,7 @@ namespace APE.Language
                 if (timer.ElapsedMilliseconds > 3000)
                 {
                     //Failed to find it            
-                    throw new Exception("Failed to find menu item [" + menuItem + "]");
+                    throw GUI.ApeException("Failed to find menu item [" + menuItem + "]");
                 }
 
                 Thread.Sleep(15);

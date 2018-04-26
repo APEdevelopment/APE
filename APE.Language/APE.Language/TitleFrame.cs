@@ -349,7 +349,7 @@ namespace APE.Language
                     }
                 }
 
-                throw new Exception("Failed to find the " + Identity.Description);
+                throw GUI.ApeException("Failed to find the " + Identity.Description);
             }
         }
     }

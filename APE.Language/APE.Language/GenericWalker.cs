@@ -80,7 +80,7 @@ namespace APE.Language
             }
             else
             {
-                throw new Exception("Not supported");
+                throw GUI.ApeException("Not supported");
             }
         }
 
@@ -88,7 +88,7 @@ namespace APE.Language
         {
             if (Identity.TypeNameSpace == "LzGenericWalker")
             {
-                throw new Exception("Not supported");
+                throw GUI.ApeException("Not supported");
             }
             else
             {
@@ -182,7 +182,7 @@ namespace APE.Language
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
-                                throw new Exception("Failed to select all the text of the " + Description);
+                                throw GUI.ApeException("Failed to select all the text of the " + Description);
                             }
 
                             Thread.Sleep(15);
@@ -285,7 +285,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to find the " + Description + " dropdown");
+                                    throw GUI.ApeException("Failed to find the " + Description + " dropdown");
                                 }
 
                                 Thread.Sleep(15);
@@ -313,7 +313,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to set the text of the " + Description);
+                            throw GUI.ApeException("Failed to set the text of the " + Description);
                         }
 
                         Thread.Sleep(15);

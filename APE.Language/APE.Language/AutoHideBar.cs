@@ -202,7 +202,7 @@ namespace APE.Language
                     }
                 }
             }
-            throw new Exception("Failed to find the " + Description + " item");
+            throw GUI.ApeException("Failed to find the " + Description + " item");
         }
 
         /// <summary>
@@ -358,7 +358,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
-                    throw new Exception("Failed to show the " + Description + " item");
+                    throw GUI.ApeException("Failed to show the " + Description + " item");
                 }
 
                 Thread.Sleep(15);
@@ -383,7 +383,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
-                    throw new Exception("Failed to show the " + Description + " item");
+                    throw GUI.ApeException("Failed to show the " + Description + " item");
                 }
 
                 Thread.Sleep(15);
@@ -410,7 +410,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
-                    throw new Exception("Failed to hide the " + Description + " item");
+                    throw GUI.ApeException("Failed to hide the " + Description + " item");
                 }
 
                 Thread.Sleep(15);

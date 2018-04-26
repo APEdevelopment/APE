@@ -118,7 +118,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to select listview item");
+                            throw GUI.ApeException("Failed to select listview item");
                         }
 
                         Thread.Sleep(15);
@@ -130,7 +130,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to select listview item");
+            throw GUI.ApeException("Failed to select listview item");
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace APE.Language
 
                 if (GroupID == -1)
                 {
-                    throw new Exception("Could not find group");
+                    throw GUI.ApeException("Could not find group");
                 }
             }
 
@@ -267,7 +267,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to select listview group");
+                            throw GUI.ApeException("Failed to select listview group");
                         }
 
                         Thread.Sleep(15);
@@ -315,7 +315,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to select listview group");
+                            throw GUI.ApeException("Failed to select listview group");
                         }
 
                         Thread.Sleep(15);
@@ -471,7 +471,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to select listview item");
+                                    throw GUI.ApeException("Failed to select listview item");
                                 }
 
                                 Thread.Sleep(15);
@@ -570,7 +570,7 @@ namespace APE.Language
 
                                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                     {
-                                        throw new Exception("Failed to select listview item");
+                                        throw GUI.ApeException("Failed to select listview item");
                                     }
 
                                     Thread.Sleep(15);
@@ -585,7 +585,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to select listview item");
+            throw GUI.ApeException("Failed to select listview item");
         }
     }
 }

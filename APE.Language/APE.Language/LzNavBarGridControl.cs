@@ -51,7 +51,7 @@ namespace APE.Language
             if (nodeText == null)
             {
                 GUI.Log("Failed to find node index " + nodeIndex.ToString() + " in the " + Description, LogItemType.Information);
-                throw new Exception("Failed to find node index in the " + Description);
+                throw GUI.ApeException("Failed to find node index in the " + Description);
             }
             SingleClickItem(nodeText, button, locationInCell);
         }
@@ -69,14 +69,14 @@ namespace APE.Language
             if (uid == null)
             {
                 GUI.Log("Failed to find node " + nodeText + " in the " + Description, LogItemType.Information);
-                throw new Exception("Failed to find node in the " + Description);
+                throw GUI.ApeException("Failed to find node in the " + Description);
             }
 
             int row = grid.FindRow(uid, 1);     // hidden column 1 contains the uid for each row
             if (row == -1)
             {
                 GUI.Log("Failed to find uid " + uid + " in the " + Description, LogItemType.Information);
-                throw new Exception("Failed to find uid in the " + Description);
+                throw GUI.ApeException("Failed to find uid in the " + Description);
             }
             GUI.Log("Single " + button.ToString() + " click on the " + Identity.Description + " node " + nodeText, LogItemType.Action);
             grid.SingleClickCellInternal(row, 0, button, locationInCell, MouseKeyModifier.None);
@@ -107,7 +107,7 @@ namespace APE.Language
             if (uid == null)
             {
                 GUI.Log("Failed to find node " + nodeText + " in the " + Description, LogItemType.Information);
-                throw new Exception("Failed to find node in the " + Description);
+                throw GUI.ApeException("Failed to find node in the " + Description);
             }
             int row = GetNodeIndexForUid(uid);
             return row;
@@ -278,7 +278,7 @@ namespace APE.Language
             }
 
             GUI.Log("Failed to find node index for uid " + uid + " in the " + Description, LogItemType.Information);
-            throw new Exception("Failed to find node index from uid in the " + Description);
+            throw GUI.ApeException("Failed to find node index from uid in the " + Description);
         }
     }
 }

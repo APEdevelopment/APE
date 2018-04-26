@@ -220,7 +220,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find context menu of the " + description);
+                    throw GUI.ApeException("Failed to find context menu of the " + description);
                 }
 
                 Thread.Sleep(15);
@@ -262,7 +262,7 @@ namespace APE.Language
 
                 if (!isChecked)
                 {
-                    throw new Exception("Failed to check item " + contextMenuItem + " from the " + Identity.Description);
+                    throw GUI.ApeException("Failed to check item " + contextMenuItem + " from the " + Identity.Description);
                 }
             }
         }
@@ -290,7 +290,7 @@ namespace APE.Language
 
                 if (isChecked)
                 {
-                    throw new Exception("Failed to uncheck item " + contextMenuItem + " from the " + Identity.Description);
+                    throw GUI.ApeException("Failed to uncheck item " + contextMenuItem + " from the " + Identity.Description);
                 }
             }
         }

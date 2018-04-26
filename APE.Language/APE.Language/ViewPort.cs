@@ -79,7 +79,7 @@ namespace APE
 
             if (!NM.RegisterHotKey(this.Handle, 1, 0, NM.VK_PAUSE))
             {
-                throw new Exception("Failed to register hotkey");
+                throw GUI.ApeException("Failed to register hotkey");
             }
 
             ProcessStartInfo AppStartup = new ProcessStartInfo();
@@ -136,7 +136,7 @@ namespace APE
                 {
                     if (!NM.SetForegroundWindow(VisualStudio.MainWindowHandle))
                     {
-                        throw new Exception("SetForegroundWindow VisualStudio failed");
+                        throw GUI.ApeException("SetForegroundWindow VisualStudio failed");
                     }
 
                     NM.keybd_event(NM.VK_CONTROL, 0x1d, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
@@ -240,7 +240,7 @@ namespace APE
                         colText = Color.DeepPink;
                         break;
                     default:
-                        throw new Exception("Implement support for LogItemType." + type.ToString());
+                        throw GUI.ApeException("Implement support for LogItemType." + type.ToString());
                 }
 
                 string TextToAdd;
@@ -353,7 +353,7 @@ namespace APE
                 }
                 else
                 {
-                    throw new Exception("Failed with win32 error code " + Marshal.GetLastWin32Error().ToString());
+                    throw GUI.ApeException("Failed with win32 error code " + Marshal.GetLastWin32Error().ToString());
                 }
             }
             finally

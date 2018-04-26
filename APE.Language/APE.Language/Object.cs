@@ -140,7 +140,7 @@ namespace APE.Language
                 }
                 Thread.Sleep(50);
             }
-            throw new Exception("Failed to find context menu");
+            throw GUI.ApeException("Failed to find context menu");
         }
 
         /// <summary>

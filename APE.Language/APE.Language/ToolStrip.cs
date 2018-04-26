@@ -436,7 +436,7 @@ namespace APE.Language
                     }
                 }
 
-                throw new Exception("Failed to find " + Identity.Description);
+                throw GUI.ApeException("Failed to find " + Identity.Description);
             }
         }
     }
@@ -604,7 +604,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to match text within timeout for the " + Identity.Description);
+                    throw GUI.ApeException("Failed to match text within timeout for the " + Identity.Description);
                 }
 
                 Thread.Sleep(50);
@@ -699,7 +699,7 @@ namespace APE.Language
 
             if (handle == null)
             {
-                throw new Exception("Could not find dropdown of " + Identity.Description);
+                throw GUI.ApeException("Could not find dropdown of " + Identity.Description);
             }
 
             return handle;
@@ -947,7 +947,7 @@ namespace APE.Language
 
                 if (!isChecked)
                 {
-                    throw new Exception("Failed to check item " + dropDownItem + " from the " + Identity.Description);
+                    throw GUI.ApeException("Failed to check item " + dropDownItem + " from the " + Identity.Description);
                 }
             }
         }
@@ -984,7 +984,7 @@ namespace APE.Language
 
                 if (isChecked)
                 {
-                    throw new Exception("Failed to uncheck item " + dropDownItem + " from the " + Identity.Description);
+                    throw GUI.ApeException("Failed to uncheck item " + dropDownItem + " from the " + Identity.Description);
                 }
             }
         }
@@ -1193,7 +1193,7 @@ namespace APE.Language
                 return comboBoxHandle;
             }
 
-            throw new Exception("Failed to find the combobox of " + Identity.Description);
+            throw GUI.ApeException("Failed to find the combobox of " + Identity.Description);
         }
     }
 
@@ -1329,7 +1329,7 @@ namespace APE.Language
                 return textBoxHandle;
             }
 
-            throw new Exception("Failed to find the textbox of " + descriptionOfControl);
+            throw GUI.ApeException("Failed to find the textbox of " + descriptionOfControl);
         }
     }
 
@@ -1408,7 +1408,7 @@ namespace APE.Language
                 return progressBarHandle;
             }
              
-            throw new Exception("Failed to find the progressbar of " + descriptionOfControl);
+            throw GUI.ApeException("Failed to find the progressbar of " + descriptionOfControl);
         }
     }
 }

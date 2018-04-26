@@ -511,7 +511,7 @@ namespace APE.Language
 
             if (ColumnType == null)
             {
-                throw new Exception("Unable to determine column type for column " + columnIndex.ToString() + " of the " + Description);
+                throw GUI.ApeException("Unable to determine column type for column " + columnIndex.ToString() + " of the " + Description);
             }
             return ColumnType;
         }
@@ -548,12 +548,12 @@ namespace APE.Language
             // Couple of sanity checks
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a row index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a column index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
             string currentValueAsString = this.GetCell(rowIndex, columnIndex);
@@ -662,7 +662,7 @@ namespace APE.Language
                 //case "DataGridViewButtonCell":
                 //case "DataGridViewImageCell":
                 default:
-                    throw new Exception("Unsupported data grid view column type: " + columnType.ToString());
+                    throw GUI.ApeException("Unsupported data grid view column type: " + columnType.ToString());
             }
 
             GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
@@ -716,7 +716,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to set the " + Description + " cell value");
+                            throw GUI.ApeException("Failed to set the " + Description + " cell value");
                         }
 
                         // Increase the sleep time at certain loop thresholds
@@ -737,7 +737,7 @@ namespace APE.Language
                 case ComparisonMethod.DoNotCompare:
                     break;
                 default:
-                    throw new Exception("Unsupported compare method: " + compareMethod.ToString());
+                    throw GUI.ApeException("Unsupported compare method: " + compareMethod.ToString());
             }
 
             return true;
@@ -867,7 +867,7 @@ namespace APE.Language
                         FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                         return fontStyle;
                     default:
-                        throw new Exception("Implement support for getting cell property " + property.ToString());
+                        throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
                 }
             }
             else if (rowIndex < TitleRows())
@@ -978,7 +978,7 @@ namespace APE.Language
                         FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                         return fontStyle;
                     default:
-                        throw new Exception("Implement support for getting cell property " + property.ToString());
+                        throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
                 }
             }
             else if (columnIndex < TitleColumns())
@@ -1089,7 +1089,7 @@ namespace APE.Language
                         FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                         return fontStyle;
                     default:
-                        throw new Exception("Implement support for getting cell property " + property.ToString());
+                        throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
                 }
             }
             else
@@ -1178,7 +1178,7 @@ namespace APE.Language
                         FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                         return fontStyle;
                     default:
-                        throw new Exception("Implement support for getting cell property " + property.ToString());
+                        throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
                 }
             }
         }
@@ -1229,12 +1229,12 @@ namespace APE.Language
             //{
                 if (IsRowHidden(rowIndex))
                 {
-                    throw new Exception("Row " + rowIndex.ToString() + " in the " + Description + " is hidden");
+                    throw GUI.ApeException("Row " + rowIndex.ToString() + " in the " + Description + " is hidden");
                 }
 
                 if (IsColumnHidden(columnIndex))
                 {
-                    throw new Exception("Column " + columnIndex.ToString() + " in the " + Description + " is hidden");
+                    throw GUI.ApeException("Column " + columnIndex.ToString() + " in the " + Description + " is hidden");
                 }
 
                 int rowIndexData = rowIndex - TitleRows();
@@ -1324,24 +1324,24 @@ namespace APE.Language
         {
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a row index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a column index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
             //Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
-                throw new Exception("Row is hidden in the " + Description);
+                throw GUI.ApeException("Row is hidden in the " + Description);
             }
 
             //Check to make sure the column isn't hidden
             if (IsColumnHidden(columnIndex))
             {
-                throw new Exception("Column is hidden in the " + Description);
+                throw GUI.ApeException("Column is hidden in the " + Description);
             }
 
             //Scroll the cell into view
@@ -1367,7 +1367,7 @@ namespace APE.Language
                     Location.Y = CellRectangle.Top + (CellRectangle.Height / 2);
                     break;
                 default:
-                    throw new Exception("Implement for CellClickLocation: " + Location.ToString());
+                    throw GUI.ApeException("Implement for CellClickLocation: " + Location.ToString());
             }
 
             return Location;
@@ -1524,7 +1524,7 @@ namespace APE.Language
             string columnText = columnHeader[0];
             if (columnHeader.GetLength(0) > 1)
             {
-                throw new Exception("Implement support for more than one 1 title row");
+                throw GUI.ApeException("Implement support for more than one 1 title row");
             }
             int columns = Columns();
             for (int column = 0; column < columns; column++)

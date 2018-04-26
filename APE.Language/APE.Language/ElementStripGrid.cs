@@ -228,7 +228,7 @@ namespace APE.Language
 
             if (row < 0)
             {
-                throw new Exception("Title rows are not currently supported");
+                throw GUI.ApeException("Title rows are not currently supported");
             }
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -714,7 +714,7 @@ namespace APE.Language
                     }
                     return text;
                 default:
-                    throw new Exception("Implement support for getting cell property " + property.ToString());
+                    throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }
         }
 
@@ -813,14 +813,14 @@ namespace APE.Language
                                     fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                                     break;
                                 default:
-                                    throw new Exception("Implement support for RowStyleCharacteristic " + rowStyleCharacteristic);
+                                    throw GUI.ApeException("Implement support for RowStyleCharacteristic " + rowStyleCharacteristic);
                             }
                             return fontStyle;
                         default:
-                            throw new Exception("Implement support for getting cell property " + property.ToString());
+                            throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
                     }
                 default:
-                    throw new Exception("Implement support for getting cell property " + property.ToString());
+                    throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }
         }
 
@@ -893,7 +893,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find the row of the node in the " + Description);
+                    throw GUI.ApeException("Failed to find the row of the node in the " + Description);
                 }
             }
 
@@ -1026,7 +1026,7 @@ namespace APE.Language
             }
             else
             {
-                throw new Exception("Total row is not visible in the " + Description);
+                throw GUI.ApeException("Total row is not visible in the " + Description);
             }
         }
 
@@ -1064,7 +1064,7 @@ namespace APE.Language
             }
             else
             {
-                throw new Exception("Filter row is not visible in the " + Description);
+                throw GUI.ApeException("Filter row is not visible in the " + Description);
             }
         }
 
@@ -1112,7 +1112,7 @@ namespace APE.Language
             }
             else
             {
-                throw new Exception("Multi edit row is not visible in the " + Description);
+                throw GUI.ApeException("Multi edit row is not visible in the " + Description);
             }
         }
 
@@ -1208,24 +1208,24 @@ namespace APE.Language
         {
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a row index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a column index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
             // Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
-                throw new Exception("Row is hidden in the " + Description);
+                throw GUI.ApeException("Row is hidden in the " + Description);
             }
 
             // Check to make sure the column isn't hidden
             if (IsColumnHidden(columnIndex))
             {
-                throw new Exception("Column is hidden in the " + Description);
+                throw GUI.ApeException("Column is hidden in the " + Description);
             }
 
             Input.SetFocus(IntPtr.Zero, Identity.ParentHandle, Identity.Description);
@@ -1239,22 +1239,22 @@ namespace APE.Language
             // Check the cell can be scrolled into view
             if (CellRectangle.Top > Height)
             {
-                throw new Exception("Row can not be scrolled into view (below bottom) in the " + Description);
+                throw GUI.ApeException("Row can not be scrolled into view (below bottom) in the " + Description);
             }
 
             if (CellRectangle.Left > Width)
             {
-                throw new Exception("Column can not be scrolled into view (after right) in the " + Description);
+                throw GUI.ApeException("Column can not be scrolled into view (after right) in the " + Description);
             }
 
             if (CellRectangle.Top < 0)
             {
-                throw new Exception("Row can not be scrolled into view (above top) in the " + Description);
+                throw GUI.ApeException("Row can not be scrolled into view (above top) in the " + Description);
             }
 
             if (CellRectangle.Left < 0)
             {
-                throw new Exception("Column can not be scrolled into view (before left) in the " + Description);
+                throw GUI.ApeException("Column can not be scrolled into view (before left) in the " + Description);
             }
             
             Point Location = new Point();
@@ -1289,7 +1289,7 @@ namespace APE.Language
                 //    Location.Y = CellRectangle.Top + (CellRectangle.Height / 2);
                 //    break;
                 default:
-                    throw new Exception("Implement for CellClickLocation: " + locationInCell.ToString());
+                    throw GUI.ApeException("Implement for CellClickLocation: " + locationInCell.ToString());
             }
 
             // Handle partial rows / columns
@@ -1504,17 +1504,17 @@ namespace APE.Language
             // Couple of sanity checks
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a row index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a column index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
             if (FilterRowVisible() && rowIndex == FilterRow())
             {
-                throw new Exception("Use SetFilterCellValue to set a filter value in the " + Description);
+                throw GUI.ApeException("Use SetFilterCellValue to set a filter value in the " + Description);
             }
 
             string currentValueAsString = this.GetCell(rowIndex, columnIndex);
@@ -1567,7 +1567,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
-                    throw new Exception("The cell for row " + rowFriendlyText + " column " + columnFriendlyText + " is not editable in the " + Description);
+                    throw GUI.ApeException("The cell for row " + rowFriendlyText + " column " + columnFriendlyText + " is not editable in the " + Description);
                 }
 
                 Thread.Sleep(50);
@@ -1616,7 +1616,7 @@ namespace APE.Language
 
                             if (timer.ElapsedMilliseconds > 3000)
                             {
-                                throw new Exception("row " + rowFriendlyText + " column " + columnFriendlyText + " failed be selected for the " + Description);
+                                throw GUI.ApeException("row " + rowFriendlyText + " column " + columnFriendlyText + " failed be selected for the " + Description);
                             }
 
                             Thread.Sleep(15);
@@ -1646,7 +1646,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > 3000)
                         {
-                            throw new Exception("Failed to get editor type for the " + Description);
+                            throw GUI.ApeException("Failed to get editor type for the " + Description);
                         }
 
                         Thread.Sleep(50);
@@ -1724,7 +1724,7 @@ namespace APE.Language
                     base.SendKeysInternal(submitKey);
                     break;
                 default:
-                    throw new Exception("Unsupported element strip grid editor: Type: " + editorType);
+                    throw GUI.ApeException("Unsupported element strip grid editor: Type: " + editorType);
             }
 
             switch (compareMethod)
@@ -1759,7 +1759,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to set the " + Description + " cell value");
+                            throw GUI.ApeException("Failed to set the " + Description + " cell value");
                         }
 
                         // Increase the sleep time at certain loop thresholds
@@ -1780,7 +1780,7 @@ namespace APE.Language
                 case ComparisonMethod.DoNotCompare:
                     break;
                 default:
-                    throw new Exception("Unsupported compare method: " + compareMethod.ToString());
+                    throw GUI.ApeException("Unsupported compare method: " + compareMethod.ToString());
             }
 
             return true;
@@ -2020,7 +2020,7 @@ namespace APE.Language
 
             if (row < 0)
             {
-                throw new Exception("Title rows are not currently supported");
+                throw GUI.ApeException("Title rows are not currently supported");
             }
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);

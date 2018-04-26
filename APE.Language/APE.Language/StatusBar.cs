@@ -86,7 +86,7 @@ namespace APE.Language
             }
 
             //Failed to find it
-            throw new Exception("Failed to find panel with name [" + PanelName + "]");
+            throw GUI.ApeException("Failed to find panel with name [" + PanelName + "]");
         }
 
         /// <summary>

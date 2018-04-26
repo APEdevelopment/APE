@@ -183,7 +183,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find the " + Description + " item");
+            throw GUI.ApeException("Failed to find the " + Description + " item");
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemIndex, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
            
             if (HasTabInternal(dockControlIndex))
@@ -249,7 +249,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             if (HasTabInternal(dockControlIndex))
@@ -291,7 +291,7 @@ namespace APE.Language
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
                     GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description, LogItemType.Information);
-                    throw new Exception("Failed to select the " + Description + " item");
+                    throw GUI.ApeException("Failed to select the " + Description + " item");
                 }
 
                 Thread.Sleep(50);
@@ -323,7 +323,7 @@ namespace APE.Language
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
                     GUI.Log("Failed to select item [" + itemText + "] the currently active item is [" + activeItem + "] in the " + Description, LogItemType.Information);
-                    throw new Exception("Failed to select the " + Description + " item");
+                    throw GUI.ApeException("Failed to select the " + Description + " item");
                 }
 
                 Thread.Sleep(50);
@@ -335,7 +335,7 @@ namespace APE.Language
             Rectangle buttonBounds = GetButtonBounds(dockControlIndex, button);
             if (buttonBounds.Width == 0 || buttonBounds.Height == 0)
             {
-                throw new Exception("Failed to find the " + Description + " " + button.ToString().ToLower() + " button");
+                throw GUI.ApeException("Failed to find the " + Description + " " + button.ToString().ToLower() + " button");
             }
 
             int x = buttonBounds.Left + (buttonBounds.Width / 2);
@@ -439,7 +439,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             bool visible = GetButtonVisible(dockControlIndex, ButtonToGet.Pin);
@@ -458,7 +458,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             bool enabled = GetButtonEnabled(dockControlIndex, ButtonToGet.Pin);
@@ -478,15 +478,15 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
             if (!PinButtonVisible(itemPattern))
             {
-                throw new Exception("Pin button is not visible for the item in the " + Description);
+                throw GUI.ApeException("Pin button is not visible for the item in the " + Description);
             }
             if (!PinButtonEnabled(itemPattern))
             {
-                throw new Exception("Pin button is not enabled for the item in the " + Description);
+                throw GUI.ApeException("Pin button is not enabled for the item in the " + Description);
             }
             ClickButtonInternal(dockControlIndex, ButtonToGet.Pin);
         }
@@ -503,7 +503,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             bool visible = GetButtonVisible(dockControlIndex, ButtonToGet.Window);
@@ -522,7 +522,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             bool enabled = GetButtonEnabled(dockControlIndex, ButtonToGet.Window);
@@ -542,15 +542,15 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
             if (!WindowButtonVisible(itemPattern))
             {
-                throw new Exception("Window button is not visible for the item in the " + Description);
+                throw GUI.ApeException("Window button is not visible for the item in the " + Description);
             }
             if (!WindowButtonEnabled(itemPattern))
             {
-                throw new Exception("Window button is not enabled for the item in the " + Description);
+                throw GUI.ApeException("Window button is not enabled for the item in the " + Description);
             }
             ClickButtonInternal(dockControlIndex, ButtonToGet.Window);
         }
@@ -671,7 +671,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "enabled", MemberTypes.Field);
                     break;
                 default:
-                    throw new Exception("Unsupported button: " + button.ToString());
+                    throw GUI.ApeException("Unsupported button: " + button.ToString());
             }
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -721,7 +721,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "visible", MemberTypes.Field);
                     break;
                 default:
-                    throw new Exception("Unsupported button: " + button.ToString());
+                    throw GUI.ApeException("Unsupported button: " + button.ToString());
             }
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -764,7 +764,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "bounds", MemberTypes.Field);
                     break;
                 default:
-                    throw new Exception("Unsupported button: " + button.ToString());
+                    throw GUI.ApeException("Unsupported button: " + button.ToString());
             }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
@@ -825,7 +825,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             ClickButtonInternal(dockControlIndex, ButtonToGet.Close);
@@ -853,7 +853,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to remove the " + Description + " item");
+                    throw GUI.ApeException("Failed to remove the " + Description + " item");
                 }
 
                 Thread.Sleep(50);

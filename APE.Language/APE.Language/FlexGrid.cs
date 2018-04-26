@@ -123,7 +123,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find the row of the node in the " + Description);
+                    throw GUI.ApeException("Failed to find the row of the node in the " + Description);
                 }
             }
 
@@ -232,7 +232,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to expand the " + Description + " node");
+                                    throw GUI.ApeException("Failed to expand the " + Description + " node");
                                 }
 
                                 Thread.Sleep(15);
@@ -278,7 +278,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to collapse the " + Description + " node");
+                                    throw GUI.ApeException("Failed to collapse the " + Description + " node");
                                 }
 
                                 Thread.Sleep(15);
@@ -321,7 +321,7 @@ namespace APE.Language
 
                 if (!HasNodeGotChildren(rowIndex))
                 {
-                    throw new Exception("Can not expand the node of the " + Description + " is has no children");
+                    throw GUI.ApeException("Can not expand the node of the " + Description + " is has no children");
                 }
 
                 if (IsNodeCollapsed(rowIndex))
@@ -338,7 +338,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to expand the " + Description + " node");
+                            throw GUI.ApeException("Failed to expand the " + Description + " node");
                         }
 
                         Thread.Sleep(15);
@@ -383,7 +383,7 @@ namespace APE.Language
 
                 if (!HasNodeGotChildren(rowIndex))
                 {
-                    throw new Exception("Can not collapse the node of the " + Description + " is has no children");
+                    throw GUI.ApeException("Can not collapse the node of the " + Description + " is has no children");
                 }
 
                 if (!IsNodeCollapsed(rowIndex))
@@ -400,7 +400,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to collapse the " +  Description + " node");
+                            throw GUI.ApeException("Failed to collapse the " +  Description + " node");
                         }
 
                         Thread.Sleep(15);
@@ -926,12 +926,12 @@ namespace APE.Language
             // Couple of sanity checks
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a row index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a column index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
             CellProperty propertyToCheck;
@@ -1137,7 +1137,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to find the " + Description + " cell editor");
+                            throw GUI.ApeException("Failed to find the " + Description + " cell editor");
                         }
 
                         Thread.Sleep(50);
@@ -1182,7 +1182,7 @@ namespace APE.Language
                                 base.SendKeysInternal(submitKey);
                                 break;
                             default:
-                                throw new Exception("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
+                                throw GUI.ApeException("Unsupported flexgrid editor: Type: " + APEDirectType + " Base Type: " + APEBaseType);
                         }
                     }
 
@@ -1255,7 +1255,7 @@ namespace APE.Language
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
-                            throw new Exception("Failed to set the " + Description + " cell value");
+                            throw GUI.ApeException("Failed to set the " + Description + " cell value");
                         }
 
                         // Increase the sleep time at certain loop thresholds
@@ -1276,7 +1276,7 @@ namespace APE.Language
                 case ComparisonMethod.DoNotCompare:
                     break;
                 default:
-                    throw new Exception("Unsupported compare method: " + compareMethod.ToString());
+                    throw GUI.ApeException("Unsupported compare method: " + compareMethod.ToString());
             }
 
             return true;
@@ -1440,7 +1440,7 @@ namespace APE.Language
                     }
                     return cellUserDataTypeNamespace + "." + cellUserDataTypeName;
                 default:
-                    throw new Exception("Implement support for getting cell property " + property.ToString());
+                    throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }
         }
 
@@ -1522,7 +1522,7 @@ namespace APE.Language
                     string rangeHasBackgroundImage = GUI.m_APE.GetValueFromMessage();
                     return rangeHasBackgroundImage;
                 default:
-                    throw new Exception("Implement support for getting cell property " + property.ToString());
+                    throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }
         }
 
@@ -1659,24 +1659,24 @@ namespace APE.Language
         {
             if (rowIndex < 0)
             {
-                throw new Exception("Must supply a row index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a row index greater than 0 in the " + Description);
             }
 
             if (columnIndex < 0)
             {
-                throw new Exception("Must supply a column index greater than 0 in the " + Description);
+                throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
             //Check to make sure the row isn't hidden
             if (IsRowHidden(rowIndex))
             {
-                throw new Exception("Row is hidden in the " + Description);
+                throw GUI.ApeException("Row is hidden in the " + Description);
             }
 
             //Check to make sure the column isn't hidden
             if (IsColumnHidden(columnIndex))
             {
-                throw new Exception("Column is hidden in the " + Description);
+                throw GUI.ApeException("Column is hidden in the " + Description);
             }
 
             //Scroll the cell into view
@@ -1710,7 +1710,7 @@ namespace APE.Language
                     Location.Y = CellRectangle.Top + (CellRectangle.Height / 2);
                     break;
                 default:
-                    throw new Exception("Implement for CellClickLocation: " + Location.ToString());
+                    throw GUI.ApeException("Implement for CellClickLocation: " + Location.ToString());
             }
 
             return Location;
@@ -1836,7 +1836,7 @@ namespace APE.Language
 
                     if (this.Columns() != Columns)
                     {
-                        throw new Exception("Number of grid columns changed in the " + Description);
+                        throw GUI.ApeException("Number of grid columns changed in the " + Description);
                     }
 
                     string[] Delimiter = { "\t" };
@@ -1995,7 +1995,7 @@ namespace APE.Language
                     return 1;
             }
 
-            throw new Exception("Unknown BorderStyle: " + BorderStyle);
+            throw GUI.ApeException("Unknown BorderStyle: " + BorderStyle);
         }
 
         //TODO

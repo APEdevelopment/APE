@@ -56,7 +56,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("RadioButton failed to be set to state [" + State.ToString() + "]");
+                    throw GUI.ApeException("RadioButton failed to be set to state [" + State.ToString() + "]");
                 }
 
                 Thread.Sleep(15);

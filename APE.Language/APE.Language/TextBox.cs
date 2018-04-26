@@ -100,7 +100,7 @@ namespace APE.Language
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
-                                throw new Exception("Failed to select all the text in the TextBox");
+                                throw GUI.ApeException("Failed to select all the text in the TextBox");
                             }
 
                             Thread.Sleep(15);
@@ -120,7 +120,7 @@ namespace APE.Language
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
-                                    throw new Exception("Failed to set the text of the TextBox");
+                                    throw GUI.ApeException("Failed to set the text of the TextBox");
                                 }
 
                                 Thread.Sleep(15);
@@ -142,7 +142,7 @@ namespace APE.Language
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
-                                throw new Exception("Failed to set the text of the TextBox");
+                                throw GUI.ApeException("Failed to set the text of the TextBox");
                             }
 
                             Thread.Sleep(15);

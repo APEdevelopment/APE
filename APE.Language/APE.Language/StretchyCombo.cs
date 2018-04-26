@@ -79,7 +79,7 @@ namespace APE.Language
 
             if (itemIndex == -1)
             {
-                throw new Exception("Item " + item + " does not exist in the " + Description);
+                throw GUI.ApeException("Item " + item + " does not exist in the " + Description);
             }
 
             if (!IsDropped())
@@ -114,7 +114,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > 5000)
                 {
-                    throw new Exception("Failed to select item " + item + " in the " + Description);
+                    throw GUI.ApeException("Failed to select item " + item + " in the " + Description);
                 }
 
                 Thread.Sleep(50);

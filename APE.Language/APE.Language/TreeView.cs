@@ -98,7 +98,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find root node");
+            throw GUI.ApeException("Failed to find root node");
         }
 
         private IntPtr GetChildNode(IntPtr Node, string NodeText)
@@ -135,7 +135,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find child node");
+            throw GUI.ApeException("Failed to find child node");
         }
 
         private int MakeLParam(int LoWord, int HiWord)
@@ -273,7 +273,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Node failed to expand");
+                    throw GUI.ApeException("Node failed to expand");
                 }
 
                 Thread.Sleep(15);
@@ -304,7 +304,7 @@ namespace APE.Language
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw new Exception("Node failed to scroll fully into view");
+                        throw GUI.ApeException("Node failed to scroll fully into view");
                     }
 
                     Thread.Sleep(15);
@@ -390,7 +390,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to select node");
+                    throw GUI.ApeException("Failed to select node");
                 }
             }
             while (true);
@@ -427,7 +427,7 @@ namespace APE.Language
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw new Exception("Failed to select node");
+                        throw GUI.ApeException("Failed to select node");
                     }
 
                     Thread.Sleep(15);
@@ -458,7 +458,7 @@ namespace APE.Language
             // Check for checkbox style
             if (!m_CheckBoxes)
             {
-                throw new Exception("TreeView does not have checkbox style");
+                throw GUI.ApeException("TreeView does not have checkbox style");
             }
 
             // Check for if its already in the correct state
@@ -574,7 +574,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to check / uncheck node");
+                    throw GUI.ApeException("Failed to check / uncheck node");
                 }
 
                 Thread.Sleep(15);

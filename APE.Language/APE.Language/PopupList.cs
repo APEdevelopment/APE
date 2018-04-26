@@ -96,7 +96,7 @@ namespace APE.Language
                 }
             }
 
-            throw new Exception("Failed to find item " + item + " in popup list");
+            throw GUI.ApeException("Failed to find item " + item + " in popup list");
         }
     }
 }

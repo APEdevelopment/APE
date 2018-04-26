@@ -72,11 +72,11 @@ namespace APE.Language
             GUI.Log("Single Left click on the pin button in the " + Identity.Description, LogItemType.Action);
 			if (!PinButtonVisible())
             {
-                throw new Exception("Pin button is not visible in the " + Description);
+                throw GUI.ApeException("Pin button is not visible in the " + Description);
             }
             if (!PinButtonEnabled())
             {
-                throw new Exception("Pin button is not enabled in the " + Description);
+                throw GUI.ApeException("Pin button is not enabled in the " + Description);
             }
             ClickButtonInternal(ButtonToGet.Pin);
         }
@@ -109,11 +109,11 @@ namespace APE.Language
             GUI.Log("Single Left click on the window button in the " + Identity.Description, LogItemType.Action);
             if (!WindowButtonVisible())
             {
-                throw new Exception("Window button is not visible in the " + Description);
+                throw GUI.ApeException("Window button is not visible in the " + Description);
             }
             if (!WindowButtonEnabled())
             {
-                throw new Exception("Window button is not enabled in the " + Description);
+                throw GUI.ApeException("Window button is not enabled in the " + Description);
             }
             ClickButtonInternal(ButtonToGet.Window);
         }
@@ -143,7 +143,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "enabled", MemberTypes.Field);
                     break;
                 default:
-                    throw new Exception("Unsupported button: " + button.ToString());
+                    throw GUI.ApeException("Unsupported button: " + button.ToString());
             }
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -172,7 +172,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "visible", MemberTypes.Field);
                     break;
                 default:
-                    throw new Exception("Unsupported button: " + button.ToString());
+                    throw GUI.ApeException("Unsupported button: " + button.ToString());
             }
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -202,7 +202,7 @@ namespace APE.Language
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "bounds", MemberTypes.Field);
                     break;
                 default:
-                    throw new Exception("Unsupported button bounds: " + button.ToString());
+                    throw GUI.ApeException("Unsupported button bounds: " + button.ToString());
             }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "X", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "Y", MemberTypes.Property);
@@ -227,7 +227,7 @@ namespace APE.Language
             Rectangle buttonBounds = GetButtonBoundsInternal(button);
             if (buttonBounds.Width == 0 || buttonBounds.Height == 0)
             {
-                throw new Exception("Failed to find the " + Description + " " + button.ToString().ToLower() + " button");
+                throw GUI.ApeException("Failed to find the " + Description + " " + button.ToString().ToLower() + " button");
             }
 
             int x = buttonBounds.Left + (buttonBounds.Width / 2);

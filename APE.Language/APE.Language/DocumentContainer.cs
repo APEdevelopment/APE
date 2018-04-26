@@ -56,7 +56,7 @@ namespace APE.Language
             int dockControlIndex = GetDockControlIndex(itemPattern, out tabText);
             if (dockControlIndex == -1)
             {
-                throw new Exception("Failed to find the " + Description + " item");
+                throw GUI.ApeException("Failed to find the " + Description + " item");
             }
 
             int rightPadding = RightPadding();
@@ -100,7 +100,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to scroll the " + Description + " tab into view");
+                    throw GUI.ApeException("Failed to scroll the " + Description + " tab into view");
                 }
             }
 
@@ -119,7 +119,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to select the " + Description + " tab");
+                    throw GUI.ApeException("Failed to select the " + Description + " tab");
                 }
 
                 Thread.Sleep(50);

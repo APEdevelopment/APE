@@ -184,7 +184,7 @@ namespace APE.Language
 
             if (column == -1)
             {
-                throw new Exception("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
+                throw GUI.ApeException("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
             }
 
             return column;

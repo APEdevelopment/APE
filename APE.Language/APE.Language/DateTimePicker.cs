@@ -168,7 +168,7 @@ namespace APE.Language
                     {
                         stateText = "uncheck";
                     }
-                    throw new Exception("Failed to " + stateText + " the " + Description + " checkbox");
+                    throw GUI.ApeException("Failed to " + stateText + " the " + Description + " checkbox");
                 }
 
                 Thread.Sleep(15);
@@ -222,7 +222,7 @@ namespace APE.Language
                     formatedDateText = dateValue.ToString(customFormat);
                     break;
                 default:
-                    throw new Exception("Implement support for date time picker format " + datePickerFormat);
+                    throw GUI.ApeException("Implement support for date time picker format " + datePickerFormat);
             }
 
             currentDateText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
@@ -260,7 +260,7 @@ namespace APE.Language
                         dateParts = dateValue.ToString(customFormat).Split(splitSeparator);
                         break;
                     default:
-                        throw new Exception("Implement support for date time picker format " + datePickerFormat);
+                        throw GUI.ApeException("Implement support for date time picker format " + datePickerFormat);
                 }
 
                 foreach (string part in dateParts)
@@ -277,7 +277,7 @@ namespace APE.Language
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw new Exception("Failed to set the text of the TextBox");
+                        throw GUI.ApeException("Failed to set the text of the TextBox");
                     }
 
                     Thread.Sleep(15);

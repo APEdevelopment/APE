@@ -172,7 +172,7 @@ namespace APE.Language
                     {
                         stateText = "uncheck";
                     }
-                    throw new Exception("Failed to " + stateText + " item " + itemText + " of the " + Description);
+                    throw GUI.ApeException("Failed to " + stateText + " item " + itemText + " of the " + Description);
                 }
 
                 Thread.Sleep(15);

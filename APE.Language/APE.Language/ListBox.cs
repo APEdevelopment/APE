@@ -134,7 +134,7 @@ namespace APE.Language
             int Index = ItemIndex(itemText);
             if (Index == NM.LB_ERR)
             {
-                throw new Exception("Failed to find the item in the " + Description);
+                throw GUI.ApeException("Failed to find the item in the " + Description);
             }
 
             //Locate the rect of the item
@@ -181,7 +181,7 @@ namespace APE.Language
                 SendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
                 if (SendResult == IntPtr.Zero || MessageResult.ToInt64() == NM.LB_ERR)  //Failed
                 {
-                    throw new Exception("Failed to access the listbox of the " + Description);
+                    throw GUI.ApeException("Failed to access the listbox of the " + Description);
                 }
                 //Wait for animation to finish
                 //base.WaitForAnimation(Identity.Handle, false);
@@ -223,7 +223,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to select the item in the " + Description);
+                    throw GUI.ApeException("Failed to select the item in the " + Description);
                 }
 
                 Thread.Sleep(15);
