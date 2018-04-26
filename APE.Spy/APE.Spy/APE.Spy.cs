@@ -776,6 +776,29 @@ namespace APE.Spy
             PropertyListbox.Items.Add("Fixed Columns\t: " + elementStripGrid.FixedColumns().ToString());
             PropertyListbox.Items.Add("Columns\t\t: " + elementStripGrid.Columns().ToString());
             PropertyListbox.Items.Add("First Visible Column\t: " + elementStripGrid.FirstVisibleColumn().ToString());
+            PropertyListbox.Items.Add("");
+
+            PropertyListbox.Items.Add("Columns:");
+            int columns = elementStripGrid.Columns();
+            int titleRows = elementStripGrid.TitleRows();
+            string[] title = new string[titleRows];
+
+            for (int column = 0; column < columns; column++)
+            {
+                if (!elementStripGrid.IsColumnHidden(column))
+                {
+                    for (int titleRow = 0; titleRow < titleRows; titleRow++)
+                    {
+                        string cell = elementStripGrid.GetCell(titleRow, column);
+                        if (cell != "")
+                        {
+                            title[titleRow] = cell;
+                        }
+                    }
+
+                    PropertyListbox.Items.Add(string.Join("->", title));
+                }
+            }
         }
 
         private void AddGUIFlexGridToPropertyListbox()
