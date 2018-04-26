@@ -449,7 +449,6 @@ namespace APE.Native
         {
             if (IntPtr.Size == 8)
             {
-
                 return SetWindowLongPtr64(hWnd, nIndex, new IntPtr(dwNewLong));
             }
             else if (IntPtr.Size == 4)
