@@ -1078,7 +1078,6 @@ namespace APE.Language
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, menuIndex));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "CheckOnClick", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //get the values returned
