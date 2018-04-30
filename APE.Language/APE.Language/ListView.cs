@@ -324,6 +324,10 @@ namespace APE.Language
                     timer.Stop();
                 }
             }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
+            }
             finally
             {
                 Input.Unblock();

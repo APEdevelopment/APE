@@ -87,7 +87,7 @@ namespace APE.Language
             int x = splitter.X + (splitter.Width / 2);
             int y = splitter.Y + (splitter.Height / 2);
 
-            uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
+            uint doubleClickTimer = (uint)SystemInformation.DoubleClickTime;
             Input.Block();
             try
             {
@@ -112,16 +112,14 @@ namespace APE.Language
                         break;
                 }
             }
-            catch
+            catch when (Input.ResetInputFilter(doubleClickTimer))
             {
-                NM.SetDoubleClickTime(DoubleClickTimer);    //Reset double click timer
-                Input.Reset();                              //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
                 TimerResolution.UnsetMaxTimerResolution();
-                NM.SetDoubleClickTime(DoubleClickTimer);
+                NM.SetDoubleClickTime(doubleClickTimer);
                 Input.Unblock();
             }
         }

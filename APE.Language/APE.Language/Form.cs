@@ -113,6 +113,10 @@ namespace APE.Language
                         //Wait for the window to disappear
                         base.WaitForControlToNotBeVisible();
                     }
+                    catch when (Input.ResetInputFilter())
+                    {
+                        // Will never be reached as ResetInputFilter always returns false
+                    }
                     finally
                     {
                         Input.Unblock();
@@ -265,6 +269,10 @@ namespace APE.Language
                 while (windowState != "Maximized");
                 timer.Stop();
             }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
+            }
             finally
             {
                 Input.Unblock();
@@ -338,6 +346,10 @@ namespace APE.Language
                 while (windowState != "Minimized");
                 timer.Stop();
             }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
+            }
             finally
             {
                 Input.Unblock();
@@ -394,6 +406,10 @@ namespace APE.Language
                     }
                     while (windowState != "Normal");
                     timer.Stop();
+                }
+                catch when (Input.ResetInputFilter())
+                {
+                    // Will never be reached as ResetInputFilter always returns false
                 }
                 finally
                 {
@@ -456,6 +472,10 @@ namespace APE.Language
                     while (windowState != "Normal");
                     timer.Stop();
                 }
+                catch when (Input.ResetInputFilter())
+                {
+                    // Will never be reached as ResetInputFilter always returns false
+                }
                 finally
                 {
                     Input.Unblock();
@@ -493,6 +513,10 @@ namespace APE.Language
             {
                 base.MouseDownInternal(MouseDownX, MouseDownY, MouseButton.Left, MouseKeyModifier.None);
                 base.MouseUpInternal(DestinationUpperLeftX + MouseDownX - WindowRect.left, DestinationUpperLeftY + MouseDownY - WindowRect.top, MouseButton.Left, MouseKeyModifier.None);
+            }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {

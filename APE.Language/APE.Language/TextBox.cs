@@ -157,6 +157,10 @@ namespace APE.Language
                     base.SendKeys(submitKey);
                 }
             }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
+            }
             finally
             {
                 Input.Unblock();

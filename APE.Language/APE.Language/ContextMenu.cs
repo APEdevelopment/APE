@@ -193,10 +193,9 @@ namespace APE.Language
                     CloseContextMenu(handle);
                 }
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Input.Reset();  //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {

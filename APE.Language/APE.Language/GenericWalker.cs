@@ -328,22 +328,38 @@ namespace APE.Language
                         GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
 
+                    bool ok = false;
                     try
                     {
                         GUI.Log("Press Enter to set the value", LogItemType.Action);
                         base.SendKeysInternal("{Enter}");
+                        ok = true;
                     }
                     finally
                     {
                         if (Identity.TypeNameSpace == "LzGenericWalker")
                         {
-                            //Wait for the event handler then remove it
-                            GUI.m_APE.AddFirstMessageWaitForAndRemoveGenericWalkerSelectedHandler();
-                            GUI.m_APE.SendMessages(EventSet.APE);
-                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            if (ok)
+                            {
+                                //Wait for the event handler then remove it
+                                GUI.m_APE.AddFirstMessageWaitForAndRemoveGenericWalkerSelectedHandler();
+                                GUI.m_APE.SendMessages(EventSet.APE);
+                                GUI.m_APE.WaitForMessages(EventSet.APE);
+                            }
+                            else
+                            {
+                                //Remove the event handler
+                                GUI.m_APE.AddFirstMessageRemoveGenericWalkerSelectedHandler();
+                                GUI.m_APE.SendMessages(EventSet.APE);
+                                GUI.m_APE.WaitForMessages(EventSet.APE);
+                            }
                         }
                     }
                 }
+            }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {

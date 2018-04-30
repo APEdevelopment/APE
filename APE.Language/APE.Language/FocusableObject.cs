@@ -95,7 +95,7 @@ namespace APE.Language
             {
                 Input.SendKeys(this, textToSend);
             }
-            catch when (ResetInputFilter())
+            catch when (Input.ResetInputFilter())
             {
                 // Will never be reached as ResetInputFilter always returns false
             }
@@ -103,12 +103,6 @@ namespace APE.Language
             {
                 Input.Unblock();
             }
-        }
-
-        private bool ResetInputFilter()
-        {
-            Input.Reset();  //Reset the input blocking
-            return false;
         }
     }
 }

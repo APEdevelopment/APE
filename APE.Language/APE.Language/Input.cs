@@ -98,7 +98,7 @@ namespace APE.Language
             }
 
             IsMouseDown = false;
-            uint DoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
+            uint doubleClickTimer = (uint)SystemInformation.DoubleClickTime;
             Block();
             try
             {
@@ -128,11 +128,9 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
-            catch
+            catch when (Input.ResetInputFilter(doubleClickTimer))
             {
-                NM.SetDoubleClickTime(DoubleClickTimer);    //Reset double click timer
-                Reset();                                    //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
@@ -148,7 +146,7 @@ namespace APE.Language
                 finally
                 {
                     TimerResolution.UnsetMaxTimerResolution();
-                    NM.SetDoubleClickTime(DoubleClickTimer);
+                    NM.SetDoubleClickTime(doubleClickTimer);
                     Unblock();
                 }
             }
@@ -207,10 +205,9 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Reset();    //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
@@ -291,10 +288,9 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Reset();    //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
@@ -343,10 +339,9 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Reset();    //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
@@ -431,10 +426,9 @@ namespace APE.Language
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                 }
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Reset();    //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
@@ -890,6 +884,10 @@ namespace APE.Language
                             {
                                 if (IsScrollLockOn == IsToggleKeyOn(state[NM.VK_SCROLL]))
                                 {
+                                    //Set to false so we don't flip the state if reset is called more than once
+                                    IsScrollLockOn = false;
+                                    IsNumLockOn = false;
+                                    IsCapsLockOn = false;
                                     break;
                                 }
                             }
@@ -908,6 +906,19 @@ namespace APE.Language
             }
 
             BlockCount = 0;
+        }
+
+        internal static bool ResetInputFilter(uint doubleClickTimer)
+        {
+            NM.SetDoubleClickTime(doubleClickTimer);    //Reset double click timer
+            Input.Reset();  //Reset the input blocking
+            return false;
+        }
+
+        internal static bool ResetInputFilter()
+        {
+            Input.Reset();  //Reset the input blocking
+            return false;
         }
 
         public static bool WaitForInputIdle(IntPtr handle, uint timeoutMs)

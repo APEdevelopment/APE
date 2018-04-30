@@ -243,7 +243,8 @@ namespace APE.Language
                     Rectangle location = GetCheckboxRectangle();
                     x += location.Right;
                 }
-                base.SingleClick(x, y, MouseButton.Left);
+                GUI.Log("Single Left click on the " + Identity.Description, LogItemType.Action);
+                base.SingleClickInternal(x, y, MouseButton.Left, MouseKeyModifier.None);
 
                 char[] splitSeparator = { '/', ':', ' ' };
                 string[] dateParts;
@@ -284,6 +285,10 @@ namespace APE.Language
                 }
                 while (currentDateText != formatedDateText);
                 timer.Stop();
+            }
+            catch when (Input.ResetInputFilter())
+            {
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {

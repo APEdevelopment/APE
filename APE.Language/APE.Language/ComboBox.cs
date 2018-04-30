@@ -203,10 +203,9 @@ namespace APE.Language
                 while (true);
                 timer.Stop();
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Input.Reset();  //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {
@@ -251,10 +250,9 @@ namespace APE.Language
                 GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboboxTextBox.SetText(text);
             }
-            catch
+            catch when (Input.ResetInputFilter())
             {
-                Input.Reset();  //Reset the mouse blocking
-                throw;
+                // Will never be reached as ResetInputFilter always returns false
             }
             finally
             {

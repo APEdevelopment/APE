@@ -235,6 +235,7 @@ namespace APE.Language
         internal void SingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             bool removeHandler = false;
+            bool ok = false;
             try
             {
                 if (Identity.TechnologyType == "Windows Forms (WinForms)")
@@ -258,12 +259,19 @@ namespace APE.Language
                 }
 
                 Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+                ok = true;
             }
             finally
             {
-                if (removeHandler)
+                if (removeHandler && ok)
                 {
-                    GUI.m_APE.AddFirstyMessageWaitForAndRemoveMouseClickHandler();
+                    GUI.m_APE.AddFirstMessageWaitForAndRemoveMouseClickHandler();
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                else if (removeHandler && !ok)
+                {
+                    GUI.m_APE.AddFirstMessageRemoveMouseClickHandler();
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                 }
