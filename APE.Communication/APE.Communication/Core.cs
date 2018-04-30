@@ -113,6 +113,8 @@ namespace APE.Communication
         WaitForAndRemoveGenericWalkerSelectedHandler = 51,
         VisualStyleSupported = 52,
         DataGridViewShowCell = 53,
+        RemoveMouseClickHandler = 54,
+        RemoveGenericWalkerSelectedHandler = 55,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -384,6 +386,9 @@ namespace APE.Communication
                                 case MessageAction.WaitForAndRemoveMouseClickHandler:
                                     WaitForAndRemoveMouseClickHandler(ptrMessage);
                                     break;
+                                case MessageAction.RemoveMouseClickHandler:
+                                    RemoveMouseClickHandler(ptrMessage);
+                                    break;
                                 case MessageAction.AddFlexgridCellChangedHandler:
                                     AddFlexgridCellChangedHandler(ptrMessage);
                                     break;
@@ -404,6 +409,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.WaitForAndRemoveGenericWalkerSelectedHandler:
                                     WaitForAndRemoveGenericWalkerSelectedHandler(ptrMessage);
+                                    break;
+                                case MessageAction.RemoveGenericWalkerSelectedHandler:
+                                    RemoveGenericWalkerSelectedHandler(ptrMessage);
                                     break;
                                 case MessageAction.VisualStyleSupported:
                                     VisualStyleSupported(ptrMessage, messageNumber);

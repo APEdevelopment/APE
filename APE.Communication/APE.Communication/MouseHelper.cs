@@ -538,7 +538,7 @@ namespace APE.Communication
         /// <summary>
         /// Calls into the AUT to wait for then remove the mouse click handler
         /// </summary>
-        unsafe public void AddFirstyMessageWaitForAndRemoveMouseClickHandler()
+        unsafe public void AddFirstMessageWaitForAndRemoveMouseClickHandler()
         {
             // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
             FirstMessageInitialise();
@@ -586,6 +586,45 @@ namespace APE.Communication
                     m_MouseClickControl.MouseDown -= m_MouseClick;
                     m_MouseClickControl = null;
                 }
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
+
+        //
+        //  RemoveMouseClickHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to remove the mouse click handler
+        /// </summary>
+        unsafe public void AddFirstMessageRemoveMouseClickHandler()
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.RemoveMouseClickHandler;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Removes the handler
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void RemoveMouseClickHandler(Message* ptrMessage)
+        {
+            if (m_MouseClickControl != null)
+            {
+                m_MouseClickControl.MouseClick -= m_MouseClick;
+                m_MouseClickControl.MouseUp -= m_MouseClick;
+                m_MouseClickControl.MouseDown -= m_MouseClick;
+                m_MouseClickControl = null;
             }
 
             CleanUpMessage(ptrMessage);

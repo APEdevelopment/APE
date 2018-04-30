@@ -162,5 +162,43 @@ namespace APE.Communication
 
             CleanUpMessage(ptrMessage);
         }
+
+        //
+        //  RemoveGenericWalkerSelectedHandler
+        //
+
+        /// <summary>
+        /// Calls into the AUT to remove the selected handler
+        /// </summary>
+        unsafe public void AddFirstMessageRemoveGenericWalkerSelectedHandler()
+        {
+            // Window messages 0x0400 (WM_USER) or higher are not marshalled by windows so make the call in the AUT
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.RemoveGenericWalkerSelectedHandler;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Removes the handler
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void RemoveGenericWalkerSelectedHandler(Message* ptrMessage)
+        {
+            if (m_GenericWalkerControl != null)
+            {
+                m_GenericWalkerSelectedEventInfo.RemoveEventHandler(m_GenericWalkerControl, m_GenericWalkerSelectedHandler);
+                m_GenericWalkerControl = null;
+                m_GenericWalkerParent = IntPtr.Zero;
+            }
+
+            CleanUpMessage(ptrMessage);
+        }
     }
 }
