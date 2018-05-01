@@ -843,7 +843,7 @@ namespace APE.Language
             }
         }
 
-        public static void Reset()
+        private static void Reset()
         {
             if (GUI.IsElevatedAdmin)
             {
