@@ -1951,15 +1951,21 @@ namespace APE.Language
                     {
                         string[] fullGridColumns = fullGridRows[fullGridRow].Split(separatorTab, StringSplitOptions.None);
                         doneColumn = false;
+                        string lastVisibleCell = "";
                         for (int fullGridColumn = 0; fullGridColumn < columns; fullGridColumn++)
                         {
+                            if (fullGridColumns[fullGridColumn] != "")
+                            {
+                                lastVisibleCell = fullGridColumns[fullGridColumn];
+                            }
                             if (visibleColumns[fullGridColumn])
                             {
                                 if (doneColumn)
                                 {
                                     grid.Append("\t");
                                 }
-                                grid.Append(fullGridColumns[fullGridColumn]);
+                                grid.Append(lastVisibleCell);
+                                lastVisibleCell = "";
                                 doneColumn = true;
                             }
                         }
