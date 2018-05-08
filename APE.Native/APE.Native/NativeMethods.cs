@@ -2901,6 +2901,46 @@ namespace APE.Native
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, ref tagRect lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
 
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern IntPtr SendMessageTimeout(IntPtr hWnd, int msg, IntPtr wParam, ref ToolInfo lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
+
+        public struct ToolInfo
+        {
+            public int cbSize;
+            public int uFlags;
+            public IntPtr hWnd;
+            public IntPtr uId;
+            public tagRect rect;
+            public IntPtr hInst;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string lpszText;
+            public IntPtr lParam;
+        }
+
+        private const int TTM_GETCURRENTTOOLW = (0x0400 + 59);
+
+        public static ToolInfo GetToolInfo(IntPtr hWnd, uint timeout)
+        {
+            ToolInfo info = new ToolInfo();
+            info.cbSize = Marshal.SizeOf(info);
+            
+            IntPtr messageResult;
+            IntPtr sendResult = SendMessageTimeout(hWnd, TTM_GETCURRENTTOOLW, IntPtr.Zero, ref info, SendMessageTimeoutFlags.SMTO_NORMAL, timeout, out messageResult);
+            if (sendResult == IntPtr.Zero) //Failed
+            {
+                return new ToolInfo();
+            }
+            else
+            {
+                if (messageResult == IntPtr.Zero)
+                {
+                    //Failed
+                    return new ToolInfo();
+                }
+                return info;
+            }
+        }
+
         [DllImport("User32.dll")]
         public static extern int GetWindowThreadProcessId(IntPtr hWnd, out int pid);
 
