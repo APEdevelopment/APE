@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
@@ -471,6 +472,103 @@ namespace APE.Communication
             PM_QS_PAINT = unchecked(QS_PAINT << 16),
             PM_QS_POSTMESSAGE = unchecked((QS_POSTMESSAGE | QS_HOTKEY | QS_TIMER) << 16),
             PM_QS_SENDMESSAGE = unchecked(QS_SENDMESSAGE << 16),
-    }
+        }
+
+        //
+        //  GetToolTip
+        //
+
+        unsafe public void AddFirstMessageGetToolTip(IntPtr handle)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.GetToolTip;
+
+            Parameter HandleParam = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void GetToolTip(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("GetTitleBarItemRectangle must be first message");
+            }
+
+            // p1  = handle
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+
+            CleanUpMessage(ptrMessage);
+
+            NM.EnumWindowsProc windowsToGetToolTipsCallback = new NM.EnumWindowsProc(EnumWindowsToGetToolTips);
+
+            m_ToolTipWindows = new List<IntPtr>();
+            NM.EnumWindows(windowsToGetToolTipsCallback, IntPtr.Zero);
+
+            IntPtr toolTipHandle = IntPtr.Zero;
+            string toolTipTitle = null;
+            Rectangle toolTipRectangle = new Rectangle(0, 0, 0, 0);
+
+            foreach (IntPtr hWnd in m_ToolTipWindows)
+            {
+                NM.ToolInfo info = NM.GetToolInfo(hWnd, TimeOut);
+
+                if (info.hWnd == handle)
+                {
+                    //we have the tooltip so return infomation about it
+                    toolTipHandle = hWnd;
+                    toolTipTitle = GetWindowTextViaWindowMessage(toolTipHandle);
+
+                    NM.tagRect windowPosition;
+                    NM.tagRect windowSize;
+                    NM.GetWindowRect(toolTipHandle, out windowPosition);
+                    windowSize = NM.GetClipBox(toolTipHandle);
+
+                    toolTipRectangle = new Rectangle(windowPosition.left, windowPosition.top, windowSize.right, windowSize.bottom);
+                    break;
+                }
+            }
+
+            AddReturnValue(new Parameter(this, toolTipHandle));
+            AddReturnValue(new Parameter(this, toolTipTitle));
+            AddReturnValue(new Parameter(this, toolTipRectangle.X));
+            AddReturnValue(new Parameter(this, toolTipRectangle.Y));
+            AddReturnValue(new Parameter(this, toolTipRectangle.Width));
+            AddReturnValue(new Parameter(this, toolTipRectangle.Height));
+        }
+
+        private List<IntPtr> m_ToolTipWindows;
+
+        private bool EnumWindowsToGetToolTips(IntPtr hWnd, IntPtr lParam)
+        {
+            uint pid;
+            NM.GetWindowThreadProcessId(hWnd, out pid);
+
+            uint currentProcessId = (uint)AUTProcess.Id;
+            if (pid == currentProcessId)
+            {
+                if (NM.IsWindowVisible(hWnd))
+                {
+                    NM.tagRect WindowSize;
+                    NM.GetClientRect(hWnd, out WindowSize);
+                    if (WindowSize.right > 0)   //If the window has 0 width then ignore it
+                    {
+                        string className = NM.GetClassName(hWnd);
+                        if (className.Contains("tooltips_class"))
+                        {
+                            m_ToolTipWindows.Add(hWnd);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
     }
 }

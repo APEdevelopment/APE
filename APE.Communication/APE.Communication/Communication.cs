@@ -2819,6 +2819,15 @@ namespace APE.Communication
                         default:
                             return "";
                     }
+                case "":
+                    if (TypeName.Contains("tooltips_class"))
+                    {
+                        return "GUIToolTip";
+                    }
+                    else
+                    {
+                        return "";
+                    }
                 default:
                     return "";
             }
