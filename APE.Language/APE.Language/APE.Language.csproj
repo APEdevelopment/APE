@@ -105,6 +105,7 @@
     <Compile Include="TabControl.cs" />
     <Compile Include="TextValueWithTypeControl.cs" />
     <Compile Include="ToolStrip.cs" />
+    <Compile Include="ToolTip.cs" />
     <Compile Include="ViewPort.cs">
       <SubType>Form</SubType>
     </Compile>

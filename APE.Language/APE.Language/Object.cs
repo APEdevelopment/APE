@@ -709,6 +709,46 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Gets the tooltip which belongs to the control
+        /// </summary>
+        /// <returns>The tooltip</returns>
+        public GUIToolTip GetToolTip()
+        {
+            IntPtr toolTipHandle;
+            string toolTipTitle;
+            Rectangle toolTipRectangle;
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                GUI.m_APE.AddFirstMessageGetToolTip(Handle);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                toolTipHandle = GUI.m_APE.GetValueFromMessage();
+                toolTipTitle = GUI.m_APE.GetValueFromMessage();
+                int x = GUI.m_APE.GetValueFromMessage();
+                int y = GUI.m_APE.GetValueFromMessage();
+                int width = GUI.m_APE.GetValueFromMessage();
+                int height = GUI.m_APE.GetValueFromMessage();
+                toolTipRectangle = new Rectangle(x, y, width, height);
+
+                if (toolTipHandle != IntPtr.Zero)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw new Exception("Failed to find the " + this.Description + " tooltip");
+                }
+
+                Thread.Sleep(15);
+            }
+
+            return new GUIToolTip(this.Description + " tooltip", toolTipHandle, toolTipTitle, toolTipRectangle);
+        }
+
         internal void WaitForAnimation(IntPtr Handle, bool ClearClientArea, AnimationUtils.WaitForAnimationSource Source)
         {
             m_AnimationUtils.WaitForAnimation(Handle, ClearClientArea, Source);
