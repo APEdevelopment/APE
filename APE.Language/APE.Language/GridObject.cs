@@ -575,6 +575,65 @@ namespace APE.Language
         internal abstract void ShowCellInternal(int rowIndex, int columnIndex);
 
         /// <summary>
+        /// Moves the mouse cursor over the specified cell, scrolling it into view if need be
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnText">The column text of the cell</param>
+        /// <param name="locationInCell">The location in the cell to move the mouse to</param>
+        public void MoveToCell(string rowText, string columnText, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            base.MoveTo(Location.X, Location.Y);
+        }
+
+        /// <summary>
+        /// Moves the mouse cursor over the specified cell, scrolling it into view if need be
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell</param>
+        /// <param name="columnText">The column text of the cell</param>
+        /// <param name="locationInCell">The location in the cell to move the mouse to</param>
+        public void MoveToCell(int rowIndex, string columnText, CellClickLocation locationInCell)
+        {
+            int columnIndex = FindColumn(columnText);
+
+            GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            base.MoveTo(Location.X, Location.Y);
+        }
+
+        /// <summary>
+        /// Moves the mouse cursor over the specified cell, scrolling it into view if need be
+        /// </summary>
+        /// <param name="rowText">The row text of the cell in the specified column</param>
+        /// <param name="columnIndex">The column index of the cell</param>
+        /// <param name="locationInCell">The location in the cell to move the mouse to</param>
+        public void MoveToCell(string rowText, int columnIndex, CellClickLocation locationInCell)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+
+            GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            base.MoveTo(Location.X, Location.Y);
+        }
+
+        /// <summary>
+        /// Moves the mouse cursor over the specified cell, scrolling it into view if need be
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell</param>
+        /// <param name="columnIndex">The column index of the cell</param>
+        /// <param name="locationInCell">The location in the cell to move the mouse to</param>
+        public void MoveToCell(int rowIndex, int columnIndex, CellClickLocation locationInCell)
+        {
+            GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
+            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
+            base.MoveTo(Location.X, Location.Y);
+        }
+
+        /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>
         /// <param name="rowText">The row text of the cell to select in the specified column</param>
@@ -1069,18 +1128,6 @@ namespace APE.Language
         }
 
         internal abstract void MouseUpInternal(int rowIndex, int columnIndex, MouseButton button, CellClickLocation locationInCell, MouseKeyModifier keyModifier);
-
-        /// <summary>
-        /// Moves the mouse cursor to the specified location the specified cell
-        /// </summary>
-        /// <param name="rowIndex">The row index of the cell to move the cursor to</param>
-        /// <param name="columnIndex">The column index of the cell to move the cursor to</param>
-        /// <param name="locationInCell">The location in the cell to move the cursor to</param>
-        public void MoveToCell(int rowIndex, int columnIndex, CellClickLocation locationInCell)
-        {
-            Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
-            base.MoveTo(Location.X, Location.Y);
-        }
 
         internal abstract Point GetLocationInCell(int rowIndex, int columnIndex, CellClickLocation locationInCell);
 
