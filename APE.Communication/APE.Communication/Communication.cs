@@ -33,6 +33,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using APE.Bridge;
 
 namespace APE.Communication
 {
@@ -1806,6 +1807,8 @@ namespace APE.Communication
 
             //Searching for the control by property
             Type theType = null;
+            string typeName = null;
+            string technologyType = null;
             IntPtr Handle = IntPtr.Zero;
             string Name = null;
             string accessibilityObjectName = null;
@@ -1829,6 +1832,18 @@ namespace APE.Communication
                             object[] parameters = { TheControl };
                             theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
                             accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                            FoundControl = true;
+                        }
+                    }
+
+                    if (!FoundControl)
+                    {
+                        if (Identifier.TechnologyType == "ActiveX" || Identifier.TechnologyType == null)
+                        {
+                            Handle = Identifier.Handle;
+                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName);
+                            theText = GetWindowTextViaWindowMessage(Handle);
+                            technologyType = "ActiveX";
                             FoundControl = true;
                         }
                     }
@@ -2101,6 +2116,19 @@ namespace APE.Communication
 
                     if (!FoundControl)
                     {
+                        if (Identifier.TechnologyType == "ActiveX" || Identifier.TechnologyType == null)
+                        {
+                            //TODO check parent handle
+                            Handle = Identifier.Handle;
+                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName);
+                            theText = GetWindowTextViaWindowMessage(Handle);
+                            technologyType = "ActiveX";
+                            FoundControl = true;
+                        }
+                    }
+
+                    if (!FoundControl)
+                    {
                         if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
                         {
                             //Native
@@ -2363,10 +2391,22 @@ namespace APE.Communication
                 NewIdentifier.ParentHandle = Identifier.ParentHandle;
                 NewIdentifier.Handle = Handle;
                 NewIdentifier.Name = Name;
-                NewIdentifier.TechnologyType = GetTechnologyType(theType);
+                if (string.IsNullOrEmpty(technologyType))
+                {
+                    NewIdentifier.TechnologyType = GetTechnologyType(theType);
+                }
+                else
+                {
+                    NewIdentifier.TechnologyType = technologyType;
+                }
                 if (NewIdentifier.TechnologyType == "Windows Native")
                 {
                     NewIdentifier.TypeName = NM.GetClassName(Identifier.Handle);
+                    NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
+                }
+                else if(NewIdentifier.TechnologyType == "ActiveX")
+                {
+                    NewIdentifier.TypeName = typeName;
                     NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
                 }
                 else
@@ -2388,6 +2428,26 @@ namespace APE.Communication
             }
         }
 
+        unsafe private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName)
+        {
+            lock (Ax.AxItemsLock)
+            {
+                int items = Ax.Items.Count;
+                for (int item = 0; item < items; item++)
+                {
+                    if (Ax.Items[item].Handle == handle)
+                    {
+                        name = Ax.Items[item].Name;
+                        typeName = Ax.Items[item].TypeName;
+                        return Ax.Items[item].Control;
+                    }
+                }
+            }
+            name = null;
+            typeName = null;
+            return null;
+        }
+
         unsafe private void Refind(int messageNumber)
         {
             object DestinationObject = null;
@@ -2401,6 +2461,16 @@ namespace APE.Communication
             if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
             {
                 DestinationObject = WF.Control.FromHandle(Identifier.Handle);
+            }
+
+            if (DestinationObject == null)
+            {
+                if (Identifier.TechnologyType == "ActiveX" || Identifier.TechnologyType == null)
+                {
+                    string name;
+                    string typeName;
+                    DestinationObject = FindByHandleActiveX(Identifier.Handle, out name, out typeName);
+                }
             }
 
             if (DestinationObject == null)

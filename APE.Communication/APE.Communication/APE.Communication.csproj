@@ -26,6 +26,9 @@
     </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="APE.Bridge">
+      <HintPath>..\..\APE.Bridge\APE.Bridge\bin\Debug\APE.Bridge.dll</HintPath>
+    </Reference>
     <Reference Include="APE.Domain">
       <HintPath>..\..\APE.Domain\APE.Domain\bin\Debug\APE.Domain.dll</HintPath>
     </Reference>
