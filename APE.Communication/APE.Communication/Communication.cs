@@ -1838,13 +1838,16 @@ namespace APE.Communication
 
                     if (!FoundControl)
                     {
-                        if (Identifier.TechnologyType == "ActiveX" || Identifier.TechnologyType == null)
+                        if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                         {
                             Handle = Identifier.Handle;
                             object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName);
-                            theText = GetWindowTextViaWindowMessage(Handle);
-                            technologyType = "ActiveX";
-                            FoundControl = true;
+                            if (controlActiveX != null)
+                            {
+                                theText = GetWindowTextViaWindowMessage(Handle);
+                                technologyType = "Windows ActiveX";
+                                FoundControl = true;
+                            }
                         }
                     }
 
@@ -2116,14 +2119,17 @@ namespace APE.Communication
 
                     if (!FoundControl)
                     {
-                        if (Identifier.TechnologyType == "ActiveX" || Identifier.TechnologyType == null)
+                        if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                         {
                             //TODO check parent handle
                             Handle = Identifier.Handle;
                             object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName);
-                            theText = GetWindowTextViaWindowMessage(Handle);
-                            technologyType = "ActiveX";
-                            FoundControl = true;
+                            if (controlActiveX != null)
+                            {
+                                theText = GetWindowTextViaWindowMessage(Handle);
+                                technologyType = "Windows ActiveX";
+                                FoundControl = true;
+                            }
                         }
                     }
 
@@ -2404,7 +2410,7 @@ namespace APE.Communication
                     NewIdentifier.TypeName = NM.GetClassName(Identifier.Handle);
                     NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
                 }
-                else if(NewIdentifier.TechnologyType == "ActiveX")
+                else if(NewIdentifier.TechnologyType == "Windows ActiveX")
                 {
                     NewIdentifier.TypeName = typeName;
                     NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
@@ -2428,18 +2434,23 @@ namespace APE.Communication
             }
         }
 
-        unsafe private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName)
+        //to fix
+        //change vb6 code to be own module, to support labels
+        private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName)
         {
-            lock (Ax.AxItemsLock)
+            if (Ax.Items.Count > 0)
             {
-                int items = Ax.Items.Count;
-                for (int item = 0; item < items; item++)
+                lock (Ax.AxItemsLock)
                 {
-                    if (Ax.Items[item].Handle == handle)
+                    int items = Ax.Items.Count;
+                    for (int item = 0; item < items; item++)
                     {
-                        name = Ax.Items[item].Name;
-                        typeName = Ax.Items[item].TypeName;
-                        return Ax.Items[item].Control;
+                        if (Ax.Items[item].Handle == handle)
+                        {
+                            name = Ax.Items[item].Name;
+                            typeName = Ax.Items[item].TypeName;
+                            return Ax.Items[item].Control;
+                        }
                     }
                 }
             }
@@ -2465,11 +2476,9 @@ namespace APE.Communication
 
             if (DestinationObject == null)
             {
-                if (Identifier.TechnologyType == "ActiveX" || Identifier.TechnologyType == null)
+                if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                 {
-                    string name;
-                    string typeName;
-                    DestinationObject = FindByHandleActiveX(Identifier.Handle, out name, out typeName);
+                    DestinationObject = FindByHandleActiveX(Identifier.Handle, out string name, out string typeName);
                 }
             }
 
