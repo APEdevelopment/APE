@@ -1911,6 +1911,14 @@ namespace APE.Communication
                                                 }
                                             }
 
+                                            if (Identifier.TechnologyType != null)
+                                            {
+                                                if ("Windows Forms (WinForms)" != Identifier.TechnologyType)
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
                                             if (Identifier.TypeNameSpace != null)
                                             {
                                                 if (theType.Namespace != Identifier.TypeNameSpace)
@@ -1944,6 +1952,30 @@ namespace APE.Communication
                                                 }
                                             }
 
+                                            if (Identifier.ChildOf != IntPtr.Zero)
+                                            {
+                                                if (!NM.IsChild(Identifier.ChildOf, Handle))
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.SiblingOf != IntPtr.Zero)
+                                            {
+                                                if (!NM.IsSibling(Identifier.SiblingOf, Handle))
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
+                                            if (Identifier.ParentOf != IntPtr.Zero)
+                                            {
+                                                if (!NM.IsChild(Handle, Identifier.ParentOf))
+                                                {
+                                                    continue;
+                                                }
+                                            }
+
                                             object[] parameters = { form };
                                             theText = (string)form.Invoke(m_GetTextDelegater, parameters);
                                             if (Identifier.Text != null)
@@ -1970,10 +2002,9 @@ namespace APE.Communication
                                                 }
                                             }
 
-                                            CurrentIndex++;
-
                                             DebugLogging.WriteLog("found form for " + Name);
 
+                                            CurrentIndex++;
                                             if (Identifier.Index > 0)
                                             {
                                                 if (CurrentIndex != Identifier.Index)
@@ -1990,7 +2021,6 @@ namespace APE.Communication
 
                                     if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                     {
-                                        //TODO labels.....
                                         Handle = hWnd;
                                         FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref FoundControl);
                                         if (FoundControl)
@@ -1999,10 +2029,28 @@ namespace APE.Communication
                                         }
                                     }
 
-                                    if (Identifier.TechnologyType == "Windows Native")// || Identifier.TechnologyType == null)  //everything matches native so would mess up index if we checked with null
+                                    if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
                                     {
                                         //Windows Native
                                         Handle = hWnd;
+
+                                        if (Identifier.Name != null)
+                                        {
+                                            continue;
+                                        }
+
+                                        if (Identifier.TechnologyType != null)
+                                        {
+                                            if ("Windows Native" != Identifier.TechnologyType)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.TypeNameSpace != null)
+                                        {
+                                            continue;
+                                        }
 
                                         if (Identifier.TypeName != null)
                                         {
@@ -2018,6 +2066,35 @@ namespace APE.Communication
                                         {
                                             string theModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
                                             if (theModuleName != Identifier.ModuleName)
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.AssemblyName != null)
+                                        {
+                                            continue;
+                                        }
+
+                                        if (Identifier.ChildOf != IntPtr.Zero)
+                                        {
+                                            if (!NM.IsChild(Identifier.ChildOf, Handle))
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.SiblingOf != IntPtr.Zero)
+                                        {
+                                            if (!NM.IsSibling(Identifier.SiblingOf, Handle))
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (Identifier.ParentOf != IntPtr.Zero)
+                                        {
+                                            if (!NM.IsChild(Handle, Identifier.ParentOf))
                                             {
                                                 continue;
                                             }
@@ -2039,10 +2116,14 @@ namespace APE.Communication
                                             }
                                         }
 
-                                        CurrentIndex++;
+                                        if (Identifier.AccessibilityObjectName != null)
+                                        {
+                                            continue;
+                                        }
 
                                         DebugLogging.WriteLog("found form for " + Name);
 
+                                        CurrentIndex++;
                                         if (Identifier.Index > 0)
                                         {
                                             if (CurrentIndex != Identifier.Index)
@@ -2286,7 +2367,6 @@ namespace APE.Communication
                                         }
 
                                         CurrentIndex++;
-
                                         if (Identifier.Index > 0)
                                         {
                                             if (CurrentIndex != Identifier.Index)
@@ -2298,7 +2378,6 @@ namespace APE.Communication
                                         //we have a match
                                         FoundControl = true;
                                         break;
-
                                     }
                                 }
 
@@ -2311,11 +2390,29 @@ namespace APE.Communication
                                         break;
                                     }
                                 }
-
-                                if (Identifier.TechnologyType == "Windows Native")// || Identifier.TechnologyType == null)  //everything matches native so would mess up index if we checked with null
+                                
+                                if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
                                 {
                                     //Windows Native
                                     Handle = hWnd;
+
+                                    if (Identifier.Name != null)
+                                    {
+                                        continue;
+                                    }
+
+                                    if (Identifier.TechnologyType != null)
+                                    {
+                                        if ("Windows Native" != Identifier.TechnologyType)
+                                        {
+                                            continue;
+                                        }
+                                    }
+
+                                    if (Identifier.TypeNameSpace != null)
+                                    {
+                                        continue;
+                                    }
 
                                     if (Identifier.TypeName != null)
                                     {
@@ -2334,6 +2431,11 @@ namespace APE.Communication
                                         {
                                             continue;
                                         }
+                                    }
+
+                                    if (Identifier.AssemblyName != null)
+                                    {
+                                        continue;
                                     }
 
                                     if (Identifier.ChildOf != IntPtr.Zero)
@@ -2376,10 +2478,12 @@ namespace APE.Communication
                                         }
                                     }
 
+                                    if (Identifier.AccessibilityObjectName != null)
+                                    {
+                                        continue;
+                                    }
+
                                     CurrentIndex++;
-
-                                    DebugLogging.WriteLog("found native child control " + Name);
-
                                     if (Identifier.Index > 0)
                                     {
                                         if (CurrentIndex != Identifier.Index)
@@ -2402,7 +2506,7 @@ namespace APE.Communication
 
                         if (!FoundControl)
                         {
-                            if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
+                            if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)")
                             {
                             }
                         }

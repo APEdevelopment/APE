@@ -73,6 +73,48 @@ namespace APE.Communication
                 return;
             }
 
+            if (identifier.Name != null)
+            {
+                if (name != identifier.Name)
+                {
+                    return;
+                }
+            }
+
+            if (identifier.TechnologyType != null)
+            {
+                if ("Windows ActiveX" != identifier.TechnologyType)
+                {
+                    return;
+                }
+            }
+
+            if (identifier.TypeNameSpace != null)
+            {
+                return;
+            }
+
+            if (identifier.TypeName != null)
+            {
+                if (typeName != identifier.TypeName)
+                {
+                    return;
+                }
+            }
+
+            if (identifier.ModuleName != null)
+            {
+                if (Path.GetFileName(NM.GetWindowModuleFileName(handle)) != identifier.ModuleName)
+                {
+                    return;
+                }
+            }
+
+            if (identifier.AssemblyName != null)
+            {
+                return;
+            }
+
             if (identifier.ChildOf != IntPtr.Zero)
             {
                 if (!NM.IsChild(identifier.ChildOf, handle))
@@ -97,30 +139,6 @@ namespace APE.Communication
                 }
             }
 
-            if (identifier.ModuleName != null)
-            {
-                if (Path.GetFileName(NM.GetWindowModuleFileName(handle)) != identifier.ModuleName)
-                {
-                    return;
-                }
-            }
-
-            if (identifier.TypeName != null)
-            {
-                if (typeName != identifier.TypeName)
-                {
-                    return;
-                }
-            }
-
-            if (identifier.Name != null)
-            {
-                if (name != identifier.Name)
-                {
-                    return;
-                }
-            }
-
             theText = GetWindowTextViaWindowMessage(handle);
             if (identifier.Text != null)
             {
@@ -137,17 +155,12 @@ namespace APE.Communication
                 }
             }
 
-            //accessibilityObjectName = (string)form.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
-            //if (Identifier.AccessibilityObjectName != null)
-            //{
-            //    if (accessibilityObjectName != Identifier.AccessibilityObjectName)
-            //    {
-            //        continue;
-            //    }
-            //}
+            if (identifier.AccessibilityObjectName != null)
+            {
+                return;
+            }
 
             currentIndex++;
-
             if (identifier.Index > 0)
             {
                 if (currentIndex != identifier.Index)
