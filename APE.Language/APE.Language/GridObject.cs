@@ -96,6 +96,10 @@ namespace APE.Language
         /// The child column picker icon the elementstripgrid
         /// </summary>
         ChildColumnPicker = 5,
+        /// <summary>
+        /// Slightly in from the top right corner of the cell
+        /// </summary>
+        TopRightCorner = 6,
     }
 
     /// <summary>

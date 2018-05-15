@@ -1279,6 +1279,10 @@ namespace APE.Language
                     Location.X = childColumnPicker.Left + (childColumnPicker.Width / 2);
                     Location.Y = childColumnPicker.Top + (childColumnPicker.Height / 2);
                     break;
+                case CellClickLocation.TopRightCorner:
+                    Location.X = CellRectangle.Left + CellRectangle.Width - 5;
+                    Location.Y = CellRectangle.Top + 5;
+                    break;
                 //TODO
                 //case CellClickLocation.ExpandCollapseIconOfCell:
                 //    Location.X = CellRectangle.Left + 5 + 2 + BorderWidth() + (TreeViewIndent() * NodeLevel(Row));

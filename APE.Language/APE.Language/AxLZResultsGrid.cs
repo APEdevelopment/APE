@@ -971,6 +971,10 @@ namespace APE.Language
                     Location.X = CellRectangle.Left + 5 + 2 + BorderWidth() + (TreeViewIndent() * (NodeLevel(rowIndex) + 1));
                     Location.Y = CellRectangle.Top + (CellRectangle.Height / 2);
                     break;
+                case CellClickLocation.TopRightCorner:
+                    Location.X = CellRectangle.Left + CellRectangle.Width - 5;
+                    Location.Y = CellRectangle.Top + 5;
+                    break;
                 default:
                     throw GUI.ApeException("Implement for CellClickLocation: " + Location.ToString());
             }
