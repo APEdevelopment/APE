@@ -665,6 +665,61 @@ namespace APE.Spy
 
             AddCommonPropertiesToPropertyListbox();
 
+            //Add ActiveX labels
+            if (m_Identity.TechnologyType == "Windows ActiveX")
+            {
+                bool first = true;
+                List<string> labelNamesAdded = new List<string>();
+                ControlIdentifier identity;
+
+                int index = 0;
+                while (true)
+                {
+                    index++;
+                    identity = FindByTypeNameAndIndex("Label", index);
+                    if (!string.IsNullOrEmpty(identity.Name))
+                    {
+                        if (identity.Handle == m_Identity.Handle)
+                        {
+                            if (!labelNamesAdded.Contains(identity.Name))
+                            {
+                                int nameIndex = 0;
+                                while (true)
+                                {
+                                    nameIndex++;
+                                    identity = FindByNameAndIndex(identity.Name, nameIndex);
+                                    if (identity.Handle == m_Identity.Handle)
+                                    {
+                                        AddRenderedActiveXToPropertyListbox(identity, "Name", ref first);
+                                        if (!labelNamesAdded.Contains(identity.Name))
+                                        {
+                                            labelNamesAdded.Add(identity.Name);
+                                        }
+                                    }
+
+                                    if (identity.Handle == IntPtr.Zero)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (identity.Handle == m_Identity.Handle)
+                        {
+                            AddRenderedActiveXToPropertyListbox(identity, "Type", ref first);
+                        }
+                    }
+
+                    if (identity.Handle == IntPtr.Zero)
+                    {
+                        break;
+                    }
+                }
+            }
+
             switch (APEType.TrimEnd(new char[] { '*' }))
             {
                 case "GUIToolStrip":
@@ -700,6 +755,62 @@ namespace APE.Spy
                     }
                     break;
             }
+        }
+
+        private void AddRenderedActiveXToPropertyListbox(ControlIdentifier identity, string indexBy, ref bool first)
+        {
+            PropertyListbox.Items.Add("");
+            if (first)
+            {
+                first = false;
+                PropertyListbox.Items.Add("Rendered Controls");
+            }
+
+            PropertyListbox.Items.Add("Name\t\t: " + identity.Name);
+            if (identity.Text == null)
+            {
+                identity.Text = "";
+            }
+            PropertyListbox.Items.Add("Text\t\t: " + identity.Text.Replace("\r", @"\r").Replace("\n", @"\n").Replace("\t", @"\t"));
+            PropertyListbox.Items.Add("TypeName\t: " + identity.TypeName);
+            PropertyListbox.Items.Add("TechnologyType\t: " + identity.TechnologyType);
+            PropertyListbox.Items.Add("ModuleName\t: " + identity.ModuleName);
+            PropertyListbox.Items.Add("Index (by " + indexBy + ")\t: " + identity.Index);
+
+            string APEType = GetAPEType(m_Identity);
+            PropertyListbox.Items.Add("APEType\t\t: " + APEType);
+        }
+
+        private ControlIdentifier FindByTypeNameAndIndex(string typeName, int index)
+        {
+            ControlIdentifier identity;
+
+            identity = new ControlIdentifier();
+            identity.ParentHandle = m_Identity.ParentHandle;
+
+            identity.TechnologyType = m_Identity.TechnologyType;
+            identity.TypeName = typeName;
+
+            identity.Index = index;
+            identity = GetIdentity(identity);
+
+            return identity;
+        }
+
+        private ControlIdentifier FindByNameAndIndex(string name, int index)
+        {
+            ControlIdentifier identity;
+            
+            identity = new ControlIdentifier();
+            identity.ParentHandle = m_Identity.ParentHandle;
+
+            identity.TechnologyType = m_Identity.TechnologyType;
+            identity.Name = name;
+
+            identity.Index = index;
+            identity = GetIdentity(identity);
+
+            return identity;
         }
 
         private void AddToolStripDropDownMenuToPropertyListbox()
