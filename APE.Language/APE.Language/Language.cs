@@ -672,11 +672,6 @@ namespace APE.Language
                 }
             }
 
-            //if (Identity.TechnologyType == null)
-            //{
-            //    Identity.TechnologyType = "Windows Forms (WinForms)";
-            //}
-
             return Identity;
         }
 
