@@ -33,7 +33,6 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
-using APE.Bridge;
 
 namespace APE.Communication
 {
@@ -1884,7 +1883,7 @@ namespace APE.Communication
                         try
                         {
                             int CurrentIndex = 0;
-                            
+
                             m_AllControls = new List<IntPtr>();
                             //0 for the thread seems to enumerate all threads
                             NM.EnumThreadWindows(0, EnumThreadProcedue, IntPtr.Zero);
@@ -1893,7 +1892,7 @@ namespace APE.Communication
                             {
                                 if (NM.IsWindowVisible(hWnd))
                                 {
-                                    if (Identifier.TechnologyType == "Windows Forms (WinForms)")
+                                    if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                                     {
                                         //WinForms
                                         WF.Control form = WF.Control.FromHandle(hWnd);
@@ -1989,7 +1988,18 @@ namespace APE.Communication
                                         }
                                     }
 
-                                    if (Identifier.TechnologyType == "Windows Native")
+                                    if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
+                                    {
+                                        //TODO labels.....
+                                        Handle = hWnd;
+                                        FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref FoundControl);
+                                        if (FoundControl)
+                                        {
+                                            break;
+                                        }
+                                    }
+
+                                    if (Identifier.TechnologyType == "Windows Native")// || Identifier.TechnologyType == null)  //everything matches native so would mess up index if we checked with null
                                     {
                                         //Windows Native
                                         Handle = hWnd;
@@ -2003,7 +2013,7 @@ namespace APE.Communication
                                                 continue;
                                             }
                                         }
-                                        
+
                                         if (Identifier.ModuleName != null)
                                         {
                                             string theModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
@@ -2058,9 +2068,14 @@ namespace APE.Communication
 
                             if (!FoundControl)
                             {
+                                FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref FoundControl);
+                            }
+
+                            if (!FoundControl)
+                            {
                                 if (m_WPF)  //Only look for WPF forms if the application has WPF loaded
                                 {
-                                    if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
+                                    if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)")
                                     {
                                         wpfFindFormByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
                                     }
@@ -2160,7 +2175,7 @@ namespace APE.Communication
                         {
                             if (NM.IsWindowVisible(hWnd))
                             {
-                                if (Identifier.TechnologyType == "Windows Forms (WinForms)")
+                                if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                                 {
                                     //WinForms
                                     WF.Control control = WF.Control.FromHandle(hWnd);
@@ -2287,7 +2302,17 @@ namespace APE.Communication
                                     }
                                 }
 
-                                if (Identifier.TechnologyType == "Windows Native")
+                                if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
+                                {
+                                    Handle = hWnd;
+                                    FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref FoundControl);
+                                    if (FoundControl)
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                if (Identifier.TechnologyType == "Windows Native")// || Identifier.TechnologyType == null)  //everything matches native so would mess up index if we checked with null
                                 {
                                     //Windows Native
                                     Handle = hWnd;
@@ -2372,6 +2397,11 @@ namespace APE.Communication
 
                         if (!FoundControl)
                         {
+                            FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref FoundControl);
+                        }
+
+                        if (!FoundControl)
+                        {
                             if (Identifier.TechnologyType == "Windows NativeWindows Presentation Foundation (WPF)")
                             {
                             }
@@ -2413,7 +2443,7 @@ namespace APE.Communication
                 else if(NewIdentifier.TechnologyType == "Windows ActiveX")
                 {
                     NewIdentifier.TypeName = typeName;
-                    NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
+                    NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
                 }
                 else
                 {
@@ -2432,31 +2462,6 @@ namespace APE.Communication
             {
                 return "Failed to find the " + Identifier.Description;
             }
-        }
-
-        //to fix
-        //change vb6 code to be own module, to support labels
-        private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName)
-        {
-            if (Ax.Items.Count > 0)
-            {
-                lock (Ax.AxItemsLock)
-                {
-                    int items = Ax.Items.Count;
-                    for (int item = 0; item < items; item++)
-                    {
-                        if (Ax.Items[item].Handle == handle)
-                        {
-                            name = Ax.Items[item].Name;
-                            typeName = Ax.Items[item].TypeName;
-                            return Ax.Items[item].Control;
-                        }
-                    }
-                }
-            }
-            name = null;
-            typeName = null;
-            return null;
         }
 
         unsafe private void Refind(int messageNumber)
@@ -3901,11 +3906,12 @@ namespace APE.Communication
 
                 if (Marshal.IsComObject(SourceObject))
                 {
-                    object[] comParameters = new object[3];
-                    comParameters[0] = Name;
-                    comParameters[1] = SourceObject;
-                    comParameters[2] = ParametersObject;
-                    DestinationObject = ((WF.Control)tempStore0).Invoke(m_ComReflectDelegater, comParameters);
+                    //object[] comParameters = new object[3];
+                    //comParameters[0] = Name;
+                    //comParameters[1] = SourceObject;
+                    //comParameters[2] = ParametersObject;
+                    //DestinationObject = ((WF.Control)tempStore0).Invoke(m_ComReflectDelegater, comParameters);
+                    DestinationObject = m_ComReflectDelegater.Invoke(Name, SourceObject, ParametersObject);
                 }
                 else
                 {
