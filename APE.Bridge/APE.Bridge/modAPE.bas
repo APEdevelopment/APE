@@ -34,32 +34,22 @@ Public Sub AddObjectToBridgeToAPE(containerHandle As Long, containerName As Stri
         Call CreateBridgeToAPE
     End If
     
-    Call BridgeToAPE.AddItem(containerHandle, containerName, TypeName(containerControl), containerControl, False)
+    Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerHandle, containerHandle, containerName, TypeName(containerControl), containerControl, False)
     
     For Each ctrl In containerControlCollection
         If TypeName(ctrl) = "Label" Then
-            Call BridgeToAPE.AddItem(GetLabelContainerHandle(containerHandle, ctrl), ctrl.Name, TypeName(ctrl), ctrl, True)
+            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, GetLabelContainerHandle(containerHandle, ctrl), ctrl.Name, TypeName(ctrl), ctrl, True)
         Else
-            Call BridgeToAPE.AddItem(ctrl.hWnd, ctrl.Name, TypeName(ctrl), ctrl, False)
+            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, ctrl.hWnd, ctrl.Name, TypeName(ctrl), ctrl, False)
         End If
     Next ctrl
 End Sub
 
-Public Sub RemoveObjectFromBridgeToAPE(containerHandle As Long, containerName As String, containerControl As Object, containerControlCollection As Object)
-    Dim ctrl As Control
-    On Error Resume Next
-    
+Public Sub RemoveContainerFromBridgeToAPE(containerHandle As Long)
     If BridgeToAPE Is Nothing Then
         Exit Sub
     End If
     
-    Call BridgeToAPE.RemoveItem(containerHandle, containerName, TypeName(containerControl), False)
-    
-    For Each ctrl In containerControlCollection
-        If TypeName(ctrl) = "Label" Then
-            Call BridgeToAPE.RemoveItem(GetLabelContainerHandle(containerHandle, ctrl), ctrl.Name, TypeName(ctrl), True)
-        Else
-            Call BridgeToAPE.RemoveItem(ctrl.hWnd, ctrl.Name, TypeName(ctrl), False)
-        End If
-    Next ctrl
+    Call BridgeToAPE.RemoveAllItemsFromContainer(containerHandle)
 End Sub
+
