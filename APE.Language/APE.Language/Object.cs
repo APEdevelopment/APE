@@ -722,6 +722,7 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
+                //Native windows tooltip
                 GUI.m_APE.AddFirstMessageGetToolTip(Handle);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -738,6 +739,43 @@ namespace APE.Language
                     break;
                 }
 
+                //The other type
+                bool found = false;
+                for (int index = 1; index < 10000; index++)
+                {
+                    if (GUI.Exists(new Identifier(Identifiers.Name, "frmTooltip"), new Identifier(Identifiers.Index, index)))
+                    {
+                        GUIForm tooltip = new GUIForm(Description + " tooltip", new Identifier(Identifiers.Name, "frmTooltip"));
+
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, IntPtr.Zero, tooltip.Handle);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ParentControlHWnd", MemberTypes.Property);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "TipText", MemberTypes.Property);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                        IntPtr parentControlHWnd = GUI.m_APE.GetValueFromMessage();
+                        toolTipTitle = GUI.m_APE.GetValueFromMessage();
+
+                        if (Handle == parentControlHWnd)
+                        {
+                            toolTipHandle = tooltip.Handle;
+                            toolTipRectangle = new Rectangle(tooltip.Left, tooltip.Top, tooltip.Width, tooltip.Height);
+                            found = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    break;
+                }
+
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
                     throw new Exception("Failed to find the " + this.Description + " tooltip");
@@ -746,7 +784,7 @@ namespace APE.Language
                 Thread.Sleep(15);
             }
 
-            return new GUIToolTip(this.Description + " tooltip", toolTipHandle, toolTipTitle, toolTipRectangle);
+            return new GUIToolTip(Description + " tooltip", toolTipHandle, toolTipTitle, toolTipRectangle);
         }
 
         internal void WaitForAnimation(IntPtr Handle, bool ClearClientArea, AnimationUtils.WaitForAnimationSource Source)
