@@ -3025,6 +3025,8 @@ namespace APE.Native
         /// VK_SCROLL -> 0x91
         public const int VK_SCROLL = 145;
 
+        public const int VK_SHIFT = 0x10;
+
         /// Return Type: BOOL->int
         ///hWndParent: HWND->HWND__*
         ///hWnd: HWND->HWND__*
