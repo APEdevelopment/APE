@@ -13,7 +13,7 @@ namespace APE.Communication
 {
     public partial class APEIPC
     {
-        private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName)
+        private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName, out string uniqueId)
         {
             if (Ax.Items.Count > 0)
             {
@@ -26,6 +26,7 @@ namespace APE.Communication
                         {
                             name = Ax.Items[item].Name;
                             typeName = Ax.Items[item].TypeName;
+                            uniqueId = Ax.Items[item].UniqueId;
                             return Ax.Items[item].Control;
                         }
                     }
@@ -33,10 +34,36 @@ namespace APE.Communication
             }
             name = null;
             typeName = null;
+            uniqueId = null;
             return null;
         }
 
-        private void FindByIdentifierActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeName, ref int currentIndex, ref bool foundControl)
+        private object FindByUniqueIdActiveX(string uniqueId, out string name, out string typeName, out IntPtr handle)
+        {
+            if (Ax.Items.Count > 0)
+            {
+                lock (Ax.AxItemsLock)
+                {
+                    int items = Ax.Items.Count;
+                    for (int item = 0; item < items; item++)
+                    {
+                        if (Ax.Items[item].UniqueId == uniqueId)
+                        {
+                            name = Ax.Items[item].Name;
+                            typeName = Ax.Items[item].TypeName;
+                            handle = Ax.Items[item].Handle;
+                            return Ax.Items[item].Control;
+                        }
+                    }
+                }
+            }
+            name = null;
+            typeName = null;
+            handle = IntPtr.Zero;
+            return null;
+        }
+
+        private void FindByIdentifierActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeName, ref int currentIndex, ref string uniqueId, ref bool foundControl)
         {
             bool found = false;
             IntPtr parentHandle = IntPtr.Zero;
@@ -53,6 +80,7 @@ namespace APE.Communication
                             parentHandle = Ax.Items[item].ParentHandle;
                             name = Ax.Items[item].Name;
                             typeName = Ax.Items[item].TypeName;
+                            uniqueId = Ax.Items[item].UniqueId;
                             found = true;
                             break;
                         }

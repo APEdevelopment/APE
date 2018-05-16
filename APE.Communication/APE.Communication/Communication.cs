@@ -54,6 +54,7 @@ namespace APE.Communication
         public IntPtr ParentOf;
         public string Description;
         public string AccessibilityObjectName;
+        public string UniqueId;
     }
 
     public enum DataStores : int
@@ -1188,6 +1189,9 @@ namespace APE.Communication
             //p15
             p = new Parameter(this, Identifier.AccessibilityObjectName);
 
+            //p16
+            p = new Parameter(this, Identifier.UniqueId);
+
             m_PtrMessageStore->NumberOfMessages++;
         }
 
@@ -1470,7 +1474,7 @@ namespace APE.Communication
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
             Identifier = new ControlIdentifier();
 
-            // p1  = Parent handle
+            // p1 = Parent handle
             if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
             {
                 Identifier.ParentHandle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
@@ -1480,7 +1484,7 @@ namespace APE.Communication
                 throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
             }
 
-            // p2  = Handle
+            // p2 = Handle
             if ((PtrMessage->Parameter.TypeCode[1]) == (int)ApeTypeCode.IntPtr)
             {
                 Identifier.Handle = (IntPtr)PtrMessage->Parameter.IntPtr[1];
@@ -1492,7 +1496,7 @@ namespace APE.Communication
 
             if (PtrMessage->NumberOfParameters > 2)
             {
-                // p3  = Name
+                // p3 = Name
                 if (PtrMessage->Parameter.StringLength[2] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)ApeTypeCode.String)
@@ -1505,7 +1509,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p4  = Technology Type (Winforms, WPF, etc)
+                // p4 = Technology Type (Winforms, WPF, etc)
                 if (PtrMessage->Parameter.StringLength[3] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[3]) == (Int32)ApeTypeCode.String)
@@ -1518,7 +1522,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p5  = Type Namespace
+                // p5 = Type Namespace
                 if (PtrMessage->Parameter.StringLength[4] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[4]) == (Int32)ApeTypeCode.String)
@@ -1531,7 +1535,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p6  = Type Name
+                // p6 = Type Name
                 if (PtrMessage->Parameter.StringLength[5] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[5]) == (Int32)ApeTypeCode.String)
@@ -1544,7 +1548,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p7  = Module Name
+                // p7 = Module Name
                 if (PtrMessage->Parameter.StringLength[6] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[6]) == (Int32)ApeTypeCode.String)
@@ -1557,7 +1561,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p8  = Assembly Name
+                // p8 = Assembly Name
                 if (PtrMessage->Parameter.StringLength[7] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[7]) == (Int32)ApeTypeCode.String)
@@ -1570,7 +1574,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p9  = Index
+                // p9 = Index
                 if ((PtrMessage->Parameter.TypeCode[8]) == (Int32)ApeTypeCode.Int32)
                 {
                     Identifier.Index = PtrMessage->Parameter.Int32[8];
@@ -1623,7 +1627,7 @@ namespace APE.Communication
                     throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[12])).ToString());
                 }
 
-                // p14  = Description
+                // p14 = Description
                 if (PtrMessage->Parameter.StringLength[13] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[13]) == (Int32)ApeTypeCode.String)
@@ -1636,7 +1640,7 @@ namespace APE.Communication
                     }
                 }
 
-                // p15  = AccessibilityObjectName
+                // p15 = AccessibilityObjectName
                 if (PtrMessage->Parameter.StringLength[14] > 0)
                 {
                     if ((PtrMessage->Parameter.TypeCode[14]) == (Int32)ApeTypeCode.String)
@@ -1646,6 +1650,19 @@ namespace APE.Communication
                     else
                     {
                         throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[14])).ToString());
+                    }
+                }
+
+                // p16 = UniqueId
+                if (PtrMessage->Parameter.StringLength[15] > 0)
+                {
+                    if ((PtrMessage->Parameter.TypeCode[15]) == (Int32)ApeTypeCode.String)
+                    {
+                        Identifier.UniqueId = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[15]), 0, PtrMessage->Parameter.StringLength[15]);
+                    }
+                    else
+                    {
+                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[15])).ToString());
                     }
                 }
             }
@@ -1806,6 +1823,7 @@ namespace APE.Communication
 
             //Searching for the control by property
             Type theType = null;
+            string uniqueId = null;
             string typeName = null;
             string technologyType = null;
             IntPtr Handle = IntPtr.Zero;
@@ -1840,7 +1858,7 @@ namespace APE.Communication
                         if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                         {
                             Handle = Identifier.Handle;
-                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName);
+                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName, out uniqueId);
                             if (controlActiveX != null)
                             {
                                 theText = GetWindowTextViaWindowMessage(Handle);
@@ -2022,7 +2040,7 @@ namespace APE.Communication
                                     if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                     {
                                         Handle = hWnd;
-                                        FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref FoundControl);
+                                        FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
                                         if (FoundControl)
                                         {
                                             break;
@@ -2219,7 +2237,7 @@ namespace APE.Communication
                         {
                             //TODO check parent handle
                             Handle = Identifier.Handle;
-                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName);
+                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName, out uniqueId);
                             if (controlActiveX != null)
                             {
                                 theText = GetWindowTextViaWindowMessage(Handle);
@@ -2384,7 +2402,7 @@ namespace APE.Communication
                                 if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                 {
                                     Handle = hWnd;
-                                    FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref FoundControl);
+                                    FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
                                     if (FoundControl)
                                     {
                                         break;
@@ -2559,6 +2577,7 @@ namespace APE.Communication
                 }
                 NewIdentifier.Index = Identifier.Index;
                 NewIdentifier.Text = theText;
+                NewIdentifier.UniqueId = uniqueId;
                 AddIdentifierMessage(NewIdentifier);
                 return null;
             }
@@ -2587,7 +2606,7 @@ namespace APE.Communication
             {
                 if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                 {
-                    DestinationObject = FindByHandleActiveX(Identifier.Handle, out string name, out string typeName);
+                    DestinationObject = FindByHandleActiveX(Identifier.Handle, out string name, out string typeName, out string uniqueId);
                 }
             }
 

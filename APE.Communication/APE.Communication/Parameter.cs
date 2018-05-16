@@ -34,7 +34,7 @@ namespace APE.Communication
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe internal struct Parameters
     {
-        private const int MaxParameters = 15;
+        private const int MaxParameters = 20;
 
         public fixed Int32 TypeCode[MaxParameters];
         public fixed int ParameterType[MaxParameters];
