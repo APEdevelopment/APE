@@ -43,6 +43,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.aboutButton = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -119,7 +120,7 @@
             this.copyToolStripMenuItem,
             this.generateLocatorCodeToolStripMenuItem});
             this.ListBoxContextMenuStrip.Name = "ListBoxContextMenuStrip";
-            this.ListBoxContextMenuStrip.Size = new System.Drawing.Size(196, 70);
+            this.ListBoxContextMenuStrip.Size = new System.Drawing.Size(196, 48);
             this.ListBoxContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ListBoxContextMenuStrip_Opening);
             // 
             // copyToolStripMenuItem
@@ -152,7 +153,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(70, 505);
+            this.label1.Location = new System.Drawing.Point(70, 498);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(0, 13);
             this.label1.TabIndex = 10;
@@ -196,11 +197,21 @@
             this.aboutButton.UseVisualStyleBackColor = true;
             this.aboutButton.Click += new System.EventHandler(this.aboutButton_Click);
             // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(72, 511);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(0, 13);
+            this.label4.TabIndex = 15;
+            // 
             // APESpy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(709, 532);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.aboutButton);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -240,6 +251,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button aboutButton;
         private System.Windows.Forms.ToolStripMenuItem generateLocatorCodeToolStripMenuItem;
+        private System.Windows.Forms.Label label4;
     }
 }
 

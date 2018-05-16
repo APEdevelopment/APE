@@ -355,6 +355,7 @@ namespace APE.Spy
         }
         
         private bool m_ControlKey = true;
+        private bool m_ShiftKey = false;
         private bool m_Closing = false;
         private ControlIdentifier m_Identity = new ControlIdentifier();
         private NM.tagRect m_Area = new NM.tagRect();
@@ -372,12 +373,17 @@ namespace APE.Spy
 
             IdentifyButton.Enabled = false;
             WinformsProcessesCombobox.Enabled = false;
-            label1.Text = "Move the mouse cursor over the desired window and then press the control key";
+            label1.Text = "Move the mouse cursor over the desired window and then press";
+            label4.Text = "the control key or press shift to refresh the list of windows";
 
             //install hotkey hook for control key
             if (!NM.RegisterHotKey(this.Handle, 1, NM.MOD_CONTROL, NM.VK_CONTROL))
             {
-                throw new Exception("Failed to register hotkey");
+                throw new Exception("Failed to register control hotkey");
+            }
+            if (!NM.RegisterHotKey(this.Handle, 2, NM.MOD_SHIFT, NM.VK_SHIFT))
+            {
+                throw new Exception("Failed to register shift hotkey");
             }
             m_ControlKey = false;
 
@@ -385,6 +391,12 @@ namespace APE.Spy
 
             while (m_ControlKey == false)
             {
+                if (m_ShiftKey)
+                {
+                    BuildTree();
+                    m_ShiftKey = false;
+                }
+
                 Point cursorPosition = Cursor.Position;
                 NM.tagPoint screenLocation;
                 NM.tagPoint Location;
@@ -457,7 +469,9 @@ namespace APE.Spy
             if (!m_Closing)
             {
                 NM.UnregisterHotKey(this.Handle, 1);
+                NM.UnregisterHotKey(this.Handle, 2);
                 label1.Text = "";
+                label4.Text = "";
                 IdentifyButton.Enabled = true;
                 WinformsProcessesCombobox.Enabled = true;
             }
@@ -1143,7 +1157,14 @@ namespace APE.Spy
         {
             if (msg.Msg == NM.WM_HOTKEY)
             {
-                m_ControlKey = true;
+                if ((msg.LParam.ToInt32() & NM.MOD_CONTROL) > 0)
+                {
+                    m_ControlKey = true;
+                }
+                else if ((msg.LParam.ToInt32() & NM.MOD_SHIFT) > 0)
+                {
+                    m_ShiftKey = true;
+                }
             }
 
             base.WndProc(ref msg);
