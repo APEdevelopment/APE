@@ -791,12 +791,12 @@ namespace APE.Spy
             PropertyListbox.Items.Add("ModuleName\t: " + identity.ModuleName);
             PropertyListbox.Items.Add("Index (by " + indexBy + ")\t: " + identity.Index);
 
-            string APEType = GetAPEType(m_Identity);
+            string APEType = GetAPEType(identity);
             PropertyListbox.Items.Add("APEType\t\t: " + APEType);
 
             // Locate the form and the rendered control (label although should also work for any others)
             GUIForm form = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
-            GUILabel rendered = new GUILabel(form, "rendered", new Identifier(Identifiers.UniqueId, m_Identity.UniqueId));
+            GUILabel rendered = new GUILabel(form, "rendered", new Identifier(Identifiers.UniqueId, identity.UniqueId));
 
             PropertyListbox.Items.Add("Visible\t\t: " + rendered.IsVisible.ToString());
             PropertyListbox.Items.Add("Enabled\t\t: " + rendered.IsEnabled.ToString());
