@@ -159,7 +159,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the windows classname (not that helpful in the .NET world)
         /// </summary>
-        public string ClassName
+        public virtual string ClassName
         {
             get
             {
@@ -183,7 +183,7 @@ namespace APE.Language
         /// </summary>
         /// <param name="X">How far from the left edge of the control to move the mouse</param>
         /// <param name="Y">How far from the top edge of the control to move the mouse</param>
-        public void MoveTo(int X, int Y)
+        public virtual void MoveTo(int X, int Y)
         {
             Input.ClickCommon(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y);
         }
@@ -446,7 +446,7 @@ namespace APE.Language
         /// <param name="X">How far from the left edge of the control to perform a mouse up</param>
         /// <param name="Y">How far from the top edge of the control to perform a mouse up</param>
         /// <param name="button">The button to release</param>
-        public void MouseUp(int X, int Y, MouseButton button)
+        public virtual void MouseUp(int X, int Y, MouseButton button)
         {
             MouseUp(X, Y, button, MouseKeyModifier.None);
         }
@@ -458,7 +458,7 @@ namespace APE.Language
         /// <param name="Y">How far from the top edge of the control to perform a mouse up</param>
         /// <param name="button">The button to release</param>
         /// <param name="keys">The key to hold while performing a mouse up</param>
-        public void MouseUp(int X, int Y, MouseButton button, MouseKeyModifier keys)
+        public virtual void MouseUp(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
             string point = GetPointText(X, Y);
             string keyModifiers = GetKeyModifierText(keys);
@@ -475,7 +475,7 @@ namespace APE.Language
         /// <summary>
         /// Gets whether the control is currently enabled
         /// </summary>
-        public bool IsEnabled
+        public virtual bool IsEnabled
         {
             get
             {
@@ -486,7 +486,7 @@ namespace APE.Language
         /// <summary>
         /// Gets whether the control currently exists
         /// </summary>
-        public bool Exists
+        public virtual bool Exists
         {
             get
             {
@@ -497,7 +497,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the extended window style of the control
         /// </summary>
-        public long ExtendedStyle
+        public virtual long ExtendedStyle
         {
             get
             {
@@ -508,7 +508,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the height of the control
         /// </summary>
-        public int Height
+        public virtual int Height
         {
             get
             {
@@ -528,7 +528,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the controls window handle
         /// </summary>
-        public IntPtr Handle
+        public virtual IntPtr Handle
         {
             get
             {
@@ -539,7 +539,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the id of the control
         /// </summary>
-        public int Id
+        public virtual int Id
         {
             get
             {
@@ -550,7 +550,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the left edge of the control relative to the screen
         /// </summary>
-        public int Left
+        public virtual int Left
         {
             get
             {
@@ -574,7 +574,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the window style of the control
         /// </summary>
-        public long Style
+        public virtual long Style
         {
             get
             {
@@ -585,7 +585,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the windows current text
         /// </summary>
-        public string Text
+        public virtual string Text
         {
             get
             {
@@ -611,7 +611,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the topedge of the control relative to the screen
         /// </summary>
-        public int Top
+        public virtual int Top
         {
             get
             {
@@ -635,7 +635,7 @@ namespace APE.Language
         /// <summary>
         /// Gets whether the control is currently visible
         /// </summary>
-        public bool IsVisible
+        public virtual bool IsVisible
         {
             get
             {
@@ -646,7 +646,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the width of the control
         /// </summary>
-        public int Width
+        public virtual int Width
         {
             get
             {
@@ -830,6 +830,33 @@ namespace APE.Language
             }
 
             return keyModifiers;
+        }
+
+        internal enum Direction
+        {
+            Vertical,
+            Horizontal,
+        }
+
+        internal int TwipsToPixels(int twips, Direction direction)
+        {
+            int pixelsPerInch;
+            IntPtr deviceContext = NM.GetDC(this.Handle);
+
+            switch (direction)
+            {
+                case Direction.Horizontal:
+                    pixelsPerInch = NM.GetDeviceCaps(deviceContext, NM.DeviceCap.LOGPIXELSX);
+                    break;
+                case Direction.Vertical:
+                    pixelsPerInch = NM.GetDeviceCaps(deviceContext, NM.DeviceCap.LOGPIXELSY);
+                    break;
+                default:
+                    throw GUI.ApeException("Unknown direction: " + direction.ToString());
+            }
+            NM.ReleaseDC(this.Handle, deviceContext);
+            int pixels = (int)Math.Round((float)twips / (float)1440 * (float)pixelsPerInch);
+            return pixels;
         }
     }
 }

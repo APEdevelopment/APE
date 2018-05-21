@@ -156,6 +156,10 @@ namespace APE.Language
         /// The AccessibilityObject name of the control which normally is a name which makes sense to a human
         /// </summary>
         AccessibilityObjectName = 13,
+        /// <summary>
+        /// The unique id of the control (for internal use only)
+        /// </summary>
+        UniqueId = 14,
     }
 
     /// <summary>
@@ -666,6 +670,9 @@ namespace APE.Language
                         break;
                     case Identifiers.AccessibilityObjectName:
                         Identity.AccessibilityObjectName = i.IdentifierValue;
+                        break;
+                    case Identifiers.UniqueId:
+                        Identity.UniqueId = i.IdentifierValue;
                         break;
                     default:
                         throw GUI.ApeException("Unsupported identifier: " + i.ToString());

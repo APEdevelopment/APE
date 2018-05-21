@@ -1224,33 +1224,6 @@ namespace APE.Language
             return -1;
         }
 
-        private enum Direction
-        {
-            Vertical,
-            Horizontal,
-        }
-
-        private int TwipsToPixels(int twips, Direction direction)
-        {
-            int pixelsPerInch;
-            IntPtr deviceContext = NM.GetDC(this.Handle);
-            
-            switch (direction)
-            {
-                case Direction.Horizontal:
-                    pixelsPerInch = NM.GetDeviceCaps(deviceContext, NM.DeviceCap.LOGPIXELSX);
-                    break;
-                case Direction.Vertical:
-                    pixelsPerInch = NM.GetDeviceCaps(deviceContext, NM.DeviceCap.LOGPIXELSY);
-                    break;
-                default:
-                    throw GUI.ApeException("Unknown direction: " + direction.ToString());
-            }
-            NM.ReleaseDC(this.Handle, deviceContext);
-            int pixels = (int)Math.Round((float)twips / (float)1440 * (float)pixelsPerInch);
-            return pixels;
-        }
-
         private VSFlexgridColumnDataType GetColumnDataType(int column)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
