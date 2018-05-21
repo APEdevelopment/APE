@@ -1851,7 +1851,7 @@ namespace APE.Communication
             {
                 if (Identifier.Handle != IntPtr.Zero || Identifier.UniqueId != null)
                 {
-                    if (Identifier.UniqueId != null)
+                    if (Identifier.Handle == IntPtr.Zero && Identifier.UniqueId != null)
                     {
                         switch (Identifier.UniqueId.Substring(0, 1))
                         {
@@ -1874,20 +1874,23 @@ namespace APE.Communication
                         }
                     }
 
-                    if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
+                    if (!FoundControl)
                     {
-                        //WinForms
-                        WF.Control TheControl = WF.Control.FromHandle(Identifier.Handle);
-                        if (TheControl != null)
+                        if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                         {
-                            GetHandleAndName(TheControl);
-                            Handle = m_Handle;
-                            Name = m_Name;
-                            theType = TheControl.GetType();
-                            object[] parameters = { TheControl };
-                            theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
-                            accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
-                            FoundControl = true;
+                            //WinForms
+                            WF.Control TheControl = WF.Control.FromHandle(Identifier.Handle);
+                            if (TheControl != null)
+                            {
+                                GetHandleAndName(TheControl);
+                                Handle = m_Handle;
+                                Name = m_Name;
+                                theType = TheControl.GetType();
+                                object[] parameters = { TheControl };
+                                theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
+                                accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                FoundControl = true;
+                            }
                         }
                     }
 
@@ -2205,7 +2208,7 @@ namespace APE.Communication
 
                             if (!FoundControl)
                             {
-                                FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref FoundControl);
+                                FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
                             }
 
                             if (!FoundControl)
@@ -2251,7 +2254,7 @@ namespace APE.Communication
             {
                 if (Identifier.Handle != IntPtr.Zero || Identifier.UniqueId != null)
                 {
-                    if (Identifier.UniqueId != null)
+                    if (Identifier.Handle == IntPtr.Zero && Identifier.UniqueId != null)
                     {
                         switch (Identifier.UniqueId.Substring(0, 1))
                         {
@@ -2275,20 +2278,23 @@ namespace APE.Communication
                     }
 
                     //WinForms
-                    if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
+                    if (!FoundControl)
                     {
-                        WF.Control TheControl = WF.Control.FromHandle(Identifier.Handle);
-
-                        if (TheControl != null)
+                        if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                         {
-                            GetHandleAndName(TheControl);
-                            Handle = m_Handle;
-                            Name = m_Name;
-                            object[] parameters = { TheControl };
-                            theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
-                            accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
-                            theType = TheControl.GetType();
-                            FoundControl = true;
+                            WF.Control TheControl = WF.Control.FromHandle(Identifier.Handle);
+
+                            if (TheControl != null)
+                            {
+                                GetHandleAndName(TheControl);
+                                Handle = m_Handle;
+                                Name = m_Name;
+                                object[] parameters = { TheControl };
+                                theText = (string)TheControl.Invoke(m_GetTextDelegater, parameters);
+                                accessibilityObjectName = (string)TheControl.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                theType = TheControl.GetType();
+                                FoundControl = true;
+                            }
                         }
                     }
 
@@ -2580,7 +2586,7 @@ namespace APE.Communication
 
                         if (!FoundControl)
                         {
-                            FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref FoundControl);
+                            FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
                         }
 
                         if (!FoundControl)

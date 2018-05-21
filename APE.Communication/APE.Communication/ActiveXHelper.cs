@@ -201,7 +201,7 @@ namespace APE.Communication
             foundControl = true;
         }
 
-        private void FindByIdentifierRenderedActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeName, ref string technologyType, ref bool foundControl)
+        private void FindByIdentifierRenderedActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeName, ref string technologyType, ref string uniqueId, ref bool foundControl)
         {
             IntPtr parentHandle = IntPtr.Zero;
             int currentIndex = 0;
@@ -217,6 +217,7 @@ namespace APE.Communication
                         parentHandle = Ax.Items[item].ParentHandle;
                         name = Ax.Items[item].Name;
                         typeName = Ax.Items[item].TypeName;
+                        uniqueId = Ax.Items[item].UniqueId;
 
                         if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
                         {
