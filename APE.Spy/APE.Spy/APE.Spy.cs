@@ -793,6 +793,15 @@ namespace APE.Spy
 
             string APEType = GetAPEType(m_Identity);
             PropertyListbox.Items.Add("APEType\t\t: " + APEType);
+
+            // Locate the form and the rendered control (label although should also work for any others)
+            GUIForm form = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUILabel rendered = new GUILabel(form, "rendered", new Identifier(Identifiers.UniqueId, m_Identity.UniqueId));
+
+            PropertyListbox.Items.Add("Visible\t\t: " + rendered.IsVisible.ToString());
+            PropertyListbox.Items.Add("Enabled\t\t: " + rendered.IsEnabled.ToString());
+            PropertyListbox.Items.Add("Location\t\t: " + rendered.Left.ToString() + ", " + rendered.Top.ToString());
+            PropertyListbox.Items.Add("Size\t\t: " + rendered.Width.ToString() + ", " + rendered.Height.ToString());
         }
 
         private ControlIdentifier FindByTypeNameAndIndex(string typeName, int index)
