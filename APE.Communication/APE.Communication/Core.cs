@@ -61,7 +61,7 @@ namespace APE.Communication
         RemoveFileMapping = -1,
         None = 0,
         Find = 1,
-        Refind = 2,
+        RefindByHandle = 2,
         ReflectGet = 3,
         GetResult = 4,
         GetListViewGroupRectangle = 5,
@@ -116,6 +116,7 @@ namespace APE.Communication
         RemoveMouseClickHandler = 54,
         RemoveGenericWalkerSelectedHandler = 55,
         GetToolTip = 56,
+        RefindByUniqueId = 57,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -266,8 +267,11 @@ namespace APE.Communication
                                 case MessageAction.Find:
                                     result = Find(messageNumber, m_TimeOut);
                                     break;
-                                case MessageAction.Refind:
-                                    Refind(messageNumber);
+                                case MessageAction.RefindByHandle:
+                                    RefindByHandle(messageNumber);
+                                    break;
+                                case MessageAction.RefindByUniqueId:
+                                    RefindByUniqueId(messageNumber);
                                     break;
                                 case MessageAction.ReflectGet:
                                     Reflect(messageNumber);

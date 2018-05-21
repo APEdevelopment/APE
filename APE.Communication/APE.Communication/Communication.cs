@@ -1241,10 +1241,25 @@ namespace APE.Communication
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
             PtrMessage->DestinationStore = DestinationStore;
-            PtrMessage->Action = MessageAction.Refind;
+            PtrMessage->Action = MessageAction.RefindByHandle;
 
             Parameter ParentHandleParam = new Parameter(this, ParentHandle);
             Parameter ControlHandleParam = new Parameter(this, ControlHandle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+        }
+
+        unsafe public void AddFirstMessageFindByUniqueId(DataStores destinationStore, string uniqueId)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
+
+            ptrMessage->DestinationStore = destinationStore;
+            ptrMessage->Action = MessageAction.RefindByUniqueId;
+
+            Parameter uniqueIdParam = new Parameter(this, uniqueId);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -1834,8 +1849,31 @@ namespace APE.Communication
 
             if (Identifier.ParentHandle == IntPtr.Zero)     //Find toplevel (parent)
             {
-                if (Identifier.Handle != IntPtr.Zero)
+                if (Identifier.Handle != IntPtr.Zero || Identifier.UniqueId != null)
                 {
+                    if (Identifier.UniqueId != null)
+                    {
+                        switch (Identifier.UniqueId.Substring(0, 1))
+                        {
+                            case "A":
+                                if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
+                                {
+                                    uniqueId = Identifier.UniqueId;
+                                    object controlActiveX = FindByUniqueIdActiveX(uniqueId, out Name, out typeName, out Handle);
+                                    if (controlActiveX != null)
+                                    {
+                                        theText = GetWindowTextViaWindowMessage(Handle);
+                                        technologyType = "Windows ActiveX";
+                                        FoundControl = true;
+                                    }
+                                }
+                                break;
+                            case "H":
+                                Identifier.Handle = new IntPtr(long.Parse(Identifier.UniqueId.Substring(1)));
+                                break;
+                        }
+                    }
+
                     if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                     {
                         //WinForms
@@ -2211,8 +2249,31 @@ namespace APE.Communication
             }
             else    //find child
             {
-                if (Identifier.Handle != IntPtr.Zero)
+                if (Identifier.Handle != IntPtr.Zero || Identifier.UniqueId != null)
                 {
+                    if (Identifier.UniqueId != null)
+                    {
+                        switch (Identifier.UniqueId.Substring(0, 1))
+                        {
+                            case "A":
+                                if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
+                                {
+                                    uniqueId = Identifier.UniqueId;
+                                    object controlActiveX = FindByUniqueIdActiveX(uniqueId, out Name, out typeName, out Handle);
+                                    if (controlActiveX != null)
+                                    {
+                                        theText = GetWindowTextViaWindowMessage(Handle);
+                                        technologyType = "Windows ActiveX";
+                                        FoundControl = true;
+                                    }
+                                }
+                                break;
+                            case "H":
+                                Identifier.Handle = new IntPtr(long.Parse(Identifier.UniqueId.Substring(1)));
+                                break;
+                        }
+                    }
+
                     //WinForms
                     if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
                     {
@@ -2577,6 +2638,10 @@ namespace APE.Communication
                 }
                 NewIdentifier.Index = Identifier.Index;
                 NewIdentifier.Text = theText;
+                if (uniqueId == null)
+                {
+                    uniqueId = "H" + Handle.ToString();
+                }
                 NewIdentifier.UniqueId = uniqueId;
                 AddIdentifierMessage(NewIdentifier);
                 return null;
@@ -2587,7 +2652,11 @@ namespace APE.Communication
             }
         }
 
-        unsafe private void Refind(int messageNumber)
+        unsafe private void RefindByUniqueId(int messageNumber)
+        {
+        }
+            
+        unsafe private void RefindByHandle(int messageNumber)
         {
             object DestinationObject = null;
 
