@@ -448,8 +448,8 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int height = GUI.m_APE.GetValueFromMessage();
-                    return TwipsToPixels(height, Direction.Vertical);
+                    float height = GUI.m_APE.GetValueFromMessage();
+                    return TwipsToPixels((int)(Math.Round(height)), Direction.Vertical);
                 }
                 else
                 {
@@ -510,8 +510,8 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int left = GUI.m_APE.GetValueFromMessage();
-                    return TwipsToPixels(left, Direction.Horizontal);
+                    float left = GUI.m_APE.GetValueFromMessage();
+                    return TwipsToPixels((int)(Math.Round(left)), Direction.Horizontal);
                 }
                 else
                 {
@@ -580,8 +580,8 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int top = GUI.m_APE.GetValueFromMessage();
-                    return TwipsToPixels(top, Direction.Vertical);
+                    float top = GUI.m_APE.GetValueFromMessage();
+                    return TwipsToPixels((int)(Math.Round(top)), Direction.Vertical);
                 }
                 else
                 {
@@ -632,8 +632,8 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    int width = GUI.m_APE.GetValueFromMessage();
-                    return TwipsToPixels(width, Direction.Horizontal);
+                    float width = GUI.m_APE.GetValueFromMessage();
+                    return TwipsToPixels((int)(Math.Round(width)), Direction.Horizontal);
                 }
                 else
                 {

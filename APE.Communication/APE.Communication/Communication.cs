@@ -1682,12 +1682,7 @@ namespace APE.Communication
                 }
             }
 
-            //cleanup the message
-            PtrMessage->TypeCodeKey = 0;
-            PtrMessage->NumberOfParameters = 0;
-            PtrMessage->NameOffset = 0;
-            PtrMessage->NameLength = 0;
-            PtrMessage->Action = MessageAction.None;
+            CleanUpMessage(PtrMessage);
         }
 
         private void GetWPFHandleAndNameAndTitle(WPF.Window theWindow)
@@ -2660,74 +2655,63 @@ namespace APE.Communication
 
         unsafe private void RefindByUniqueId(int messageNumber)
         {
-        }
-            
-        unsafe private void RefindByHandle(int messageNumber)
-        {
-            object DestinationObject = null;
+            object destinationObject = null;
 
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
+            Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
 
-            ControlIdentifier Identifier;
-            DecodeControl(messageNumber, out Identifier);
+            string uniqueId = GetParameterString(ptrMessage, 0);
+            IntPtr handle;
+            string name;
+            string typeName;
 
-            //WinForms
-            if (Identifier.TechnologyType == "Windows Forms (WinForms)" || Identifier.TechnologyType == null)
+            switch (uniqueId.Substring(0, 1))
             {
-                DestinationObject = WF.Control.FromHandle(Identifier.Handle);
+                case "H":
+                    handle = new IntPtr(long.Parse(uniqueId.Substring(1)));
+                    destinationObject = WF.Control.FromHandle(handle);
+                    break;
+                case "A":
+                    destinationObject = FindByUniqueIdActiveX(uniqueId, out name, out typeName, out handle);
+                    break;
             }
 
-            if (DestinationObject == null)
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        unsafe private void RefindByHandle(int messageNumber)
+        {
+            object destinationObject = null;
+
+            Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
+
+            ControlIdentifier identifier;
+            DecodeControl(messageNumber, out identifier);
+
+            //WinForms
+            if (identifier.TechnologyType == "Windows Forms (WinForms)" || identifier.TechnologyType == null)
             {
-                if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
+                destinationObject = WF.Control.FromHandle(identifier.Handle);
+            }
+
+            if (destinationObject == null)
+            {
+                if (identifier.TechnologyType == "Windows ActiveX" || identifier.TechnologyType == null)
                 {
-                    DestinationObject = FindByHandleActiveX(Identifier.Handle, out string name, out string typeName, out string uniqueId);
+                    destinationObject = FindByHandleActiveX(identifier.Handle, out string name, out string typeName, out string uniqueId);
                 }
             }
 
-            if (DestinationObject == null)
+            if (destinationObject == null)
             {
-                if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                if (identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || identifier.TechnologyType == null)
                 {
                     //WPF TODO
                 }
             }
 
-            switch (PtrMessage->DestinationStore)
-            {
-                case DataStores.Store0:
-                    tempStore0 = DestinationObject;
-                    break;
-                case DataStores.Store1:
-                    tempStore1 = DestinationObject;
-                    break;
-                case DataStores.Store2:
-                    tempStore2 = DestinationObject;
-                    break;
-                case DataStores.Store3:
-                    tempStore3 = DestinationObject;
-                    break;
-                case DataStores.Store4:
-                    tempStore4 = DestinationObject;
-                    break;
-                case DataStores.Store5:
-                    tempStore5 = DestinationObject;
-                    break;
-                case DataStores.Store6:
-                    tempStore6 = DestinationObject;
-                    break;
-                case DataStores.Store7:
-                    tempStore7 = DestinationObject;
-                    break;
-                case DataStores.Store8:
-                    tempStore8 = DestinationObject;
-                    break;
-                case DataStores.Store9:
-                    tempStore9 = DestinationObject;
-                    break;
-                default:
-                    throw new Exception("Unsupported DestinationStore " + (PtrMessage->DestinationStore).ToString());
-            }
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
         }
 
         unsafe private void GetResult(int MessageNumber)

@@ -232,6 +232,48 @@ namespace APE.Communication
                         //    continue;
                         //}
 
+                        if (identifier.Name != null)
+                        {
+                            if (name != identifier.Name)
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (identifier.TechnologyType != null)
+                        {
+                            if ("Windows ActiveX" != identifier.TechnologyType)
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (identifier.TypeNameSpace != null)
+                        {
+                            continue;
+                        }
+
+                        if (identifier.TypeName != null)
+                        {
+                            if (typeName != identifier.TypeName)
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (identifier.ModuleName != null)
+                        {
+                            if (Path.GetFileName(NM.GetWindowModuleFileName(handle)) != identifier.ModuleName)
+                            {
+                                continue;
+                            }
+                        }
+
+                        if (identifier.AssemblyName != null)
+                        {
+                            continue;
+                        }
+
                         if (identifier.ChildOf != IntPtr.Zero)
                         {
                             if (identifier.ChildOf == handle || NM.IsChild(identifier.ChildOf, handle))
@@ -243,51 +285,16 @@ namespace APE.Communication
                             }
                         }
 
-                        //if (identifier.SiblingOf != IntPtr.Zero)
-                        //{
-                        //    if (!NM.IsSibling(identifier.SiblingOf, handle))
-                        //    {
-                        //        continue;
-                        //    }
-                        //}
-
-                        //if (identifier.ParentOf != IntPtr.Zero)
-                        //{
-                        //    if (!NM.IsChild(handle, identifier.ParentOf))
-                        //    {
-                        //        continue;
-                        //    }
-                        //}
-
-                        if (identifier.ModuleName != null)
+                        if (identifier.SiblingOf != IntPtr.Zero)
                         {
-                            if (Path.GetFileName(NM.GetWindowModuleFileName(handle)) != identifier.ModuleName)
-                            {
-                                continue;
-                            }
+                            continue;   
                         }
 
-                        if (identifier.TypeName != null)
+                        if (identifier.ParentOf != IntPtr.Zero)
                         {
-                            if (typeName != identifier.TypeName)
-                            {
-                                continue;
-                            }
+                            continue;
                         }
 
-                        if (identifier.Name != null)
-                        {
-                            if (name != identifier.Name)
-                            {
-                                continue;
-                            }
-                        }
-
-                        //object[] comParameters = new object[3];
-                        //comParameters[0] = Name;
-                        //comParameters[1] = SourceObject;
-                        //comParameters[2] = ParametersObject;
-                        //DestinationObject = ((WF.Control)tempStore0).Invoke(m_ComReflectDelegater, comParameters);
                         theText = (string)m_ComReflectDelegater.Invoke("Caption", Ax.Items[item].Control, null);
                         if (identifier.Text != null)
                         {
@@ -304,14 +311,10 @@ namespace APE.Communication
                             }
                         }
 
-                        //accessibilityObjectName = (string)form.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
-                        //if (Identifier.AccessibilityObjectName != null)
-                        //{
-                        //    if (accessibilityObjectName != Identifier.AccessibilityObjectName)
-                        //    {
-                        //        continue;
-                        //    }
-                        //}
+                        if (identifier.AccessibilityObjectName != null)
+                        {
+                            continue;
+                        }
 
                         currentIndex++;
 
