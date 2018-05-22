@@ -84,6 +84,16 @@ namespace APE.Bridge
                     if (Items[index].UniqueId == item.UniqueId)
                     {
                         found = true;
+                        //Update the handles and name if need be
+                        if (Items[index].Handle == IntPtr.Zero)
+                        {
+                            Items[index].Handle = item.Handle;
+                            Items[index].ParentHandle = item.ParentHandle;
+                        }
+                        if (string.IsNullOrEmpty(Items[index].Name))
+                        {
+                            Items[index].Name = item.Name;
+                        }
                         break;
                     }
                 }
