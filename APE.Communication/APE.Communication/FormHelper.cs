@@ -499,7 +499,7 @@ namespace APE.Communication
             //must be first message
             if (messageNumber != 1)
             {
-                throw new Exception("GetTitleBarItemRectangle must be first message");
+                throw new Exception("GetToolTip must be first message");
             }
 
             // p1  = handle

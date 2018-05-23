@@ -117,6 +117,7 @@ namespace APE.Communication
         RemoveGenericWalkerSelectedHandler = 55,
         GetToolTip = 56,
         RefindByUniqueId = 57,
+        DumpActiveX = 58,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -426,6 +427,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.GetToolTip:
                                     GetToolTip(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.DumpActiveX:
+                                    DumpActiveX(ptrMessage, messageNumber);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());

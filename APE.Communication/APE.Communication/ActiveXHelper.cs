@@ -13,6 +13,56 @@ namespace APE.Communication
 {
     public partial class APEIPC
     {
+        //
+        //  DumpActiveX
+        //
+
+        unsafe public void AddFirstMessageDumpActiveX()
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.DumpActiveX;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void DumpActiveX(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("DumpActiveX must be first message");
+            }
+
+            CleanUpMessage(ptrMessage);
+
+            StringBuilder dump = new StringBuilder();
+            if (Ax.Items.Count > 0)
+            {
+                lock (Ax.AxItemsLock)
+                {
+                    int items = Ax.Items.Count;
+                    for (int item = 0; item < items; item++)
+                    {
+                        dump.Append("Name: " + Ax.Items[item].Name.ToString());
+                        dump.Append(" TypeName: " + Ax.Items[item].TypeName.ToString());
+                        dump.Append(" UniqueId: " + Ax.Items[item].UniqueId.ToString());
+                        dump.Append(" Handle: " + Ax.Items[item].Handle.ToString());
+                        dump.Append(" Parent: " + Ax.Items[item].ParentHandle.ToString());
+                        dump.Append(" Rendered: " + Ax.Items[item].Rendered.ToString());
+                        dump.AppendLine();
+                    }
+                }
+            }
+
+            AddReturnValue(new Parameter(this, dump.ToString()));
+        }
+
         private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName, out string uniqueId)
         {
             if (Ax.Items.Count > 0)
