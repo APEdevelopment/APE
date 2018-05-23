@@ -34,27 +34,63 @@ End Sub
 Private Function GetLabelContainerHandle(containerHandle As Long, ctrl As Control)
     On Error GoTo HandleError
     GetLabelContainerHandle = ctrl.Container.hWnd
-Exit Function
-
+    Exit Function
 HandleError:
     GetLabelContainerHandle = containerHandle
 End Function
 
+Private Function GetName(ctrl As Object) As String
+    On Error GoTo NameFromControlError
+    GetName = ctrl.Name
+    Exit Function
+NameFromControlError:
+    GetName = ""
+End Function
+
+Private Function GetHandle(ctrl As Object) As Long
+    On Error GoTo hWndFromControlError
+    GetHandle = ctrl.hWnd
+    Exit Function
+hWndFromControlError:
+    Resume TryWindow
+TryWindow:
+    On Error GoTo WindowFromControlError
+    GetHandle = ctrl.Window
+    Exit Function
+WindowFromControlError:
+    Resume TryHandle
+TryHandle:
+    On Error GoTo HandleFromControlError
+    GetHandle = ctrl.Handle
+    Exit Function
+HandleFromControlError:
+    GetHandle = 0
+End Function
+
 Public Sub AddObjectToBridgeToAPE(containerHandle As Long, containerName As String, containerControl As Object, containerControlCollection As Object)
     Dim ctrl As Control
-    On Error Resume Next
+    Dim extender As VBControlExtender
     
     If BridgeToAPE Is Nothing Then
         Call CreateBridgeToAPE
     End If
     
+    'Debug.Print "added: " & containerName & " " & ObjPtr(containerControl)
     Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerHandle, containerHandle, containerName, TypeName(containerControl), containerControl, False)
     
     For Each ctrl In containerControlCollection
         If TypeName(ctrl) = "Label" Then
-            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, GetLabelContainerHandle(containerHandle, ctrl), ctrl.Name, TypeName(ctrl), ctrl, True)
+            'Debug.Print "added label: " & GetName(ctrl) & " " & ObjPtr(ctrl)
+            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, GetLabelContainerHandle(containerHandle, ctrl), GetName(ctrl), TypeName(ctrl), ctrl, True)
         Else
-            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, ctrl.hWnd, ctrl.Name, TypeName(ctrl), ctrl, False)
+            If TypeOf ctrl Is VBControlExtender Then
+                Set extender = ctrl
+                'Debug.Print "added extender: " & extender.Name & " " & ObjPtr(extender.object)
+                Call BridgeToAPE.AddItem(ObjPtr(extender.object), containerHandle, GetHandle(extender.object), extender.Name, TypeName(extender.object), extender.object, False)
+            Else
+                'Debug.Print "added object: " & GetName(ctrl) & " " & ObjPtr(ctrl)
+                Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, GetHandle(ctrl), GetName(ctrl), TypeName(ctrl), ctrl, False)
+            End If
         End If
     Next ctrl
 End Sub

@@ -75,6 +75,8 @@ namespace APE.Bridge
         public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, string typeName, object control, bool rendered)
         {
             Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), new IntPtr(handle), name, typeName, control, rendered);
+            //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
+
             bool found = false;
             lock (AxItemsLock)
             {
@@ -84,16 +86,20 @@ namespace APE.Bridge
                     if (Items[index].UniqueId == item.UniqueId)
                     {
                         found = true;
+                        Debug.Write("Updating: name: " + Items[index].Name + " now:");
                         //Update the handles and name if need be
+                        if (string.IsNullOrEmpty(Items[index].Name))
+                        {
+                            Items[index].Name = item.Name;
+                            Debug.Write(" name: " + Items[index].Name);
+                        }
                         if (Items[index].Handle == IntPtr.Zero)
                         {
                             Items[index].Handle = item.Handle;
                             Items[index].ParentHandle = item.ParentHandle;
+                            Debug.Write(" hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString());
                         }
-                        if (string.IsNullOrEmpty(Items[index].Name))
-                        {
-                            Items[index].Name = item.Name;
-                        }
+                        Debug.WriteLine("");
                         break;
                     }
                 }
@@ -104,7 +110,7 @@ namespace APE.Bridge
                 }
                 else
                 {
-                    Debug.WriteLine("Adding: " + item.Name + " parent: " + item.ParentHandle.ToString());
+                    Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
                     Items.Add(item);
                 }
             }
