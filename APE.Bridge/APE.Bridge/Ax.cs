@@ -20,6 +20,7 @@ using System.Runtime.InteropServices;
 
 namespace APE.Bridge
 {
+    // This COM component needs to be registered with regasm specifiying the /codebase parameter
     [Guid("B8C75701-0A4B-44CC-8E91-28A1DCC9D330")]
     [ClassInterface(ClassInterfaceType.AutoDispatch)]
     public class Ax
