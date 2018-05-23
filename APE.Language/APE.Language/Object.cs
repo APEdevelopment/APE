@@ -185,7 +185,7 @@ namespace APE.Language
         /// <param name="Y">How far from the top edge of the control to move the mouse</param>
         public virtual void MoveTo(int X, int Y)
         {
-            Input.ClickCommon(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y);
+            Input.ClickCommon(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, this);
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace APE.Language
                     }
                 }
 
-                Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+                Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
                 ok = true;
             }
             finally
@@ -324,7 +324,7 @@ namespace APE.Language
 
         internal void DoubleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            Input.MouseDoubleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace APE.Language
 
         internal void TripleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            Input.MouseTripleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
         }
 
         /// <summary>
@@ -405,7 +405,7 @@ namespace APE.Language
 
         internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
             if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception(Identity.Description + " did not go idle within timeout");
@@ -469,7 +469,7 @@ namespace APE.Language
 
         internal void MouseUpInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseUp(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys);
+            Input.MouseUp(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
         }
 
         /// <summary>
@@ -528,7 +528,7 @@ namespace APE.Language
         /// <summary>
         /// Gets the controls window handle
         /// </summary>
-        public virtual IntPtr Handle
+        public IntPtr Handle
         {
             get
             {

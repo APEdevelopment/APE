@@ -87,7 +87,7 @@ namespace APE.Language
             //}
         }
 
-        public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
+        public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
         {
             bool hooked = false;
 
@@ -105,7 +105,7 @@ namespace APE.Language
                 TimerResolution.SetMaxTimerResolution();
                 NM.SetDoubleClickTime(1);
                 
-                ClickCommon(parent, control, description, x, y);
+                ClickCommon(parent, control, description, x, y, apeObject);
 
                 GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -157,7 +157,7 @@ namespace APE.Language
             //}
         }
 
-        public static void MouseDoubleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
+        public static void MouseDoubleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
         {
             bool hooked = false;
 
@@ -174,7 +174,7 @@ namespace APE.Language
                 
                 TimerResolution.SetMaxTimerResolution();
 
-                ClickCommon(parent, control, description, x, y);
+                ClickCommon(parent, control, description, x, y, apeObject);
 
                 GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -228,7 +228,7 @@ namespace APE.Language
             }
         }
 
-        public static void MouseTripleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
+        public static void MouseTripleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
         {
             bool hooked = false;
 
@@ -245,7 +245,7 @@ namespace APE.Language
                 
                 TimerResolution.SetMaxTimerResolution();
 
-                ClickCommon(parent, control, description, x, y);
+                ClickCommon(parent, control, description, x, y, apeObject);
 
                 GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -311,7 +311,7 @@ namespace APE.Language
             }
         }
 
-        public static void MouseDown(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
+        public static void MouseDown(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
         {
             bool hooked = false;
 
@@ -326,7 +326,7 @@ namespace APE.Language
             {
                 TimerResolution.SetMaxTimerResolution();
 
-                ClickCommon(parent, control, description, x, y);
+                ClickCommon(parent, control, description, x, y, apeObject);
 
                 GUI.m_APE.AddFirstMessageAddMouseHook(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
@@ -363,7 +363,7 @@ namespace APE.Language
             }
         }
 
-        public static void MouseUp(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys)
+        public static void MouseUp(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
         {
             bool hooked = false;
 
@@ -402,11 +402,18 @@ namespace APE.Language
 
                 if (ChildHandle == control)
                 {
-                    ClickCommon(parent, control, description, x, y);
+                    ClickCommon(parent, control, description, x, y, apeObject);
                 }
                 else
                 {
-                    MouseMove(control, description, x, y, false);
+                    if (apeObject is GUILabel && apeObject?.TechnologyType == "Windows ActiveX")
+                    {
+                        MouseMoveLabelActiveX(apeObject, x, y);
+                    }
+                    else
+                    {
+                        MouseMove(control, description, x, y);
+                    }
                 }
 
                 if (control == ActualParent || ActualParent == NM.GetAncestor(control, NM.GetAncestorFlags.GetParent))
@@ -610,7 +617,7 @@ namespace APE.Language
             return ret;
         }
 
-        public static void ClickCommon(IntPtr parent, IntPtr control, string description, int x, int y)
+        public static void ClickCommon(IntPtr parent, IntPtr control, string description, int x, int y, GUIObject apeObject)
         {
             if (!NM.IsWindowVisible(control))
             {
@@ -648,10 +655,18 @@ namespace APE.Language
                 }
             }
 
-            NM.tagPoint thePoint = MouseMove(control, description, x, y);
-            IntPtr WindowAtPoint = NM.WindowFromPoint(thePoint);
-
-            if (WindowAtPoint != control)
+            NM.tagPoint thePoint;
+            if (apeObject is GUILabel && apeObject?.TechnologyType == "Windows ActiveX")
+            {
+                thePoint = MouseMoveLabelActiveX(apeObject, x, y);
+            }
+            else
+            {
+                thePoint = MouseMove(control, description, x, y);
+            }
+            
+            IntPtr windowAtPoint = NM.WindowFromPoint(thePoint);
+            if (windowAtPoint != control)
             {
                 throw new Exception(description + " is obscured");
             }
@@ -1118,6 +1133,89 @@ namespace APE.Language
             if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
             {
                 throw new Exception(description + " did not go idle within timeout");
+            }
+
+            return thePoint;
+        }
+
+        public static NM.tagPoint MouseMoveLabelActiveX(GUIObject apeObject, int x, int y)
+        {
+            NM.tagPoint thePoint;
+            int xOffset;
+            int yOffset;
+            int loops = 0;
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                // TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
+                if (x == -1)
+                {
+                    xOffset = apeObject.Width / 2;
+                }
+                else
+                {
+                    xOffset = x;
+                }
+
+                if (y == -1)
+                {
+                    yOffset = apeObject.Height / 2;
+                }
+                else
+                {
+                    yOffset = y;
+                }
+
+                thePoint.x = apeObject.Left + xOffset;
+                thePoint.y = apeObject.Top + yOffset;
+
+                if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
+                {
+                    throw GUI.ApeException("Coordinates offscreen");
+                }
+
+                IntPtr childHandle;
+                childHandle = NM.WindowFromPoint(thePoint);
+
+                // Make sure we are inside the controls window area
+                if (apeObject.Handle == childHandle)
+                {
+                    break;
+                }
+                else
+                {
+                    if (loops == 100)
+                    {
+                        // Make sure the AUT has painted and is idle
+                        if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
+                        {
+                            throw new Exception(apeObject.Description + " did not go idle within timeout");
+                        }
+                    }
+
+                    if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                    {
+                        if (NM.IsWindowEnabled(apeObject.Handle) && NM.IsWindowEnabled(NM.GetAncestor(apeObject.Handle, NM.GetAncestorFlags.GetParent)))
+                        {
+                            throw GUI.ApeException("Coordinates are not inside the " + apeObject.Description + " control area");
+                        }
+                        else
+                        {
+                            throw new Exception(apeObject.Description + " is not enabled");
+                        }
+                    }
+                }
+
+                loops++;
+            }
+
+            MoveMouse(thePoint.x, thePoint.y);
+
+            // Make sure the AUT recieves the mouse move message and has painted
+            if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
+            {
+                throw new Exception(apeObject.Description + " did not go idle within timeout");
             }
 
             return thePoint;

@@ -1006,7 +1006,7 @@ namespace APE.Language
                 {
                     if (isEnabled)
                     {
-                        Input.MouseSingleClick(parent, control, description, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None);
+                        Input.MouseSingleClick(parent, control, description, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None, null);
                         break;
                     }
                 }
