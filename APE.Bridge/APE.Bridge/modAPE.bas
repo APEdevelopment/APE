@@ -19,16 +19,8 @@ Private Const strProgIDBridgeToAPE = "APE.Bridge.Ax"
 Private BridgeToAPE As Object
 
 Private Sub CreateBridgeToAPE()
-    On Error GoTo CreateError
+    On Error Resume Next
     Set BridgeToAPE = CreateObject(strProgIDBridgeToAPE)
-    On Error GoTo 0
-Exit Sub
-
-CreateError:
-    Resume RaiseError
-RaiseError:
-    'Raise a more friendly error than the default
-    Call Err.Raise(429, Description:="Failed to create " + strProgIDBridgeToAPE + " object")
 End Sub
 
 Private Function GetLabelContainerHandle(containerHandle As Long, ctrl As Control)
@@ -73,6 +65,9 @@ Public Sub AddObjectToBridgeToAPE(containerHandle As Long, containerName As Stri
     
     If BridgeToAPE Is Nothing Then
         Call CreateBridgeToAPE
+        If BridgeToAPE Is Nothing Then
+            Exit Sub
+        End If
     End If
     
     'Debug.Print "added: " & containerName & " " & ObjPtr(containerControl)
