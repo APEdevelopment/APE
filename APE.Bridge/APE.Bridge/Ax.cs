@@ -44,6 +44,34 @@ namespace APE.Bridge
         [DllImport("user32.dll", ExactSpelling = true)]
         private static extern IntPtr GetAncestor(IntPtr hWnd, GetAncestorFlags flags);
 
+        /// <summary>
+        /// Implemented and used by containers and objects to obtain window handles and manage context-sensitive help.
+        /// </summary>
+        /// <remarks>
+        /// The IOleWindow interface provides methods that allow an application to obtain 
+        /// the handle to the various windows that participate in in-place activation, 
+        /// and also to enter and exit context-sensitive help mode.
+        /// </remarks>
+        [ComImport]
+        [Guid("00000114-0000-0000-C000-000000000046")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IOleWindow
+        {
+            /// <summary>
+            /// Returns the window handle to one of the windows participating in in-place activation 
+            /// (frame, document, parent, or in-place object window).
+            /// </summary>
+            /// <param name="phwnd">Pointer to where to return the window handle.</param>
+            void GetWindow(out IntPtr phwnd);
+            /// <summary>
+            /// Determines whether context-sensitive help mode should be entered during an 
+            /// in-place activation session.
+            /// </summary>
+            /// <param name="fEnterMode"><c>true</c> if help mode should be entered; 
+            /// <c>false</c> if it should be exited.</param>
+            void ContextSensitiveHelp([In, MarshalAs(UnmanagedType.Bool)] bool fEnterMode);
+        }
+
         public class Item
         {
             public string UniqueId;
@@ -71,11 +99,43 @@ namespace APE.Bridge
         public static List<Item> Items = new List<Item>();
         public static readonly object AxItemsLock = new object();
 
-        //We use dynamic instead of IntPtr as IntPtr causes issues when using the dispatch interface
-
+        //We use dynamic instead of IntPtr as IntPtr causes issues when using late binding
         public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, string typeName, object control, bool rendered)
         {
-            Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), new IntPtr(handle), name, typeName, control, rendered);
+            IntPtr windowHandle = IntPtr.Zero;
+
+            if (handle == 0)
+            {
+                //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
+                IOleWindow controlAsOleWindow = control as IOleWindow;
+                if (controlAsOleWindow != null)
+                {
+                    try
+                    {
+                        controlAsOleWindow.GetWindow(out windowHandle);
+                    }
+                    catch
+                    {
+                        //Some controls support the IOleWindow interface but don't actually have windows
+                        //Debug.WriteLine("No window: name: " + name + " typename: " + typeName);
+                        Marshal.ReleaseComObject(control);
+                        return;
+                    }
+                }
+                else
+                {
+                    //Debug.WriteLine("Not an IOleWindow: name: " + name + " typename: " + typeName);
+                    Marshal.ReleaseComObject(control);
+                    return;
+                }
+            }
+            else
+            {
+                //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
+                windowHandle = new IntPtr(handle);
+            }
+
+            Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), windowHandle, name, typeName, control, rendered);
             //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
 
             bool found = false;
@@ -87,20 +147,20 @@ namespace APE.Bridge
                     if (Items[index].UniqueId == item.UniqueId)
                     {
                         found = true;
-                        Debug.Write("Updating: name: " + Items[index].Name + " now:");
+                        //Debug.Write("Updating: name: " + Items[index].Name + " now:");
                         //Update the handles and name if need be
                         if (string.IsNullOrEmpty(Items[index].Name))
                         {
                             Items[index].Name = item.Name;
-                            Debug.Write(" name: " + Items[index].Name);
+                            //Debug.Write(" name: " + Items[index].Name);
                         }
                         if (Items[index].Handle == IntPtr.Zero)
                         {
                             Items[index].Handle = item.Handle;
                             Items[index].ParentHandle = item.ParentHandle;
-                            Debug.Write(" hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString());
+                            //Debug.Write(" hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString());
                         }
-                        Debug.WriteLine("");
+                        //Debug.WriteLine("");
                         break;
                     }
                 }
@@ -111,7 +171,7 @@ namespace APE.Bridge
                 }
                 else
                 {
-                    Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
+                    //Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
                     Items.Add(item);
                 }
             }
@@ -126,10 +186,10 @@ namespace APE.Bridge
                 for (int index = numberOfItems - 1; index > -1; index--)
                 {
                     if (Items[index].ParentHandle == handleOfContainerToRemove ||   //We check the ParentHandle to be certain that we don't leak any controls, its not really needed but doesn't hurt
-                        Items[index].ContainerHandle == handleOfContainerToRemove || 
+                        Items[index].ContainerHandle == handleOfContainerToRemove ||
                         Items[index].Handle == handleOfContainerToRemove)
                     {
-                        Debug.WriteLine("removing: " + Items[index].Name + " parent: " + Items[index].ParentHandle.ToString());
+                        //Debug.WriteLine("removing: " + Items[index].Name + " parent: " + Items[index].ParentHandle.ToString());
                         Marshal.ReleaseComObject(Items[index].Control);
                         Items.RemoveAt(index);
                     }
