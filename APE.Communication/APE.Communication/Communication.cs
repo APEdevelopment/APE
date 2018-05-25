@@ -4161,6 +4161,10 @@ namespace APE.Communication
                             {
                                 DestinationObject = SourceObject.ToString();
                             }
+                            else if (Name == "GetType")
+                            {
+                                DestinationObject = SourceType;
+                            }
                             else
                             {
                                 MethodInvokerCache.GetFromList(SourceType.TypeHandle.Value, Name, PtrMessage->TypeCodeKey, datastoreTypes.ToString(), out MethodInvoker);
