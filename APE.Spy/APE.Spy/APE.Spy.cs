@@ -89,6 +89,12 @@ namespace APE.Spy
                                     break;
                                 }
                             }
+
+                            if (Module.Value == "APE.Bridge")
+                            {
+                                ListOfProcesses.Add(p, p.ProcessName);
+                                break;
+                            }
                         }
                     }
                 }
@@ -216,7 +222,6 @@ namespace APE.Spy
                         }
                         AddChildNode(hWnd, ParentNode, hWnd);
                     }
-                    
                 }
             }
             return true;
