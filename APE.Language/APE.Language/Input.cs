@@ -412,7 +412,7 @@ namespace APE.Language
                     }
                     else
                     {
-                        MouseMove(control, description, x, y);
+                        MouseMove(control, description, x, y, false);
                     }
                 }
 
@@ -1138,7 +1138,7 @@ namespace APE.Language
             return thePoint;
         }
 
-        public static NM.tagPoint MouseMoveLabelActiveX(GUIObject apeObject, int x, int y)
+        public static NM.tagPoint MouseMoveLabelActiveX(GUIObject apeObject, int x, int y, bool performCheck = true)
         {
             NM.tagPoint thePoint;
             int xOffset;
@@ -1175,36 +1175,43 @@ namespace APE.Language
                     throw GUI.ApeException("Coordinates offscreen");
                 }
 
-                IntPtr childHandle;
-                childHandle = NM.WindowFromPoint(thePoint);
-
-                // Make sure we are inside the controls window area
-                if (apeObject.Handle == childHandle)
+                if (performCheck)
                 {
-                    break;
+                    IntPtr childHandle;
+                    childHandle = NM.WindowFromPoint(thePoint);
+
+                    // Make sure we are inside the controls window area
+                    if (apeObject.Handle == childHandle)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (loops == 100)
+                        {
+                            // Make sure the AUT has painted and is idle
+                            if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
+                            {
+                                throw new Exception(apeObject.Description + " did not go idle within timeout");
+                            }
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                        {
+                            if (NM.IsWindowEnabled(apeObject.Handle) && NM.IsWindowEnabled(NM.GetAncestor(apeObject.Handle, NM.GetAncestorFlags.GetParent)))
+                            {
+                                throw GUI.ApeException("Coordinates are not inside the " + apeObject.Description + " control area");
+                            }
+                            else
+                            {
+                                throw new Exception(apeObject.Description + " is not enabled");
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    if (loops == 100)
-                    {
-                        // Make sure the AUT has painted and is idle
-                        if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
-                        {
-                            throw new Exception(apeObject.Description + " did not go idle within timeout");
-                        }
-                    }
-
-                    if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
-                    {
-                        if (NM.IsWindowEnabled(apeObject.Handle) && NM.IsWindowEnabled(NM.GetAncestor(apeObject.Handle, NM.GetAncestorFlags.GetParent)))
-                        {
-                            throw GUI.ApeException("Coordinates are not inside the " + apeObject.Description + " control area");
-                        }
-                        else
-                        {
-                            throw new Exception(apeObject.Description + " is not enabled");
-                        }
-                    }
+                    break;
                 }
 
                 loops++;
