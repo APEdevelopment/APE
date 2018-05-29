@@ -58,7 +58,6 @@ namespace APE.Communication
             float screenScalingFactor;
             if (NV.IsWindows10OrHigher)
             {
-                throw new Exception("Win 10!");
                 screenScalingFactor = 1;
             }
             else
