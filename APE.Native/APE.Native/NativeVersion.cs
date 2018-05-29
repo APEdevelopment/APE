@@ -15,8 +15,6 @@
 //
 using System;
 using System.Runtime.InteropServices;
-using System.Drawing;
-using System.Text;
 using System.Diagnostics;
 
 namespace APE.Native
@@ -25,11 +23,35 @@ namespace APE.Native
     {
         private static float m_KernelVersion;
 
+        [DllImport("ntdll.dll", SetLastError = true)]
+        private static extern int RtlGetVersion(ref OSVERSIONINFOEX versionInfo);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct OSVERSIONINFOEX
+        {
+            // The OSVersionInfoSize field must be set to Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+            internal int OSVersionInfoSize;
+            internal int MajorVersion;
+            internal int MinorVersion;
+            internal int BuildNumber;
+            internal int PlatformId;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+            internal string CSDVersion;
+            internal ushort ServicePackMajor;
+            internal ushort ServicePackMinor;
+            internal short SuiteMask;
+            internal byte ProductType;
+            internal byte Reserved;
+        }
+
         static NativeVersion()
         {
-            FileVersionInfo kernelFileVersion = FileVersionInfo.GetVersionInfo(Environment.GetEnvironmentVariable("SystemRoot") + @"\System32\kernel32.dll");
-            string majorMinor = kernelFileVersion.FileMajorPart + "." + kernelFileVersion.FileMinorPart;
-            m_KernelVersion = float.Parse(majorMinor);
+            OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX { OSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX)) };
+            if (RtlGetVersion(ref osVersionInfo) != 0)
+            {
+                throw new Exception("Failed to call RtlGetVersion");
+            }
+            m_KernelVersion = (float)osVersionInfo.MajorVersion + (float)osVersionInfo.MinorVersion;
         }
 
         public static bool IsWindowsVistaOrHigher
