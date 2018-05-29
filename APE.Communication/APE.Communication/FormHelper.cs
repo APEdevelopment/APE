@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
 using NM = APE.Native.NativeMethods;
+using NV = APE.Native.NativeVersion;
 using WF = System.Windows.Forms;
 
 namespace APE.Communication
@@ -55,13 +56,21 @@ namespace APE.Communication
             ptrMessage->Action = MessageAction.GetTitleBarItemRectangle;
 
             float screenScalingFactor;
-            using (Graphics desktopGraphics = Graphics.FromHwnd(handle))
+            if (NV.IsWindows10OrHigher)
             {
-                IntPtr desktopDeviceContext = desktopGraphics.GetHdc();
-                int logicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.VERTRES);
-                int physicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.DESKTOPVERTRES);
-                desktopGraphics.ReleaseHdc();
-                screenScalingFactor = (float)physicalScreenHeight / (float)logicalScreenHeight;
+                throw new Exception("Win 10!");
+                screenScalingFactor = 1;
+            }
+            else
+            {
+                using (Graphics desktopGraphics = Graphics.FromHwnd(handle))
+                {
+                    IntPtr desktopDeviceContext = desktopGraphics.GetHdc();
+                    int logicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.VERTRES);
+                    int physicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.DESKTOPVERTRES);
+                    desktopGraphics.ReleaseHdc();
+                    screenScalingFactor = (float)physicalScreenHeight / (float)logicalScreenHeight;
+                }
             }
 
             Parameter handleParam = new Parameter(this, handle);
