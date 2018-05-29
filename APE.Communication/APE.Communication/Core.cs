@@ -641,6 +641,24 @@ namespace APE.Communication
         /// <param name="ptrMessage">A pointer to the message</param>
         /// <param name="parameter">The parameter number (0 based)</param>
         /// <returns>The value in the mssage for the specified parameter</returns>
+        unsafe private float GetParameterSingle(Message* ptrMessage, int parameter)
+        {
+            if ((ptrMessage->Parameter.TypeCode[parameter]) == (int)ApeTypeCode.Single)
+            {
+                return ptrMessage->Parameter.Single[parameter];
+            }
+            else
+            {
+                throw new Exception("Expected ApeTypeCode.Single got ApeTypeCode." + (ptrMessage->Parameter.TypeCode[parameter]).ToString());
+            }
+        }
+
+        /// <summary>
+        /// Gets the specified parameter from the message, validating it is the correct type
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        /// <param name="parameter">The parameter number (0 based)</param>
+        /// <returns>The value in the mssage for the specified parameter</returns>
         unsafe private IntPtr GetParameterIntPtr(Message* ptrMessage, int parameter)
         {
             if ((ptrMessage->Parameter.TypeCode[parameter]) == (int)ApeTypeCode.IntPtr)

@@ -54,8 +54,19 @@ namespace APE.Communication
 
             ptrMessage->Action = MessageAction.GetTitleBarItemRectangle;
 
+            float screenScalingFactor;
+            using (Graphics desktopGraphics = Graphics.FromHwnd(handle))
+            {
+                IntPtr desktopDeviceContext = desktopGraphics.GetHdc();
+                int logicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.VERTRES);
+                int physicalScreenHeight = NM.GetDeviceCaps(desktopDeviceContext, NM.DeviceCap.DESKTOPVERTRES);
+                desktopGraphics.ReleaseHdc();
+                screenScalingFactor = (float)physicalScreenHeight / (float)logicalScreenHeight;
+            }
+
             Parameter handleParam = new Parameter(this, handle);
             Parameter itemParam = new Parameter(this, (int)item);
+            Parameter screenScalingFactorParam = new Parameter(this, screenScalingFactor);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -76,6 +87,9 @@ namespace APE.Communication
 
             // p2  = TitleBarStateElement
             NM.TitleBarStateElement item = (NM.TitleBarStateElement)GetParameterInt32(ptrMessage, 1);
+
+            // p3 = scalingfactor
+            float screenScalingFactor = GetParameterSingle(ptrMessage, 2);
 
             CleanUpMessage(ptrMessage);
 
@@ -133,6 +147,11 @@ namespace APE.Communication
                 default:
                     throw new Exception("Unknown titlebar element: " + item.ToString());
             }
+
+            left = (int)(Math.Round((float)(left) / screenScalingFactor));
+            top = (int)(Math.Round((float)(top) / screenScalingFactor));
+            right = (int)(Math.Round((float)(right) / screenScalingFactor));
+            bottom = (int)(Math.Round((float)(bottom) / screenScalingFactor));
 
             AddReturnValue(new Parameter(this, state));
             AddReturnValue(new Parameter(this, top));
