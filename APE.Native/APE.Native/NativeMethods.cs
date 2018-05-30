@@ -1577,6 +1577,13 @@ namespace APE.Native
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
 
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, string lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, int[] lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
+
+
         [Flags]
         public enum SendMessageTimeoutFlags : uint
         {
@@ -1651,6 +1658,42 @@ namespace APE.Native
 
             NoFrame = 0x800
         }
+
+        public const int BM_GETCHECK = 0xF0;
+        public const int BST_UNCHECKED = 0x0;
+        public const int BST_CHECKED = 0x1;
+        public const int BST_INDETERMINATE = 0x2;
+
+        public const int CB_GETDROPPEDSTATE = 0x157;
+
+        public enum ComboBoxStyle : int
+        {
+            Simple = 1,
+            DropDown = 2,
+            DropDownList = 3,
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct COMBOBOXINFO
+        {
+            public Int32 cbSize;
+            public tagRect rcItem;
+            public tagRect rcButton;
+            public ComboBoxButtonState buttonState;
+            public IntPtr hwndCombo;
+            public IntPtr hwndEdit;
+            public IntPtr hwndList;
+        }
+
+        public enum ComboBoxButtonState
+        {
+            STATE_SYSTEM_NONE = 0,
+            STATE_SYSTEM_INVISIBLE = 0x00008000,
+            STATE_SYSTEM_PRESSED = 0x00000008
+        }
+
+        [DllImport("user32.dll")]
+        public static extern bool GetComboBoxInfo(IntPtr hWnd, ref COMBOBOXINFO pcbi);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
