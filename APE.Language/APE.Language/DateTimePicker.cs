@@ -69,7 +69,7 @@ namespace APE.Language
             }
             else
             {
-                throw new Exception(Description + " does not have a checkbox shown");
+                throw GUI.ApeException(Description + " does not have a checkbox shown");
             }
         }
 

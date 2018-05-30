@@ -61,6 +61,66 @@ namespace APE.Language
             }
         }
 
+        private string GetComboBoxStyle(out dynamic droppedDown)
+        {
+            string style;
+            switch (Identity.TechnologyType)
+            {
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "DropDownStyle", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "DroppedDown", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    style = GUI.m_APE.GetValueFromMessage();
+                    droppedDown = GUI.m_APE.GetValueFromMessage();
+                    break;
+                default:
+                    long windowStyle = this.Style;
+                    if ((windowStyle & (long)NM.ComboBoxStyle.DropDownList) == (long)NM.ComboBoxStyle.DropDownList)
+                    {
+                        style = NM.ComboBoxStyle.DropDownList.ToString();
+                    }
+                    else if ((windowStyle & (long)NM.ComboBoxStyle.DropDown) == (long)NM.ComboBoxStyle.DropDown)
+                    {
+                        style = NM.ComboBoxStyle.DropDown.ToString();
+                    }
+                    else if ((windowStyle & (long)NM.ComboBoxStyle.Simple) == (long)NM.ComboBoxStyle.Simple)
+                    {
+                        style = NM.ComboBoxStyle.Simple.ToString();
+                    }
+                    else
+                    {
+                        throw GUI.ApeException("Unsupported combobox style for the " + Description);
+                    }
+
+                    IntPtr messageResult;
+                    IntPtr sendResult;
+                    sendResult = NM.SendMessageTimeout(Identity.Handle, NM.CB_GETDROPPEDSTATE, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out messageResult);
+                    if (sendResult != IntPtr.Zero)  //Succeeded
+                    {
+                        if (messageResult == IntPtr.Zero)
+                        {
+                            droppedDown = false;
+                        }
+                        else
+                        {
+                            droppedDown = true;
+                        }
+                    }
+                    else
+                    {
+                        throw GUI.ApeException("Failed to query the " + Description);
+                    }
+                    break;
+            }
+            return style;
+        }
+
         /// <summary>
         /// Selects the specified item in the combobox by clicking on it
         /// </summary>
@@ -79,19 +139,10 @@ namespace APE.Language
             GUI.Log("Select [" + item + "] from " + Identity.Description, LogItemType.Action);
 
             //Get the style
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "DropDownStyle", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "DroppedDown", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string style = GUI.m_APE.GetValueFromMessage();
-            dynamic droppedDown = GUI.m_APE.GetValueFromMessage();
+            string style = GetComboBoxStyle(out dynamic droppedDown);
 
             IntPtr listBox = IntPtr.Zero;
+            NM.COMBOBOXINFO cbi = new NM.COMBOBOXINFO();
 
             Input.Block();
             try
@@ -99,14 +150,8 @@ namespace APE.Language
                 if (style == "Simple")
                 {
                     //get the Simple mode listbox child window
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "childListBox", MemberTypes.Field);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    listBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
+                    NM.GetComboBoxInfo(Identity.Handle, ref cbi);
+                    listBox = cbi.hwndList;
                 }
                 else
                 {
@@ -123,20 +168,13 @@ namespace APE.Language
                     
                     //find the dropdown
                     Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "dropDownHandle", MemberTypes.Field);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    dynamic droppedDownHandle = GUI.m_APE.GetValueFromMessage();
 
-                    if (droppedDownHandle == null)
+                    NM.GetComboBoxInfo(Identity.Handle, ref cbi);
+                    listBox = cbi.hwndList;
+                    if (listBox == IntPtr.Zero)
                     {
                         throw GUI.ApeException("Failed to find the " + Description + " dropdown");
                     }
-
-                    listBox = droppedDownHandle;
                 }
 
                 //locate the item
@@ -220,29 +258,20 @@ namespace APE.Language
         public void SetText(string text)
         {
             //Get the style
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "DropDownStyle", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string Style = GUI.m_APE.GetValueFromMessage();
-
-            if (Style == "DropDownList")
+            string style = GetComboBoxStyle(out dynamic droppedDown);
+            if (style == "DropDownList")
             {
-                throw GUI.ApeException("Style of the " + Description + " this is not an editable style");
+                throw GUI.ApeException("Style of the " + Description + " is not an editable style");
             }
 
             //get the editbox child window
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "childEdit", MemberTypes.Field);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            IntPtr EditBox = (IntPtr)GUI.m_APE.GetValueFromMessage();
+            NM.COMBOBOXINFO cbi = new NM.COMBOBOXINFO();
+            NM.GetComboBoxInfo(Identity.Handle, ref cbi);
+            IntPtr EditBox = cbi.hwndEdit;
+            if (EditBox == IntPtr.Zero)
+            {
+                throw GUI.ApeException("Failed to find the " + Description + " textbox");
+            }
 
             Input.Block();
             try

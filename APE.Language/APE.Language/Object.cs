@@ -88,14 +88,20 @@ namespace APE.Language
         /// <returns>The background image</returns>
         public Image BackgroundImage()
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "BackgroundImage", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            Image theBackgroundImage = GUI.m_APE.GetValueFromMessage();
-            return theBackgroundImage;
+            switch (Identity.TechnologyType)
+            {
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "BackgroundImage", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    Image theBackgroundImage = GUI.m_APE.GetValueFromMessage();
+                    return theBackgroundImage;
+                default:
+                    throw GUI.ApeException("Not currently supported");
+            }
         }
 
         /// <summary>
@@ -109,10 +115,10 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception(this.Description + " failed to become nonvisible");
+                    throw GUI.ApeException(this.Description + " failed to become nonvisible");
                 }
 
-                if (!NM.IsWindowVisible(this.Handle))
+                if (!this.IsVisible)
                 {
                     break;
                 }
@@ -408,7 +414,7 @@ namespace APE.Language
             Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
             if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
             {
-                throw new Exception(Identity.Description + " did not go idle within timeout");
+                throw GUI.ApeException(Identity.Description + " did not go idle within timeout");
             }
 
             // If we are doing separate calls to mouse down and up then its very likely we want to drag so make sure we are in dragmode
@@ -425,7 +431,7 @@ namespace APE.Language
 
             if (middleOfClientAreaX < dragTriggerWidth || middleOfClientAreaY < dragTriggerHeight)
             {
-                throw new Exception(Description + " is to small to reliably enter drag mode");
+                throw GUI.ApeException(Description + " is to small to reliably enter drag mode");
             }
 
             // Move the mouse a few times to make sure we are in drag mode
@@ -436,7 +442,7 @@ namespace APE.Language
             }
             if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
             {
-                throw new Exception(Identity.Description + " did not go idle within timeout");
+                throw GUI.ApeException(Identity.Description + " did not go idle within timeout");
             }
         }
 
@@ -778,7 +784,7 @@ namespace APE.Language
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception("Failed to find the " + this.Description + " tooltip");
+                    throw GUI.ApeException("Failed to find the " + this.Description + " tooltip");
                 }
 
                 Thread.Sleep(15);

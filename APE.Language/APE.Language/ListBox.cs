@@ -74,29 +74,33 @@ namespace APE.Language
         /// <returns>The number of items</returns>
         public int ItemCount()
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int itemCount = GUI.m_APE.GetValueFromMessage();
+            IntPtr sendResult;
+            IntPtr messageResult;
+            int itemCount;
+
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_GETCOUNT, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || messageResult.ToInt64() == NM.LB_ERR)  //Failed
+            {
+                throw GUI.ApeException("Failed to get the number of items in the " + Description);
+            }
+            itemCount = messageResult.ToInt32();
             return itemCount;
         }
 
         internal int ItemIndex(string itemText)
         {
             //Get the index
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FindStringExact", MemberTypes.Method, new Parameter(GUI.m_APE, itemText));
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int Index = GUI.m_APE.GetValueFromMessage();
+            IntPtr sendResult;
+            IntPtr messageResult;
+            int itemIndex;
 
-            return Index;
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_FINDSTRINGEXACT, new IntPtr(-1), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero)  //Failed
+            {
+                throw GUI.ApeException("Failed to find query the " + Description);
+            }
+            itemIndex = messageResult.ToInt32();
+            return (itemIndex);
         }
 
         /// <summary>
@@ -106,15 +110,24 @@ namespace APE.Language
         /// <returns>The text of the item</returns>
         public string ItemText(int itemIndex)
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ToString", MemberTypes.Method);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string itemText = GUI.m_APE.GetValueFromMessage();
+            IntPtr sendResult;
+            IntPtr messageResult;
+            string itemText = null;
+
+            //Get the length of the item text
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_GETTEXT, new IntPtr(itemIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            int itemCharacterCount = messageResult.ToInt32();
+            if (itemCharacterCount > 0)
+            {
+                itemText = new string(' ', itemCharacterCount);
+            }
+
+            //Get the item text
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_GETTEXT, new IntPtr(itemIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || messageResult.ToInt64() == NM.LB_ERR || messageResult.ToInt64() != itemCharacterCount)  //Failed
+            {
+                throw GUI.ApeException("Failed to get the item text of the " + Description);
+            }
             return itemText;
         }
 
@@ -128,98 +141,71 @@ namespace APE.Language
             SingleClickItemInternal(itemText);
         }
 
+        private Rectangle GetItemRectangle(int itemIndex)
+        {
+            IntPtr sendResult;
+            IntPtr messageResult;
+            NM.tagRect rectangle = new NM.tagRect();
+
+            //Get the rectangle of the item
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(itemIndex), ref rectangle, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || messageResult.ToInt64() == NM.LB_ERR)  //Failed
+            {
+                throw GUI.ApeException("Failed to get the rectangle of the " + Description);
+            }
+            return new Rectangle(rectangle.left, rectangle.top, (rectangle.right - rectangle.left), (rectangle.bottom - rectangle.top));
+        }
+
         internal void SingleClickItemInternal(string itemText)
         {
             //locate the item
-            int Index = ItemIndex(itemText);
-            if (Index == NM.LB_ERR)
+            int itemIndex = ItemIndex(itemText);
+            if (itemIndex == NM.LB_ERR)
             {
                 throw GUI.ApeException("Failed to find the item in the " + Description);
             }
 
             //Locate the rect of the item
-            int Left;
-            int Top;
-            int Right;
-            int Bottom;
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetItemRectangle", MemberTypes.Method, new Parameter(GUI.m_APE, Index));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Right", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Bottom", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //get the values returned
-            Left = GUI.m_APE.GetValueFromMessage();
-            Top = GUI.m_APE.GetValueFromMessage();
-            Right = GUI.m_APE.GetValueFromMessage();
-            Bottom = GUI.m_APE.GetValueFromMessage();
+            Rectangle itemRectangle = GetItemRectangle(itemIndex);
 
             //scroll the item into view if needed
+            IntPtr sendResult;
+            IntPtr messageResult;
             NM.tagRect ClientRect;
             NM.GetClientRect(Identity.Handle, out ClientRect);
 
-            if (((Bottom - Top) / 2) + Top > ClientRect.bottom || ((Bottom - Top) / 2) + Top < ClientRect.top)
+            if ((itemRectangle.Height / 2) + itemRectangle.Top > ClientRect.bottom || (itemRectangle.Height / 2) + itemRectangle.Top < ClientRect.top)
             {
-                // Currently APE doesn't support setting parameters or fields and I don't really want to add support as we should be doing things like a real user would
-                //GUI.m_APE.AddMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store1, "TopIndex", MemberTypes.Property, new Parameter(GUI.m_APE, Index));
-                //GUI.m_APE.AddMessageQueryMember(DataStores.Store0, DataStores.Store2, "TopIndex", MemberTypes.);
-                //GUI.m_APE.AddMessageGetValue(DataStores.Store2);
-                //GUI.m_APE.SendMessages(EventSet.APE);
-                //GUI.m_APE.WaitForMessages(EventSet.APE);
-                ////get the values returned
-                //int CurrentIndex = GUI.m_APE.GetValueFromMessage();
-                IntPtr SendResult;
-                IntPtr MessageResult;
-
-                SendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
-                if (SendResult == IntPtr.Zero || MessageResult.ToInt64() == NM.LB_ERR)  //Failed
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(itemIndex), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                if (sendResult == IntPtr.Zero || messageResult.ToInt64() == NM.LB_ERR)  //Failed
                 {
                     throw GUI.ApeException("Failed to access the listbox of the " + Description);
                 }
+
                 //Wait for animation to finish
                 //base.WaitForAnimation(Identity.Handle, false);
-
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetItemRectangle", MemberTypes.Method, new Parameter(GUI.m_APE, Index));
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Right", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Bottom", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //get the values returned
-                Left = GUI.m_APE.GetValueFromMessage();
-                Top = GUI.m_APE.GetValueFromMessage();
-                Right = GUI.m_APE.GetValueFromMessage();
-                Bottom = GUI.m_APE.GetValueFromMessage();
+                itemRectangle = GetItemRectangle(itemIndex);
             }
 
             //click the item
-            base.SingleClickInternal(-1, ((Bottom - Top) / 2) + Top, MouseButton.Left, MouseKeyModifier.None);
+            base.SingleClickInternal(-1, (itemRectangle.Height / 2) + itemRectangle.Top, MouseButton.Left, MouseKeyModifier.None);
 
             //wait for selected == item
-            int SelectedIndex;
+            int selectedIndex = -1;
             Stopwatch timer = Stopwatch.StartNew();
-            do
+            while (true)
             {
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedIndex", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                SelectedIndex = GUI.m_APE.GetValueFromMessage();
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_GETCURSEL, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                if (sendResult == IntPtr.Zero || messageResult.ToInt64() == NM.LB_ERR)  //Failed
+                {
+                    throw GUI.ApeException("Failed to access the listbox of the " + Description);
+                }
+                selectedIndex = messageResult.ToInt32();
+
+                if (selectedIndex == itemIndex)
+                {
+                    break;
+                }
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
@@ -228,8 +214,6 @@ namespace APE.Language
 
                 Thread.Sleep(15);
             }
-            while (SelectedIndex != Index);
-            timer.Stop();
         }
     }
 }

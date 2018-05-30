@@ -148,13 +148,30 @@ namespace APE.Language
         private bool GetState()
         {
             //Get the state of the checkbox
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Checked", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            return GUI.m_APE.GetValueFromMessage();
+            switch (Identity.TechnologyType)
+            {
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Checked", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    return GUI.m_APE.GetValueFromMessage();
+                default:
+                    IntPtr messageResult;
+                    IntPtr sendResult;
+                    sendResult = NM.SendMessageTimeout(Identity.Handle, NM.BM_GETCHECK, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out messageResult);
+                    if (sendResult != IntPtr.Zero)  //Succeeded
+                    {
+                        if (messageResult == new IntPtr(NM.BST_CHECKED))
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                    throw GUI.ApeException("Failed to query the " + Description);
+            }
         }
 
         private void PollForState(bool state)

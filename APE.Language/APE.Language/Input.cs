@@ -42,11 +42,11 @@ namespace APE.Language
                 {
                     if (NM.IsWindowVisible(handle))
                     {
-                        throw new Exception(description + " failed to become enabled");
+                        throw GUI.ApeException(description + " failed to become enabled");
                     }
                     else
                     {
-                        throw new Exception(description + " failed to become visible");
+                        throw GUI.ApeException(description + " failed to become visible");
                     }
                 }
 
@@ -66,7 +66,7 @@ namespace APE.Language
             WaitToBeVisibleAndEnabled(focusableObject.Handle, focusableObject.Description);
             if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
             {
-                throw new Exception(focusableObject.Description + " did not go idle within timeout");
+                throw GUI.ApeException(focusableObject.Description + " did not go idle within timeout");
             }
             if (!focusableObject.HasFocus)
             {
@@ -74,7 +74,7 @@ namespace APE.Language
                 // Changed focus which probably will mean a repaint so wait for gui thread to be idle again
                 if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
                 {
-                    throw new Exception(focusableObject.Description + " did not go idle within timeout");
+                    throw GUI.ApeException(focusableObject.Description + " did not go idle within timeout");
                 }
             }
             TimerResolution.SetMaxTimerResolution();
@@ -83,7 +83,7 @@ namespace APE.Language
 
             //if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
             //{
-            //    throw new Exception(focusableObject.Description + " did not go idle within timeout");
+            //    throw GUI.ApeException(focusableObject.Description + " did not go idle within timeout");
             //}
         }
 
@@ -94,7 +94,7 @@ namespace APE.Language
             WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception(description + " did not go idle within timeout");
+                throw GUI.ApeException(description + " did not go idle within timeout");
             }
 
             IsMouseDown = false;
@@ -153,7 +153,7 @@ namespace APE.Language
 
             //if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             //{
-            //    throw new Exception(description + " did not go idle within timeout");
+            //    throw GUI.ApeException(description + " did not go idle within timeout");
             //}
         }
 
@@ -164,7 +164,7 @@ namespace APE.Language
             WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception(description + " did not go idle within timeout");
+                throw GUI.ApeException(description + " did not go idle within timeout");
             }
 
             IsMouseDown = false;
@@ -235,7 +235,7 @@ namespace APE.Language
             WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception(description + " did not go idle within timeout");
+                throw GUI.ApeException(description + " did not go idle within timeout");
             }
 
             IsMouseDown = false;
@@ -318,7 +318,7 @@ namespace APE.Language
             WaitToBeVisibleAndEnabled(control, description);
             if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
             {
-                throw new Exception(description + " did not go idle within timeout");
+                throw GUI.ApeException(description + " did not go idle within timeout");
             }
 
             Block();
@@ -384,7 +384,7 @@ namespace APE.Language
 
                 if (!WaitForInputIdle(ChildHandle, GUI.m_APE.TimeOut))
                 {
-                    throw new Exception(description + " did not go idle within timeout");
+                    throw GUI.ApeException(description + " did not go idle within timeout");
                 }
 
                 IntPtr ActualParent;
@@ -621,12 +621,12 @@ namespace APE.Language
         {
             if (!NM.IsWindowVisible(control))
             {
-                throw new Exception(description +" is not visible");
+                throw GUI.ApeException(description +" is not visible");
             }
 
             if (!NM.IsWindowEnabled(control))
             {
-                throw new Exception(description + " is not enabled");
+                throw GUI.ApeException(description + " is not enabled");
             }
 
             IntPtr actualParent;
@@ -642,7 +642,7 @@ namespace APE.Language
 
             if (NM.IsIconic(actualParent))
             {
-                throw new Exception(description + " is minimised");
+                throw GUI.ApeException(description + " is minimised");
             }
 
             //Make sure the parent form is the active window
@@ -651,7 +651,7 @@ namespace APE.Language
                 // Changed focus which probably will mean a repaint so wait for gui thread to be idle again
                 if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
                 {
-                    throw new Exception(description + " did not go idle within timeout");
+                    throw GUI.ApeException(description + " did not go idle within timeout");
                 }
             }
 
@@ -668,7 +668,7 @@ namespace APE.Language
             IntPtr windowAtPoint = NM.WindowFromPoint(thePoint);
             if (windowAtPoint != control)
             {
-                throw new Exception(description + " is obscured");
+                throw GUI.ApeException(description + " is obscured");
             }
         }
 
@@ -1102,7 +1102,7 @@ namespace APE.Language
                             // Make sure the AUT has painted and is idle
                             if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
                             {
-                                throw new Exception(description + " did not go idle within timeout");
+                                throw GUI.ApeException(description + " did not go idle within timeout");
                             }
                         }
 
@@ -1114,7 +1114,7 @@ namespace APE.Language
                             }
                             else
                             {
-                                throw new Exception(description + " is not enabled");
+                                throw GUI.ApeException(description + " is not enabled");
                             }
                         }
                     }
@@ -1132,7 +1132,7 @@ namespace APE.Language
             // Make sure the AUT recieves the mouse move message and has painted
             if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
             {
-                throw new Exception(description + " did not go idle within timeout");
+                throw GUI.ApeException(description + " did not go idle within timeout");
             }
 
             return thePoint;
@@ -1192,7 +1192,7 @@ namespace APE.Language
                             // Make sure the AUT has painted and is idle
                             if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
                             {
-                                throw new Exception(apeObject.Description + " did not go idle within timeout");
+                                throw GUI.ApeException(apeObject.Description + " did not go idle within timeout");
                             }
                         }
 
@@ -1204,7 +1204,7 @@ namespace APE.Language
                             }
                             else
                             {
-                                throw new Exception(apeObject.Description + " is not enabled");
+                                throw GUI.ApeException(apeObject.Description + " is not enabled");
                             }
                         }
                     }
@@ -1222,7 +1222,7 @@ namespace APE.Language
             // Make sure the AUT recieves the mouse move message and has painted
             if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
             {
-                throw new Exception(apeObject.Description + " did not go idle within timeout");
+                throw GUI.ApeException(apeObject.Description + " did not go idle within timeout");
             }
 
             return thePoint;

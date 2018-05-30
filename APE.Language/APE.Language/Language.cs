@@ -1015,11 +1015,11 @@ namespace APE.Language
                 {
                     if (!isVisible)
                     {
-                        throw new Exception(description + " menu item " + menuItem + " is not visible");
+                        throw GUI.ApeException(description + " menu item " + menuItem + " is not visible");
                     }
                     else
                     {
-                        throw new Exception(description + " menu item " + menuItem + " is not enabled");
+                        throw GUI.ApeException(description + " menu item " + menuItem + " is not enabled");
                     }
                 }
 

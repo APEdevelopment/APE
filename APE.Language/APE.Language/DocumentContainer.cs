@@ -95,7 +95,7 @@ namespace APE.Language
                 //Wait for the scroll to finish happening
                 if (!Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut))
                 {
-                    throw new Exception(Description + " did not go idle within timeout after scrolling");
+                    throw GUI.ApeException(Description + " did not go idle within timeout after scrolling");
                 }
 
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)

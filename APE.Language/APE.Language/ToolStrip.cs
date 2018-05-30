@@ -517,11 +517,11 @@ namespace APE.Language
             Rectangle bounds = ItemBounds();
             if (!IsVisible())
             {
-                throw new Exception(Identity.Description + " is not visible");
+                throw GUI.ApeException(Identity.Description + " is not visible");
             }
             if (!IsEnabled())
             {
-                throw new Exception(Identity.Description + " is not enabled");
+                throw GUI.ApeException(Identity.Description + " is not enabled");
             }
             ParentToolStrip.SingleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
@@ -544,11 +544,11 @@ namespace APE.Language
             GUI.Log("Single " + button.ToString() + " click on " + Identity.Description, LogItemType.Action);
             if (!IsVisible())
             {
-                throw new Exception(Identity.Description + " is not visible");
+                throw GUI.ApeException(Identity.Description + " is not visible");
             }
             if (!IsEnabled())
             {
-                throw new Exception(Identity.Description + " is not enabled");
+                throw GUI.ApeException(Identity.Description + " is not enabled");
             }
             ParentToolStrip.DoubleClickInternal(bounds.X + (bounds.Width / 2), bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
@@ -790,11 +790,11 @@ namespace APE.Language
             Rectangle bounds = ItemBounds();
             if (!IsVisible())
             {
-                throw new Exception(Identity.Description + " is not visible");
+                throw GUI.ApeException(Identity.Description + " is not visible");
             }
             if (!IsEnabled())
             {
-                throw new Exception(Identity.Description + " is not enabled");
+                throw GUI.ApeException(Identity.Description + " is not enabled");
             }
             ParentToolStrip.SingleClickInternal(bounds.X + bounds.Width - 3, bounds.Y + (bounds.Height / 2), button, MouseKeyModifier.None);
         }
@@ -1087,7 +1087,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception(ParentToolStrip.Description + " dropdown failed to become nonvisible");
+                    throw GUI.ApeException(ParentToolStrip.Description + " dropdown failed to become nonvisible");
                 }
 
                 if (!NM.IsWindowVisible(handle))

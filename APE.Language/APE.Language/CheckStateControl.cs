@@ -131,7 +131,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception(Identity.Description + " failed to be set to state [" + state.ToString() + "]");
+                    throw GUI.ApeException(Identity.Description + " failed to be set to state [" + state.ToString() + "]");
                 }
 
                 if (waitToBeThisState)

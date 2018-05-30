@@ -106,7 +106,7 @@ namespace APE.Language
             {
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
-                    throw new Exception(this.Description + " failed to become nonvisible");
+                    throw GUI.ApeException(this.Description + " failed to become nonvisible");
                 }
 
                 if (!NM.IsWindowVisible(this.Handle))
