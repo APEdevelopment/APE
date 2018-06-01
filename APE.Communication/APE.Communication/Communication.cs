@@ -3085,6 +3085,14 @@ namespace APE.Communication
                         default:
                             return "";
                     }
+                case "AxLatentZero.Interop.LzFlexGrid":
+                    switch (TypeName)
+                    {
+                        case "AxLzFlexGridCtrl":
+                            return "GUIFlexgrid";
+                        default:
+                            return "";
+                    }
                 case "":
                     if (TypeName.Contains("tooltips_class"))
                     {

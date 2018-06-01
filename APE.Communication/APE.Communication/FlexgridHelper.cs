@@ -76,6 +76,7 @@ namespace APE.Communication
             m_FlexgridGetAllColumnsWidthDelegater = new GetAllColumnsWidthDelegate(FlexgridGetAllColumnsWidthInternal);
             m_FlexgridGetAllRowsHiddenDelegater = new GetAllRowsHiddenDelegate(FlexgridGetAllRowsHiddenInternal);
             m_FlexgridGetAllRowsHeightDelegater = new GetAllRowsHeightDelegate(FlexgridGetAllRowsHeightInternal);
+            m_FlexgridGetNodeCollapsedStateDelegater = new GetNodeCollapsedStateDelegate(FlexgridGetNodeCollapsedStateInternal);
         }
 
         /// <summary>
@@ -501,7 +502,7 @@ namespace APE.Communication
         //  FlexgridGetAllColumnsHidden
         //
 
-        private delegate string GetAllColumnsHiddenDelegate(dynamic grid);
+        private delegate string GetAllColumnsHiddenDelegate(dynamic grid, bool activeX);
         private GetAllColumnsHiddenDelegate m_FlexgridGetAllColumnsHiddenDelegater;
 
         /// <summary>
@@ -510,7 +511,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        unsafe public void AddQueryMessageFlexgridGetAllColumnsHidden(DataStores sourceStore, DataStores destinationStore)
+        /// <param name="activeX">If the control is an ActiveX control</param>
+        unsafe public void AddQueryMessageFlexgridGetAllColumnsHidden(DataStores sourceStore, DataStores destinationStore, bool activeX)
         {
             if (!m_DoneFind)
             {
@@ -520,6 +522,8 @@ namespace APE.Communication
             Message* ptrMessage = GetPointerToNextMessage();
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
+
+            Parameter activeXParam = new Parameter(this, activeX);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllColumnsHidden;
             
@@ -537,10 +541,13 @@ namespace APE.Communication
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
             object destinationObject = null;
 
+            // p1  = bool
+            bool activeX = GetParameterBoolean(ptrMessage, 0);
+
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject };
-                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsHiddenDelegater, theParameters);   
+                object[] theParameters = { sourceObject, activeX };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsHiddenDelegater, theParameters);
             }
 
             PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
@@ -552,31 +559,51 @@ namespace APE.Communication
         /// hidden (True) or visible (False)
         /// </summary>
         /// <param name="grid">The grid object</param>
+        /// <param name="activeX">If the control is an ActiveX control</param>
         /// <returns>A comma delimited string of whether the column is hidden</returns>
-        private string FlexgridGetAllColumnsHiddenInternal(dynamic grid)
+        private string FlexgridGetAllColumnsHiddenInternal(dynamic grid, bool activeX)
         {
             StringBuilder columnsHiddenState = new StringBuilder(10240);
-            int columns = grid.Cols.Count;
-
-            for (int column = 0; column < columns; column++)
+            if (activeX)
             {
-                bool visible = grid.Cols[column].Visible;
-
-                if (column > 0)
+                int columns = grid.Cols;
+                for (int column = 0; column < columns; column++)
                 {
-                    columnsHiddenState.Append(",");
-                }
-
-                if (visible)
-                {
-                    columnsHiddenState.Append("False");
-                }
-                else
-                {
-                    columnsHiddenState.Append("True");
+                    bool hidden = grid.ColHidden[column];
+                    if (column > 0)
+                    {
+                        columnsHiddenState.Append(",");
+                    }
+                    if (hidden)
+                    {
+                        columnsHiddenState.Append("True");
+                    }
+                    else
+                    {
+                        columnsHiddenState.Append("False");
+                    }
                 }
             }
-
+            else
+            {
+                int columns = grid.Cols.Count;
+                for (int column = 0; column < columns; column++)
+                {
+                    bool visible = grid.Cols[column].Visible;
+                    if (column > 0)
+                    {
+                        columnsHiddenState.Append(",");
+                    }
+                    if (visible)
+                    {
+                        columnsHiddenState.Append("False");
+                    }
+                    else
+                    {
+                        columnsHiddenState.Append("True");
+                    }
+                }
+            }
             return columnsHiddenState.ToString();
         }
 
@@ -584,7 +611,7 @@ namespace APE.Communication
         //  FlexgridGetAllColumnsWidth
         //
 
-        private delegate string GetAllColumnsWidthDelegate(dynamic grid);
+        private delegate string GetAllColumnsWidthDelegate(dynamic grid, bool activeX);
         private GetAllColumnsWidthDelegate m_FlexgridGetAllColumnsWidthDelegater;
 
         /// <summary>
@@ -593,7 +620,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        unsafe public void AddQueryMessageFlexgridGetAllColumnsWidth(DataStores sourceStore, DataStores destinationStore)
+        /// <param name="activeX">If the control is an ActiveX control</param>
+        unsafe public void AddQueryMessageFlexgridGetAllColumnsWidth(DataStores sourceStore, DataStores destinationStore, bool activeX)
         {
             if (!m_DoneFind)
             {
@@ -603,6 +631,8 @@ namespace APE.Communication
             Message* ptrMessage = GetPointerToNextMessage();
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
+
+            Parameter activeXParam = new Parameter(this, activeX);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllColumnsWidth;
 
@@ -620,9 +650,12 @@ namespace APE.Communication
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
             object destinationObject = null;
 
+            // p1  = bool
+            bool activeX = GetParameterBoolean(ptrMessage, 0);
+
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject };
+                object[] theParameters = { sourceObject, activeX };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsWidthDelegater, theParameters);
             }
 
@@ -634,22 +667,37 @@ namespace APE.Communication
         /// Iterates over every column in the grid returning a comma separated string of the column width
         /// </summary>
         /// <param name="grid">The grid object</param>
+        /// <param name="activeX">If the control is an ActiveX control</param>
         /// <returns>A comma delimited string of the column width</returns>
-        private string FlexgridGetAllColumnsWidthInternal(dynamic grid)
+        private string FlexgridGetAllColumnsWidthInternal(dynamic grid, bool activeX)
         {
             StringBuilder columnsWidth = new StringBuilder(10240);
-            int columns = grid.Cols.Count;
-
-            for (int column = 0; column < columns; column++)
+            if (activeX)
             {
-                int width = grid.Cols[column].WidthDisplay;
-                if (column > 0)
+                int columns = grid.Cols;
+                for (int column = 0; column < columns; column++)
                 {
-                    columnsWidth.Append(",");
+                    int width = grid.ColWidth[column];
+                    if (column > 0)
+                    {
+                        columnsWidth.Append(",");
+                    }
+                    columnsWidth.Append(width.ToString());
                 }
-                columnsWidth.Append(width.ToString());
             }
-
+            else
+            {
+                int columns = grid.Cols.Count;
+                for (int column = 0; column < columns; column++)
+                {
+                    int width = grid.Cols[column].WidthDisplay;
+                    if (column > 0)
+                    {
+                        columnsWidth.Append(",");
+                    }
+                    columnsWidth.Append(width.ToString());
+                }
+            }
             return columnsWidth.ToString();
         }
 
@@ -657,7 +705,7 @@ namespace APE.Communication
         //  FlexgridGetAllRowsHidden
         //
 
-        private delegate string GetAllRowsHiddenDelegate(dynamic grid);
+        private delegate string GetAllRowsHiddenDelegate(dynamic grid, bool activeX);
         private GetAllRowsHiddenDelegate m_FlexgridGetAllRowsHiddenDelegater;
 
         /// <summary>
@@ -666,7 +714,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        unsafe public void AddQueryMessageFlexgridGetAllRowsHidden(DataStores sourceStore, DataStores destinationStore)
+        /// <param name="activeX">If the control is an ActiveX control</param>
+        unsafe public void AddQueryMessageFlexgridGetAllRowsHidden(DataStores sourceStore, DataStores destinationStore, bool activeX)
         {
             if (!m_DoneFind)
             {
@@ -676,6 +725,8 @@ namespace APE.Communication
             Message* ptrMessage = GetPointerToNextMessage();
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
+
+            Parameter activeXParam = new Parameter(this, activeX);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllRowsHidden;
 
@@ -693,9 +744,12 @@ namespace APE.Communication
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
             object destinationObject = null;
 
+            // p1  = bool
+            bool activeX = GetParameterBoolean(ptrMessage, 0);
+
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject };
+                object[] theParameters = { sourceObject, activeX };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllRowsHiddenDelegater, theParameters);
             }
 
@@ -708,31 +762,51 @@ namespace APE.Communication
         /// hidden (True) or visible (False)
         /// </summary>
         /// <param name="grid">The grid object</param>
+        /// <param name="activeX">If the control is an ActiveX control</param>
         /// <returns>A comma delimited string of whether the row is hidden</returns>
-        private string FlexgridGetAllRowsHiddenInternal(dynamic grid)
+        private string FlexgridGetAllRowsHiddenInternal(dynamic grid, bool activeX)
         {
             StringBuilder rowsHiddenState = new StringBuilder(10240);
-            int rows = grid.Rows.Count;
-
-            for (int row = 0; row < rows; row++)
+            if (activeX)
             {
-                bool visible = grid.Rows[row].Visible;
-
-                if (row > 0)
+                int rows = grid.Rows;
+                for (int row = 0; row < rows; row++)
                 {
-                    rowsHiddenState.Append(",");
-                }
-
-                if (visible)
-                {
-                    rowsHiddenState.Append("False");
-                }
-                else
-                {
-                    rowsHiddenState.Append("True");
+                    bool hidden = grid.RowHidden[row];
+                    if (row > 0)
+                    {
+                        rowsHiddenState.Append(",");
+                    }
+                    if (hidden)
+                    {
+                        rowsHiddenState.Append("True");
+                    }
+                    else
+                    {
+                        rowsHiddenState.Append("False");
+                    }
                 }
             }
-
+            else
+            {
+                int rows = grid.Rows.Count;
+                for (int row = 0; row < rows; row++)
+                {
+                    bool visible = grid.Rows[row].Visible;
+                    if (row > 0)
+                    {
+                        rowsHiddenState.Append(",");
+                    }
+                    if (visible)
+                    {
+                        rowsHiddenState.Append("False");
+                    }
+                    else
+                    {
+                        rowsHiddenState.Append("True");
+                    }
+                }
+            }
             return rowsHiddenState.ToString();
         }
 
@@ -740,7 +814,7 @@ namespace APE.Communication
         //  FlexgridGetAllRowsHeight
         //
 
-        private delegate string GetAllRowsHeightDelegate(dynamic grid);
+        private delegate string GetAllRowsHeightDelegate(dynamic grid, bool activeX);
         private GetAllRowsHeightDelegate m_FlexgridGetAllRowsHeightDelegater;
 
         /// <summary>
@@ -749,7 +823,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        unsafe public void AddQueryMessageFlexgridGetAllRowsHeight(DataStores sourceStore, DataStores destinationStore)
+        /// <param name="activeX">If the control is an ActiveX control</param>
+        unsafe public void AddQueryMessageFlexgridGetAllRowsHeight(DataStores sourceStore, DataStores destinationStore, bool activeX)
         {
             if (!m_DoneFind)
             {
@@ -759,6 +834,8 @@ namespace APE.Communication
             Message* ptrMessage = GetPointerToNextMessage();
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
+
+            Parameter activeXParam = new Parameter(this, activeX);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllRowsHeight;
 
@@ -776,9 +853,12 @@ namespace APE.Communication
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
             object destinationObject = null;
 
+            // p1  = bool
+            bool activeX = GetParameterBoolean(ptrMessage, 0);
+
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject };
+                object[] theParameters = { sourceObject, activeX };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllRowsHeightDelegater, theParameters);
             }
 
@@ -790,22 +870,37 @@ namespace APE.Communication
         /// Iterates over every row in the grid returning a comma separated string of the row height
         /// </summary>
         /// <param name="grid">The grid object</param>
+        /// <param name="activeX">If the control is an ActiveX control</param>
         /// <returns>A comma delimited string of the row height</returns>
-        private string FlexgridGetAllRowsHeightInternal(dynamic grid)
+        private string FlexgridGetAllRowsHeightInternal(dynamic grid, bool activeX)
         {
             StringBuilder rowHeight = new StringBuilder(10240);
-            int rows = grid.Rows.Count;
-
-            for (int row = 0; row < rows; row++)
+            if (activeX)
             {
-                int height = grid.Rows[row].HeightDisplay;
-                if (row > 0)
+                int rows = grid.Rows;
+                for (int row = 0; row < rows; row++)
                 {
-                    rowHeight.Append(",");
+                    int height = grid.RowHeight[row];
+                    if (row > 0)
+                    {
+                        rowHeight.Append(",");
+                    }
+                    rowHeight.Append(height.ToString());
                 }
-                rowHeight.Append(height.ToString());
             }
-
+            else
+            {
+                int rows = grid.Rows.Count;
+                for (int row = 0; row < rows; row++)
+                {
+                    int height = grid.Rows[row].HeightDisplay;
+                    if (row > 0)
+                    {
+                        rowHeight.Append(",");
+                    }
+                    rowHeight.Append(height.ToString());
+                }
+            }
             return rowHeight.ToString();
         }
 
@@ -1073,6 +1168,131 @@ namespace APE.Communication
             }
 
             CleanUpMessage(ptrMessage);
+        }
+
+        //
+        //  FlexgridGetNodeCollapsedState
+        //
+
+        private delegate string GetNodeCollapsedStateDelegate(dynamic grid, bool activeX);
+        private GetNodeCollapsedStateDelegate m_FlexgridGetNodeCollapsedStateDelegater;
+
+        /// <summary>
+        /// Calls into the AUT to iterates over every row in the grid returning a comma separated string of 
+        /// 'whether the node is a row' | 'is collapsed / visible' | 'has children'
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        /// <param name="activeX">If the control is an ActiveX control</param>
+        unsafe public void AddQueryMessageFlexgridGetNodeCollapsedState(DataStores sourceStore, DataStores destinationStore, bool activeX)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            Parameter activeXParam = new Parameter(this, activeX);
+
+            ptrMessage->Action = MessageAction.FlexgridGetNodeCollapsedState;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Calls the FlexgridGetNodeCollapsedStateInternal method on the correct thread storing the results
+        /// in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void FlexgridGetNodeCollapsedState(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            // p1  = bool
+            bool activeX = GetParameterBoolean(ptrMessage, 0);
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject, activeX };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetNodeCollapsedStateDelegater, theParameters);
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Iterates over every row in the grid returning a comma separated string of 'whether the node is a row' | 'is collapsed / visible' | 'has children'
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <param name="activeX">If the control is an ActiveX control</param>
+        /// <returns>A comma delimited string</returns>
+        private string FlexgridGetNodeCollapsedStateInternal(dynamic grid, bool activeX)
+        {
+            StringBuilder nodeCollapsedState = new StringBuilder(10240);
+            if (activeX)
+            {
+                int rows = grid.Rows;
+                for (int row = 0; row < rows; row++)
+                {
+                    if (row > 0)
+                    {
+                        nodeCollapsedState.Append(",");
+                    }
+                    try
+                    {
+                        dynamic node = grid.GetNode(row);
+                        int nodeRow = node.Row;
+                        if (nodeRow == row)
+                        {
+                            int children = node.Children;
+                            bool collapsed = !node.Expanded;
+                            if (collapsed)
+                            {
+                                nodeCollapsedState.Append("True|True");
+                            }
+                            else
+                            {
+                                nodeCollapsedState.Append("True|False");
+                            }
+                            if (children == 0)
+                            {
+                                nodeCollapsedState.Append("|False");
+                            }
+                            else
+                            {
+                                nodeCollapsedState.Append("|True");
+                            }
+                        }
+                        else
+                        {
+                            bool rowHidden = grid.RowHidden(row);
+                            if (rowHidden)
+                            {
+                                nodeCollapsedState.Append("False|True|False");
+                            }
+                            else
+                            {
+                                nodeCollapsedState.Append("False|False|False");
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        nodeCollapsedState.Append("NA|NA|NA");
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception("Not implemented");
+            }
+            return nodeCollapsedState.ToString();
         }
     }
 }

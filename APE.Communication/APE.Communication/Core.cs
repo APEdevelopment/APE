@@ -118,6 +118,7 @@ namespace APE.Communication
         GetToolTip = 56,
         RefindByUniqueId = 57,
         DumpActiveX = 58,
+        FlexgridGetNodeCollapsedState = 59,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -430,6 +431,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.DumpActiveX:
                                     DumpActiveX(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.FlexgridGetNodeCollapsedState:
+                                    FlexgridGetNodeCollapsedState(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
