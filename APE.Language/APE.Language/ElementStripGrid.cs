@@ -1141,6 +1141,11 @@ namespace APE.Language
             }
         }
 
+        internal override void MoveToCellInternal(int X, int Y)
+        {
+            MoveTo(X, Y);
+        }
+
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
         /// </summary>

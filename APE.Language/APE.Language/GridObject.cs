@@ -591,7 +591,7 @@ namespace APE.Language
 
             GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowText + " column " + columnText, LogItemType.Action);
             Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
-            base.MoveTo(Location.X, Location.Y);
+            MoveToCellInternal(Location.X, Location.Y);
         }
 
         /// <summary>
@@ -606,7 +606,7 @@ namespace APE.Language
 
             GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnText, LogItemType.Action);
             Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
-            base.MoveTo(Location.X, Location.Y);
+            MoveToCellInternal(Location.X, Location.Y);
         }
 
         /// <summary>
@@ -621,7 +621,7 @@ namespace APE.Language
 
             GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowText + " column " + columnIndex.ToString(), LogItemType.Action);
             Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
-            base.MoveTo(Location.X, Location.Y);
+            MoveToCellInternal(Location.X, Location.Y);
         }
 
         /// <summary>
@@ -634,8 +634,10 @@ namespace APE.Language
         {
             GUI.Log("Move the mouse over the " + Identity.Description + " row " + rowIndex.ToString() + " column " + columnIndex.ToString(), LogItemType.Action);
             Point Location = GetLocationInCell(rowIndex, columnIndex, locationInCell);
-            base.MoveTo(Location.X, Location.Y);
+            MoveToCellInternal(Location.X, Location.Y);
         }
+
+        internal abstract void MoveToCellInternal(int X, int Y);
 
         /// <summary>
         /// Selects the specified cell by scrolling it into view and clicking on it
