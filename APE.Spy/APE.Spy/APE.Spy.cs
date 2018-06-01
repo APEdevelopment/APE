@@ -718,6 +718,7 @@ namespace APE.Spy
 
                                     if (identity.Handle == IntPtr.Zero)
                                     {
+                                        identity.Handle = new IntPtr(1);    //So we don't exit the loop on the check below
                                         break;
                                     }
                                 }
