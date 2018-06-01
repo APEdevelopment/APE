@@ -2079,6 +2079,7 @@ namespace APE.Communication
                                         FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
                                         if (FoundControl)
                                         {
+                                            technologyType = "Windows ActiveX";
                                             break;
                                         }
                                     }
@@ -2467,6 +2468,7 @@ namespace APE.Communication
                                     FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
                                     if (FoundControl)
                                     {
+                                        technologyType = "Windows ActiveX";
                                         break;
                                     }
                                 }

@@ -38,6 +38,50 @@ namespace APE.Communication
             m_ComReflectDelegater = new ComReflectDelegate(ComReflectInternal);
         }
 
+        //
+        //  GetTypeInformationActiveX
+        //
+
+        /// <summary>
+        /// Get the type information and puts it in the specified datastore
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        unsafe public void AddQueryMessageGetTypeInformationActiveX(DataStores sourceStore, DataStores destinationStore)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the activex control before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            ptrMessage->Action = MessageAction.GetTypeInformationActiveX;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Get the type information and puts it in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void GetTypeInformationActiveX(Message* ptrMessage)
+        {
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            if (sourceObject != null)
+            {
+                destinationObject = GetObjectFullTypeName(sourceObject);
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
         /// <summary>
         /// Gets the full typename of an object
         /// In the case of .NET objects it is in the form 'Type.Namespace'.'Type.Name'
