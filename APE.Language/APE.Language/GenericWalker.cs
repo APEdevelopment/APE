@@ -57,21 +57,20 @@ namespace APE.Language
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
+                //Will change to this soon
+                //GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "WalkerStateDropAfter", MemberTypes.Property);
+                //GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "_m_oWalkerState", MemberTypes.Field);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_oDefaultSearch", MemberTypes.Field);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "After", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store6, "DropAfter", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DropAfter", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-                int defaultAfter = GUI.m_APE.GetValueFromMessage();
                 int dropAfter = GUI.m_APE.GetValueFromMessage();
 
                 if (dropAfter == 0)
                 {
-                    return defaultAfter;
+                    return 999999999;   //Don't yet have a drop after value so set it to a really large value
                 }
                 else
                 {
