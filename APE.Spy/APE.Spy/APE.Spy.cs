@@ -1177,6 +1177,9 @@ namespace APE.Spy
                     case "PictureBox":
                         APEType = "GUIPictureBox";
                         break;
+                    case "LZResultsGrid":
+                        APEType = "GUIAxLZResultsGrid";
+                        break;
                     case "OptionButton":
                         APEType = "GUIRadioButton";
                         break;
