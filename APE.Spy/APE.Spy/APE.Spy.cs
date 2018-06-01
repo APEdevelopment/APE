@@ -1146,7 +1146,46 @@ namespace APE.Spy
                 }
             }
 
-            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            if (Identity.TechnologyType == "Windows ActiveX")
+            {
+                switch (Identity.TypeName)
+                {
+                    case "CommandButton":
+                        APEType = "GUIButton";
+                        break;
+                    case "CheckBox":
+                        APEType = "GUICheckBox";
+                        break;
+                    case "ComboBox":
+                        APEType = "GUIComboBox";
+                        break;
+                    case "VSFlexGrid":
+                        APEType = "GUIFlexgrid";
+                        break;
+                    case "GenericWalker":
+                        APEType = "GUIGenericWalker";
+                        break;
+                    case "Label":
+                        APEType = "GUILabel";
+                        break;
+                    case "ListBox":
+                        APEType = "GUIListBox";
+                        break;
+                    case "LzNavBarGridControl":
+                        APEType = "GUILzNavBarGridControl";
+                        break;
+                    case "PictureBox":
+                        APEType = "GUIPictureBox";
+                        break;
+                    case "OptionButton":
+                        APEType = "GUIRadioButton";
+                        break;
+                    case "TextBox":
+                        APEType = "GUITextBox";
+                        break;
+                }
+            }
+            else if (Identity.TechnologyType == "Windows Forms (WinForms)")
             {
                 m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 m_APE.AddMessageGetRecognisedType(DataStores.Store0, DataStores.Store1);
