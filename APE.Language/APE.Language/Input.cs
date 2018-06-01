@@ -664,7 +664,12 @@ namespace APE.Language
             {
                 thePoint = MouseMove(control, description, x, y);
             }
-            
+
+            if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
+            {
+                throw GUI.ApeException(description + " did not go idle within timeout");
+            }
+
             IntPtr windowAtPoint = NM.WindowFromPoint(thePoint);
             if (windowAtPoint != control)
             {
