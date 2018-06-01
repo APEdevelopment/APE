@@ -148,7 +148,7 @@ namespace APE.Language
             do
             {
                 string nodeType = GetNodeType(currentNodeIndex);
-                if (nodeType == "LzNavBarData.NBNode")
+                if (nodeType == "LzNavBarData.NBNode" || nodeType == "LzNavBarData._NBNode")
                 {
                     string nodeCaption = GetNodeCaption(currentNodeIndex);
 
@@ -179,23 +179,46 @@ namespace APE.Language
 
         private string GetNodeType(int nodeIndex)
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "GetType", MemberTypes.Method);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store6, DataStores.Store7, "Namespace", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store6, DataStores.Store8, "Name", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call;
-            string Namespace = GUI.m_APE.GetValueFromMessage();
-            string Name = GUI.m_APE.GetValueFromMessage();
-
-            return Namespace + "." + Name;
+            if (Identity.TechnologyType == "Windows ActiveX")
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+                GUI.m_APE.AddQueryMessageGetTypeInformationActiveX(DataStores.Store4, DataStores.Store5);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                try
+                {
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                catch
+                {
+                    return null;
+                }
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                string typeName = GUI.m_APE.GetValueFromMessage();
+                return typeName;
+            }
+            else
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store6, "GetType", MemberTypes.Method);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store6, DataStores.Store7, "Namespace", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store6, DataStores.Store8, "Name", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                string Namespace = GUI.m_APE.GetValueFromMessage();
+                string Name = GUI.m_APE.GetValueFromMessage();
+                return Namespace + "." + Name;
+            }
         }
 
         private string GetNodeCaption(int nodeIndex)
@@ -203,8 +226,15 @@ namespace APE.Language
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            if (Identity.TechnologyType == "Windows ActiveX")
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            }
+            else
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Caption", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -219,8 +249,15 @@ namespace APE.Language
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            if (Identity.TechnologyType == "Windows ActiveX")
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            }
+            else
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "UID", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -235,8 +272,15 @@ namespace APE.Language
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            if (Identity.TechnologyType == "Windows ActiveX")
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));   
+            }
+            else
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "m_col", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+            }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "Parent", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "UID", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
@@ -267,7 +311,7 @@ namespace APE.Language
             for (int nodeIndex = 0; nodeIndex < nodes; nodeIndex++)
             {
                 string nodeType = GetNodeType(nodeIndex);
-                if (nodeType == "LzNavBarData.NBNode")
+                if (nodeType == "LzNavBarData.NBNode" || nodeType == "LzNavBarData._NBNode")
                 {
                     string currentNodeUid = GetNodeUid(nodeIndex);
                     if (currentNodeUid == uid)
