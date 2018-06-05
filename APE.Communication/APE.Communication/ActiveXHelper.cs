@@ -51,6 +51,7 @@ namespace APE.Communication
                     {
                         dump.Append("Name: " + Ax.Items[item].Name.ToString());
                         dump.Append(" TypeName: " + Ax.Items[item].TypeName.ToString());
+                        dump.Append(" TypeNameSpace: " + Ax.Items[item].TypeNameSpace.ToString());
                         dump.Append(" UniqueId: " + Ax.Items[item].UniqueId.ToString());
                         dump.Append(" Handle: " + Ax.Items[item].Handle.ToString());
                         dump.Append(" Parent: " + Ax.Items[item].ParentHandle.ToString());
@@ -63,7 +64,7 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, dump.ToString()));
         }
 
-        private object FindByHandleActiveX(IntPtr handle, out string name, out string typeName, out string uniqueId)
+        private object FindByHandleActiveX(IntPtr handle, out string name, out string typeNameSpace, out string typeName, out string uniqueId)
         {
             if (Ax.Items.Count > 0)
             {
@@ -76,6 +77,14 @@ namespace APE.Communication
                         {
                             name = Ax.Items[item].Name;
                             typeName = Ax.Items[item].TypeName;
+                            typeNameSpace = Ax.Items[item].TypeNameSpace;
+
+                            if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
+                            {
+                                Ax.Items[item].TypeName = typeName;
+                                Ax.Items[item].TypeNameSpace = typeNameSpace;
+                            }
+
                             uniqueId = Ax.Items[item].UniqueId;
                             return Ax.Items[item].Control;
                         }
@@ -84,11 +93,12 @@ namespace APE.Communication
             }
             name = null;
             typeName = null;
+            typeNameSpace = null;
             uniqueId = null;
             return null;
         }
 
-        private object FindByUniqueIdActiveX(string uniqueId, out string name, out string typeName, out IntPtr handle)
+        private object FindByUniqueIdActiveX(string uniqueId, out string name, out string typeNameSpace, out string typeName, out IntPtr handle)
         {
             if (Ax.Items.Count > 0)
             {
@@ -101,6 +111,14 @@ namespace APE.Communication
                         {
                             name = Ax.Items[item].Name;
                             typeName = Ax.Items[item].TypeName;
+                            typeNameSpace = Ax.Items[item].TypeNameSpace;
+
+                            if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
+                            {
+                                Ax.Items[item].TypeName = typeName;
+                                Ax.Items[item].TypeNameSpace = typeNameSpace;
+                            }
+
                             handle = Ax.Items[item].Handle;
                             return Ax.Items[item].Control;
                         }
@@ -109,11 +127,12 @@ namespace APE.Communication
             }
             name = null;
             typeName = null;
+            typeNameSpace = null;
             handle = IntPtr.Zero;
             return null;
         }
 
-        private void FindByIdentifierActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeName, ref int currentIndex, ref string uniqueId, ref bool foundControl)
+        private void FindByIdentifierActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeNameSpace, ref string typeName, ref int currentIndex, ref string uniqueId, ref bool foundControl)
         {
             bool found = false;
             IntPtr parentHandle = IntPtr.Zero;
@@ -122,136 +141,156 @@ namespace APE.Communication
             {
                 lock (Ax.AxItemsLock)
                 {
+                    object control = null;
+                    int item;
                     int items = Ax.Items.Count;
-                    for (int item = 0; item < items; item++)
+                    for (item = 0; item < items; item++)
                     {
                         if (Ax.Items[item].Handle == handle)
                         {
                             parentHandle = Ax.Items[item].ParentHandle;
                             name = Ax.Items[item].Name;
                             typeName = Ax.Items[item].TypeName;
+                            typeNameSpace = Ax.Items[item].TypeNameSpace;
                             uniqueId = Ax.Items[item].UniqueId;
+                            control = Ax.Items[item].Control;
                             found = true;
                             break;
                         }
                     }
-                }
-            }
 
-            if (!found)
-            {
-                return;
-            }
-
-            if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
-            {
-            }
-            else
-            {
-                return;
-            }
-
-            if (identifier.Name != null)
-            {
-                if (name != identifier.Name)
-                {
-                    return;
-                }
-            }
-
-            if (identifier.TechnologyType != null)
-            {
-                if ("Windows ActiveX" != identifier.TechnologyType)
-                {
-                    return;
-                }
-            }
-
-            if (identifier.TypeNameSpace != null)
-            {
-                return;
-            }
-
-            if (identifier.TypeName != null)
-            {
-                if (typeName != identifier.TypeName)
-                {
-                    return;
-                }
-            }
-
-            if (identifier.ModuleName != null)
-            {
-                if (Path.GetFileName(NM.GetWindowModuleFileName(handle)) != identifier.ModuleName)
-                {
-                    return;
-                }
-            }
-
-            if (identifier.AssemblyName != null)
-            {
-                return;
-            }
-
-            if (identifier.ChildOf != IntPtr.Zero)
-            {
-                if (!NM.IsChild(identifier.ChildOf, handle))
-                {
-                    return;
-                }
-            }
-
-            if (identifier.SiblingOf != IntPtr.Zero)
-            {
-                if (!NM.IsSibling(identifier.SiblingOf, handle))
-                {
-                    return;
-                }
-            }
-
-            if (identifier.ParentOf != IntPtr.Zero)
-            {
-                if (!NM.IsChild(handle, identifier.ParentOf))
-                {
-                    return;
-                }
-            }
-
-            theText = GetWindowTextViaWindowMessage(handle);
-            if (identifier.Text != null)
-            {
-                if (theText == null)
-                {
-                    return;
-                }
-                else
-                {
-                    if (!Regex.IsMatch(theText, identifier.Text))
+                    if (!found)
                     {
                         return;
                     }
+
+                    if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
+                    {
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                    if (identifier.Name != null)
+                    {
+                        if (name != identifier.Name)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.TechnologyType != null)
+                    {
+                        if ("Windows ActiveX" != identifier.TechnologyType)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.TypeNameSpace != null)
+                    {
+                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                        {
+                            Ax.Items[item].TypeName = typeName;
+                            Ax.Items[item].TypeNameSpace = typeNameSpace;
+                        }
+
+                        if (typeNameSpace != identifier.TypeNameSpace)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.TypeName != null)
+                    {
+                        if (typeName != identifier.TypeName)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.ModuleName != null)
+                    {
+                        if (Path.GetFileName(NM.GetWindowModuleFileName(handle)) != identifier.ModuleName)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.AssemblyName != null)
+                    {
+                        return;
+                    }
+
+                    if (identifier.ChildOf != IntPtr.Zero)
+                    {
+                        if (!NM.IsChild(identifier.ChildOf, handle))
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.SiblingOf != IntPtr.Zero)
+                    {
+                        if (!NM.IsSibling(identifier.SiblingOf, handle))
+                        {
+                            return;
+                        }
+                    }
+
+                    if (identifier.ParentOf != IntPtr.Zero)
+                    {
+                        if (!NM.IsChild(handle, identifier.ParentOf))
+                        {
+                            return;
+                        }
+                    }
+
+                    theText = GetWindowTextViaWindowMessage(handle);
+                    if (identifier.Text != null)
+                    {
+                        if (theText == null)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            if (!Regex.IsMatch(theText, identifier.Text))
+                            {
+                                return;
+                            }
+                        }
+                    }
+
+                    if (identifier.AccessibilityObjectName != null)
+                    {
+                        return;
+                    }
+
+                    currentIndex++;
+                    if (identifier.Index > 0)
+                    {
+                        if (currentIndex != identifier.Index)
+                        {
+                            return;
+                        }
+                    }
+
+                    //we have a match
+                    foundControl = true;
+
+                    //Make sure the type name space and type name are populated
+                    if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                    {
+                        Ax.Items[item].TypeName = typeName;
+                        Ax.Items[item].TypeNameSpace = typeNameSpace;
+                    }
                 }
             }
-
-            if (identifier.AccessibilityObjectName != null)
-            {
-                return;
-            }
-
-            currentIndex++;
-            if (identifier.Index > 0)
-            {
-                if (currentIndex != identifier.Index)
-                {
-                    return;
-                }
-            }
-            
-            //we have a match
-            foundControl = true;
         }
 
-        private void FindByIdentifierRenderedActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeName, ref string technologyType, ref string uniqueId, ref bool foundControl)
+        private void FindByIdentifierRenderedActiveX(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref string typeNameSpace, ref string typeName, ref string technologyType, ref string uniqueId, ref bool foundControl)
         {
             IntPtr parentHandle = IntPtr.Zero;
             int currentIndex = 0;
@@ -260,14 +299,18 @@ namespace APE.Communication
             {
                 lock (Ax.AxItemsLock)
                 {
+                    object control = null;
+                    int item;
                     int items = Ax.Items.Count;
-                    for (int item = 0; item < items; item++)
+                    for (item = 0; item < items; item++)
                     {
                         handle = Ax.Items[item].Handle;
                         parentHandle = Ax.Items[item].ParentHandle;
                         name = Ax.Items[item].Name;
                         typeName = Ax.Items[item].TypeName;
+                        typeNameSpace = Ax.Items[item].TypeNameSpace;
                         uniqueId = Ax.Items[item].UniqueId;
+                        control = Ax.Items[item].Control;
 
                         if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
                         {
@@ -300,7 +343,16 @@ namespace APE.Communication
 
                         if (identifier.TypeNameSpace != null)
                         {
-                            continue;
+                            if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                            {
+                                Ax.Items[item].TypeName = typeName;
+                                Ax.Items[item].TypeNameSpace = typeNameSpace;
+                            }
+
+                            if (typeNameSpace != identifier.TypeNameSpace)
+                            {
+                                return;
+                            }
                         }
 
                         if (identifier.TypeName != null)
@@ -379,10 +431,52 @@ namespace APE.Communication
                         technologyType = "Windows ActiveX";
                         //WF.MessageBox.Show("Found handle: " + name + " " + handle.ToString());
                         foundControl = true;
+
+                        //Make sure thr type name space and type name are populated
+                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                        {
+                            Ax.Items[item].TypeName = typeName;
+                            Ax.Items[item].TypeNameSpace = typeNameSpace;
+                        }
                         return;
                     }
                 }
             }
+        }
+
+        private bool PopulateTypeNameAndTypeNameSpace(object control, ref string typeName, ref string typeNameSpace)
+        {
+            if (typeName == null && typeNameSpace == null)
+            {
+                APE.Bridge.Ole.ComTypeInformation(control, out string interfaceName, out string typeLibraryName, out string className);
+
+                if (string.IsNullOrEmpty(typeLibraryName))
+                {
+                    typeNameSpace = "";
+                }
+                else
+                {
+                    typeNameSpace = typeLibraryName;
+                }
+
+                if (string.IsNullOrEmpty(className))
+                {
+                    if (string.IsNullOrEmpty(interfaceName))
+                    {
+                        typeName = "";
+                    }
+                    else
+                    {
+                        typeName = interfaceName;
+                    }
+                }
+                else
+                {
+                    typeName = className;
+                }
+                return true;
+            }
+            return false;
         }
     }
 }

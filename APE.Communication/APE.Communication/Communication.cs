@@ -1835,6 +1835,7 @@ namespace APE.Communication
             Type theType = null;
             string uniqueId = null;
             string typeName = null;
+            string typeNameSpace = null;
             string technologyType = null;
             IntPtr Handle = IntPtr.Zero;
             string Name = null;
@@ -1854,7 +1855,7 @@ namespace APE.Communication
                                 if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                 {
                                     uniqueId = Identifier.UniqueId;
-                                    object controlActiveX = FindByUniqueIdActiveX(uniqueId, out Name, out typeName, out Handle);
+                                    object controlActiveX = FindByUniqueIdActiveX(uniqueId, out Name, out typeNameSpace, out typeName, out Handle);
                                     if (controlActiveX != null)
                                     {
                                         theText = GetWindowTextViaWindowMessage(Handle);
@@ -1894,7 +1895,7 @@ namespace APE.Communication
                         if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                         {
                             Handle = Identifier.Handle;
-                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName, out uniqueId);
+                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeNameSpace, out typeName, out uniqueId);
                             if (controlActiveX != null)
                             {
                                 theText = GetWindowTextViaWindowMessage(Handle);
@@ -2076,7 +2077,7 @@ namespace APE.Communication
                                     if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                     {
                                         Handle = hWnd;
-                                        FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
+                                        FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeNameSpace, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
                                         if (FoundControl)
                                         {
                                             technologyType = "Windows ActiveX";
@@ -2204,7 +2205,7 @@ namespace APE.Communication
 
                             if (!FoundControl)
                             {
-                                FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
+                                FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeNameSpace, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
                             }
 
                             if (!FoundControl)
@@ -2258,7 +2259,7 @@ namespace APE.Communication
                                 if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                 {
                                     uniqueId = Identifier.UniqueId;
-                                    object controlActiveX = FindByUniqueIdActiveX(uniqueId, out Name, out typeName, out Handle);
+                                    object controlActiveX = FindByUniqueIdActiveX(uniqueId, out Name, out typeNameSpace, out typeName, out Handle);
                                     if (controlActiveX != null)
                                     {
                                         theText = GetWindowTextViaWindowMessage(Handle);
@@ -2300,7 +2301,7 @@ namespace APE.Communication
                         {
                             //TODO check parent handle
                             Handle = Identifier.Handle;
-                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeName, out uniqueId);
+                            object controlActiveX = FindByHandleActiveX(Identifier.Handle, out Name, out typeNameSpace, out typeName, out uniqueId);
                             if (controlActiveX != null)
                             {
                                 theText = GetWindowTextViaWindowMessage(Handle);
@@ -2465,7 +2466,7 @@ namespace APE.Communication
                                 if (Identifier.TechnologyType == "Windows ActiveX" || Identifier.TechnologyType == null)
                                 {
                                     Handle = hWnd;
-                                    FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
+                                    FindByIdentifierActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeNameSpace, ref typeName, ref CurrentIndex, ref uniqueId, ref FoundControl);
                                     if (FoundControl)
                                     {
                                         technologyType = "Windows ActiveX";
@@ -2583,7 +2584,7 @@ namespace APE.Communication
 
                         if (!FoundControl)
                         {
-                            FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
+                            FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeNameSpace, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
                         }
 
                         if (!FoundControl)
@@ -2629,6 +2630,7 @@ namespace APE.Communication
                 else if(NewIdentifier.TechnologyType == "Windows ActiveX")
                 {
                     NewIdentifier.TypeName = typeName;
+                    NewIdentifier.TypeNameSpace = typeNameSpace;
                     NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Handle));
                 }
                 else
@@ -2663,8 +2665,6 @@ namespace APE.Communication
 
             string uniqueId = GetParameterString(ptrMessage, 0);
             IntPtr handle;
-            string name;
-            string typeName;
 
             switch (uniqueId.Substring(0, 1))
             {
@@ -2673,7 +2673,7 @@ namespace APE.Communication
                     destinationObject = WF.Control.FromHandle(handle);
                     break;
                 case "A":
-                    destinationObject = FindByUniqueIdActiveX(uniqueId, out name, out typeName, out handle);
+                    destinationObject = FindByUniqueIdActiveX(uniqueId, out string name, out string typeNameSpace, out string typeName, out handle);
                     break;
             }
 
@@ -2700,7 +2700,7 @@ namespace APE.Communication
             {
                 if (identifier.TechnologyType == "Windows ActiveX" || identifier.TechnologyType == null)
                 {
-                    destinationObject = FindByHandleActiveX(identifier.Handle, out string name, out string typeName, out string uniqueId);
+                    destinationObject = FindByHandleActiveX(identifier.Handle, out string name, out string typeNameSpace, out string typeName, out string uniqueId);
                 }
             }
 
