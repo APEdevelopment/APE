@@ -28,7 +28,7 @@ Public Sub AddObjectToBridgeToAPE(containerHandle As Long, containerName As Stri
         End If
     End If
     
-    Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerHandle, containerHandle, containerName, TypeName(containerControl), containerControl, False)
+    Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerHandle, containerHandle, containerName, containerControl, False)
     
     For Each ctrl In containerControlCollection
         Call AddControlToBridge(containerHandle, containerControl, ctrl)
@@ -74,7 +74,7 @@ Private Sub AddControlToBridge(containerHandle As Long, containerControl As Obje
         'VBControlExtender hosting a custom control
         Case TypeOf ctrl Is VB.VBControlExtender
             Set extender = ctrl
-            Call BridgeToAPE.AddItem(ObjPtr(extender.object), containerHandle, 0, extender.name, TypeName(extender.object), extender.object, False)
+            Call BridgeToAPE.AddItem(ObjPtr(extender.object), containerHandle, 0, extender.name, extender.object, False)
             
         'Rendered Intrinsic GUI controls
         Case TypeOf ctrl Is VB.Image, _
@@ -82,7 +82,7 @@ Private Sub AddControlToBridge(containerHandle As Long, containerControl As Obje
              TypeOf ctrl Is VB.Line, _
              TypeOf ctrl Is VB.Menu, _
              TypeOf ctrl Is VB.Shape
-            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, GetRenderedContainerHandle(containerHandle, containerControl, ctrl), ctrl.name, TypeName(ctrl), ctrl, True)
+            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, GetRenderedContainerHandle(containerHandle, containerControl, ctrl), ctrl.name, ctrl, True)
             
         'Intrinsic GUI controls
         Case TypeOf ctrl Is VB.CheckBox, _
@@ -102,7 +102,7 @@ Private Sub AddControlToBridge(containerHandle As Long, containerControl As Obje
              TypeOf ctrl Is VB.TextBox, _
              TypeOf ctrl Is VB.UserDocument, _
              TypeOf ctrl Is VB.VScrollBar
-            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, ctrl.hWnd, ctrl.name, TypeName(ctrl), ctrl, False)
+            Call BridgeToAPE.AddItem(ObjPtr(ctrl), containerHandle, ctrl.hWnd, ctrl.name, ctrl, False)
             
         'Case TypeOf ctrl Is VB.UserControl
         'Case TypeOf ctrl Is VB.Control

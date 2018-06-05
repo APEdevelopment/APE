@@ -53,17 +53,19 @@ namespace APE.Bridge
             public IntPtr Handle;
             public string Name;
             public string TypeName;
+            public string TypeNameSpace;
             public object Control;
             public bool Rendered;
 
-            public Item(IntPtr objectPointer, IntPtr containerHandle, IntPtr handle, string name, string typeName, object control, bool rendered)
+            public Item(IntPtr objectPointer, IntPtr containerHandle, IntPtr handle, string name, object control, bool rendered)
             {
                 UniqueId = "A" + objectPointer.ToString();
                 ParentHandle = GetAncestor(handle, GetAncestorFlags.GetRoot);
                 ContainerHandle = containerHandle;
                 Handle = handle;
                 Name = name;
-                TypeName = typeName;
+                TypeName = null;
+                TypeNameSpace = null;
                 Control = control;
                 Rendered = rendered;
             }
@@ -73,7 +75,7 @@ namespace APE.Bridge
         public static readonly object AxItemsLock = new object();
 
         //We use dynamic instead of IntPtr as IntPtr causes issues when using late binding
-        public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, string typeName, object control, bool rendered)
+        public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, object control, bool rendered)
         {
             IntPtr windowHandle = IntPtr.Zero;
 
@@ -108,7 +110,7 @@ namespace APE.Bridge
                 windowHandle = new IntPtr(handle);
             }
 
-            Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), windowHandle, name, typeName, control, rendered);
+            Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), windowHandle, name, control, rendered);
             //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
 
             bool found = false;
