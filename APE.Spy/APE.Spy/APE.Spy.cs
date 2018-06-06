@@ -1151,6 +1151,7 @@ namespace APE.Spy
             {
                 switch (Identity.TypeName)
                 {
+                    case "ArrowButton":
                     case "CommandButton":
                         APEType = "GUIButton";
                         break;
@@ -1183,6 +1184,9 @@ namespace APE.Spy
                         break;
                     case "OptionButton":
                         APEType = "GUIRadioButton";
+                        break;
+                    case "SftTabs":
+                        APEType = "GUITabControl";
                         break;
                     case "TextBox":
                         APEType = "GUITextBox";
