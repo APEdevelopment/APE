@@ -277,7 +277,7 @@ namespace APE.Language
         private void SftTabClickLeftUp()
         {
             int originalVisibleTab = SftTabVisibleTab();
-            GUIButton button = new GUIButton(ParentForm, Description + " left / up button", new Identifier(Identifiers.ChildOf, this), new Identifier(Identifiers.Index, 1));
+            GUIButton button = new GUIButton(ParentForm, Description + " left / up button", new Identifier(Identifiers.ChildOf, this), new Identifier(Identifiers.TypeName, "SftBtnControl"), new Identifier(Identifiers.Index, 1));
             button.SingleClick();
 
             Stopwatch timer = Stopwatch.StartNew();
@@ -301,7 +301,7 @@ namespace APE.Language
         private void SftTabClickRightDown()
         {
             int originalVisibleTab = SftTabVisibleTab();
-            GUIButton button = new GUIButton(ParentForm, Description + " right / down button", new Identifier(Identifiers.ChildOf, this), new Identifier(Identifiers.Index, 2));
+            GUIButton button = new GUIButton(ParentForm, Description + " right / down button", new Identifier(Identifiers.ChildOf, this), new Identifier(Identifiers.TypeName, "SftBtnControl"), new Identifier(Identifiers.Index, 2));
             button.SingleClick();
 
             Stopwatch timer = Stopwatch.StartNew();
