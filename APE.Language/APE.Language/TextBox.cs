@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Threading;
 using NM = APE.Native.NativeMethods;
+using APE.Communication;
+using System.Reflection;
 
 namespace APE.Language
 {
@@ -28,7 +30,7 @@ namespace APE.Language
     /// Automation class used to automate controls derived from the following:
     /// System.Windows.Forms.TextBox
     /// </summary>
-    public sealed class GUITextBox : GUIFocusableObject, IGUITextBox
+    public sealed class GUITextBox : GUIFocusableObject
     {
         /// <summary>
         /// Constructor used for non-form controls
@@ -87,16 +89,13 @@ namespace APE.Language
 
                         //wait for .selectedText to = Text
                         timer = Stopwatch.StartNew();
-                        do
+                        while (true)
                         {
-                            int start = 0;
-                            int end = 0;
-                            IntPtr Return;
-                            IntPtr Result;
-
-                            currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
-                            Return = NM.SendMessageTimeout(Identity.Handle, NM.EM_GETSEL, ref start, ref end, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out Result);
-                            selectedText = currentText.Substring(start, end);
+                            selectedText = SelectedText();
+                            if (currentText == selectedText)
+                            {
+                                break;
+                            }
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
@@ -105,8 +104,6 @@ namespace APE.Language
 
                             Thread.Sleep(15);
                         }
-                        while (currentText != selectedText);
-                        timer.Stop();
 
                         if (text == "")
                         {
@@ -114,9 +111,13 @@ namespace APE.Language
 
                             //wait for .Text to == ""
                             timer = Stopwatch.StartNew();
-                            do
+                            while (true)
                             {
                                 currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                                if (currentText == "")
+                                {
+                                    break;
+                                }
 
                                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                                 {
@@ -125,8 +126,6 @@ namespace APE.Language
 
                                 Thread.Sleep(15);
                             }
-                            while (currentText != "");
-                            timer.Stop();
                         }
                     }
 
@@ -136,9 +135,13 @@ namespace APE.Language
 
                         //wait for .Text to == text
                         timer = Stopwatch.StartNew();
-                        do
+                        while (true)
                         {
                             currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                            if (currentText == text)
+                            {
+                                break;
+                            }
 
                             if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                             {
@@ -147,8 +150,6 @@ namespace APE.Language
 
                             Thread.Sleep(15);
                         }
-                        while (currentText != text);
-                        timer.Stop();
                     }
                 }
 
@@ -165,6 +166,46 @@ namespace APE.Language
             {
                 Input.Unblock();
             }
+        }
+
+        /// <summary>
+        /// Gets the text which is currently selected
+        /// </summary>
+        /// <returns>The selected text</returns>
+        public string SelectedText()
+        {
+            string selectedText;
+            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            {
+                //Get the selectedText property
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedText", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                selectedText = GUI.m_APE.GetValueFromMessage();
+            }
+            else
+            {
+                IntPtr messageResult;
+                IntPtr sendResult;
+                int start = 0;
+                int end = 0;
+
+                string currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.EM_GETSEL, ref start, ref end, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                
+                if (sendResult != IntPtr.Zero)  //Succeeded
+                {
+                    selectedText = currentText.Substring(start, end - start);
+                }
+                else
+                {
+                    throw GUI.ApeException("Failed to query the " + Description);
+                }
+            }
+            return selectedText;
         }
     }
 }

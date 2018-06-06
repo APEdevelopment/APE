@@ -34,7 +34,7 @@ namespace APE.Language
     /// Automation class used to automate controls derived from the following:
     /// System.Windows.Forms.NumericUpDown
     /// </summary>
-    public sealed class GUIUpDown : GUIFocusableObject, IGUITextBox
+    public sealed class GUIUpDown : GUIFocusableObject
     {
         /// <summary>
         /// Constructor used for non-form controls

@@ -14,18 +14,12 @@
 //limitations under the License.
 //
 using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using APE.Capture;
 using APE.Communication;
 using System.Threading;
-using System.Drawing.Imaging;
-using System.Security.Principal;
 using NM = APE.Native.NativeMethods;
 using System.Collections;
 
@@ -57,12 +51,8 @@ namespace APE.Language
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
-                //Will change to this soon
-                //GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "WalkerStateDropAfter", MemberTypes.Property);
-                //GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "_m_oWalkerState", MemberTypes.Field);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DropAfter", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "WalkerStateDropAfter", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 //Get the value(s) returned MUST be done straight after the WaitForMessages call;
@@ -116,18 +106,25 @@ namespace APE.Language
             Input.Block();
             try
             {
-                IntPtr textboxHandle;
-
+                GUITextBox textbox;
                 if (Identity.TypeNameSpace == "LzGenericWalker")
                 {
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "txtText", MemberTypes.Field);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    textboxHandle = GUI.m_APE.GetValueFromMessage();
+                    if (Identity.TechnologyType == "Windows Forms (WinForms)")
+                    {
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "txtText", MemberTypes.Field);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                        IntPtr textboxHandle = GUI.m_APE.GetValueFromMessage();
+                        textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
+                    }
+                    else
+                    {
+                        textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Name, "txtText"), new Identifier(Identifiers.ChildOf, this));
+                    }
                 }
                 else
                 {
@@ -138,10 +135,9 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    textboxHandle = GUI.m_APE.GetValueFromMessage();
+                    IntPtr textboxHandle = GUI.m_APE.GetValueFromMessage();
+                    textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
                 }               
-
-                GUITextBox textbox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, textboxHandle));
 
                 currentText = textbox.Text;
                 string unescapedText = Unescape(text);
@@ -159,21 +155,11 @@ namespace APE.Language
                         //Select everything in the textbox
                         base.SendKeys("{HOME}+{END}");
 
-                        string selectedText;
-
-                        //wait for .selectedText to = Text
+                        //wait for SelectedText == Text
                         timer = Stopwatch.StartNew();
                         while (true)
                         {
-                            //Get the selectedText property
-                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, textboxHandle);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedText", MemberTypes.Property);
-                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                            GUI.m_APE.SendMessages(EventSet.APE);
-                            GUI.m_APE.WaitForMessages(EventSet.APE);
-                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            selectedText = GUI.m_APE.GetValueFromMessage();
-
+                            string selectedText = textbox.SelectedText();
                             if (currentText == selectedText)
                             {
                                 break;
@@ -299,7 +285,7 @@ namespace APE.Language
                             break;
                     }
 
-                    //wait for .Text to == text
+                    //wait for current text == unescaped text
                     timer = Stopwatch.StartNew();
                     while (true)
                     {
@@ -318,7 +304,7 @@ namespace APE.Language
                         Thread.Sleep(15);
                     }
 
-                    if (Identity.TypeNameSpace == "LzGenericWalker")
+                    if (Identity.TypeNameSpace == "LzGenericWalker" && Identity.TechnologyType == "Windows Forms (WinForms)")
                     {
                         // Add event handler
                         GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -336,7 +322,7 @@ namespace APE.Language
                     }
                     finally
                     {
-                        if (Identity.TypeNameSpace == "LzGenericWalker")
+                        if (Identity.TypeNameSpace == "LzGenericWalker" && Identity.TechnologyType == "Windows Forms (WinForms)")
                         {
                             if (ok)
                             {

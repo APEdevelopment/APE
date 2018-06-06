@@ -768,11 +768,6 @@ namespace APE.Language
         }
     }
 
-    interface IGUITextBox
-    {
-        void SetText(string text);
-    }
-
     interface IGUIForm
     {
         //GUIObject

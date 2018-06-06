@@ -49,13 +49,20 @@ namespace APE.Language
         public int TabCount()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabCount", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "TabCount", MemberTypes.Property);
+            }
+            else
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            }
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             int tabCount = GUI.m_APE.GetValueFromMessage();
-
             return tabCount;
         }
 
@@ -87,15 +94,21 @@ namespace APE.Language
         public string TabText(int tabIndex)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+            }
+            else
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tab", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+            }
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
             string tabText = GUI.m_APE.GetValueFromMessage();
-
             return tabText;
         }
 
@@ -159,58 +172,79 @@ namespace APE.Language
             // multiline means no scroll button
             if (!multiLine)
             {
-                IntPtr upDownControl = NM.GetWindow(Identity.Handle, NM.GetWindowCmd.GW_CHILD);
-
-                while (true)
+                if (Identity.TechnologyType == "Windows Forms (WinForms)")
                 {
-                    if (upDownControl == IntPtr.Zero)
-                    {
-                        break;
-                    }
-
-                    string className = NM.GetClassName(upDownControl);
-
-                    if (className == "msctls_updown32")
-                    {
-                        break;
-                    }
-
-                    upDownControl = NM.GetWindow(upDownControl, NM.GetWindowCmd.GW_HWNDNEXT);
-                }
-
-                if (upDownControl != IntPtr.Zero)
-                {
-                    // work out if we need to scroll the tab into view
-                    NM.tagRect scrollButtonsRect;
-                    NM.GetClientRect(upDownControl, out scrollButtonsRect);
-
-                    width = tabRect.right - scrollButtonsRect.right;
-
-                    GUIButton scrollTabButton = new GUIButton(ParentForm, "Scroll button", new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.Handle, upDownControl));
+                    IntPtr upDownControl = NM.GetWindow(Identity.Handle, NM.GetWindowCmd.GW_CHILD);
 
                     while (true)
                     {
-                        if (tabRectangle.X < 0)
-                        {
-                            GUI.Log("Click " + Identity.Description + " left button", LogItemType.Action);
-                            scrollTabButton.SingleClickInternal(5, 5, MouseButton.Left, MouseKeyModifier.None);
-                        }
-                        else if (tabRectangle.X > width)
-                        {
-                            GUI.Log("Click " + Identity.Description + " right button", LogItemType.Action);
-                            scrollTabButton.SingleClickInternal(scrollButtonsRect.right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
-                        }
-                        else
+                        if (upDownControl == IntPtr.Zero)
                         {
                             break;
                         }
 
+                        string className = NM.GetClassName(upDownControl);
+
+                        if (className == "msctls_updown32")
+                        {
+                            break;
+                        }
+
+                        upDownControl = NM.GetWindow(upDownControl, NM.GetWindowCmd.GW_HWNDNEXT);
+                    }
+
+                    if (upDownControl != IntPtr.Zero)
+                    {
+                        // work out if we need to scroll the tab into view
+                        NM.tagRect scrollButtonsRect;
+                        NM.GetClientRect(upDownControl, out scrollButtonsRect);
+
+                        width = tabRect.right - scrollButtonsRect.right;
+
+                        GUIButton scrollTabButton = new GUIButton(ParentForm, "Scroll button", new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.Handle, upDownControl));
+
+                        while (true)
+                        {
+                            if (tabRectangle.X < 0)
+                            {
+                                GUI.Log("Click " + Identity.Description + " left button", LogItemType.Action);
+                                scrollTabButton.SingleClickInternal(5, 5, MouseButton.Left, MouseKeyModifier.None);
+                            }
+                            else if (tabRectangle.X > width)
+                            {
+                                GUI.Log("Click " + Identity.Description + " right button", LogItemType.Action);
+                                scrollTabButton.SingleClickInternal(scrollButtonsRect.right - 5, 5, MouseButton.Left, MouseKeyModifier.None);
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            tabRectangle = TabRectangle(tabIndex);
+                        }
+                    }
+                }
+                else
+                {
+                    tabRectangle = TabRectangle(tabIndex);
+
+                    while (tabRectangle.Width == 0 || tabRectangle.Height == 0)
+                    {
+                        int visibleTab = SftTabVisibleTab();
+                        if (tabIndex < visibleTab)
+                        {
+                            SftTabClickLeftUp();
+                        }
+                        else
+                        {
+                            SftTabClickRightDown();
+                        }
                         tabRectangle = TabRectangle(tabIndex);
                     }
                 }
             }
 
-            GUI.Log("Select tab " + tabName + " in " + Identity.Description, LogItemType.Action);
+            GUI.Log("Select tab " + tabName + " in the " + Identity.Description, LogItemType.Action);
             int x = tabRectangle.X + (tabRectangle.Width / 2);
             int y = tabRectangle.Y + (tabRectangle.Height / 2);
             if (!multiLine)
@@ -226,58 +260,148 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
-                {
-                    throw GUI.ApeException("Failed to select tab " + tabName);
-                }
-
                 if (SelectedTabText() == tabName)
                 {
                     break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                {
+                    throw GUI.ApeException("Failed to select tab " + tabName);
                 }
 
                 Thread.Sleep(15);
             }
         }
 
-        private string SelectedTabText()
+        private void SftTabClickLeftUp()
+        {
+            int originalVisibleTab = SftTabVisibleTab();
+            GUIButton button = new GUIButton(ParentForm, Description + " left / up button", new Identifier(Identifiers.ChildOf, this), new Identifier(Identifiers.Index, 1));
+            button.SingleClick();
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                int currentVisibleTab = SftTabVisibleTab();
+                if (originalVisibleTab != currentVisibleTab)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                {
+                    throw GUI.ApeException("Failed to scroll the " + Description + " tab");
+                }
+
+                Thread.Sleep(15);
+            }
+        }
+
+        private void SftTabClickRightDown()
+        {
+            int originalVisibleTab = SftTabVisibleTab();
+            GUIButton button = new GUIButton(ParentForm, Description + " right / down button", new Identifier(Identifiers.ChildOf, this), new Identifier(Identifiers.Index, 2));
+            button.SingleClick();
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                int currentVisibleTab = SftTabVisibleTab();
+                if (originalVisibleTab != currentVisibleTab)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
+                {
+                    throw GUI.ApeException("Failed to scroll the " + Description + " tab");
+                }
+
+                Thread.Sleep(15);
+            }
+        }
+
+        private int SftTabVisibleTab()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedTab", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Text", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Scrolling", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "VisibleTab", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string selectedTabText = GUI.m_APE.GetValueFromMessage();
+            int visibleTab = GUI.m_APE.GetValueFromMessage();
+            return visibleTab;
+        }
+
+        private string SelectedTabText()
+        {
+            string selectedTabText;
+            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedTab", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Text", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                selectedTabText = GUI.m_APE.GetValueFromMessage();
+            }
+            else
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Current", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                int currentTabIndex = GUI.m_APE.GetValueFromMessage();
+                selectedTabText = TabText(currentTabIndex);
+            }
             return selectedTabText;
         }
 
         private bool MultiLine()
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Multiline", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool multiLine = GUI.m_APE.GetValueFromMessage();
-
-            return multiLine;
+            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            {
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Multiline", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                bool multiLine = GUI.m_APE.GetValueFromMessage();
+                return multiLine;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private Rectangle TabRectangle(int tabIndex)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            {
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+            }
+            else
+            {
+                GUI.m_APE.AddQueryMessageGetTabRect(DataStores.Store0, tabIndex);
+            }
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
@@ -287,7 +411,6 @@ namespace APE.Language
             int height = GUI.m_APE.GetValueFromMessage();
 
             Rectangle tabRectangle = new Rectangle(x, y, width, height);
-            
             return tabRectangle;
         }
     }
