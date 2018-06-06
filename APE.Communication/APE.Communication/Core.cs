@@ -120,6 +120,7 @@ namespace APE.Communication
         DumpActiveX = 58,
         FlexgridGetNodeCollapsedState = 59,
         GetTypeInformationActiveX = 60,
+        GetTabRect = 61,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -438,6 +439,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.GetTypeInformationActiveX:
                                     GetTypeInformationActiveX(ptrMessage);
+                                    break;
+                                case MessageAction.GetTabRect:
+                                    GetTabRect(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
