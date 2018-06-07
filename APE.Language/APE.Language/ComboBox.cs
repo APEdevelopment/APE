@@ -23,6 +23,21 @@ using NM = APE.Native.NativeMethods;
 namespace APE.Language
 {
     /// <summary>
+    /// Determines whether a match should be sensitive to case or not
+    /// </summary>
+    public enum CaseSensitivity
+    {
+        /// <summary>
+        /// The case of the text is included in the comparison so 'H' would not match 'h'
+        /// </summary>
+        Sensitive,
+        /// <summary>
+        /// The case of the text is excluded in the comparison so 'H' would match 'h'
+        /// </summary>
+        Insensitive,
+    }
+
+    /// <summary>
     /// Automation class used to automate controls derived from the following:
     /// System.Windows.Forms.ComboBox
     /// LatentZero.Utility.Controls.GUIComboBox
@@ -46,18 +61,64 @@ namespace APE.Language
         /// Checks if the specified item exists in the combobox
         /// </summary>
         /// <param name="item">The item to check if it exists</param>
-        /// <returns></returns>
+        /// <returns>True if the item exists otherwise false</returns>
         public bool ItemExists(string item)
         {
-            int Index = ItemIndex(item);
+            return ItemExists(item, CaseSensitivity.Sensitive);
+        }
 
-            if (Index == NM.CB_ERR)
+        /// <summary>
+        /// Checks if the specified item exists in the combobox
+        /// </summary>
+        /// <param name="itemText">The item to check if it exists</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        /// <returns>True if the item exists otherwise false</returns>
+        public bool ItemExists(string itemText, CaseSensitivity caseSensitivity)
+        {
+            int index = ItemIndex(itemText, caseSensitivity);
+            if (index == NM.CB_ERR)
             {
                 return false;
             }
             else
             {
                 return true;
+            }
+        }
+
+        /// <summary>
+        /// Gets the text of the item at the specified index
+        /// </summary>
+        /// <param name="itemIndex">Item index</param>
+        /// <returns>The text of the item</returns>
+        public string ItemText(int itemIndex)
+        {
+            IntPtr messageResult;
+            IntPtr sendResult;
+            string itemText;
+
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETLBTEXTLEN, new IntPtr(itemIndex), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || messageResult == new IntPtr(NM.CB_ERR)) //Failed
+            {
+                throw GUI.ApeException("Failed to access the " + Description);
+            }
+            
+            int itemCharacterCount = messageResult.ToInt32();
+            if (itemCharacterCount == 0)
+            {
+                return "";
+            }
+
+            itemText = new string(' ', itemCharacterCount);
+            
+            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETLBTEXT, new IntPtr(itemIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || messageResult == new IntPtr(NM.CB_ERR)) //Failed
+            {
+                throw GUI.ApeException("Failed to access the " + Description);
+            }
+            else
+            {
+                return itemText;
             }
         }
 
@@ -124,19 +185,43 @@ namespace APE.Language
         /// <summary>
         /// Selects the specified item in the combobox by clicking on it
         /// </summary>
-        /// <param name="item">The item to select</param>
-        public void SingleClickItem(string item)
+        /// <param name="itemText">The item to select</param>
+        public void SingleClickItem(string itemText)
+        {
+            SingleClickItem(itemText, CaseSensitivity.Sensitive);
+        }
+
+        /// <summary>
+        /// Selects the specified item in the combobox by clicking on it
+        /// </summary>
+        /// <param name="itemText">The item to select</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        public void SingleClickItem(string itemText, CaseSensitivity caseSensitivity)
         {
             Stopwatch timer;
 
             //Check if its already selected
-            if (this.Text == item)
+            switch (caseSensitivity)
             {
-                GUI.Log("Ensure " + Identity.Description + " is set to " + item, LogItemType.Action);
-                return;
+                case CaseSensitivity.Sensitive:
+                    if (this.Text == itemText)
+                    {
+                        GUI.Log("Ensure " + Identity.Description + " is set to " + itemText, LogItemType.Action);
+                        return;
+                    }
+                    break;
+                case CaseSensitivity.Insensitive:
+                    if (this.Text.ToLower() == itemText.ToLower())
+                    {
+                        GUI.Log("Ensure " + Identity.Description + " is set to " + itemText, LogItemType.Action);
+                        return;
+                    }
+                    break;
+                default:
+                    throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
             }
             
-            GUI.Log("Select [" + item + "] from " + Identity.Description, LogItemType.Action);
+            GUI.Log("Select [" + itemText + "] from " + Identity.Description, LogItemType.Action);
 
             //Get the style
             string style = GetComboBoxStyle(out dynamic droppedDown);
@@ -178,7 +263,7 @@ namespace APE.Language
                 }
 
                 //locate the item
-                int Index = ItemIndex(item);
+                int Index = ItemIndex(itemText, caseSensitivity);
                 if (Index == NM.CB_ERR)
                 {
                     throw GUI.ApeException("Failed to find the " + Description + " item");
@@ -220,26 +305,41 @@ namespace APE.Language
                 comboBoxDropdown.SingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
                 
                 //wait for .Text to == text
-                string currentText;
+                bool selected = false;
                 timer = Stopwatch.StartNew();
-                do
+                
+                while (true)
                 {
-                    currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+                    switch (caseSensitivity)
+                    {
+                        case CaseSensitivity.Sensitive:
+                            if (this.Text == itemText)
+                            {
+                                selected = true;
+                            }
+                            break;
+                        case CaseSensitivity.Insensitive:
+                            if (this.Text.ToLower() == itemText.ToLower())
+                            {
+                                selected = true;
+                            }
+                            break;
+                        default:
+                            throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
+                    }
 
-                    if (currentText == item)
+                    if (selected)
                     {
                         break;
                     }
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
-                        throw GUI.ApeException("Failed to set the text of the " + Description);
+                        throw GUI.ApeException("Failed to select the item in the " + Description);
                     }
 
                     Thread.Sleep(15);
                 }
-                while (true);
-                timer.Stop();
             }
             catch when (Input.ResetInputFilter())
             {
@@ -289,19 +389,49 @@ namespace APE.Language
             }
         }
 
-        private int ItemIndex(string Item)
+        private int ItemIndex(string itemText, CaseSensitivity caseSensitivity)
         {
-            IntPtr MessageResult;
-            IntPtr SendResult;
+            IntPtr messageResult;
+            IntPtr sendResult;
 
-            SendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_FINDSTRINGEXACT, new IntPtr(-1), Item, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
-            if (SendResult == IntPtr.Zero) //Failed
+            int startIndex = -1;
+            while (true)
             {
-                throw GUI.ApeException("Failed to access the " + Description);
-            }
-            else
-            {
-                return unchecked((int)MessageResult.ToInt64());
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_FINDSTRINGEXACT, new IntPtr(startIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                if (sendResult == IntPtr.Zero)
+                {
+                    throw GUI.ApeException("Failed to access the " + Description);
+                }
+                else if (messageResult == new IntPtr(NM.CB_ERR))
+                {
+                    return NM.CB_ERR;
+                }
+                else
+                {
+                    int index = unchecked((int)messageResult.ToInt64());
+
+                    // looped around through 0
+                    if (index < startIndex)
+                    {
+                        return NM.CB_ERR;
+                    }
+
+                    switch (caseSensitivity)
+                    {
+                        case CaseSensitivity.Insensitive:
+                            return index;
+                        case CaseSensitivity.Sensitive:
+                            string foundItemText = ItemText(index);
+                            if (foundItemText == itemText)
+                            {
+                                return index;
+                            }
+                            break;
+                        default:
+                            throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
+                    }
+                    startIndex = index + 1;
+                }
             }
         }
     }
