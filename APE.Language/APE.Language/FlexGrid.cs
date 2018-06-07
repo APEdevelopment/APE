@@ -91,7 +91,7 @@ namespace APE.Language
 
             if (EditWindowHandle == IntPtr.Zero)
             {
-                throw new Exception(Description + " is not in edit mode");
+                throw GUI.ApeException(Description + " is not in edit mode");
             }
 
             return GUI.m_APE.GetWindowTextViaWindowMessage(EditWindowHandle);
@@ -220,7 +220,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             for (int rowIndex = 0; rowIndex < Rows(); rowIndex++)
@@ -272,7 +272,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             for (int rowIndex = Rows() - 1; rowIndex > -1; rowIndex--)
@@ -327,7 +327,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             for (int i = 0; i < nodePathArray.GetLength(0); i++)
@@ -391,7 +391,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             for (int i = nodePathArray.GetLength(0) - 1; i > -1; i--)
@@ -2614,7 +2614,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             string[] separatorComma = { "," };
@@ -2666,7 +2666,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             string[] separatorComma = { "," };
@@ -2746,7 +2746,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             for (int i = 0; i < nodePathArray.GetLength(0); i++)
@@ -2799,7 +2799,7 @@ namespace APE.Language
 
             if (treeColumnIndex == -1)
             {
-                throw new Exception(Description + " is not a treeview");
+                throw GUI.ApeException(Description + " is not a treeview");
             }
 
             for (int i = nodePathArray.GetLength(0) - 1; i > -1; i--)
