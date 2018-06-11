@@ -400,7 +400,8 @@ namespace APE.Language
             }
             else
             {
-                GUI.m_APE.AddQueryMessageGetTabRect(DataStores.Store0, tabIndex);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tab", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                GUI.m_APE.AddQueryMessageGetTabRect(DataStores.Store1);
             }
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);

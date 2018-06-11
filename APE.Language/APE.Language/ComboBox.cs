@@ -23,21 +23,6 @@ using NM = APE.Native.NativeMethods;
 namespace APE.Language
 {
     /// <summary>
-    /// Determines whether a match should be sensitive to case or not
-    /// </summary>
-    public enum CaseSensitivity
-    {
-        /// <summary>
-        /// The case of the text is included in the comparison so 'H' would not match 'h'
-        /// </summary>
-        Sensitive,
-        /// <summary>
-        /// The case of the text is excluded in the comparison so 'H' would match 'h'
-        /// </summary>
-        Insensitive,
-    }
-
-    /// <summary>
     /// Automation class used to automate controls derived from the following:
     /// System.Windows.Forms.ComboBox
     /// LatentZero.Utility.Controls.GUIComboBox

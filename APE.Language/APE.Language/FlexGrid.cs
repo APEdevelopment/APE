@@ -3288,7 +3288,175 @@ namespace APE.Language
                     this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
                     break;
                 default:
-                    throw GUI.ApeException("Not supported data type: " + cellDataType.ToString());
+                    // Select the cell if its not selected
+                    if (this.SelectedRow() == rowIndex && this.SelectedColumn() == columnIndex)
+                    {
+                        GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is selected", LogItemType.Action);
+                    }
+                    else
+                    {
+                        GUI.Log("Single " + MouseButton.Left.ToString() + " click on the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
+                        this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.CentreOfCell, MouseKeyModifier.None);
+                        SelectedRowPollForIndex(rowIndex);
+                    }
+
+                    // Build a list of genericwalkes which currently exist
+                    List<IntPtr> walkers = new List<IntPtr>(200);
+                    GUIGenericWalker genericWalker = null;
+                    for (int index = 1; index < 200; index++)
+                    {
+                        bool found = false;
+                        if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                        {
+                            found = true;
+                            genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                            if (genericWalker.IsVisible)
+                            {
+                                walkers.Add(genericWalker.Handle);
+                            }
+                        }
+
+                        if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                        {
+                            found = true;
+                            genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                            if (genericWalker.IsVisible)
+                            {
+                                walkers.Add(genericWalker.Handle);
+                            }
+                        }
+
+                        if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "GenericWalker"), new Identifier(Identifiers.Index, index)))
+                        {
+                            found = true;
+                            genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "GenericWalker"), new Identifier(Identifiers.Index, index));
+                            if (genericWalker.IsVisible)
+                            {
+                                walkers.Add(genericWalker.Handle);
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            genericWalker = null;
+                            break;
+                        }
+                    }
+
+                    // Put the cell into edit mode
+                    GUI.Log("Press F2 to enter edit mode", LogItemType.Action);
+                    base.SendKeysInternal("{F2}");
+
+                    IntPtr EditorHandle;
+                    string APEBaseType = null;
+
+                    // Search for the editor
+                    timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "EditWindow", MemberTypes.Property);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call;
+                        dynamic handleAsInt = GUI.m_APE.GetValueFromMessage();
+                        EditorHandle = new IntPtr(handleAsInt);
+
+                        // If the editor isn't visible then its likely not being used, so search for the real editor
+                        if (EditorHandle == null || !NM.IsWindowVisible(EditorHandle))
+                        {
+                            // Search for a generic walker which is new
+                            for (int index = 1; index < 200; index++)
+                            {
+                                bool found = false;
+                                if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                                {
+                                    found = true;
+                                    genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                                    if (!walkers.Contains(genericWalker.Handle))
+                                    {
+                                        EditorHandle = IntPtr.Zero;
+                                        break;
+                                    }
+                                }
+
+                                if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index)))
+                                {
+                                    found = true;
+                                    genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
+                                    if (!walkers.Contains(genericWalker.Handle))
+                                    {
+                                        EditorHandle = IntPtr.Zero;
+                                        break;
+                                    }
+                                }
+
+                                if (GUI.Exists(ParentForm, new Identifier(Identifiers.Name, "GenericWalker"), new Identifier(Identifiers.Index, index)))
+                                {
+                                    found = true;
+                                    genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "GenericWalker"), new Identifier(Identifiers.Index, index));
+                                    if (!walkers.Contains(genericWalker.Handle))
+                                    {
+                                        EditorHandle = IntPtr.Zero;
+                                        break;
+                                    }
+                                }
+
+                                if (!found)
+                                {
+                                    genericWalker = null;
+                                    break;
+                                }
+                            }
+
+                            if (genericWalker != null)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            APEBaseType = NM.GetClassName(EditorHandle);
+                            break;
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw GUI.ApeException("Failed to find the " + Description + " cell editor");
+                        }
+
+                        Thread.Sleep(50);
+                    }
+
+                    // Change the cell value
+                    string valueText = value.ToString();
+                    if (genericWalker != null)
+                    {
+                        genericWalker.SetText(valueText);
+                    }
+                    else
+                    {
+                        // Set the value
+                        if (APEBaseType.EndsWith("6B88"))
+                        {
+                            GUIComboBox flexgridComboBox = new GUIComboBox(ParentForm, Identity.Description + " combobox", new Identifier(Identifiers.Handle, EditorHandle));
+                            flexgridComboBox.SingleClickItem(valueText);
+                        }
+                        else if (APEBaseType.EndsWith("6BE0"))
+                        {
+                            GUITextBox flexgridTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditorHandle));
+                            flexgridTextBox.SetText(valueText);
+                            GUI.Log("Press " + submitKey + " to set the value", LogItemType.Action);
+                            base.SendKeysInternal(submitKey);
+                        }
+                        else
+                        {
+                            throw GUI.ApeException("Unsupported flexgrid editor: Type: " + APEBaseType);
+                        }
+                    }
+
+                    break;
             }
 
             switch (compareMethod)
