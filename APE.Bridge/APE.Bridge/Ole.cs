@@ -54,7 +54,7 @@ namespace APE.Bridge
 
         [ComConversionLoss]
         [Guid("00000114-0000-0000-C000-000000000046")]
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [ComImport]
         public interface IOleWindow
         {
@@ -67,7 +67,7 @@ namespace APE.Bridge
 
         [ComConversionLoss]
         [Guid("00000112-0000-0000-C000-000000000046")]
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [ComImport]
         public interface IOleObject
         {
@@ -145,7 +145,7 @@ namespace APE.Bridge
         }
 
         [Guid("00000104-0000-0000-C000-000000000046")]
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [ComImport]
         public interface IEnumOLEVERB
         {
@@ -209,7 +209,7 @@ namespace APE.Bridge
             public int y;
         }
 
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [Guid("00000118-0000-0000-C000-000000000046")]
         [ComImport]
         public interface IOleClientSite
@@ -234,7 +234,7 @@ namespace APE.Bridge
         }
 
         [Guid("0000011B-0000-0000-C000-000000000046")]
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [ComImport]
         public interface IOleContainer : IParseDisplayName
         {
@@ -248,7 +248,7 @@ namespace APE.Bridge
             void LockContainer([In] int fLock);
         }
 
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [Guid("0000011A-0000-0000-C000-000000000046")]
         [ComImport]
         public interface IParseDisplayName
@@ -257,7 +257,7 @@ namespace APE.Bridge
             void ParseDisplayName([MarshalAs(UnmanagedType.Interface), In] ComTypes.IBindCtx pbc, [MarshalAs(UnmanagedType.LPWStr), In] string pszDisplayName, out uint pchEaten, [MarshalAs(UnmanagedType.Interface)] out ComTypes.IMoniker ppmkOut);
         }
 
-        [InterfaceType(1)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         [Guid("00000100-0000-0000-C000-000000000046")]
         [ComImport]
         public interface IEnumUnknown
