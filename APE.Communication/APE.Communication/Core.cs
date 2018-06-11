@@ -179,6 +179,7 @@ namespace APE.Communication
         [EditorBrowsable(EditorBrowsableState.Never)]
         unsafe public void ProcessMessages(int APEPID, string AppDomainToLoadInto, bool WPF)
         {
+            m_ManagedThreadId = Thread.CurrentThread.ManagedThreadId;
             try
             {
                 AUTProcess = Process.GetCurrentProcess();

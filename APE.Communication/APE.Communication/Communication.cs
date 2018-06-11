@@ -158,6 +158,7 @@ namespace APE.Communication
         private delegate void GetWPFHandleAndNameAndTitleDelegate(WPF.Window theWindow);
         private GetWPFHandleAndNameAndTitleDelegate m_GetWPFHandleAndNameAndTitleDelegater;
         private NM.EnumWindow EnumThreadProcedue;
+        private int m_ManagedThreadId;
 
         List<IntPtr> m_AllControls;
         EventSet Side;
@@ -206,6 +207,7 @@ namespace APE.Communication
 
         private unsafe void InjectAPEIPC(Process autProcess, string appDomain)
         {
+            m_ManagedThreadId = Thread.CurrentThread.ManagedThreadId;
             string autProcessId = autProcess.Id.ToString();
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string method = "LoadAPEIPC";
@@ -808,6 +810,11 @@ namespace APE.Communication
 
         unsafe public void SendMessages(EventSet WhoIsSending)
         {
+            if (Thread.CurrentThread.ManagedThreadId != m_ManagedThreadId)
+            {
+                throw new InvalidOperationException("Cross-thread operation not valid");
+            }
+
             //TODO check if m_Abort is set as if it is probably don't actually want to try send the messages
 
             //signal the other process

@@ -13,14 +13,10 @@ namespace APE.Communication
         //  GetTabRect
         //
 
-        unsafe public void AddQueryMessageGetTabRect(DataStores sourceStore, int tabIndex)
+        unsafe public void AddQueryMessageGetTabRect(DataStores sourceStore)
         {
-            FirstMessageInitialise();
-
             Message* ptrMessage = GetPointerToNextMessage();
             ptrMessage->SourceStore = sourceStore;
-
-            Parameter tabIndexParameter = new Parameter(this, tabIndex);
 
             ptrMessage->Action = MessageAction.GetTabRect;
 
@@ -33,7 +29,6 @@ namespace APE.Communication
         private unsafe void GetTabRect(Message* ptrMessage)
         {
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
-            int tabIndex = GetParameterInt32(ptrMessage, 0);
 
             CleanUpMessage(ptrMessage);
 
@@ -43,12 +38,19 @@ namespace APE.Communication
             int height = -1;
             object[] parameters = { left, top, width, height };
 
-            ComReflectInternal("GetPositionPix", sourceObject, parameters);
+            ParameterModifier modifiers = new ParameterModifier(4);
+            modifiers[0] = true;
+            modifiers[1] = true;
+            modifiers[2] = true;
+            modifiers[3] = true;
+            ParameterModifier[] modifiersArray = { modifiers };
 
-            AddReturnValue(new Parameter(this, left));
-            AddReturnValue(new Parameter(this, top));
-            AddReturnValue(new Parameter(this, width));
-            AddReturnValue(new Parameter(this, height));
+            sourceObject.GetType().InvokeMember("GetPositionPix", BindingFlags.InvokeMethod , null, sourceObject, parameters, modifiersArray, null, null);
+
+            AddReturnValue(new Parameter(this, (int)parameters[0]));
+            AddReturnValue(new Parameter(this, (int)parameters[1]));
+            AddReturnValue(new Parameter(this, (int)parameters[2]));
+            AddReturnValue(new Parameter(this, (int)parameters[3]));
         }
     }
 }

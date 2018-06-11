@@ -397,7 +397,17 @@ namespace APE.Communication
                             continue;
                         }
 
-                        theText = (string)m_ComReflectDelegater.Invoke("Caption", Ax.Items[item].Control, null);
+                        //Make sure thr type name space and type name are populated
+                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                        {
+                            Ax.Items[item].TypeName = typeName;
+                            Ax.Items[item].TypeNameSpace = typeNameSpace;
+                        }
+
+                        if (typeName == "Label" && string.IsNullOrEmpty(typeNameSpace))
+                        {
+                            theText = (string)m_ComReflectDelegater.Invoke("Caption", Ax.Items[item].Control, null);
+                        }
                         if (identifier.Text != null)
                         {
                             if (theText == null)
@@ -431,13 +441,6 @@ namespace APE.Communication
                         technologyType = "Windows ActiveX";
                         //WF.MessageBox.Show("Found handle: " + name + " " + handle.ToString());
                         foundControl = true;
-
-                        //Make sure thr type name space and type name are populated
-                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                        {
-                            Ax.Items[item].TypeName = typeName;
-                            Ax.Items[item].TypeNameSpace = typeNameSpace;
-                        }
                         return;
                     }
                 }
