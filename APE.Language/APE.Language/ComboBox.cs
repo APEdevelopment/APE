@@ -19,6 +19,7 @@ using System.Diagnostics;
 using APE.Communication;
 using System.Threading;
 using NM = APE.Native.NativeMethods;
+using System.Drawing;
 
 namespace APE.Language
 {
@@ -209,6 +210,7 @@ namespace APE.Language
             GUI.Log("Select [" + itemText + "] from " + Identity.Description, LogItemType.Action);
 
             //Get the style
+            Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
             string style = GetComboBoxStyle(out dynamic droppedDown);
 
             IntPtr listBox = IntPtr.Zero;
@@ -248,46 +250,28 @@ namespace APE.Language
                 }
 
                 //locate the item
-                int Index = ItemIndex(itemText, caseSensitivity);
-                if (Index == NM.CB_ERR)
+                int index = ItemIndex(itemText, caseSensitivity);
+                if (index == NM.CB_ERR)
                 {
                     throw GUI.ApeException("Failed to find the " + Description + " item");
-                }
-
-                IntPtr MessageResult;
-                IntPtr SendResult;
-                NM.tagRect ItemRect = new NM.tagRect();
-
-                //Locate the rect of the item
-                SendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
-                if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
-                {
-                    throw GUI.ApeException("Failed to access the " + Description);
                 }
 
                 NM.tagRect ClientRect;
                 NM.GetClientRect(listBox, out ClientRect);
 
-                //scroll the item into view if needed
-                if (((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top > ClientRect.bottom || ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top < ClientRect.top)
-                {
-                    SendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
-                    if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
-                    {
-                        throw GUI.ApeException("Failed to access the " + Description);
-                    }
+                //Locate the rectangle of the item
+                Rectangle itemRectangle = GetItemRectangle(listBox, index);
 
-                    //Locate the rect of the item
-                    SendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(Index), ref ItemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out MessageResult);
-                    if (SendResult == IntPtr.Zero || unchecked((int)MessageResult.ToInt64()) == NM.LB_ERR)  //Failed
-                    {
-                        throw GUI.ApeException("Failed to access the " + Description);
-                    }
+                //scroll the item into view if needed and then locate the rectangle
+                if ((itemRectangle.Height / 2) + itemRectangle.Top > ClientRect.bottom || (itemRectangle.Height / 2) + itemRectangle.Top < ClientRect.top)
+                {
+                    SetTopIndex(listBox, index);
+                    itemRectangle = GetItemRectangle(listBox, index);
                 }
 
                 //click the item
                 GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, listBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
-                comboBoxDropdown.SingleClickInternal(-1, ((ItemRect.bottom - ItemRect.top) / 2) + ItemRect.top, MouseButton.Left, MouseKeyModifier.None);
+                comboBoxDropdown.SingleClickInternal(-1, (itemRectangle.Height / 2) + itemRectangle.Top, MouseButton.Left, MouseKeyModifier.None);
                 
                 //wait for .Text to == text
                 bool selected = false;
@@ -418,6 +402,48 @@ namespace APE.Language
                     startIndex = index + 1;
                 }
             }
+        }
+
+        private Rectangle GetItemRectangle(IntPtr listBox, int itemIndex)
+        {
+            IntPtr messageResult;
+            IntPtr sendResult;
+            NM.tagRect itemRect = new NM.tagRect();
+
+            //Locate the rect of the item
+            sendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_GETITEMRECT, new IntPtr(itemIndex), ref itemRect, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || unchecked((int)messageResult.ToInt64()) == NM.LB_ERR)  //Failed
+            {
+                if (sendResult == IntPtr.Zero)
+                {
+                    throw GUI.ApeException("Failed to access the " + Description + " to locate the rectangle containing the item");
+                }
+                else
+                {
+                    throw GUI.ApeException("Failed to locate the rectangle containing the item in the " + Description);
+                }
+            }
+            return new Rectangle(itemRect.left, itemRect.top, itemRect.right - itemRect.left, itemRect.bottom - itemRect.top);
+        }
+
+        private void SetTopIndex(IntPtr listBox, int itemIndex)
+        {
+            IntPtr messageResult;
+            IntPtr sendResult;
+
+            sendResult = NM.SendMessageTimeout(listBox, NM.ListBoxMessages.LB_SETTOPINDEX, new IntPtr(itemIndex), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+            if (sendResult == IntPtr.Zero || unchecked((int)messageResult.ToInt64()) == NM.LB_ERR)  //Failed
+            {
+                if (sendResult == IntPtr.Zero)
+                {
+                    throw GUI.ApeException("Failed to access the " + Description + " to scroll the item");
+                }
+                else
+                {
+                    throw GUI.ApeException("Failed to scroll the item in the " + Description);
+                }
+            }
+            Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
         }
     }
 }
