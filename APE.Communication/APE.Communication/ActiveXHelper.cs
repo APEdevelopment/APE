@@ -49,10 +49,10 @@ namespace APE.Communication
                     int items = Ax.Items.Count;
                     for (int item = 0; item < items; item++)
                     {
-                        dump.Append("Name: " + Ax.Items[item].Name.ToString());
-                        dump.Append(" TypeName: " + Ax.Items[item].TypeName.ToString());
-                        dump.Append(" TypeNameSpace: " + Ax.Items[item].TypeNameSpace.ToString());
-                        dump.Append(" UniqueId: " + Ax.Items[item].UniqueId.ToString());
+                        dump.Append("Name: " + Ax.Items[item].Name);
+                        dump.Append(" TypeName: " + Ax.Items[item].TypeName);
+                        dump.Append(" TypeNameSpace: " + Ax.Items[item].TypeNameSpace);
+                        dump.Append(" UniqueId: " + Ax.Items[item].UniqueId);
                         dump.Append(" Handle: " + Ax.Items[item].Handle.ToString());
                         dump.Append(" Parent: " + Ax.Items[item].ParentHandle.ToString());
                         dump.Append(" Rendered: " + Ax.Items[item].Rendered.ToString());
@@ -204,6 +204,12 @@ namespace APE.Communication
 
                     if (identifier.TypeName != null)
                     {
+                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                        {
+                            Ax.Items[item].TypeName = typeName;
+                            Ax.Items[item].TypeNameSpace = typeNameSpace;
+                        }
+
                         if (typeName != identifier.TypeName)
                         {
                             return;
@@ -357,6 +363,12 @@ namespace APE.Communication
 
                         if (identifier.TypeName != null)
                         {
+                            if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
+                            {
+                                Ax.Items[item].TypeName = typeName;
+                                Ax.Items[item].TypeNameSpace = typeNameSpace;
+                            }
+
                             if (typeName != identifier.TypeName)
                             {
                                 continue;
@@ -397,7 +409,7 @@ namespace APE.Communication
                             continue;
                         }
 
-                        //Make sure thr type name space and type name are populated
+                        //Make sure the type name space and type name are populated
                         if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
                         {
                             Ax.Items[item].TypeName = typeName;
