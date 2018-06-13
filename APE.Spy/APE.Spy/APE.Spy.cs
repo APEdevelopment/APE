@@ -143,11 +143,6 @@ namespace APE.Spy
 
                     NM.EnumWindowsProc WindowsCallback = new NM.EnumWindowsProc(EnumProc);
 
-                    if (m_APE != null)
-                    {
-                        m_APE.Detach();
-                    }
-
                     if (AppDomainComboBox.Enabled)
                     {
                         string NewDomain = AppDomainComboBox.SelectedItem.ToString();
