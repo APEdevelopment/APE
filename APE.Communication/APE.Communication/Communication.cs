@@ -600,19 +600,6 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, theRect.right));
         }
 
-        public void Detach()
-        {
-            if (AUTProcess != null)
-            {
-                if (!AUTProcess.HasExited)
-                {
-                    AddFirstMessageRemoveFileMapping();
-                    SendMessages(EventSet.APE);
-                }
-            }
-            RemoveFileMapping();
-        }
-
         public unsafe void RemoveFileMapping()
         {
             if (m_IntPtrMemoryMappedFileViewStringStore != IntPtr.Zero)
@@ -1100,19 +1087,6 @@ namespace APE.Communication
             Parameter p = new Parameter(this, TimeOut);
 
             m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
-            m_DoneQuery = true;
-            m_DoneGet = true;
-        }
-
-        unsafe public void AddFirstMessageRemoveFileMapping()
-        {
-            FirstMessageInitialise();
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-            PtrMessage->Action = MessageAction.RemoveFileMapping;
-            ControlIdentifier Identifier = new ControlIdentifier();
-            AddIdentifierMessage(Identifier);
             m_DoneFind = true;
             m_DoneQuery = true;
             m_DoneGet = true;

@@ -58,7 +58,6 @@ namespace APE.Communication
     [Flags]
     internal enum MessageAction : int
     {
-        RemoveFileMapping = -1,
         None = 0,
         Find = 1,
         RefindByHandle = 2,
@@ -252,9 +251,6 @@ namespace APE.Communication
                             //get the message action:
                             switch (ptrMessage->Action)
                             {
-                                case MessageAction.RemoveFileMapping:
-                                    RemoveFileMapping();
-                                    return;
                                 case MessageAction.GetListViewGroupRectangle:
                                     GetListViewGroupRectangle(messageNumber);
                                     break;

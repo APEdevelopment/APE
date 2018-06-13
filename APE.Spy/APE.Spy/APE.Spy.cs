@@ -56,7 +56,7 @@ namespace APE.Spy
             m_Closing = true;
             if (m_APE != null)
             {
-                m_APE.Detach();
+                m_APE.RemoveFileMapping();
             }
         }
 
@@ -142,6 +142,11 @@ namespace APE.Spy
                     ListOfTopLevelWindows = new Dictionary<IntPtr, string>();
 
                     NM.EnumWindowsProc WindowsCallback = new NM.EnumWindowsProc(EnumProc);
+
+                    if (m_APE != null)
+                    {
+                        m_APE.RemoveFileMapping();
+                    }
 
                     if (AppDomainComboBox.Enabled)
                     {
