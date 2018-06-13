@@ -54,6 +54,10 @@ namespace APE.Spy
             m_CurrentAttached = new KeyValuePair<Process, string>(Process.GetCurrentProcess(), "");
             m_ControlKey = true;
             m_Closing = true;
+            if (m_APE != null)
+            {
+                m_APE.Detach();
+            }
         }
 
         private void RefreshProcesses()
@@ -141,7 +145,7 @@ namespace APE.Spy
 
                     if (m_APE != null)
                     {
-                        m_APE.RemoveFileMapping();
+                        m_APE.Detach();
                     }
 
                     if (AppDomainComboBox.Enabled)
@@ -154,9 +158,6 @@ namespace APE.Spy
                         m_APE = new APEIPC(m_CurrentAttached.Key);
                     }
                     m_APE.TimeOut = 0;
-
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
 
                     NM.EnumWindows(WindowsCallback, new IntPtr(m_CurrentAttached.Key.Id));
 
@@ -570,7 +571,7 @@ namespace APE.Spy
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message + "\r\n" + ex.StackTrace.ToArray());
+                Debug.WriteLine(ex.Message + "\r\n" + ex.StackTrace);
                 identity.Handle = IntPtr.Zero;
             }
 

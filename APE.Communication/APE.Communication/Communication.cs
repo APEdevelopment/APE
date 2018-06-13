@@ -341,18 +341,6 @@ namespace APE.Communication
 
         ~APEIPC()
         {
-            //MessageBox.Show("unloading " + Side.ToString());
-            if (Side == EventSet.APE)
-            {
-                if (m_IntPtrMemoryMappedFileViewStringStore != IntPtr.Zero)
-                {
-                    if (!AUTProcess.HasExited)
-                    {
-                        this.AddFirstMessageRemoveFileMapping();
-                        this.SendMessages(EventSet.APE);
-                    }
-                }
-            }
             RemoveFileMapping();
         }
 
@@ -610,6 +598,19 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, theRect.left));
             AddReturnValue(new Parameter(this, theRect.bottom));
             AddReturnValue(new Parameter(this, theRect.right));
+        }
+
+        public void Detach()
+        {
+            if (AUTProcess != null)
+            {
+                if (!AUTProcess.HasExited)
+                {
+                    AddFirstMessageRemoveFileMapping();
+                    SendMessages(EventSet.APE);
+                }
+            }
+            RemoveFileMapping();
         }
 
         public unsafe void RemoveFileMapping()

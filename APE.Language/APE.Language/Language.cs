@@ -378,6 +378,17 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Detach from the attached process
+        /// </summary>
+        public static void DetachFromProcess()
+        {
+            if (m_APE != null)
+            {
+                m_APE.Detach();
+            }
+        }
+
+        /// <summary>
         /// Attaches APE to the specified process so it can automate it
         /// </summary>
         /// <param name="process">The process to attach to</param>
