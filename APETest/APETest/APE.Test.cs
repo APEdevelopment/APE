@@ -1126,7 +1126,7 @@ namespace APE.Test
 
                     GUIMenuStrip MenuStrip = new GUIMenuStrip(TestApplication, "menu strip", new Identifier(Identifiers.TypeName, "MenuStrip"));
                     GUIToolStripMenu secondMenu = MenuStrip.GetMenu("second", new Identifier(Identifiers.Name, "secondToolStripMenuItem"));
-                    secondMenu.SingleClickItem(@"OpensPopup");
+                    secondMenu.SingleClickItem(@"OpensPopup", ItemIdentifier.AccessibilityObjectName);
 
                     GUIForm CustomMessageBox = new GUIForm("messagebox form", new Identifier(Identifiers.Name, "frmCustomMessageBox"));
                     CustomMessageBox.Maximise();

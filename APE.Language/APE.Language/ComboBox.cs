@@ -234,8 +234,11 @@ namespace APE.Language
 
                     if (!droppedDown)
                     {
-                        //show the dropdown
-                        base.SingleClickInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
+                        //Show the dropdown (the dropdown appears on the mouse down and the mouse up goes missing in 
+                        //some environments but since it isn't critical we just make sure down input is recieved) 
+                        base.MouseDownInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
+                        //Release the mouse without any checks
+                        Input.MouseClick(MouseButton.Left, false, true, 1, false, false);
                     }
                     
                     //find the dropdown
