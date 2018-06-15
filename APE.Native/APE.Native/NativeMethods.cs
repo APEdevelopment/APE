@@ -2998,6 +2998,10 @@ namespace APE.Native
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsIconic(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsZoomed(IntPtr hWnd);
+
         /// Return Type: SHORT->short
         ///nVirtKey: int
         [DllImport("user32.dll", EntryPoint = "GetKeyState")]

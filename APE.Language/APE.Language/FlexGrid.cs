@@ -2590,6 +2590,8 @@ namespace APE.Language
             flexDTStringW = 31,
         }
 
+        private IntPtr MainWindowHandle = IntPtr.Zero;
+
         /// <summary>
         /// Constructor used for non-form controls
         /// </summary>
@@ -2848,14 +2850,31 @@ namespace APE.Language
 
         private void FindGridByHandleAndPutInDatastore2()
         {
+            IntPtr parent;
+            if (ParentForm.TechnologyType == "Windows Forms (WinForms)")
+            {
+                parent = ParentForm.Handle;
+            }
+            else
+            {
+                if (MainWindowHandle == IntPtr.Zero)
+                {
+                    //MainWindowHandle is cached in a process and can be out of date
+                    Process attachedProcess = Process.GetProcessById(GUI.AttachedProcess.Id);
+                    MainWindowHandle = attachedProcess.MainWindowHandle;
+                }
+                parent = MainWindowHandle;
+            }
             switch (Identity.TypeName)
             {
                 case "VSFlexGrid":
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store2, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, parent);
+                    GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store2, Identity.ParentHandle, Identity.Handle);
                     break;
                 case "LZResultsGrid":
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store0, DataStores.Store2);
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, parent);
+                    GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store1, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
                     break;
                 case "AxLzFlexGridCtrl":
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -3997,6 +4016,59 @@ namespace APE.Language
             {
                 case CellProperty.BackColourName:
                     return ColorTranslator.FromOle(value).Name;
+                case CellProperty.TextDisplay:
+                    int checkedProperty = (int)VSFlexgridCellPropertySettings.flexcpChecked;
+                    int dataProperty = (int)VSFlexgridCellPropertySettings.flexcpData;
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, checkedProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, dataProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageGetTypeInformationActiveX(DataStores.Store4, DataStores.Store5);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    dynamic gridCheckbox = GUI.m_APE.GetValueFromMessage();
+                    string dataType = GUI.m_APE.GetValueFromMessage();
+                    
+                    if (gridCheckbox == 0)
+                    {
+                        if (dataType == "LzFGCheckBoxSupport._CellCheckedStatus")
+                        {
+                            FindGridByHandleAndPutInDatastore2();
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, dataProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "bCurrent", MemberTypes.Property);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            bool lzGridCheckbox = GUI.m_APE.GetValueFromMessage();
+                            if (lzGridCheckbox)
+                            {
+                                return "True";
+                            }
+                            else
+                            {
+                                return "False";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (gridCheckbox == 1 || gridCheckbox == 3)
+                        {
+                            return "True";
+                        }
+                        else if (gridCheckbox == 2 || gridCheckbox == 4)
+                        {
+                            return "False";
+                        }
+                        else if (gridCheckbox == 5)
+                        {
+                            return "Gray";
+                        }
+                    }
+                    break;
             }
 
             return value;

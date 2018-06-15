@@ -164,6 +164,7 @@ namespace APE.Spy
                     // Set up APE without calling AttachToProcess as we are already setup
                     typeof(GUI).GetField("m_APE", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, m_APE);
                     typeof(GUI).GetField("m_APESpy", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, true);
+                    typeof(GUI).GetField("m_AttachedProcess", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, m_CurrentAttached.Key);
                 }
             }
             //restore m_Identity

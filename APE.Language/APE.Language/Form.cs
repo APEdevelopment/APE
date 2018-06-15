@@ -175,16 +175,34 @@ namespace APE.Language
             {
                 if (NM.IsWindowVisible(Identity.Handle))
                 {
-                    // Get the windows current state
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "WindowState", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string windowState = GUI.m_APE.GetValueFromMessage();
-                    return windowState;
+                    if (Identity.TechnologyType == "Windows Forms (WinForms)")
+                    {
+                        // Get the windows current state
+                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "WindowState", MemberTypes.Property);
+                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                        string windowState = GUI.m_APE.GetValueFromMessage();
+                        return windowState;
+                    }
+                    else
+                    {
+                        if (NM.IsIconic(Handle))
+                        {
+                            return "Minimized";
+                        }
+                        else if (NM.IsZoomed(Handle))
+                        {
+                            return "Maximized";
+                        }
+                        else
+                        {
+                            return "Normal";
+                        }
+                    }
                 }
                 else
                 {
