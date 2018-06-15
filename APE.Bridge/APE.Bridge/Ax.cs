@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using static APE.Bridge.Ole;
 
 namespace APE.Bridge
@@ -73,10 +75,22 @@ namespace APE.Bridge
 
         public static List<Item> Items = new List<Item>();
         public static readonly object AxItemsLock = new object();
+        public static Form InvokeForm;
 
         //We use dynamic instead of IntPtr as IntPtr causes issues when using late binding
+        [MethodImplAttribute(MethodImplOptions.NoOptimization)]
         public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, object control, bool rendered)
         {
+            //We use this form to be able to invoke on to the thread which created the activex object.
+            //Since the form is static if the application has more than one gui thread this won't work
+            //but thats unlikely so no need to complicate the code unless I come across a case where 
+            //its needed.
+            if (InvokeForm == null)
+            {
+                InvokeForm = new Form();
+                IntPtr ignore = InvokeForm.Handle; //Force the form handle to be created
+            }
+
             IntPtr windowHandle = IntPtr.Zero;
 
             if (handle == 0)

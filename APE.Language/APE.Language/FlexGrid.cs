@@ -2850,29 +2850,14 @@ namespace APE.Language
 
         private void FindGridByHandleAndPutInDatastore2()
         {
-            IntPtr parent;
-            if (ParentForm.TechnologyType == "Windows Forms (WinForms)")
-            {
-                parent = ParentForm.Handle;
-            }
-            else
-            {
-                if (MainWindowHandle == IntPtr.Zero)
-                {
-                    //MainWindowHandle is cached in a process and can be out of date
-                    Process attachedProcess = Process.GetProcessById(GUI.AttachedProcess.Id);
-                    MainWindowHandle = attachedProcess.MainWindowHandle;
-                }
-                parent = MainWindowHandle;
-            }
             switch (Identity.TypeName)
             {
                 case "VSFlexGrid":
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, parent);
+                    GUI.m_APE.AddFirstMessageGetInvokeFormActiveX(DataStores.Store0);
                     GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store2, Identity.ParentHandle, Identity.Handle);
                     break;
                 case "LZResultsGrid":
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, parent, parent);
+                    GUI.m_APE.AddFirstMessageGetInvokeFormActiveX(DataStores.Store0);
                     GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store1, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
                     break;

@@ -33,6 +33,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using APE.Bridge;
 
 namespace APE.Communication
 {
@@ -1208,44 +1209,14 @@ namespace APE.Communication
 
         unsafe public void AddFirstMessageFindByHandle(DataStores DestinationStore, IntPtr ParentHandle, IntPtr ControlHandle)
         {
-            ////debug
-            //Message* PtrMessage;
-
-            //for (int messageNumber = 1; messageNumber <= 10; messageNumber++)
-            //{
-            //    PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
-            //    Debug.Listeners[0].WriteLine("\t AddMessageFindByHandle Message: " + messageNumber.ToString() + " Parameters: " + PtrMessage->NumberOfParameters.ToString());
-            //}
-            //Debug.Listeners[0].WriteLine("");
-            ////end dbug
             FirstMessageInitialise();
-
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
-
-            PtrMessage->DestinationStore = DestinationStore;
-            PtrMessage->Action = MessageAction.RefindByHandle;
-
-            Parameter ParentHandleParam = new Parameter(this, ParentHandle);
-            Parameter ControlHandleParam = new Parameter(this, ControlHandle);
-
-            m_PtrMessageStore->NumberOfMessages++;
+            AddQueryMessageFindByHandle(DestinationStore, ParentHandle, ControlHandle);
             m_DoneFind = true;
+            m_DoneQuery = false;
         }
 
         unsafe public void AddQueryMessageFindByHandle(DataStores DestinationStore, IntPtr ParentHandle, IntPtr ControlHandle)
         {
-            ////debug
-            //Message* PtrMessage;
-
-            //for (int messageNumber = 1; messageNumber <= 10; messageNumber++)
-            //{
-            //    PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
-            //    Debug.Listeners[0].WriteLine("\t AddMessageFindByHandle Message: " + messageNumber.ToString() + " Parameters: " + PtrMessage->NumberOfParameters.ToString());
-            //}
-            //Debug.Listeners[0].WriteLine("");
-            ////end dbug
-            //FirstMessageInitialise();
-
             Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + (m_PtrMessageStore->NumberOfMessages * m_SizeOfMessage));
 
             PtrMessage->DestinationStore = DestinationStore;
@@ -1255,7 +1226,7 @@ namespace APE.Communication
             Parameter ControlHandleParam = new Parameter(this, ControlHandle);
 
             m_PtrMessageStore->NumberOfMessages++;
-            m_DoneFind = true;
+            m_DoneQuery = true;
         }
 
         unsafe public void AddFirstMessageFindByUniqueId(DataStores destinationStore, string uniqueId)
@@ -4106,7 +4077,22 @@ namespace APE.Communication
 
                 if (Marshal.IsComObject(SourceObject))
                 {
-                    DestinationObject = m_ComReflectDelegater.Invoke(Name, SourceObject, ParametersObject);
+                    WF.Control invokeControl;
+                    if (Marshal.IsComObject(tempStore0))
+                    {
+                        invokeControl = Ax.InvokeForm;
+                    }
+                    else
+                    {
+                        invokeControl = (WF.Control)tempStore0;
+                    }
+
+                    object[] comParameters = new object[3];
+                    comParameters[0] = Name;
+                    comParameters[1] = SourceObject;
+                    comParameters[2] = ParametersObject;
+
+                    DestinationObject = invokeControl.Invoke(m_ComReflectDelegater, comParameters);
                 }
                 else
                 {

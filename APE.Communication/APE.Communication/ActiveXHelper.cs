@@ -64,6 +64,30 @@ namespace APE.Communication
             AddReturnValue(new Parameter(this, dump.ToString()));
         }
 
+        unsafe public void AddFirstMessageGetInvokeFormActiveX(DataStores destinationStore)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->DestinationStore = destinationStore;
+            ptrMessage->Action = MessageAction.GetInvokeFormActiveX;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+        }
+
+        private unsafe void GetInvokeFormActiveX(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("GetInvokeFormActiveX must be first message");
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, Ax.InvokeForm);
+            CleanUpMessage(ptrMessage);
+        }
+
         private object FindByHandleActiveX(IntPtr handle, out string name, out string typeNameSpace, out string typeName, out string uniqueId)
         {
             if (Ax.Items.Count > 0)
