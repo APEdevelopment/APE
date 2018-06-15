@@ -126,15 +126,10 @@ namespace APE.Bridge
                         //Update the handles and name if need be
                         if (!string.IsNullOrEmpty(item.Name))
                         {
-                            if (string.IsNullOrEmpty(Items[index].Name))
+                            if (string.IsNullOrEmpty(Items[index].Name) || handle == 0) //0 for the handle means we have the control extender name which is the prefered name to use
                             {
                                 Items[index].Name = item.Name;
                                 //Debug.Write(" name: " + Items[index].Name);
-                            }
-                            ComTypeInformation(item.Control, out string interfaceName, out string typeLibraryName, out string className);
-                            if (Items[index].Name == className || Items[index].Name == interfaceName)
-                            {
-                                Items[index].Name = item.Name;
                             }
                         }
                         if (Items[index].Handle == IntPtr.Zero)
