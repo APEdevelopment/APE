@@ -185,9 +185,11 @@ namespace APE.Communication
 
             if (apeParameterType == ParameterType.Out)
             {
+                int length = parameterType.Length * 2;    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+                CheckSize(instance, length);
                 fixed (void* PtrString = parameterType)
                 {
-                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(parameterType.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(length));
                 }
                 PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
                 PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = parameterType.Length;
@@ -320,9 +322,11 @@ namespace APE.Communication
                 param.Save(ms, theImageFormat);
                 byte[] imageAsByteArray = ms.ToArray();
 
+                int length = imageAsByteArray.Length;
+                CheckSize(instance, length);
                 fixed (void* PtrByteArray = imageAsByteArray)
                 {
-                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrByteArray, (UIntPtr)(imageAsByteArray.Length));
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrByteArray, (UIntPtr)(length));
                 }
                 PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
                 PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = imageAsByteArray.Length;
@@ -345,9 +349,11 @@ namespace APE.Communication
             Message* PtrMessage = instance.GetPointerToNextMessage();
             if (param != null)
             {
+                int length = param.Length * 2;  //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+                CheckSize(instance, length);
                 fixed (void* PtrString = param)
                 {
-                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(param.Length * 2));    //UTF16 charcter: For a 4 byte surrogate pair, length actually returns 2 somewhat confusingly although its convenient for us here, so we can just use length * 2
+                    NM.CopyMemory(instance.m_IntPtrMemoryMappedFileViewStringStore + instance.m_StringStoreOffset, (IntPtr)PtrString, (UIntPtr)(length));
                 }
                 PtrMessage->Parameter.StringOffset[PtrMessage->NumberOfParameters] = instance.m_StringStoreOffset;
                 PtrMessage->Parameter.StringLength[PtrMessage->NumberOfParameters] = param.Length;
@@ -414,6 +420,14 @@ namespace APE.Communication
                 }
             }
             return sb.ToString();
+        }
+
+        private void CheckSize(APEIPC instance, int length)
+        {
+            if (instance.m_StringStoreOffset + length > APEIPC.StringSpaceBytes)
+            {
+                throw new Exception("Message larger than space available");
+            }
         }
     }
 }

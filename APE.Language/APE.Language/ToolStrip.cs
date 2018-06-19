@@ -60,6 +60,23 @@ namespace APE.Language
         //TODO support overflow
 
         /// <summary>
+        /// Gets the number of items in the toolstrip
+        /// </summary>
+        /// <returns>The number of items</returns>
+        public int ItemCount()
+        {
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, ParentForm.Handle, Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Items", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            // Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int items = GUI.m_APE.GetValueFromMessage();
+            return items;
+        }
+
+        /// <summary>
         /// Returns a GUIToolStripButton object which can be used to automate a toolstrip button
         /// </summary>
         /// <param name="descriptionOfControl">A description of the control which would make sense to a human.

@@ -75,7 +75,7 @@ namespace APE.Communication
     public partial class APEIPC
     {
         private const int ERROR_ALREADY_EXISTS = 183;
-        private const int StringSpaceBytes = 1048576;
+        internal const int StringSpaceBytes = 10485760; //1024 * 1024 * 10
 
         //Memory Map File for IPC for message strings
         private IntPtr m_HandleMemoryMappedFileStringStore;

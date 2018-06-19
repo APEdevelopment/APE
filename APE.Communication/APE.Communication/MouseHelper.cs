@@ -356,7 +356,7 @@ namespace APE.Communication
 
                     if (!done)
                     {
-                        Thread.Yield();
+                        Thread.Sleep(15);
                     }
 
                     if (timer.ElapsedMilliseconds > m_TimeOut)

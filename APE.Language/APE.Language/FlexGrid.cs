@@ -1524,6 +1524,7 @@ namespace APE.Language
             switch (property)
             {
                 case CellProperty.TextDisplay:
+                    //TODO add in checkboxes as well (cells support both text and checkboxes at the same time)
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, row1Index), new Parameter(GUI.m_APE, column1Index), new Parameter(GUI.m_APE, row2Index), new Parameter(GUI.m_APE, column2Index));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Clip", MemberTypes.Property);
@@ -1535,7 +1536,7 @@ namespace APE.Language
                     return rangeClip;
                 case CellProperty.BackColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName, false);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1544,7 +1545,7 @@ namespace APE.Language
                     return rangeBackColourName;
                 case CellProperty.ForeColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName, false);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1553,7 +1554,7 @@ namespace APE.Language
                     return rangeForeColourName;
                 case CellProperty.DataType:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.DataType);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.DataType, false);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1562,7 +1563,7 @@ namespace APE.Language
                     return rangeDataType;
                 case CellProperty.CheckBox:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox, false);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1571,7 +1572,7 @@ namespace APE.Language
                     return rangeCheckBoxState;
                 case CellProperty.Image:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image, false);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1580,7 +1581,7 @@ namespace APE.Language
                     return rangeHasImage;
                 case CellProperty.BackgroundImage:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage, false);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2853,6 +2854,7 @@ namespace APE.Language
             switch (Identity.TypeName)
             {
                 case "VSFlexGrid":
+                case "LzFlexGridCtrl":
                     GUI.m_APE.AddFirstMessageGetInvokeFormActiveX(DataStores.Store0);
                     GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store2, Identity.ParentHandle, Identity.Handle);
                     break;
@@ -3378,7 +3380,7 @@ namespace APE.Language
                                 {
                                     found = true;
                                     genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "lzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
-                                    if (!walkers.Contains(genericWalker.Handle))
+                                    if (!walkers.Contains(genericWalker.Handle) && genericWalker.IsVisible)
                                     {
                                         EditorHandle = IntPtr.Zero;
                                         break;
@@ -3389,7 +3391,7 @@ namespace APE.Language
                                 {
                                     found = true;
                                     genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "LzGenericWalkerCtl"), new Identifier(Identifiers.Index, index));
-                                    if (!walkers.Contains(genericWalker.Handle))
+                                    if (!walkers.Contains(genericWalker.Handle) && genericWalker.IsVisible)
                                     {
                                         EditorHandle = IntPtr.Zero;
                                         break;
@@ -3400,7 +3402,7 @@ namespace APE.Language
                                 {
                                     found = true;
                                     genericWalker = new GUIGenericWalker(ParentForm, "walker", new Identifier(Identifiers.Name, "GenericWalker"), new Identifier(Identifiers.Index, index));
-                                    if (!walkers.Contains(genericWalker.Handle))
+                                    if (!walkers.Contains(genericWalker.Handle) && genericWalker.IsVisible)
                                     {
                                         EditorHandle = IntPtr.Zero;
                                         break;
@@ -3461,6 +3463,17 @@ namespace APE.Language
                     }
 
                     break;
+            }
+
+            if (IsEnabled && ParentForm.IsEnabled)
+            {
+                // We have changed a value so make sure it has painted
+                GUI.m_APE.AddFirstMessagePeakMessage(Identity.Handle);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
+                Input.SetFocusForced(Identity.Handle);
             }
 
             switch (compareMethod)
@@ -3768,6 +3781,7 @@ namespace APE.Language
                 case "AxLZResultsGrid":
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
+                case "LzFlexGridCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.MoveTo(X, Y);
@@ -3796,6 +3810,7 @@ namespace APE.Language
                 case "AxLZResultsGrid":
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
+                case "LzFlexGridCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.SingleClickInternal(location.X, location.Y, button, keyModifier);
@@ -3824,6 +3839,7 @@ namespace APE.Language
                 case "AxLZResultsGrid":
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
+                case "LzFlexGridCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.DoubleClickInternal(location.X, location.Y, button, keyModifier);
@@ -3852,6 +3868,7 @@ namespace APE.Language
                 case "AxLZResultsGrid":
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
+                case "LzFlexGridCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.MouseDownInternal(location.X, location.Y, button, keyModifier);
@@ -3880,6 +3897,7 @@ namespace APE.Language
                 case "AxLZResultsGrid":
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
+                case "LzFlexGridCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.MouseUpInternal(location.X, location.Y, button, keyModifier);
@@ -3971,7 +3989,7 @@ namespace APE.Language
         /// <returns>The cell property</returns>
         internal override dynamic GetCellInternal(int rowIndex, int columnIndex, CellProperty property)
         {
-            int comProperty;
+            int comProperty = -1;
 
             switch (property)
             {
@@ -3985,74 +4003,159 @@ namespace APE.Language
                 case CellProperty.BackColourName:
                     comProperty = (int)VSFlexgridCellPropertySettings.flexcpBackColor;
                     break;
+                case CellProperty.ForeColourName:
+                    comProperty = (int)VSFlexgridCellPropertySettings.flexcpForeColor;
+                    break;
+                case CellProperty.CheckBox:
+                    comProperty = (int)VSFlexgridCellPropertySettings.flexcpChecked;
+                    break;
+                case CellProperty.FontStyle:
+                case CellProperty.UserDataType:
+                    break;
                 default:
                     throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }
 
-            FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, comProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            dynamic value = GUI.m_APE.GetValueFromMessage();
+            dynamic value = null;
+            if (comProperty != -1)
+            {
+                FindGridByHandleAndPutInDatastore2();
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, comProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                value = GUI.m_APE.GetValueFromMessage();
+            }
 
+            int dataProperty = (int)VSFlexgridCellPropertySettings.flexcpData;
             switch (property)
             {
                 case CellProperty.BackColourName:
-                    return ColorTranslator.FromOle(value).Name;
-                case CellProperty.TextDisplay:
-                    int checkedProperty = (int)VSFlexgridCellPropertySettings.flexcpChecked;
-                    int dataProperty = (int)VSFlexgridCellPropertySettings.flexcpData;
-                    FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, checkedProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, dataProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageGetTypeInformationActiveX(DataStores.Store4, DataStores.Store5);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    dynamic gridCheckbox = GUI.m_APE.GetValueFromMessage();
-                    string dataType = GUI.m_APE.GetValueFromMessage();
-                    
-                    if (gridCheckbox == 0)
+                case CellProperty.ForeColourName:
+                    value = ColorTranslator.FromOle(value).Name;
+                    break;
+                case CellProperty.CheckBox:
+                    string checkboxState = "None";
+                    if (value is short || value is int || value is long)
                     {
-                        if (dataType == "LzFGCheckBoxSupport._CellCheckedStatus")
+                        int gridCheckbox = value;
+                        if (gridCheckbox == 0)
                         {
-                            FindGridByHandleAndPutInDatastore2();
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, dataProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "bCurrent", MemberTypes.Property);
-                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                            GUI.m_APE.SendMessages(EventSet.APE);
-                            GUI.m_APE.WaitForMessages(EventSet.APE);
-                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            bool lzGridCheckbox = GUI.m_APE.GetValueFromMessage();
-                            if (lzGridCheckbox)
+                            string dataType = this.GetCellInternal(rowIndex, columnIndex, CellProperty.UserDataType);
+                            if (dataType == "LzFGCheckBoxSupport._CellCheckedStatus")
                             {
-                                return "True";
+                                FindGridByHandleAndPutInDatastore2();
+                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, dataProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "bCurrent", MemberTypes.Property);
+                                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                                GUI.m_APE.SendMessages(EventSet.APE);
+                                GUI.m_APE.WaitForMessages(EventSet.APE);
+                                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                                bool lzGridCheckbox = GUI.m_APE.GetValueFromMessage();
+                                if (lzGridCheckbox)
+                                {
+                                    checkboxState = "Checked";
+                                }
+                                else
+                                {
+                                    checkboxState = "Unchecked";
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (gridCheckbox == 1)
                             {
-                                return "False";
+                                checkboxState = "Checked";
                             }
+                            else if (gridCheckbox == 2)
+                            {
+                                checkboxState = "Unchecked";
+                            }
+                        }                        
+                    }
+                    value = checkboxState;
+                    break;
+                case CellProperty.TextDisplay:
+                    string cellCheckboxState = this.GetCellInternal(rowIndex, columnIndex, CellProperty.CheckBox);
+                    if (cellCheckboxState == "None")
+                    {
+                        if (value == null)
+                        {
+                            value = "";
                         }
                     }
                     else
                     {
-                        if (gridCheckbox == 1 || gridCheckbox == 3)
+                        if (cellCheckboxState == "Checked")
                         {
-                            return "True";
+                            value = "True";
                         }
-                        else if (gridCheckbox == 2 || gridCheckbox == 4)
+                        else
                         {
-                            return "False";
-                        }
-                        else if (gridCheckbox == 5)
-                        {
-                            return "Gray";
+                            value = "False";
                         }
                     }
+                    break;
+                case CellProperty.FontStyle:
+                    int boldProperty = (int)VSFlexgridCellPropertySettings.flexcpFontBold;
+                    int italicProperty = (int)VSFlexgridCellPropertySettings.flexcpFontItalic;
+                    int underlineProperty = (int)VSFlexgridCellPropertySettings.flexcpFontUnderline;
+                    int strikeoutProperty = (int)VSFlexgridCellPropertySettings.flexcpFontStrikethru;
+
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, boldProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, italicProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store5, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, underlineProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store6, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, strikeoutProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    bool bold = GUI.m_APE.GetValueFromMessage();
+                    bool italic = GUI.m_APE.GetValueFromMessage();
+                    bool underline = GUI.m_APE.GetValueFromMessage();
+                    bool strikeout = GUI.m_APE.GetValueFromMessage();
+
+                    StringBuilder fontStyleStringBuilder = new StringBuilder();
+                    if (bold)
+                    {
+                        fontStyleStringBuilder.Append("Bold,");
+                    }
+                    if (italic)
+                    {
+                        fontStyleStringBuilder.Append("Italic,");
+                    }
+                    if (underline)
+                    {
+                        fontStyleStringBuilder.Append("Underline,");
+                    }
+                    if (strikeout)
+                    {
+                        fontStyleStringBuilder.Append("Strikeout,");
+                    }
+                    if (fontStyleStringBuilder.Length == 0)
+                    {
+                        fontStyleStringBuilder.Append("Regular,");
+                    }
+                    fontStyleStringBuilder.Length--;
+                    FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleStringBuilder.ToString());
+                    value = fontStyle;
+                    break;
+                case CellProperty.UserDataType:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, dataProperty), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex), new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
+                    GUI.m_APE.AddQueryMessageGetTypeInformationActiveX(DataStores.Store3, DataStores.Store4);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string dataTypeText = GUI.m_APE.GetValueFromMessage();
+                    value = dataTypeText;
                     break;
             }
 
@@ -4230,6 +4333,23 @@ namespace APE.Language
             }
         }
 
+        private string[][] StringToArray(string text, int rows, int columns)
+        {
+            char[] splitSeparatorColumn = { '\t' };
+            char[] splitSeparatorRow = { '\r' };
+
+            string[][] array = new string[rows][];
+
+            string[] currentRowArray = text.Split(splitSeparatorRow, StringSplitOptions.None);
+
+            for (int row = 0; row < rows; row++)
+            {
+                array[row] = currentRowArray[row].Split(splitSeparatorColumn, StringSplitOptions.None);
+            }
+
+            return array;
+        }
+
         /// <summary>
         /// Returns a range of cell values column separated by \t and row separated by \r
         /// </summary>
@@ -4251,26 +4371,83 @@ namespace APE.Language
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     string rangeClip = GUI.m_APE.GetValueFromMessage();
-                    return rangeClip;
-                case CellProperty.BackColourName:
-                    //TODO make this efficent
-                    StringBuilder grid = new StringBuilder();
-                    for (int row = row1Index; row <= row2Index; row++)
+
+                    //Merge checkboxes into the above (I don't think the ActiveX grid supports both check boxes and text in
+                    //the same cell so its safe to replace the text, if this assumption is wrong may have to revisit this)
+                    string checkboxRange = GetCellRangeInternal(row1Index, column1Index, row2Index, column2Index, CellProperty.CheckBox);
+
+                    int rows = row2Index - row1Index + 1;
+                    int columns = column2Index - column1Index + 1;
+                    string[][] rangeClipArray = StringToArray(rangeClip, rows, columns);
+                    string[][] checkboxRangeArray = StringToArray(checkboxRange, rows, columns);
+
+                    for (int row = 0; row < rows; row++)
                     {
-                        for (int column = column1Index; column <= column2Index; column++)
+                        for (int column = 0; column < columns; column++)
                         {
-                            grid.Append(GetCell(row, column, CellProperty.BackColourName));
-                            if (column < column2Index)
+                            if (checkboxRangeArray[row][column] != "None")
                             {
-                                grid.Append("\t");
+                                rangeClipArray[row][column] = checkboxRangeArray[row][column];
                             }
                         }
-                        if (row < row2Index)
-                        {
-                            grid.Append("\r");
-                        }
                     }
-                    return grid.ToString();
+
+                    StringBuilder range = new StringBuilder(rangeClip.Length);
+                    for (int row = 0; row < rows; row++)
+                    {
+                        range.Append(string.Join("\t", rangeClipArray[row]));
+                        range.Append("\r");
+                    }
+                    if (range.Length > 0)
+                    {
+                        range.Length--;
+                    }
+                    return range.ToString();
+                case CellProperty.ForeColourName:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName, false);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeForeColourName = GUI.m_APE.GetValueFromMessage();
+                    return rangeForeColourName;
+                case CellProperty.BackColourName:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName, true);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeBackColourName = GUI.m_APE.GetValueFromMessage();
+                    return rangeBackColourName;
+                case CellProperty.CheckBox:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox, true);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeCheckBoxState = GUI.m_APE.GetValueFromMessage();
+                    return rangeCheckBoxState;
+                case CellProperty.Image:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image, true);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeHasImage = GUI.m_APE.GetValueFromMessage();
+                    return rangeHasImage;
+                case CellProperty.BackgroundImage:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage, true);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeHasBackgroundImage = GUI.m_APE.GetValueFromMessage();
+                    return rangeHasBackgroundImage;
                 default:
                     throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }

@@ -18,6 +18,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using ComTypes = System.Runtime.InteropServices.ComTypes;
 
 namespace APE.Communication
 {
@@ -115,6 +116,12 @@ namespace APE.Communication
                 Type typeObject = obj.GetType();
                 return typeObject.Namespace + "." + typeObject.Name;
             }
+        }
+
+        private string GetObjectInterfaceName(object obj)
+        {
+            APE.Bridge.Ole.GetTypeInterfaceName(obj, out ComTypes.ITypeInfo comObjectTypeInformation, out string interfaceName);
+            return interfaceName;
         }
 
         /// <summary>

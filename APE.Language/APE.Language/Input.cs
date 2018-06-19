@@ -578,22 +578,7 @@ namespace APE.Language
                 if (!NM.SetForegroundWindow(control))
                 {
                     debugMessage += "4 ";
-                    // Fall back to the Hotkey (which will have SetForegroundWindow permission)
-                    GUI.m_ViewPort.Foreground = control;
-
-                    // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
-                    NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
-                    NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
-
-                    while (GUI.m_ViewPort.Foreground != IntPtr.Zero)
-                    {
-                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                        {
-                            throw GUI.ApeException("Viewport SetForegroundWindow appeared to not trigger");
-                        }
-
-                        Thread.Yield();
-                    }
+                    SetFocusForced(control);
                 }
                 ret = true;
 
@@ -604,7 +589,7 @@ namespace APE.Language
                         throw GUI.ApeException("Failed to setfocus to the " + description);
                     }
 
-                    Thread.Yield();
+                    Thread.Sleep(15);
                 }
             }
 
@@ -615,6 +600,35 @@ namespace APE.Language
             }
 
             return ret;
+        }
+
+        public static void SetFocusForced(IntPtr control)
+        {
+            if (Input.GetFocus() != control)
+            {
+                // Fall back to the Hotkey (which will have SetForegroundWindow permission)
+                GUI.m_ViewPort.Foreground = control;
+
+                // Sendkeys won't work so use keybd_event (TODO could also use SendInput)
+                NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYDOWN, UIntPtr.Zero);
+                NM.keybd_event(NM.VK_PAUSE, 0, NM.KEYEVENTF_KEYUP, UIntPtr.Zero);
+
+                Stopwatch timer = Stopwatch.StartNew();
+                while (true)
+                {
+                    if (GUI.m_ViewPort.Foreground == IntPtr.Zero)
+                    {
+                        break;
+                    }
+
+                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                    {
+                        throw GUI.ApeException("Viewport SetForegroundWindow appeared to not trigger");
+                    }
+
+                    Thread.Sleep(15);
+                }
+            }
         }
 
         public static void ClickCommon(IntPtr parent, IntPtr control, string description, int x, int y, GUIObject apeObject)

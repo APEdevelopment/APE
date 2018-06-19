@@ -417,6 +417,9 @@ namespace APE.Language
                 throw GUI.ApeException(Identity.Description + " did not go idle within timeout");
             }
 
+            //get the current location
+            NM.GetCursorPos(out NM.tagPoint currentPoint);
+
             // If we are doing separate calls to mouse down and up then its very likely we want to drag so make sure we are in dragmode
             NM.tagRect WindowRect;
             NM.tagRect ClientRect;
@@ -440,6 +443,13 @@ namespace APE.Language
                 Input.MoveMouse(WindowRect.left, WindowRect.top);
                 Input.MoveMouse(WindowRect.left + middleOfClientAreaX, WindowRect.top + middleOfClientAreaY);
             }
+            if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
+            {
+                throw GUI.ApeException(Identity.Description + " did not go idle within timeout");
+            }
+
+            //Move back to where we were before the above drag block of code
+            Input.MoveMouse(currentPoint.x, currentPoint.y);
             if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
             {
                 throw GUI.ApeException(Identity.Description + " did not go idle within timeout");

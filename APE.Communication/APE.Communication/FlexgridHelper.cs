@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using WF = System.Windows.Forms;
+using System.Drawing;
 
 namespace APE.Communication
 {
@@ -85,7 +86,7 @@ namespace APE.Communication
         /// <param name="clipSeparators">The current grid separators setting</param>
         private void DetermineClipSeparators(string clipSeparators)
         {
-            if (clipSeparators == "")
+            if (string.IsNullOrEmpty(clipSeparators))
             {
                 m_ColumnSeparator = "\t";
                 m_RowSeparator = "\r";
@@ -111,7 +112,7 @@ namespace APE.Communication
         /// <param name="column1">The start column of the range</param>
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
-        unsafe public void AddQueryMessageFlexgridGetCellRange(DataStores sourceStore, DataStores destinationStore, int row1, int column1, int row2, int column2, CellProperty property)
+        unsafe public void AddQueryMessageFlexgridGetCellRange(DataStores sourceStore, DataStores destinationStore, int row1, int column1, int row2, int column2, CellProperty property, bool activeX)
         {
             if (!m_DoneFind)
             {
@@ -150,6 +151,7 @@ namespace APE.Communication
             Parameter column1Parameter = new Parameter(this, column1);
             Parameter row2Parameter = new Parameter(this, row2);
             Parameter column2Parameter = new Parameter(this, column2);
+            Parameter activeXParameter = new Parameter(this, activeX);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneQuery = true;
@@ -166,12 +168,13 @@ namespace APE.Communication
             int column1 = GetParameterInt32(ptrMessage, 1);
             int row2 = GetParameterInt32(ptrMessage, 2);
             int column2 = GetParameterInt32(ptrMessage, 3);
+            bool activeX = GetParameterBoolean(ptrMessage, 4);
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
             object destinationObject = null;
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, row1, column1, row2, column2 };
+                object[] theParameters = { sourceObject, row1, column1, row2, column2, activeX };
                 switch (property)
                 {
                     case CellProperty.BackColourName:
@@ -205,9 +208,9 @@ namespace APE.Communication
         //  FlexgridGetCellRangeBackColourName
         //
 
-        private delegate string GetCellRangeBackColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2);
+        private delegate string GetCellRangeBackColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
         private GetCellRangeBackColourNameDelegate m_FlexgridGetCellRangeBackColourNameDelegater;
-
+        private const int flexcpBackColor = 6;
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the back colours of the cells
         /// any cells which have the default back colour of the grid return an empty string for that cell
@@ -218,10 +221,19 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the back colours</returns>
-        private string FlexgridGetCellRangeBackColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2)
+        private string FlexgridGetCellRangeBackColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
-            string gridBackColourName = grid.BackColor.Name;
+
+            string gridBackColourName;
+            if (activeX)
+            {
+                gridBackColourName = null;
+            }
+            else
+            {
+                gridBackColourName = grid.BackColor.Name;
+            }
 
             string currentCellBackColourName;
             StringBuilder rangeBackColourName = new StringBuilder(10240);
@@ -230,7 +242,15 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    currentCellBackColourName = grid.GetCellRange(row, column).StyleDisplay.BackColor.Name;
+                    if (activeX)
+                    {
+                        int colourOle = grid.Cell(flexcpBackColor, row, column, row, column);
+                        currentCellBackColourName = ColorTranslator.FromOle(colourOle).Name;
+                    }
+                    else
+                    {
+                        currentCellBackColourName = grid.GetCellRange(row, column).StyleDisplay.BackColor.Name;
+                    }
 
                     if (gridBackColourName == currentCellBackColourName)
                     {
@@ -260,8 +280,9 @@ namespace APE.Communication
         //  FlexgridGetCellRangeForeColourName
         //
 
-        private delegate string GetCellRangeForeColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2);
+        private delegate string GetCellRangeForeColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
         private GetCellRangeForeColourNameDelegate m_FlexgridGetCellRangeForeColourNameDelegater;
+        private const int flexcpForeColor = 7;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the fore colours of the cells
@@ -273,10 +294,18 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the fore colours</returns>
-        private string FlexgridGetCellRangeForeColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2)
+        private string FlexgridGetCellRangeForeColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
-            string gridForeColourName = grid.ForeColor.Name;
+            string gridForeColourName;
+            if (activeX)
+            {
+                gridForeColourName = null;
+            }
+            else
+            {
+                gridForeColourName = grid.ForeColor.Name;
+            }
 
             string currentCellForeColourName;
             StringBuilder rangeForeColourName = new StringBuilder(10240);
@@ -285,7 +314,15 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    currentCellForeColourName = grid.GetCellRange(row, column).StyleDisplay.ForeColor.Name;
+                    if (activeX)
+                    {
+                        int colourOle = grid.Cell(flexcpForeColor, row, column, row, column);
+                        currentCellForeColourName = ColorTranslator.FromOle(colourOle).Name;
+                    }
+                    else
+                    {
+                        currentCellForeColourName = grid.GetCellRange(row, column).StyleDisplay.ForeColor.Name;
+                    }
 
                     if (gridForeColourName == currentCellForeColourName)
                     {
@@ -315,7 +352,7 @@ namespace APE.Communication
         //  FlexgridGetCellRangeDataType
         //
 
-        private delegate string GetCellRangeDataTypeDelegate(dynamic grid, int row1, int column1, int row2, int column2);
+        private delegate string GetCellRangeDataTypeDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
         private GetCellRangeDataTypeDelegate m_FlexgridGetCellRangeDataTypeDelegater;
 
         /// <summary>
@@ -327,7 +364,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeDataTypeInternal(dynamic grid, int row1, int column1, int row2, int column2)
+        private string FlexgridGetCellRangeDataTypeInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -363,8 +400,10 @@ namespace APE.Communication
         //  FlexgridGetCellRangeCheckBox
         //
 
-        private delegate string GetCellRangeCheckBoxDelegate(dynamic grid, int row1, int column1, int row2, int column2);
+        private delegate string GetCellRangeCheckBoxDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
         private GetCellRangeCheckBoxDelegate m_FlexgridGetCellRangeCheckBoxDelegater;
+        private const int flexcpChecked = 5;
+        private const int flexcpData = 20;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the checkbox state of the cells
@@ -375,7 +414,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeCheckBoxInternal(dynamic grid, int row1, int column1, int row2, int column2)
+        private string FlexgridGetCellRangeCheckBoxInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -386,7 +425,44 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    currentCellCheckBox = grid.GetCellRange(row, column).Checkbox.ToString();
+                    if (activeX)
+                    {
+                        currentCellCheckBox = "None";
+                        int gridCheckbox = grid.Cell(flexcpChecked, row, column, row, column);
+
+                        if (gridCheckbox == 0)
+                        {
+                            dynamic cellCheckedStatus = grid.Cell(flexcpData, row, column, row, column);
+                            string interfaceName = GetObjectInterfaceName(cellCheckedStatus);
+                            if (interfaceName == "_CellCheckedStatus")
+                            {
+                                bool state = cellCheckedStatus.bCurrent;
+                                if (state)
+                                {
+                                    currentCellCheckBox = "Checked";
+                                }
+                                else
+                                {
+                                    currentCellCheckBox = "Unchecked";
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (gridCheckbox == 1)
+                            {
+                                currentCellCheckBox = "Checked";
+                            }
+                            else if (gridCheckbox == 2)
+                            {
+                                currentCellCheckBox = "Unchecked";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        currentCellCheckBox = grid.GetCellRange(row, column).Checkbox.ToString();
+                    }
 
                     rangeDataType.Append(currentCellCheckBox);
 
@@ -409,9 +485,9 @@ namespace APE.Communication
         //  FlexgridGetCellRangeImage
         //
 
-        private delegate string GetCellRangeImageDelegate(dynamic grid, int row1, int column1, int row2, int column2);
+        private delegate string GetCellRangeImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
         private GetCellRangeImageDelegate m_FlexgridGetCellRangeImageDelegater;
-
+        private const int flexcpPicture = 3;
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of whether the cell contains an image
         /// </summary>
@@ -421,7 +497,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeImageInternal(dynamic grid, int row1, int column1, int row2, int column2)
+        private string FlexgridGetCellRangeImageInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -431,7 +507,16 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    if (grid.GetCellRange(row, column).Image != null)
+                    object image;
+                    if (activeX)
+                    {
+                        image = grid.Cell(flexcpPicture, row, column, row, column);
+                    }
+                    else
+                    {
+                        image = grid.GetCellRange(row, column).Image;
+                    }
+                    if (image != null)
                     {
                         rangeDataType.Append("Image");
                     }
@@ -455,7 +540,7 @@ namespace APE.Communication
         //  FlexgridGetCellRangeBackgroundImage
         //
 
-        private delegate string GetCellRangeBackgroundImageDelegate(dynamic grid, int row1, int column1, int row2, int column2);
+        private delegate string GetCellRangeBackgroundImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
         private GetCellRangeBackgroundImageDelegate m_FlexgridGetCellRangeBackgroundImageDelegater;
 
         /// <summary>
@@ -468,7 +553,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeBackgroundImageInternal(dynamic grid, int row1, int column1, int row2, int column2)
+        private string FlexgridGetCellRangeBackgroundImageInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -478,7 +563,17 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    if (grid.GetCellRange(row, column).StyleDisplay.BackgroundImage != null)
+                    object image;
+                    if (activeX)
+                    {
+                        image = grid.Cell(flexcpPicture, row, column, row, column);
+                    }
+                    else
+                    {
+                        image = grid.GetCellRange(row, column).StyleDisplay.BackgroundImage;
+                    }
+
+                    if (image != null)
                     {
                         rangeDataType.Append("BackgroundImage");
                     }

@@ -277,11 +277,10 @@ namespace APE.Bridge
 
         private static Type TypeOfTypeAttr = typeof(ComTypes.TYPEATTR);
 
-        public static void ComTypeInformation(object comObject, out string interfaceName, out string typeLibraryName, out string className)
+        public static void GetTypeInterfaceName(object comObject, out ComTypes.ITypeInfo comObjectTypeInformation, out string interfaceName)
         {
+            comObjectTypeInformation = null;
             interfaceName = null;
-            typeLibraryName = null;
-            className = null;
 
             IDispatch comObjectAsDispatch = comObject as IDispatch;
             if (comObjectAsDispatch == null)
@@ -294,8 +293,18 @@ namespace APE.Bridge
             }
 
             //Get the interface name
-            ComTypes.ITypeInfo comObjectTypeInformation = comObjectAsDispatch.GetTypeInfo(0, 0);
+            comObjectTypeInformation = comObjectAsDispatch.GetTypeInfo(0, 0);
             interfaceName = Marshal.GetTypeInfoName(comObjectTypeInformation);
+        }
+
+        public static void ComTypeInformation(object comObject, out string interfaceName, out string typeLibraryName, out string className)
+        {
+            interfaceName = null;
+            typeLibraryName = null;
+            className = null;
+
+            //Get the object type information and the interface name
+            GetTypeInterfaceName(comObject, out ComTypes.ITypeInfo comObjectTypeInformation, out interfaceName);
 
             //Get the type library name
             ComTypes.ITypeLib typeLibrary;

@@ -1163,6 +1163,7 @@ namespace APE.Spy
                     case "ComboBox":
                         APEType = "GUIComboBox";
                         break;
+                    case "LzFlexGridCtrl":
                     case "VSFlexGrid":
                         APEType = "GUIFlexgrid";
                         break;

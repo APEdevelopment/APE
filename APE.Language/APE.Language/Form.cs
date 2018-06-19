@@ -267,14 +267,7 @@ namespace APE.Language
                 Stopwatch timer = Stopwatch.StartNew();
                 do
                 {
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "WindowState", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    windowState = GUI.m_APE.GetValueFromMessage();
+                    windowState = FormWindowState();
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
@@ -344,14 +337,7 @@ namespace APE.Language
                 Stopwatch timer = Stopwatch.StartNew();
                 do
                 {
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "WindowState", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    windowState = GUI.m_APE.GetValueFromMessage();
+                    windowState = FormWindowState();
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
@@ -405,14 +391,7 @@ namespace APE.Language
                     Stopwatch timer = Stopwatch.StartNew();
                     do
                     {
-                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "WindowState", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
-                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        windowState = GUI.m_APE.GetValueFromMessage();
+                        windowState = FormWindowState();
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
@@ -470,14 +449,7 @@ namespace APE.Language
                     Stopwatch timer = Stopwatch.StartNew();
                     do
                     {
-                        GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "WindowState", MemberTypes.Property);
-                        GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-                        GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
-                        //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                        windowState = GUI.m_APE.GetValueFromMessage();
+                        windowState = FormWindowState();
 
                         if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                         {
@@ -504,33 +476,83 @@ namespace APE.Language
         /// <summary>
         /// Moves the specified window to the specified location
         /// </summary>
-        /// <param name="DestinationUpperLeftX">The new location for the left side of the form</param>
-        /// <param name="DestinationUpperLeftY">The new location for the top of the form</param>
-        public void Move(int DestinationUpperLeftX, int DestinationUpperLeftY)
+        /// <param name="destinationUpperLeftX">The new location for the left side of the form</param>
+        /// <param name="destinationUpperLeftY">The new location for the top of the form</param>
+        public void Move(int destinationUpperLeftX, int destinationUpperLeftY)
         {
             //TODO get the titlebar left and click there
-            Move(60, 10, DestinationUpperLeftX, DestinationUpperLeftY);
+            Move(60, 10, destinationUpperLeftX, destinationUpperLeftY, true);
+        }
+
+        /// <summary>
+        /// Moves the specified window to the specified location
+        /// </summary>
+        /// <param name="destinationUpperLeftX">The new location for the left side of the form</param>
+        /// <param name="destinationUpperLeftY">The new location for the top of the form</param>
+        /// <param name="checkMoveCompleted">Whether to check if the form is now in the location specified</param>
+        public void Move(int destinationUpperLeftX, int destinationUpperLeftY, bool checkMoveCompleted)
+        {
+            //TODO get the titlebar left and click there
+            Move(60, 10, destinationUpperLeftX, destinationUpperLeftY, checkMoveCompleted);
         }
 
         /// <summary>
         /// Moves the specified window to the specified location by clicking at the specified point to drag the form
         /// </summary>
-        /// <param name="MouseDownX">The x coordinate inside the form to perform a mouse down at</param>
-        /// <param name="MouseDownY">The y coordinate inside the form to perform a mouse down at</param>
-        /// <param name="DestinationUpperLeftX">The new location for the left side of the form</param>
-        /// <param name="DestinationUpperLeftY">The new location for the top of the form</param>
-        public void Move(int MouseDownX, int MouseDownY, int DestinationUpperLeftX, int DestinationUpperLeftY)
+        /// <param name="mouseDownX">The x coordinate inside the form to perform a mouse down at</param>
+        /// <param name="mouseDownY">The y coordinate inside the form to perform a mouse down at</param>
+        /// <param name="destinationUpperLeftX">The new location for the left side of the form</param>
+        /// <param name="destinationUpperLeftY">The new location for the top of the form</param>
+        public void Move(int mouseDownX, int mouseDownY, int destinationUpperLeftX, int destinationUpperLeftY)
         {
-            GUI.Log("Move the " + Identity.Description + " window to " + DestinationUpperLeftX.ToString() + ", " + DestinationUpperLeftY.ToString(), LogItemType.Action);
+            Move(mouseDownX, mouseDownY, destinationUpperLeftX, destinationUpperLeftY, true);
+        }
 
-            NM.tagRect WindowRect;
-            NM.GetWindowRect(Identity.Handle, out WindowRect);
+        /// <summary>
+        /// Moves the specified window to the specified location by clicking at the specified point to drag the form
+        /// </summary>
+        /// <param name="mouseDownX">The x coordinate inside the form to perform a mouse down at</param>
+        /// <param name="mouseDownY">The y coordinate inside the form to perform a mouse down at</param>
+        /// <param name="destinationUpperLeftX">The new location for the left side of the form</param>
+        /// <param name="destinationUpperLeftY">The new location for the top of the form</param>
+        /// <param name="checkMoveCompleted">Whether to check if the form is now in the location specified</param>
+        public void Move(int mouseDownX, int mouseDownY, int destinationUpperLeftX, int destinationUpperLeftY, bool checkMoveCompleted)
+        {
+            GUI.Log("Move the " + Identity.Description + " window to " + destinationUpperLeftX.ToString() + ", " + destinationUpperLeftY.ToString(), LogItemType.Action);
+
+            NM.tagRect windowRect;
+            NM.GetWindowRect(Identity.Handle, out windowRect);
 
             Input.Block();
             try
             {
-                base.MouseDownInternal(MouseDownX, MouseDownY, MouseButton.Left, MouseKeyModifier.None);
-                base.MouseUpInternal(DestinationUpperLeftX + MouseDownX - WindowRect.left, DestinationUpperLeftY + MouseDownY - WindowRect.top, MouseButton.Left, MouseKeyModifier.None);
+                base.MouseDownInternal(mouseDownX, mouseDownY, MouseButton.Left, MouseKeyModifier.None);
+                base.MouseUpInternal(destinationUpperLeftX + mouseDownX - windowRect.left, destinationUpperLeftY + mouseDownY - windowRect.top, MouseButton.Left, MouseKeyModifier.None);
+                
+                if (checkMoveCompleted)
+                {
+                    Stopwatch timer = Stopwatch.StartNew();
+                    while (true)
+                    {
+                        NM.GetWindowRect(Identity.Handle, out windowRect);
+
+                        //if we are in the right place +/- 5 pixel then break the loop
+                        if (windowRect.left > destinationUpperLeftX - 6 && windowRect.left < destinationUpperLeftX + 6)
+                        {
+                            if (windowRect.top > destinationUpperLeftY - 6 && windowRect.top < destinationUpperLeftY + 6)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw GUI.ApeException("Failed to move the form");
+                        }
+
+                        Thread.Sleep(15);
+                    }
+                }
             }
             catch when (Input.ResetInputFilter())
             {
