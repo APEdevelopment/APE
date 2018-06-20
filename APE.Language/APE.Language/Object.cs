@@ -438,10 +438,52 @@ namespace APE.Language
             }
 
             // Move the mouse a few times to make sure we are in drag mode
+            Rectangle workingArea;
+            int moveX1 = WindowRect.left;
+            int moveY1 = WindowRect.top;
+            int moveX2 = WindowRect.left + middleOfClientAreaX;
+            int moveY2 = WindowRect.top + middleOfClientAreaY;
+
+            workingArea = Screen.GetWorkingArea(new Point(moveX1, moveY1));
+            if (moveX1 < workingArea.Left + 3)
+            {
+                moveX1 = workingArea.Left + 3;
+            }
+            if (moveX1 > workingArea.Right - 3)
+            {
+                moveX1 = workingArea.Right - 3;
+            }
+            if (moveY1 < workingArea.Top + 3)
+            {
+                moveY1 = workingArea.Top + 3;
+            }
+            if (moveY1 > workingArea.Bottom - 3)
+            {
+                moveY1 = workingArea.Bottom - 3;
+            }
+
+            workingArea = Screen.GetWorkingArea(new Point(moveX2, moveY2));
+            if (moveX2 < workingArea.Left + 3)
+            {
+                moveX2 = workingArea.Left + 3;
+            }
+            if (moveX2 > workingArea.Right - 3)
+            {
+                moveX2 = workingArea.Right - 3;
+            }
+            if (moveY2 < workingArea.Top + 3)
+            {
+                moveY2 = workingArea.Top + 3;
+            }
+            if (moveY2 > workingArea.Bottom - 3)
+            {
+                moveY2 = workingArea.Bottom - 3;
+            }
+
             for (int i = 0; i < 10; i++)
             {
-                Input.MoveMouse(WindowRect.left, WindowRect.top);
-                Input.MoveMouse(WindowRect.left + middleOfClientAreaX, WindowRect.top + middleOfClientAreaY);
+                Input.MoveMouse(moveX1, moveY1);
+                Input.MoveMouse(moveY2, moveY2);
             }
             if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
             {

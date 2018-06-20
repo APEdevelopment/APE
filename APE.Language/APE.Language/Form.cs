@@ -21,6 +21,7 @@ using APE.Capture;
 using APE.Communication;
 using System.Threading;
 using NM = APE.Native.NativeMethods;
+using System.Drawing;
 
 namespace APE.Language
 {
@@ -106,9 +107,6 @@ namespace APE.Language
                         //Thread.Sleep(100);  //Move to SetFocus?
 
                         base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
-
-                        //OOM
-                        //Input.MoveMouse(0, 0);
 
                         //Wait for the window to disappear
                         base.WaitForControlToNotBeVisible();
@@ -518,6 +516,33 @@ namespace APE.Language
         /// <param name="checkMoveCompleted">Whether to check if the form is now in the location specified</param>
         public void Move(int mouseDownX, int mouseDownY, int destinationUpperLeftX, int destinationUpperLeftY, bool checkMoveCompleted)
         {
+            if (mouseDownX < 3)
+            {
+                mouseDownX = 3;
+            }
+            if (mouseDownY < 3)
+            {
+                mouseDownY = 3;
+            }
+
+            Rectangle workingArea = Screen.GetWorkingArea(new Point(destinationUpperLeftX, destinationUpperLeftY));
+            if (destinationUpperLeftX < workingArea.Left )
+            {
+                destinationUpperLeftX = workingArea.Left;
+            }
+            if (destinationUpperLeftY < workingArea.Top)
+            {
+                destinationUpperLeftY = workingArea.Top;
+            }
+            if (destinationUpperLeftX > workingArea.Right - mouseDownX - 3)
+            {
+                destinationUpperLeftX = workingArea.Right- mouseDownX - 3;
+            }
+            if (destinationUpperLeftY > workingArea.Bottom - mouseDownY - 3)
+            {
+                destinationUpperLeftY = workingArea.Bottom - mouseDownY - 3;
+            }
+
             GUI.Log("Move the " + Identity.Description + " window to " + destinationUpperLeftX.ToString() + ", " + destinationUpperLeftY.ToString(), LogItemType.Action);
 
             NM.tagRect windowRect;
@@ -536,10 +561,10 @@ namespace APE.Language
                     {
                         NM.GetWindowRect(Identity.Handle, out windowRect);
 
-                        //if we are in the right place +/- 5 pixel then break the loop
-                        if (windowRect.left > destinationUpperLeftX - 6 && windowRect.left < destinationUpperLeftX + 6)
+                        //if we are in the right place +/- 2 pixel then break the loop
+                        if (windowRect.left > destinationUpperLeftX - 2 && windowRect.left < destinationUpperLeftX + 2)
                         {
-                            if (windowRect.top > destinationUpperLeftY - 6 && windowRect.top < destinationUpperLeftY + 6)
+                            if (windowRect.top > destinationUpperLeftY - 2 && windowRect.top < destinationUpperLeftY + 2)
                             {
                                 break;
                             }
