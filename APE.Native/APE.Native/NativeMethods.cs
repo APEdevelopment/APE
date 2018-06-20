@@ -1560,6 +1560,9 @@ namespace APE.Native
         public const int LVIR_LABEL = 0x2;
 
         [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, ref ComboBoxExItem lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
+
+        [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, ref tagRect lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
 
         [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -1663,8 +1666,6 @@ namespace APE.Native
         public const int BST_UNCHECKED = 0x0;
         public const int BST_CHECKED = 0x1;
         public const int BST_INDETERMINATE = 0x2;
-
-        public const int CB_GETDROPPEDSTATE = 0x157;
 
         public enum ComboBoxStyle : int
         {
@@ -2949,6 +2950,31 @@ namespace APE.Native
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr SendMessageTimeout(IntPtr hWnd, int msg, IntPtr wParam, ref ToolInfo lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
+
+        public const int WM_USER = 0x400;
+        
+        public const int CBEIF_TEXT = 0x1;
+        public const int CBEM_GETUNICODEFORMAT = (0x2000 + 6);
+
+        public const int CBEM_GETITEMA = WM_USER + 4;
+        public const int CBEM_GETCOMBOCONTROL = WM_USER + 6;
+        public const int CBEM_GETEDITCONTROL = WM_USER + 7;
+
+        public const int CBEM_GETITEMW = WM_USER + 13;
+
+        public struct ComboBoxExItem
+        {
+            public int mask;
+            public IntPtr iItem;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string pszText;
+            public int cchTextMax;
+            public int iImage;
+            public int iSelectedImage;
+            public int iOverlay;
+            public int iIndent;
+            public IntPtr lParam;
+        }
 
         public struct ToolInfo
         {

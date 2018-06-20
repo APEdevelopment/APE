@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveXHelper.cs" />
+    <Compile Include="ComboBoxExHelper.cs" />
     <Compile Include="ComHelper.cs" />
     <Compile Include="Communication.cs" />
     <Compile Include="ConstructorInvokerCircularList.cs" />

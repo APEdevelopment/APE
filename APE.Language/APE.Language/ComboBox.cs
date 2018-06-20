@@ -147,7 +147,7 @@ namespace APE.Language
 
                     IntPtr messageResult;
                     IntPtr sendResult;
-                    sendResult = NM.SendMessageTimeout(Identity.Handle, NM.CB_GETDROPPEDSTATE, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out messageResult);
+                    sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETDROPPEDSTATE, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out messageResult);
                     if (sendResult != IntPtr.Zero)  //Succeeded
                     {
                         if (messageResult == IntPtr.Zero)
