@@ -1007,21 +1007,25 @@ namespace APE.Language
                             {
                                 x++;
 
-                                if (x == 2) //Wait for it to match twice in a row as sometimes the process will go idle then immediately go not idle
+                                if (x == 1)
                                 {
-                                    return true;
+                                    // Make sure there are no outstanding input messages
+                                    try
+                                    {
+                                        if (WaitForInputIdleProcess.HasExited) { return true; }
+                                        GUI.m_APE.AddFirstMessagePeakMessage(handle);
+                                        GUI.m_APE.SendMessages(EventSet.APE);
+                                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                                    }
+                                    catch (Exception ex) when (ex.Message.Contains("has exited"))
+                                    {
+                                        return true;
+                                    }
                                 }
-
-                                // Make sure there are no outstanding messages including paint messages
-                                try
+                                else if (x == 2) 
                                 {
-                                    if (WaitForInputIdleProcess.HasExited) { return true; }
-                                    GUI.m_APE.AddFirstMessagePeakMessage(handle);
-                                    GUI.m_APE.SendMessages(EventSet.APE);
-                                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                                }
-                                catch (Exception ex) when (ex.Message.Contains("has exited"))
-                                {
+                                    //Matched twice in a row so exit
+                                    //(check twice as sometimes the process will go idle then immediately go not idle)
                                     return true;
                                 }
                             }
@@ -1048,7 +1052,7 @@ namespace APE.Language
                     return false;
                 }
 
-                Thread.Sleep(0);
+                Thread.Yield();
                 WaitForInputIdleProcess.Refresh();
             }
         }

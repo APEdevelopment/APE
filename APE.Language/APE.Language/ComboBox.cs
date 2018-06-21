@@ -201,14 +201,14 @@ namespace APE.Language
             switch (caseSensitivity)
             {
                 case CaseSensitivity.Sensitive:
-                    if (this.Text == itemText)
+                    if (CurrentItemText() == itemText)
                     {
                         GUI.Log("Ensure " + Identity.Description + " is set to " + itemText, LogItemType.Action);
                         return;
                     }
                     break;
                 case CaseSensitivity.Insensitive:
-                    if (this.Text.ToLower() == itemText.ToLower())
+                    if (CurrentItemText().ToLower() == itemText.ToLower())
                     {
                         GUI.Log("Ensure " + Identity.Description + " is set to " + itemText, LogItemType.Action);
                         return;
@@ -309,8 +309,8 @@ namespace APE.Language
                 //click the item
                 GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, listBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboBoxDropdown.SingleClickInternal(-1, (itemRectangle.Height / 2) + itemRectangle.Top, MouseButton.Left, MouseKeyModifier.None);
-                
-                //wait for .Text to == text
+
+                //wait for CurrentItemText() to == text
                 bool selected = false;
                 timer = Stopwatch.StartNew();
                 
@@ -319,13 +319,13 @@ namespace APE.Language
                     switch (caseSensitivity)
                     {
                         case CaseSensitivity.Sensitive:
-                            if (this.Text == itemText)
+                            if (CurrentItemText() == itemText)
                             {
                                 selected = true;
                             }
                             break;
                         case CaseSensitivity.Insensitive:
-                            if (this.Text.ToLower() == itemText.ToLower())
+                            if (CurrentItemText().ToLower() == itemText.ToLower())
                             {
                                 selected = true;
                             }
