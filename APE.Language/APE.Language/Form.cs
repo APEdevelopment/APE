@@ -101,12 +101,14 @@ namespace APE.Language
                     try
                     {
                         GUI.Log("Close the " + Identity.Description, LogItemType.Action);
-                        
-                        // OOM
-                        //Input.ClickCommon(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y);
-                        //Thread.Sleep(100);  //Move to SetFocus?
-
-                        base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                        try
+                        {
+                            base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                        }
+                        catch (Exception ex) when (ex.Message.Contains("has exited"))
+                        {
+                            //Ignore
+                        }
 
                         //Wait for the window to disappear
                         base.WaitForControlToNotBeVisible();
