@@ -26,6 +26,9 @@ namespace APE.Native
 
     public static class NativeMethods
     {
+
+        public const int IntraClickDelay = 2;
+
         public const int EM_GETSEL = 0x00B0;
 
         [DllImport("user32.dll", SetLastError = true)]

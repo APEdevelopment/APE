@@ -272,7 +272,15 @@ namespace APE.Language
                         //some environments but since it isn't critical we just make sure down input is recieved) 
                         actualComboBox.MouseDownInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
                         //Release the mouse without any checks
-                        Input.MouseClick(MouseButton.Left, false, true, 1, false, false);
+                        try
+                        {
+                            TimerResolution.SetMaxTimerResolution();
+                            Input.MouseClick(MouseButton.Left, false, true, 1, false, false);
+                        }
+                        finally
+                        {
+                            TimerResolution.UnsetMaxTimerResolution();
+                        }
                     }
 
                     //find the dropdown

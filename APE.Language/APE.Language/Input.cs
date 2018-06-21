@@ -80,11 +80,6 @@ namespace APE.Language
             TimerResolution.SetMaxTimerResolution();
             System.Windows.Forms.SendKeys.SendWait(text);
             TimerResolution.UnsetMaxTimerResolution();
-
-            //if (!WaitForInputIdle(focusableObject.Handle, GUI.m_APE.TimeOut))
-            //{
-            //    throw GUI.ApeException(focusableObject.Description + " did not go idle within timeout");
-            //}
         }
 
         public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
@@ -103,7 +98,7 @@ namespace APE.Language
             try
             {
                 TimerResolution.SetMaxTimerResolution();
-                NM.SetDoubleClickTime(1);
+                NM.SetDoubleClickTime(NM.IntraClickDelay);
                 
                 ClickCommon(parent, control, description, x, y, apeObject);
 
@@ -150,11 +145,6 @@ namespace APE.Language
                     Unblock();
                 }
             }
-
-            //if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
-            //{
-            //    throw GUI.ApeException(description + " did not go idle within timeout");
-            //}
         }
 
         public static void MouseDoubleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
@@ -963,97 +953,109 @@ namespace APE.Language
             }
 
             int threadId = NM.GetWindowThreadProcessId(handle, out int processId);
-
             if (threadId == 0)
             {
                 return true;
-                //throw GUI.ApeException("Failed to get thread for window");
             }
 
-            if (processId != WaitForInputIdleProcessId)
+            bool isMaxTimerResolutionUnset = !TimerResolution.IsMaxTimerResolutionSet;
+            try
             {
-                WaitForInputIdleProcessId = processId;
-                WaitForInputIdleProcess = Process.GetProcessById(processId);
-            }
-            else
-            {
-                WaitForInputIdleProcess.Refresh();
-            }
+                if (isMaxTimerResolutionUnset)
+                {
+                    TimerResolution.SetMaxTimerResolution();
+                }
 
-            Stopwatch timer = Stopwatch.StartNew();
-            int x = 0;
-            while (true)
-            {
-                ProcessThreadCollection threadCollection;
+                if (processId != WaitForInputIdleProcessId)
+                {
+                    WaitForInputIdleProcessId = processId;
+                    WaitForInputIdleProcess = Process.GetProcessById(processId);
+                }
+                else
+                {
+                    WaitForInputIdleProcess.Refresh();
+                }
+
+                // Make sure there are no outstanding input messages
                 try
                 {
                     if (WaitForInputIdleProcess.HasExited) { return true; }
-                    threadCollection = WaitForInputIdleProcess.Threads;
+                    GUI.m_APE.AddFirstMessagePeakMessage(handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
                 }
-                catch (InvalidOperationException ex) when (ex.Message.Contains("Process has exited"))
+                catch (Exception ex) when (ex.Message.Contains("has exited"))
                 {
                     return true;
                 }
 
-                bool found = false;
-                for (int i = 0; i < threadCollection.Count; i++)
+                Stopwatch timer = Stopwatch.StartNew();
+                int x = 0;
+                while (true)
                 {
-                    if (threadCollection[i].Id == threadId)
+                    ProcessThreadCollection threadCollection;
+                    try
                     {
-                        found = true;
-                        if (threadCollection[i].ThreadState == System.Diagnostics.ThreadState.Wait)
-                        {
-                            if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
-                            {
-                                x++;
+                        if (WaitForInputIdleProcess.HasExited) { return true; }
+                        threadCollection = WaitForInputIdleProcess.Threads;
+                    }
+                    catch (InvalidOperationException ex) when (ex.Message.Contains("has exited"))
+                    {
+                        return true;
+                    }
 
-                                if (x == 1)
+                    bool found = false;
+                    for (int i = 0; i < threadCollection.Count; i++)
+                    {
+                        if (threadCollection[i].Id == threadId)
+                        {
+                            found = true;
+                            if (threadCollection[i].ThreadState == System.Diagnostics.ThreadState.Wait)
+                            {
+                                if (threadCollection[i].WaitReason == ThreadWaitReason.UserRequest)
                                 {
-                                    // Make sure there are no outstanding input messages
-                                    try
+                                    x++;
+
+                                    if (x == 2)
                                     {
-                                        if (WaitForInputIdleProcess.HasExited) { return true; }
-                                        GUI.m_APE.AddFirstMessagePeakMessage(handle);
-                                        GUI.m_APE.SendMessages(EventSet.APE);
-                                        GUI.m_APE.WaitForMessages(EventSet.APE);
-                                    }
-                                    catch (Exception ex) when (ex.Message.Contains("has exited"))
-                                    {
+                                        //Matched twice in a row so exit
+                                        //(check twice as sometimes the process will go idle then immediately go not idle)
                                         return true;
                                     }
                                 }
-                                else if (x == 2) 
+                                else
                                 {
-                                    //Matched twice in a row so exit
-                                    //(check twice as sometimes the process will go idle then immediately go not idle)
-                                    return true;
+                                    x = 0;
                                 }
                             }
                             else
                             {
                                 x = 0;
                             }
+                            break;
                         }
-                        else
-                        {
-                            x = 0;
-                        }
-                        break;
                     }
-                }
 
-                if (!found)
+                    if (!found)
+                    {
+                        return true;
+                    }
+
+                    if (timer.ElapsedMilliseconds > timeoutMs)
+                    {
+                        return false;
+                    }
+
+                    Thread.Yield();
+                    WaitForInputIdleProcess.Refresh();
+                }
+            }
+            finally
+            {
+                if (isMaxTimerResolutionUnset)
                 {
-                    return true;
+                    TimerResolution.UnsetMaxTimerResolution();  //Restore the state
                 }
-
-                if (timer.ElapsedMilliseconds > timeoutMs)
-                {
-                    return false;
-                }
-
-                Thread.Yield();
-                WaitForInputIdleProcess.Refresh();
             }
         }
 
@@ -1321,6 +1323,12 @@ namespace APE.Language
 
         public static void MouseClick(MouseButton Button, Boolean Down, Boolean Up, int Clicks, bool ControlKey, bool ShiftKey)
         {
+            if (!TimerResolution.IsMaxTimerResolutionSet)
+            {
+                throw GUI.ApeException("MaxTimerResolution not set");
+            }
+            Thread.Sleep(NM.IntraClickDelay);
+
             NM.INPUT[] inputEvent = null;
             int Events = 0;
 
@@ -1437,6 +1445,14 @@ namespace APE.Language
             NM.NtQueryTimerResolution(out minimumResolution, out maximumResolution, out currentResolution);
 
             m_MaximumResolution = maximumResolution;
+        }
+
+        public static bool IsMaxTimerResolutionSet
+        {
+            get
+            {
+                return m_ResolutionSet;
+            }
         }
 
         public static void SetMaxTimerResolution()
