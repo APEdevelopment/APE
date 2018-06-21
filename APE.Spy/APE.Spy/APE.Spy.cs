@@ -1161,6 +1161,7 @@ namespace APE.Spy
                         APEType = "GUICheckBox";
                         break;
                     case "ComboBox":
+                    case "ImageCombo":
                         APEType = "GUIComboBox";
                         break;
                     case "LzFlexGridCtrl":
@@ -1217,6 +1218,26 @@ namespace APE.Spy
                 else if (APEBaseType != "")
                 {
                     APEType = APEBaseType + "*";     //Make it clear that its the base class which is supported rather than the extended control
+                }
+            }
+            else if (Identity.TechnologyType == "Windows Native")
+            {
+                //TODO fill this in with all supported types
+                if (Identity.TypeName.StartsWith("ImageCombo"))
+                {
+                    APEType = "GUIComboBox";
+                }
+                else
+                {
+                    switch (Identity.TypeName)
+                    {
+                        case "Button":
+                            APEType = "GUIButton";
+                            break;
+                        case "Static":
+                            APEType = "GUILabel";
+                            break;
+                    }
                 }
             }
 

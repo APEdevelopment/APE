@@ -27,6 +27,7 @@ namespace APE.Language
     /// Automation class used to automate controls derived from the following:
     /// System.Windows.Forms.ComboBox
     /// LatentZero.Utility.Controls.GUIComboBox
+    /// ActiveX ImageCombo
     /// </summary>
     public sealed class GUIComboBox : GUIFocusableObject
     {
@@ -79,10 +80,20 @@ namespace APE.Language
         /// <returns>The text of the item</returns>
         public string ItemText(int itemIndex)
         {
+            string itemText;
+            if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
+            {
+                GUI.m_APE.AddFirstMessageGetComboBoxExItemText(Identity.Handle, itemIndex, Description);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                itemText = GUI.m_APE.GetValueFromMessage();
+                return itemText;
+            }
+
             IntPtr messageResult;
             IntPtr sendResult;
-            string itemText;
-
+            
             sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETLBTEXTLEN, new IntPtr(itemIndex), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
             if (sendResult == IntPtr.Zero || messageResult == new IntPtr(NM.CB_ERR)) //Failed
             {
@@ -219,10 +230,33 @@ namespace APE.Language
             Input.Block();
             try
             {
+                GUIComboBox actualComboBox;
+                if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
+                {
+                    IntPtr sendResult;
+                    IntPtr messageResult;
+                    sendResult = NM.SendMessageTimeout(Identity.Handle, NM.CBEM_GETCOMBOCONTROL, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                    if (sendResult == IntPtr.Zero)
+                    {
+                        throw GUI.ApeException("Failed to access the " + Description);
+                    }
+
+                    if (messageResult == IntPtr.Zero)
+                    {
+                        throw GUI.ApeException("Failed to find the " + Description + " actual combobox");
+                    }
+
+                    actualComboBox = new GUIComboBox(this.ParentForm, Description + " actual combobox", new Identifier(Identifiers.Handle, messageResult));
+                }
+                else
+                {
+                    actualComboBox = this;
+                }
+
                 if (style == "Simple")
                 {
                     //get the Simple mode listbox child window
-                    NM.GetComboBoxInfo(Identity.Handle, ref cbi);
+                    NM.GetComboBoxInfo(actualComboBox.Handle, ref cbi);
                     listBox = cbi.hwndList;
                 }
                 else
@@ -231,27 +265,27 @@ namespace APE.Language
                     {
                         throw GUI.ApeException("Failed to determine the dropdown state of the " + Description);
                     }
-
+                    
                     if (!droppedDown)
                     {
                         //Show the dropdown (the dropdown appears on the mouse down and the mouse up goes missing in 
                         //some environments but since it isn't critical we just make sure down input is recieved) 
-                        base.MouseDownInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
+                        actualComboBox.MouseDownInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
                         //Release the mouse without any checks
                         Input.MouseClick(MouseButton.Left, false, true, 1, false, false);
                     }
-                    
-                    //find the dropdown
-                    Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut);
 
-                    NM.GetComboBoxInfo(Identity.Handle, ref cbi);
+                    //find the dropdown
+                    Input.WaitForInputIdle(actualComboBox.Handle, GUI.m_APE.TimeOut);
+
+                    NM.GetComboBoxInfo(actualComboBox.Handle, ref cbi);
                     listBox = cbi.hwndList;
                     if (listBox == IntPtr.Zero)
                     {
                         throw GUI.ApeException("Failed to find the " + Description + " dropdown");
                     }
                 }
-
+                
                 //locate the item
                 int index = ItemIndex(itemText, caseSensitivity);
                 if (index == NM.CB_ERR)
@@ -324,6 +358,21 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Gets the current item text
+        /// </summary>
+        public string CurrentItemText()
+        {
+            if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
+            {
+                return this.ItemText(-1);
+            }
+            else
+            {
+                return this.Text;
+            }
+        }
+
+        /// <summary>
         /// Sets the text portion of the combobox to the specified text by sending keystrokes
         /// </summary>
         /// <param name="text">The text to set the text portion of the combobox to</param>
@@ -337,10 +386,26 @@ namespace APE.Language
             }
 
             //get the editbox child window
-            NM.COMBOBOXINFO cbi = new NM.COMBOBOXINFO();
-            NM.GetComboBoxInfo(Identity.Handle, ref cbi);
-            IntPtr EditBox = cbi.hwndEdit;
-            if (EditBox == IntPtr.Zero)
+            IntPtr editBox;
+            if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
+            {
+                IntPtr sendResult;
+                IntPtr messageResult;
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.CBEM_GETEDITCONTROL, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                if (sendResult == IntPtr.Zero)
+                {
+                    throw GUI.ApeException("Failed to access the " + Description);
+                }
+                editBox = messageResult;
+            }
+            else
+            {
+                NM.COMBOBOXINFO cbi = new NM.COMBOBOXINFO();
+                NM.GetComboBoxInfo(Identity.Handle, ref cbi);
+                editBox = cbi.hwndEdit;
+            }
+
+            if (editBox == IntPtr.Zero)
             {
                 throw GUI.ApeException("Failed to find the " + Description + " textbox");
             }
@@ -348,7 +413,7 @@ namespace APE.Language
             Input.Block();
             try
             {
-                GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, EditBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+                GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, editBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboboxTextBox.SetText(text);
             }
             catch when (Input.ResetInputFilter())
@@ -366,43 +431,93 @@ namespace APE.Language
             IntPtr messageResult;
             IntPtr sendResult;
 
-            int startIndex = -1;
-            while (true)
+
+            if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
             {
-                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_FINDSTRINGEXACT, new IntPtr(startIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                //CB_FINDSTRINGEXACT seems to have some issues with ImageCombo so use a less efficent method
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETCOUNT, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                int itemCount = unchecked((int)messageResult.ToInt64());
                 if (sendResult == IntPtr.Zero)
                 {
                     throw GUI.ApeException("Failed to access the " + Description);
                 }
-                else if (messageResult == new IntPtr(NM.CB_ERR))
+                else if (itemCount == NM.CB_ERR)
                 {
                     return NM.CB_ERR;
                 }
-                else
-                {
-                    int index = unchecked((int)messageResult.ToInt64());
 
-                    // looped around through 0
-                    if (index < startIndex)
-                    {
-                        return NM.CB_ERR;
-                    }
+                string lowerCaseItem = null;
+                if (caseSensitivity == CaseSensitivity.Insensitive)
+                {
+                    lowerCaseItem = itemText.ToLower();
+                }
+
+                for (int itemIndex = 0; itemIndex < itemCount; itemIndex++)
+                {
+                    string currentItem = this.ItemText(itemIndex);
 
                     switch (caseSensitivity)
                     {
                         case CaseSensitivity.Insensitive:
-                            return index;
-                        case CaseSensitivity.Sensitive:
-                            string foundItemText = ItemText(index);
-                            if (foundItemText == itemText)
+                            if (lowerCaseItem == currentItem.ToLower())
                             {
-                                return index;
+                                return itemIndex;
+                            }
+                            break;
+                        case CaseSensitivity.Sensitive:
+                            if (itemText == currentItem)
+                            {
+                                return itemIndex;
                             }
                             break;
                         default:
                             throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
                     }
-                    startIndex = index + 1;
+                }
+
+                return NM.CB_ERR;
+            }
+            else
+            {
+                //bit more efficent than the above
+                int startIndex = -1;
+                while (true)
+                {
+                    sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_FINDSTRINGEXACT, new IntPtr(startIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                    if (sendResult == IntPtr.Zero)
+                    {
+                        throw GUI.ApeException("Failed to access the " + Description);
+                    }
+                    else if (messageResult == new IntPtr(NM.CB_ERR))
+                    {
+                        return NM.CB_ERR;
+                    }
+                    else
+                    {
+                        int index = unchecked((int)messageResult.ToInt64());
+
+                        // looped around through 0
+                        if (index < startIndex)
+                        {
+                            return NM.CB_ERR;
+                        }
+
+                        switch (caseSensitivity)
+                        {
+                            case CaseSensitivity.Insensitive:
+                                return index;
+                            case CaseSensitivity.Sensitive:
+                                string foundItemText = ItemText(index);
+                                if (foundItemText == itemText)
+                                {
+                                    return index;
+                                }
+                                break;
+                            default:
+                                throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
+                        }
+                        startIndex = index + 1;
+                    }
                 }
             }
         }
