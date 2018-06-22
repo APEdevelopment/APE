@@ -33,23 +33,23 @@ namespace APE.Watcher
 
             if (args.Length == 3)
             {
-                int ParentPid = int.Parse(args[1]);
-                uint DoubleClickTimer = uint.Parse(args[2]);
+                int parentPid = int.Parse(args[1]);
+                uint doubleClickTimer = uint.Parse(args[2]);
 
-                Process.GetProcessById(ParentPid).WaitForExit();
+                Process.GetProcessById(parentPid).WaitForExit();
 
                 uint CurrentDoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
 
                 if (CurrentDoubleClickTimer <= NM.IntraClickDelay)   //APE probably messed with it so 
                 {
-                    if (DoubleClickTimer <= NM.IntraClickDelay)      //Really messed up so reset it to a reasonable 340
+                    if (doubleClickTimer <= NM.IntraClickDelay)      //Really messed up so reset it to a reasonable 340
                     {
-                        DoubleClickTimer = 340;
+                        doubleClickTimer = 340;
                     }
-                    NM.SetDoubleClickTime(DoubleClickTimer);   //Put it back to what it was when APE started
+                    NM.SetDoubleClickTime(doubleClickTimer);   //Put it back to what it was when APE started
                 }
 
-                base.AppbarNew(AppBarEdges.Top);    //Add and remove an appbar to make sure they are reset if APE is killed off
+                base.AppbarNew(AppBarEdges.Top);    //Add and remove an appbar to make sure maximised windows are restored properly
                 base.AppbarRemove();
 
                 Program.ExitCode = 0;
