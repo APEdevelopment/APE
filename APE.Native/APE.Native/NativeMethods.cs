@@ -26,7 +26,7 @@ namespace APE.Native
 
     public static class NativeMethods
     {
-
+        // There are some badly behaved controls (TabStrip in MsComCtl.ocx for instance) which crash if we set this to 1
         public const int IntraClickDelay = 2;
 
         public const int EM_GETSEL = 0x00B0;

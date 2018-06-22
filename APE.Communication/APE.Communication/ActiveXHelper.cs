@@ -88,6 +88,96 @@ namespace APE.Communication
             CleanUpMessage(ptrMessage);
         }
 
+        unsafe public void AddFirstMessageGetContainerHandleActiveX(IntPtr handle)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->Action = MessageAction.GetContainerHandleActiveX;
+
+            Parameter handleParam = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+        }
+
+        private unsafe void GetContainerHandleActiveX(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("GetContainerHandleActiveX must be first message");
+            }
+
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+
+            CleanUpMessage(ptrMessage);
+
+            IntPtr containerHandle = IntPtr.Zero;
+            if (Ax.Items.Count > 0)
+            {
+                lock (Ax.AxItemsLock)
+                {
+                    int items = Ax.Items.Count;
+                    for (int item = 0; item < items; item++)
+                    {
+                        if (Ax.Items[item].Handle == handle)
+                        {
+                            containerHandle = Ax.Items[item].ContainerHandle;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            AddReturnValue(new Parameter(this, containerHandle));
+        }
+
+        unsafe public void AddFirstMessageGetContainerActiveX(DataStores destinationStore, IntPtr handle)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->DestinationStore = destinationStore;
+            ptrMessage->Action = MessageAction.GetContainerActiveX;
+
+            Parameter handleParam = new Parameter(this, handle);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+        }
+
+        private unsafe void GetContainerActiveX(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("GetContainerActiveX must be first message");
+            }
+
+            IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
+
+            object container = null;
+            if (Ax.Items.Count > 0)
+            {
+                lock (Ax.AxItemsLock)
+                {
+                    int items = Ax.Items.Count;
+                    for (int item = 0; item < items; item++)
+                    {
+                        if (Ax.Items[item].Handle == handle)
+                        {
+                            container = FindByHandleActiveX(Ax.Items[item].ContainerHandle, out string name, out string typeNameSpace, out string typeName, out string uniqueId);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, container);
+            CleanUpMessage(ptrMessage);
+        }
+
         private object FindByHandleActiveX(IntPtr handle, out string name, out string typeNameSpace, out string typeName, out string uniqueId)
         {
             if (Ax.Items.Count > 0)

@@ -380,11 +380,7 @@ namespace APE.Language
             }
         }
 
-        /// <summary>
-        /// Sets the text portion of the combobox to the specified text by sending keystrokes
-        /// </summary>
-        /// <param name="text">The text to set the text portion of the combobox to</param>
-        public void SetText(string text)
+        private GUITextBox GetTextBox()
         {
             //Get the style
             string style = GetComboBoxStyle(out dynamic droppedDown);
@@ -393,7 +389,6 @@ namespace APE.Language
                 throw GUI.ApeException("Style of the " + Description + " is not an editable style");
             }
 
-            //get the editbox child window
             IntPtr editBox;
             if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
             {
@@ -418,10 +413,20 @@ namespace APE.Language
                 throw GUI.ApeException("Failed to find the " + Description + " textbox");
             }
 
+            return new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, editBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+        }
+
+        /// <summary>
+        /// Sets the text portion of the combobox to the specified text by sending keystrokes
+        /// </summary>
+        /// <param name="text">The text to set the text portion of the combobox to</param>
+        public void SetText(string text)
+        {
+            GUITextBox comboboxTextBox = GetTextBox();
+
             Input.Block();
             try
             {
-                GUITextBox comboboxTextBox = new GUITextBox(ParentForm, Identity.Description + " textbox", new Identifier(Identifiers.Handle, editBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 comboboxTextBox.SetText(text);
             }
             catch when (Input.ResetInputFilter())

@@ -25,7 +25,9 @@ namespace APE.Language
 {
     /// <summary>
     /// Automation class used to automate controls derived from the following:
-    /// TD.SandDock.DockableWindow
+    /// System.Windows.Forms.TabControl
+    /// SftTabsLib.SftTabs
+    /// MSComctlLib.TabStrip
     /// </summary>
     public sealed class GUITabControl : GUIFocusableObject
     {
@@ -49,15 +51,19 @@ namespace APE.Language
         public int TabCount()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            switch (Identity.TechnologyType)
             {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "TabCount", MemberTypes.Property);
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "TabCount", MemberTypes.Property);
+                    break;
+                case "Windows ActiveX":
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
+                    break;
+                default:
+                    throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
             }
-            else
-            {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
-            }
+            
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -94,16 +100,32 @@ namespace APE.Language
         public string TabText(int tabIndex)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            switch (Identity.TechnologyType)
             {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                    break;
+                case "Windows ActiveX":
+                    switch (Identity.TypeName)
+                    {
+                        case "SftTabs":
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tab", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+                            break;
+                        case "TabStrip":
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tabs", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Caption", MemberTypes.Property);
+                            break;
+                        default:
+                            throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
+                    }
+                    break;
+                default:
+                    throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
             }
-            else
-            {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tab", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
-            }
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
+            
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -169,10 +191,11 @@ namespace APE.Language
             NM.GetClientRect(Identity.Handle, out tabRect);
             int width = tabRect.right;
 
-            // multiline means no scroll button
+            // multiline means no scroll button (only top and bottom placement support a scroll button)
             if (!multiLine)
             {
-                if (Identity.TechnologyType == "Windows Forms (WinForms)")
+                //We may need to scroll
+                if (Identity.TechnologyType == "Windows Forms (WinForms)" || (Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "TabStrip"))
                 {
                     IntPtr upDownControl = NM.GetWindow(Identity.Handle, NM.GetWindowCmd.GW_CHILD);
 
@@ -185,7 +208,7 @@ namespace APE.Language
 
                         string className = NM.GetClassName(upDownControl);
 
-                        if (className == "msctls_updown32")
+                        if (className == "msctls_updown32" || className == "msvb_lib_updown")
                         {
                             break;
                         }
@@ -224,7 +247,7 @@ namespace APE.Language
                         }
                     }
                 }
-                else
+                else if (Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "SftTabs")
                 {
                     tabRectangle = TabRectangle(tabIndex);
 
@@ -241,6 +264,10 @@ namespace APE.Language
                         }
                         tabRectangle = TabRectangle(tabIndex);
                     }
+                }
+                else
+                {
+                    throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
                 }
             }
 
@@ -338,81 +365,246 @@ namespace APE.Language
         private string SelectedTabText()
         {
             string selectedTabText;
-            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            switch (Identity.TechnologyType)
             {
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedTab", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Text", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                selectedTabText = GUI.m_APE.GetValueFromMessage();
-            }
-            else
-            {
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Current", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                int currentTabIndex = GUI.m_APE.GetValueFromMessage();
-                selectedTabText = TabText(currentTabIndex);
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedTab", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Text", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    selectedTabText = GUI.m_APE.GetValueFromMessage();
+                    break;
+                case "Windows ActiveX":
+                    int currentTabIndex;
+                    switch (Identity.TypeName)
+                    {
+                        case "SftTabs":
+                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Property);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Current", MemberTypes.Property);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            currentTabIndex = GUI.m_APE.GetValueFromMessage();
+                            break;
+                        case "TabStrip":
+                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedItem", MemberTypes.Property);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Index", MemberTypes.Property);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            currentTabIndex = GUI.m_APE.GetValueFromMessage();
+                            break;
+                        default:
+                            throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
+                    }
+                    selectedTabText = TabText(currentTabIndex);
+                    break;
+                default:
+                    throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
             }
             return selectedTabText;
         }
 
         private bool MultiLine()
         {
-            if (Identity.TechnologyType == "Windows Forms (WinForms)")
+            bool multiLine;
+            switch (Identity.TechnologyType)
             {
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Multiline", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                bool multiLine = GUI.m_APE.GetValueFromMessage();
-                return multiLine;
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Multiline", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    multiLine = GUI.m_APE.GetValueFromMessage();
+                    break;
+                case "Windows ActiveX":
+                    switch (Identity.TypeName)
+                    {
+                        case "SftTabs":
+                            multiLine = false;
+                            break;
+                        case "TabStrip":
+                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "MultiRow", MemberTypes.Property);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            multiLine = GUI.m_APE.GetValueFromMessage();
+                            break;
+                        default:
+                            throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
+                    }
+                    break;
+                default:
+                    throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
             }
-            else
-            {
-                return false;
-            }
+            return multiLine;
         }
 
         private Rectangle TabRectangle(int tabIndex)
         {
+            int x;
+            int y;
+            int width;
+            int height;
+            switch (Identity.TechnologyType)
+            {
+                case "Windows Forms (WinForms)":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    x = GUI.m_APE.GetValueFromMessage();
+                    y = GUI.m_APE.GetValueFromMessage();
+                    width = GUI.m_APE.GetValueFromMessage();
+                    height = GUI.m_APE.GetValueFromMessage();
+                    break;
+                case "Windows ActiveX":
+                    switch (Identity.TypeName)
+                    {
+                        case "SftTabs":
+                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tab", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageGetTabRect(DataStores.Store1);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            x = GUI.m_APE.GetValueFromMessage();
+                            y = GUI.m_APE.GetValueFromMessage();
+                            width = GUI.m_APE.GetValueFromMessage();
+                            height = GUI.m_APE.GetValueFromMessage();
+                            break;
+                        case "TabStrip":
+                            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            x = (int)GUI.m_APE.GetValueFromMessage();
+                            y = (int)GUI.m_APE.GetValueFromMessage();
+                            width = (int)GUI.m_APE.GetValueFromMessage();
+                            height = (int)GUI.m_APE.GetValueFromMessage();
+
+                            GUI.m_APE.AddFirstMessageGetContainerHandleActiveX(Identity.Handle);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                            IntPtr containerHandle = GUI.m_APE.GetValueFromMessage();
+
+                            NM.tagPoint containerClientPoint = new NM.tagPoint();
+                            NM.ClientToScreen(containerHandle, ref containerClientPoint);
+
+                            NM.tagPoint clientPoint = new NM.tagPoint();
+                            NM.ClientToScreen(Handle, ref clientPoint);
+
+                            int containerOffsetX = clientPoint.x - containerClientPoint.x;
+                            int containerOffsetY = clientPoint.y - containerClientPoint.y;
+
+                            int scaleMode = TabStripScalingMode();
+                            switch (scaleMode)
+                            {
+                                case 1: //Twip
+                                    x = TwipsToPixels(x, Direction.Horizontal);
+                                    y = TwipsToPixels(y, Direction.Vertical);
+                                    width = TwipsToPixels(width, Direction.Horizontal);
+                                    height = TwipsToPixels(height, Direction.Vertical);
+                                    break;
+                                case 3: //Pixel
+                                    //do nothing
+                                    break;
+                                case 0: //User
+                                case 2: //Point
+                                case 4: //Character
+                                case 5: //Inch
+                                case 6: //Millimeter
+                                case 7: //Centimeter
+                                    throw GUI.ApeException("The " + Description + " scaling mode is of unsupported type " + scaleMode.ToString());
+                                default:
+                                    throw GUI.ApeException("The " + Description + " scaling mode is of unsupported type " + scaleMode.ToString());
+                            }
+
+                            x = x - containerOffsetX;
+                            y = y - containerOffsetY;
+
+                            int placement = TabStripPlacement();
+                            switch (placement)
+                            {
+                                case 0: //Top
+                                case 1: //Bottom
+                                    //do nothing
+                                    break;
+                                case 2: //Left
+                                case 3: //Right
+                                    //swap width and height
+                                    int temp = width;
+                                    width = height;
+                                    height = temp;
+                                    break;
+                                default:
+                                    throw GUI.ApeException("The " + Description + " placement is of unsupported type " + placement.ToString());
+                            }
+
+                            break;
+                        default:
+                            throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
+                    }
+                    break;
+                default:
+                    throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
+            }
+            Rectangle tabRectangle = new Rectangle(x, y, width, height);
+            return tabRectangle;
+        }
+
+        private int TabStripPlacement()
+        {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            if (Identity.TechnologyType == "Windows Forms (WinForms)")
-            {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store5, "Height", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-            }
-            else
-            {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tab", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
-                GUI.m_APE.AddQueryMessageGetTabRect(DataStores.Store1);
-            }
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Placement", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int x = GUI.m_APE.GetValueFromMessage();
-            int y = GUI.m_APE.GetValueFromMessage();
-            int width = GUI.m_APE.GetValueFromMessage();
-            int height = GUI.m_APE.GetValueFromMessage();
+            int placement = GUI.m_APE.GetValueFromMessage();
+            return placement;
+        }
 
-            Rectangle tabRectangle = new Rectangle(x, y, width, height);
-            return tabRectangle;
+        private int TabStripScalingMode()
+        {
+            GUI.m_APE.AddFirstMessageGetContainerActiveX(DataStores.Store0, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ScaleMode", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            int scaleMode = GUI.m_APE.GetValueFromMessage();
+            return scaleMode;
         }
     }
 }

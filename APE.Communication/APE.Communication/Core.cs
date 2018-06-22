@@ -122,6 +122,8 @@ namespace APE.Communication
         GetTabRect = 61,
         GetInvokeFormActiveX = 62,
         GetComboBoxExItemText = 63,
+        GetContainerActiveX = 64,
+        GetContainerHandleActiveX = 65,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -447,6 +449,12 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.GetComboBoxExItemText:
                                     GetComboBoxExItemText(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.GetContainerActiveX:
+                                    GetContainerActiveX(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.GetContainerHandleActiveX:
+                                    GetContainerHandleActiveX(ptrMessage, messageNumber);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
