@@ -14,39 +14,29 @@
 //limitations under the License.
 //
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using APE.Dock;
-using System.Runtime.InteropServices;
 using NM = APE.Native.NativeMethods;
 
 namespace APE.Watcher
 {
-    public partial class Watcher : AppBar
+    public class Watcher : AppBar
     {
         public Watcher()
         {
-            //InitializeComponent();
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.FormBorderStyle = FormBorderStyle.None;
             NM.MoveWindow(this.Handle, 0, 0, 0, 0, false);
+            this.Load += new EventHandler(this.Watcher_Load);
 
             string[] args = Environment.GetCommandLineArgs();
-            
+
             if (args.Length == 3)
             {
                 int ParentPid = int.Parse(args[1]);
                 uint DoubleClickTimer = uint.Parse(args[2]);
 
-                //TimerResolution.SetTimerResolution(TimerResolution.GetMaximumTimerResolution());
                 Process.GetProcessById(ParentPid).WaitForExit();
-                //TimerResolution.UnsetTimerResolution();
 
                 uint CurrentDoubleClickTimer = (uint)SystemInformation.DoubleClickTime;
 
@@ -62,12 +52,18 @@ namespace APE.Watcher
                 base.AppbarNew(AppBarEdges.Top);    //Add and remove an appbar to make sure they are reset if APE is killed off
                 base.AppbarRemove();
 
-                Environment.Exit(0);
+                Program.ExitCode = 0;
             }
             else
             {
-                Environment.Exit(-1);
+                Program.ExitCode = 1;
             }
+        }
+
+        private void Watcher_Load(object sender, EventArgs e)
+        {
+            //Cant exit in the constructior so exit in the load event instead
+            Application.Exit();
         }
     }
 }

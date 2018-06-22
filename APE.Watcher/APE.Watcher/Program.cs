@@ -23,15 +23,29 @@ namespace APE.Watcher
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        private static int m_ExitCode = 0;
+
+        internal static int ExitCode
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            get
+            {
+                return m_ExitCode;
+            }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new Exception("exitCode must be positive");
+                }
+                m_ExitCode = value;
+            }
+        }
+
+        [STAThread]
+        private static int Main()
+        {
             Application.Run(new Watcher());
+            return ExitCode;
         }
     }
 }
