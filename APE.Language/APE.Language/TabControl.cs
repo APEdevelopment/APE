@@ -31,6 +31,8 @@ namespace APE.Language
     /// </summary>
     public sealed class GUITabControl : GUIFocusableObject
     {
+        private int TabOffset = 0;
+
         /// <summary>
         /// Constructor used for non-form controls
         /// </summary>
@@ -42,6 +44,10 @@ namespace APE.Language
         public GUITabControl(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
             : base(parentForm, descriptionOfControl, identParams)
         {
+            if (Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "TabStrip")
+            {
+                TabOffset = 1; //Convert from 1 based to 0 based
+            }
         }
 
         /// <summary>
@@ -81,11 +87,11 @@ namespace APE.Language
         {
             int tabCount = TabCount();
 
-            for (int x = 0; x < tabCount; x++)
+            for (int tabIndex = 0; tabIndex < tabCount; tabIndex++)
             {
-                if (TabText(x) == tabText)
+                if (TabText(tabIndex) == tabText)
                 {
-                    return x;
+                    return tabIndex;
                 }
             }
 
@@ -95,27 +101,28 @@ namespace APE.Language
         /// <summary>
         /// Returns the text of the tab at the specified index
         /// </summary>
-        /// <param name="tabIndex">The index of the tab</param>
+        /// <param name="tabIndex">The tab index to select (0 based)</param>
         /// <returns>The text of the tab</returns>
         public string TabText(int tabIndex)
         {
+            int actualTabIndex = tabIndex + TabOffset;
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             switch (Identity.TechnologyType)
             {
                 case "Windows Forms (WinForms)":
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "TabPages", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, actualTabIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                     break;
                 case "Windows ActiveX":
                     switch (Identity.TypeName)
                     {
                         case "SftTabs":
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tab", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tab", MemberTypes.Property, new Parameter(GUI.m_APE, actualTabIndex));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Text", MemberTypes.Property);
                             break;
                         case "TabStrip":
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tabs", MemberTypes.Property, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "Tabs", MemberTypes.Property, new Parameter(GUI.m_APE, actualTabIndex));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Caption", MemberTypes.Property);
                             break;
                         default:
@@ -158,7 +165,7 @@ namespace APE.Language
         /// <summary>
         /// Select a tab
         /// </summary>
-        /// <param name="tabIndex">The tab index to select</param>
+        /// <param name="tabIndex">The tab index to select (0 based)</param>
         public void SingleClickTab(int tabIndex)
         {
             string tabText = TabText(tabIndex);
@@ -168,7 +175,7 @@ namespace APE.Language
         /// <summary>
         /// Click on a tab using the specified mouse button
         /// </summary>
-        /// <param name="tabIndex">The tab index to select</param>
+        /// <param name="tabIndex">The tab index to select (0 based)</param>
         /// <param name="button">The mouse button to click with</param>
         public void SingleClickTab(int tabIndex, MouseButton button)
         {
@@ -184,8 +191,10 @@ namespace APE.Language
                 return;
             }
 
+            int actualTabIndex = tabIndex + TabOffset;
+
             bool multiLine = MultiLine();
-            Rectangle tabRectangle = TabRectangle(tabIndex);
+            Rectangle tabRectangle = TabRectangle(actualTabIndex);
 
             NM.tagRect tabRect;
             NM.GetClientRect(Identity.Handle, out tabRect);
@@ -243,18 +252,18 @@ namespace APE.Language
                                 break;
                             }
 
-                            tabRectangle = TabRectangle(tabIndex);
+                            tabRectangle = TabRectangle(actualTabIndex);
                         }
                     }
                 }
                 else if (Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "SftTabs")
                 {
-                    tabRectangle = TabRectangle(tabIndex);
+                    tabRectangle = TabRectangle(actualTabIndex);
 
                     while (tabRectangle.Width == 0 || tabRectangle.Height == 0)
                     {
                         int visibleTab = SftTabVisibleTab();
-                        if (tabIndex < visibleTab)
+                        if (actualTabIndex < visibleTab)
                         {
                             SftTabClickLeftUp();
                         }
@@ -262,7 +271,7 @@ namespace APE.Language
                         {
                             SftTabClickRightDown();
                         }
-                        tabRectangle = TabRectangle(tabIndex);
+                        tabRectangle = TabRectangle(actualTabIndex);
                     }
                 }
                 else
@@ -404,7 +413,7 @@ namespace APE.Language
                         default:
                             throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
                     }
-                    selectedTabText = TabText(currentTabIndex);
+                    selectedTabText = TabText(currentTabIndex - TabOffset);
                     break;
                 default:
                     throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
@@ -451,7 +460,7 @@ namespace APE.Language
             return multiLine;
         }
 
-        private Rectangle TabRectangle(int tabIndex)
+        private Rectangle TabRectangle(int actualTabIndex)
         {
             int x;
             int y;
@@ -461,7 +470,7 @@ namespace APE.Language
             {
                 case "Windows Forms (WinForms)":
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetTabRect", MemberTypes.Method, new Parameter(GUI.m_APE, actualTabIndex));
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "X", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Y", MemberTypes.Property);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
@@ -483,7 +492,7 @@ namespace APE.Language
                     {
                         case "SftTabs":
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tab", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tab", MemberTypes.Method, new Parameter(GUI.m_APE, actualTabIndex));
                             GUI.m_APE.AddQueryMessageGetTabRect(DataStores.Store1);
                             GUI.m_APE.SendMessages(EventSet.APE);
                             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -495,7 +504,7 @@ namespace APE.Language
                             break;
                         case "TabStrip":
                             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Method, new Parameter(GUI.m_APE, tabIndex));
+                            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Tabs", MemberTypes.Method, new Parameter(GUI.m_APE, actualTabIndex));
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Left", MemberTypes.Property);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Top", MemberTypes.Property);
                             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store4, "Width", MemberTypes.Property);
@@ -507,16 +516,12 @@ namespace APE.Language
                             GUI.m_APE.SendMessages(EventSet.APE);
                             GUI.m_APE.WaitForMessages(EventSet.APE);
                             //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            x = (int)GUI.m_APE.GetValueFromMessage();
-                            y = (int)GUI.m_APE.GetValueFromMessage();
-                            width = (int)GUI.m_APE.GetValueFromMessage();
-                            height = (int)GUI.m_APE.GetValueFromMessage();
+                            x = (int)(Math.Round(GUI.m_APE.GetValueFromMessage()));
+                            y = (int)(Math.Round(GUI.m_APE.GetValueFromMessage()));
+                            width = (int)(Math.Round(GUI.m_APE.GetValueFromMessage()));
+                            height = (int)(Math.Round(GUI.m_APE.GetValueFromMessage()));
 
-                            GUI.m_APE.AddFirstMessageGetContainerHandleActiveX(Identity.Handle);
-                            GUI.m_APE.SendMessages(EventSet.APE);
-                            GUI.m_APE.WaitForMessages(EventSet.APE);
-                            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                            IntPtr containerHandle = GUI.m_APE.GetValueFromMessage();
+                           IntPtr containerHandle = NM.GetAncestor(Handle, NM.GetAncestorFlags.GetParent);
 
                             NM.tagPoint containerClientPoint = new NM.tagPoint();
                             NM.ClientToScreen(containerHandle, ref containerClientPoint);
@@ -527,24 +532,24 @@ namespace APE.Language
                             int containerOffsetX = clientPoint.x - containerClientPoint.x;
                             int containerOffsetY = clientPoint.y - containerClientPoint.y;
 
-                            int scaleMode = TabStripScalingMode();
+                            ScalingMode scaleMode = TabStripScalingMode();
                             switch (scaleMode)
                             {
-                                case 1: //Twip
+                                case ScalingMode.Twip: //Twip
                                     x = TwipsToPixels(x, Direction.Horizontal);
                                     y = TwipsToPixels(y, Direction.Vertical);
                                     width = TwipsToPixels(width, Direction.Horizontal);
                                     height = TwipsToPixels(height, Direction.Vertical);
                                     break;
-                                case 3: //Pixel
+                                case ScalingMode.Pixel: //Pixel
                                     //do nothing
                                     break;
-                                case 0: //User
-                                case 2: //Point
-                                case 4: //Character
-                                case 5: //Inch
-                                case 6: //Millimeter
-                                case 7: //Centimeter
+                                case ScalingMode.User:
+                                case ScalingMode.Point:
+                                case ScalingMode.Character:
+                                case ScalingMode.Inch:
+                                case ScalingMode.Millimeter:
+                                case ScalingMode.Centimeter:
                                     throw GUI.ApeException("The " + Description + " scaling mode is of unsupported type " + scaleMode.ToString());
                                 default:
                                     throw GUI.ApeException("The " + Description + " scaling mode is of unsupported type " + scaleMode.ToString());
@@ -595,16 +600,73 @@ namespace APE.Language
             return placement;
         }
 
-        private int TabStripScalingMode()
+        private ScalingMode TabStripScalingMode()
         {
-            GUI.m_APE.AddFirstMessageGetContainerActiveX(DataStores.Store0, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ScaleMode", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            int scaleMode = GUI.m_APE.GetValueFromMessage();
-            return scaleMode;
+            IntPtr containerHandle = NM.GetAncestor(Handle, NM.GetAncestorFlags.GetParent);
+
+            NM.tagPoint containerClientPoint = new NM.tagPoint();
+            NM.ClientToScreen(containerHandle, ref containerClientPoint);
+
+            NM.tagPoint clientPoint = new NM.tagPoint();
+            NM.ClientToScreen(Handle, ref clientPoint);
+
+            int containerOffsetX = clientPoint.x - containerClientPoint.x;
+            int containerOffsetY = clientPoint.y - containerClientPoint.y;
+
+            int placement = TabStripPlacement();
+            switch (placement)
+            {
+                case 0: //Top
+                case 1: //Bottom
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ClientLeft", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    int clientLeft = (int)(Math.Round(GUI.m_APE.GetValueFromMessage()));
+                    if (clientLeft - containerOffsetX < 10)
+                    {
+                        return ScalingMode.Pixel;
+                    }
+                    if (TwipsToPixels(clientLeft, Direction.Horizontal) - containerOffsetX < 10)
+                    {
+                        return ScalingMode.Twip;
+                    }
+                    throw GUI.ApeException("Unsupported scaling mode");
+                case 2: //Left
+                case 3: //Right
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ClientTop", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    int clientTop = (int)(Math.Round(GUI.m_APE.GetValueFromMessage()));
+                    if (clientTop - containerOffsetY < 10)
+                    {
+                        return ScalingMode.Pixel;
+                    }
+                    if (TwipsToPixels(clientTop, Direction.Vertical) - containerOffsetY < 10)
+                    {
+                        return ScalingMode.Twip;
+                    }
+                    throw GUI.ApeException("Unsupported scaling mode");
+                default:
+                    throw GUI.ApeException("The " + Description + " placement is of unsupported type " + placement.ToString());
+            }
+        }
+
+        private enum ScalingMode : int
+        {
+            User = 0,
+            Twip = 1,
+            Point = 2,
+            Pixel = 3,
+            Character = 4,
+            Inch = 5,
+            Millimeter = 6,
+            Centimeter = 7,
         }
     }
 }
