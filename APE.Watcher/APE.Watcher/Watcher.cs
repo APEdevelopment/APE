@@ -42,7 +42,7 @@ namespace APE.Watcher
 
                 if (CurrentDoubleClickTimer <= NM.IntraClickDelay)   //APE probably messed with it so 
                 {
-                    if (DoubleClickTimer <= NM.IntraClickDelay)      //Really messed up so reset it a reasonable 340
+                    if (DoubleClickTimer <= NM.IntraClickDelay)      //Really messed up so reset it to a reasonable 340
                     {
                         DoubleClickTimer = 340;
                     }
