@@ -883,7 +883,7 @@ namespace APE.Language
 
             try
             {
-                if (WhiteWindow == null)
+                if (WhiteWindow == null && Source == WaitForAnimationSource.Form)
                 {
                     // If the window has transparency and a window is animating in behind the window then we won't be able to determine
                     // when the window we are interested in has finished animating, so place a solid white window behind the window we are
@@ -897,8 +897,11 @@ namespace APE.Language
                     long currentExStyle = NM.GetWindowLongPtr(Handle, NM.GWL.GWL_EXSTYLE).ToInt64();
                     NM.SetWindowLongPtr(WhiteWindow.Handle, NM.GWL.GWL_EXSTYLE, currentExStyle | WS_EX_TOOLWINDOW);
                 }
-                
-                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.ShowWindow);
+
+                if (Source == WaitForAnimationSource.Form)
+                {
+                    NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.ShowWindow);
+                }
 
                 int SameCount = 0;
                 int i = 0;
@@ -948,7 +951,10 @@ namespace APE.Language
             }
             finally
             {
-                NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.HideWindow);
+                if (Source == WaitForAnimationSource.Form)
+                {
+                    NM.SetWindowPos(WhiteWindow.Handle, Handle, theRect.left, theRect.top, width, height, NM.SetWindowPosFlags.HideWindow);
+                }
             }
             timer.Stop();
             //Debug.Listeners[0].WriteLine("\t Loops: " + Loops.ToString() + " Time: " + timer.ElapsedMilliseconds.ToString());

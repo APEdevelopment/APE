@@ -325,7 +325,7 @@ namespace APE.Language
                     SetTopIndex(listBox, index);
                     itemRectangle = GetItemRectangle(listBox, index);
                 }
-
+                
                 //click the item
                 GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, listBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
                 WaitForAnimation(comboBoxDropdown.Handle, false, AnimationUtils.WaitForAnimationSource.ComboBoxDropdown);
