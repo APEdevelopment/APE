@@ -296,9 +296,10 @@ namespace APE.Language
 
                 //locate the item
                 timer = Stopwatch.StartNew();
+                int index;
                 while (true)
                 {
-                    int index = ItemIndex(itemText, caseSensitivity);
+                    index = ItemIndex(itemText, caseSensitivity);
                     if (index != NM.CB_ERR)
                     {
                         break;
