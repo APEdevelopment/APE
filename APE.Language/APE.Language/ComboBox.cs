@@ -328,7 +328,7 @@ namespace APE.Language
                 
                 //click the item
                 GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, listBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
-                WaitForAnimation(comboBoxDropdown.Handle, false, AnimationUtils.WaitForAnimationSource.ComboBoxDropdown);
+                //WaitForAnimation(comboBoxDropdown.Handle, false, AnimationUtils.WaitForAnimationSource.ComboBoxDropdown);
 
                 comboBoxDropdown.SingleClickInternal(-1, (itemRectangle.Height / 2) + itemRectangle.Top, MouseButton.Left, MouseKeyModifier.None);
 
