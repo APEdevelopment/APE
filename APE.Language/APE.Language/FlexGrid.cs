@@ -3361,6 +3361,10 @@ namespace APE.Language
                                 break;
                             }
                         }
+                        else
+                        {
+                            break;
+                        }
                         combotreepopupctl = null;
                     }
 
