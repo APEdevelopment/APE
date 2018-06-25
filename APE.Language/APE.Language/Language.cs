@@ -828,7 +828,8 @@ namespace APE.Language
     {
         public enum WaitForAnimationSource
         {
-            Form = 1,
+            Form,
+            ComboBoxDropdown,
         }
 
         private static Form WhiteWindow = null;
@@ -836,17 +837,14 @@ namespace APE.Language
 
         internal void WaitForAnimation(IntPtr Handle, bool ClearClientArea, WaitForAnimationSource Source)
         {
-            if (Source == WaitForAnimationSource.Form)
-            {
-                if (GUI.FormAnimationDisabled)
-                {
-                    return;
-                }
-            }
-
             Stopwatch timer = Stopwatch.StartNew();
-            do
+            while (true)
             {
+                if (NM.IsWindowVisible(Handle))
+                {
+                    break;
+                }
+
                 if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                 {
                     throw GUI.ApeException("Window is not visible");
@@ -854,7 +852,6 @@ namespace APE.Language
 
                 Thread.Sleep(15);
             }
-            while (NM.IsWindowVisible(Handle) == false);
 
             if (Source == WaitForAnimationSource.Form)
             {
@@ -867,30 +864,15 @@ namespace APE.Language
                 {
                     return;
                 }
+                if (GUI.FormAnimationDisabled)
+                {
+                    return;
+                }
             }
 
             NM.tagRect theRect = Display.GetWindowRectangleDIP(Handle);
-
-            int width;
-            //if (theRect.Right - theRect.Left > 50)
-            //{
-            //    Width = 50;
-            //}
-            //else
-            //{
-                width = theRect.right - theRect.left;
-            //}
-
-            int height;
-            //if (theRect.Bottom - theRect.Top > 50)
-            //{
-            //    Height = 50;
-            //}
-            //else
-            //{
-                height = theRect.bottom - theRect.top;
-            //}
-
+            int width = theRect.right - theRect.left;
+            int height = theRect.bottom - theRect.top;
             if (width < 1 || height < 1)
             {
                 return;

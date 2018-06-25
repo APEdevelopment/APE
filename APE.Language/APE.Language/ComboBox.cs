@@ -293,12 +293,23 @@ namespace APE.Language
                         throw GUI.ApeException("Failed to find the " + Description + " dropdown");
                     }
                 }
-                
+
                 //locate the item
-                int index = ItemIndex(itemText, caseSensitivity);
-                if (index == NM.CB_ERR)
+                timer = Stopwatch.StartNew();
+                while (true)
                 {
-                    throw GUI.ApeException("Failed to find the " + Description + " item");
+                    int index = ItemIndex(itemText, caseSensitivity);
+                    if (index != NM.CB_ERR)
+                    {
+                        break;
+                    }
+
+                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                    {
+                        throw GUI.ApeException("Failed to find the " + Description + " item");
+                    }
+
+                    Thread.Sleep(50);
                 }
 
                 NM.tagRect ClientRect;
@@ -316,6 +327,8 @@ namespace APE.Language
 
                 //click the item
                 GUIForm comboBoxDropdown = new GUIForm(ParentForm, Description + " dropdown", new Identifier(Identifiers.Handle, listBox), new Identifier(Identifiers.TechnologyType, "Windows Native"));
+                WaitForAnimation(comboBoxDropdown.Handle, false, AnimationUtils.WaitForAnimationSource.ComboBoxDropdown);
+
                 comboBoxDropdown.SingleClickInternal(-1, (itemRectangle.Height / 2) + itemRectangle.Top, MouseButton.Left, MouseKeyModifier.None);
 
                 //wait for CurrentItemText() to == text
@@ -444,7 +457,6 @@ namespace APE.Language
             IntPtr messageResult;
             IntPtr sendResult;
 
-
             if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
             {
                 //CB_FINDSTRINGEXACT seems to have some issues with ImageCombo so use a less efficent method
@@ -501,36 +513,33 @@ namespace APE.Language
                     {
                         throw GUI.ApeException("Failed to access the " + Description);
                     }
-                    else if (messageResult == new IntPtr(NM.CB_ERR))
+                    int index = unchecked((int)messageResult.ToInt64());
+                    if (index == NM.CB_ERR)
                     {
                         return NM.CB_ERR;
                     }
-                    else
+                    
+                    // looped around through 0
+                    if (index < startIndex)
                     {
-                        int index = unchecked((int)messageResult.ToInt64());
-
-                        // looped around through 0
-                        if (index < startIndex)
-                        {
-                            return NM.CB_ERR;
-                        }
-
-                        switch (caseSensitivity)
-                        {
-                            case CaseSensitivity.Insensitive:
-                                return index;
-                            case CaseSensitivity.Sensitive:
-                                string foundItemText = ItemText(index);
-                                if (foundItemText == itemText)
-                                {
-                                    return index;
-                                }
-                                break;
-                            default:
-                                throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
-                        }
-                        startIndex = index + 1;
+                        return NM.CB_ERR;
                     }
+
+                    switch (caseSensitivity)
+                    {
+                        case CaseSensitivity.Insensitive:
+                            return index;
+                        case CaseSensitivity.Sensitive:
+                            string foundItemText = ItemText(index);
+                            if (foundItemText == itemText)
+                            {
+                                return index;
+                            }
+                            break;
+                        default:
+                            throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
+                    }
+                    startIndex = index + 1;
                 }
             }
         }
