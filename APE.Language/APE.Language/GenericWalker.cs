@@ -195,7 +195,9 @@ namespace APE.Language
                                 {
                                     string state = GetCurrentState();
 
-                                    if (state == "Incomplete" || token == 0)
+                                    //PrefixState has 4 states: Unknown, Incomplete, Valid, Invalid
+                                    //The last 2 states cause the drop down to appear
+                                    if (token == 0 || state == "Unknown" || state == "Incomplete")
                                     {
                                         searchAfter = token + 1;
                                     }
