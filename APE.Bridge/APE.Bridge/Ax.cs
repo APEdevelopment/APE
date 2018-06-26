@@ -73,6 +73,7 @@ namespace APE.Bridge
             }
         }
 
+        private static List<IntPtr> ParentForms = new List<IntPtr>();
         public static List<Item> Items = new List<Item>();
         public static readonly object AxItemsLock = new object();
         public static Form InvokeForm;
@@ -130,6 +131,11 @@ namespace APE.Bridge
             bool found = false;
             lock (AxItemsLock)
             {
+                if (!ParentForms.Contains(item.ParentHandle))
+                {
+                    ParentForms.Add(item.ParentHandle);
+                }
+
                 int numberOfItems = Items.Count;
                 for (int index = 0; index < numberOfItems; index++)
                 {
@@ -179,44 +185,58 @@ namespace APE.Bridge
             lock (AxItemsLock)
             {
                 int numberOfItems = Items.Count;
-                for (int index = numberOfItems - 1; index > -1; index--)
+
+                //Are we removing all controls on a parent form?
+                if (ParentForms.Contains(containerHandle))
                 {
-                    if (Items[index].ParentHandle != handleOfContainerToRemove &&
-                        (Items[index].ContainerHandle == handleOfContainerToRemove ||
-                        Items[index].Handle == handleOfContainerToRemove))
+                    //If so remove everything we have related to the form
+                    for (int index = numberOfItems - 1; index > -1; index--)
                     {
-                        //unloading a control (rather than a form)
-
-                        //is the parent form in the list
-                        int numberOfItems2 = Items.Count;
-                        bool foundParent = false;
-                        for (int index2 = numberOfItems2 - 1; index2 > -1; index2--)
+                        if (Items[index].ParentHandle == handleOfContainerToRemove ||
+                            Items[index].ContainerHandle == handleOfContainerToRemove ||
+                            Items[index].Handle == handleOfContainerToRemove)
                         {
-                            if (Items[index].ParentHandle == Items[index2].Handle)
+                            if (Items[index].Control != null)
                             {
-                                foundParent = true;
-                                break;
+                                Marshal.ReleaseComObject(Items[index].Control);
                             }
-                        }
-
-                        if (foundParent)
-                        {
-                            Marshal.ReleaseComObject(Items[index].Control);
-                            Items[index].Control = null;
-                        }
-                        else
-                        {
-                            Marshal.ReleaseComObject(Items[index].Control);
                             Items.RemoveAt(index);
                         }
                     }
-                    else if (Items[index].ParentHandle == handleOfContainerToRemove ||   //We check the ParentHandle to be certain that we don't leak any controls, its not really needed but doesn't hurt
-                        Items[index].ContainerHandle == handleOfContainerToRemove ||
-                        Items[index].Handle == handleOfContainerToRemove)
+                    ParentForms.Remove(containerHandle);
+                }
+                else
+                {
+                    //Otherwise we are removing a custom control which happens when it get hidden
+                    for (int index = numberOfItems - 1; index > -1; index--)
                     {
-                        //Debug.WriteLine("removing: " + Items[index].Name + " parent: " + Items[index].ParentHandle.ToString());
-                        Marshal.ReleaseComObject(Items[index].Control);
-                        Items.RemoveAt(index);
+                        if (Items[index].ContainerHandle == handleOfContainerToRemove ||
+                            Items[index].Handle == handleOfContainerToRemove)
+                        {
+                            //Does the controls parent form exist in the form collection?
+                            if (ParentForms.Contains(Items[index].ParentHandle))
+                            {
+                                //If so release the underlying object and set it to null but don't remove
+                                //the object from the list yet so that if the custom control is reshown
+                                //the name is reused and so doesn't change
+                                //An example of this case is when an ActiveX custom control is hosted on a ActiveX form
+                                if (Items[index].Control != null)
+                                {
+                                    Marshal.ReleaseComObject(Items[index].Control);
+                                }
+                                Items[index].Control = null;
+                            }
+                            else
+                            {
+                                //Otherwise we don't have a reference to the parent form so remove the item now
+                                //An example of this case is when an ActiveX control is hosted on a .NET form
+                                if (Items[index].Control != null)
+                                {
+                                    Marshal.ReleaseComObject(Items[index].Control);
+                                }
+                                Items.RemoveAt(index);
+                            }
+                        }
                     }
                 }
             }

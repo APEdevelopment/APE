@@ -343,6 +343,11 @@ namespace APE.Communication
                     int items = Ax.Items.Count;
                     for (item = 0; item < items; item++)
                     {
+                        if (Ax.Items[item].Control == null)
+                        {
+                            continue;
+                        }
+
                         handle = Ax.Items[item].Handle;
                         parentHandle = Ax.Items[item].ParentHandle;
                         name = Ax.Items[item].Name;
@@ -350,11 +355,6 @@ namespace APE.Communication
                         typeNameSpace = Ax.Items[item].TypeNameSpace;
                         uniqueId = Ax.Items[item].UniqueId;
                         control = Ax.Items[item].Control;
-
-                        if (Ax.Items[item].Control == null)
-                        {
-                            continue;
-                        }
 
                         if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
                         {
