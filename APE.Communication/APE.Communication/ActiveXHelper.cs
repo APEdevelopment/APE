@@ -99,18 +99,21 @@ namespace APE.Communication
                     {
                         if (Ax.Items[item].Handle == handle)
                         {
-                            name = Ax.Items[item].Name;
-                            typeName = Ax.Items[item].TypeName;
-                            typeNameSpace = Ax.Items[item].TypeNameSpace;
-
-                            if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
+                            if (Ax.Items[item].Control != null)
                             {
-                                Ax.Items[item].TypeName = typeName;
-                                Ax.Items[item].TypeNameSpace = typeNameSpace;
-                            }
+                                name = Ax.Items[item].Name;
+                                typeName = Ax.Items[item].TypeName;
+                                typeNameSpace = Ax.Items[item].TypeNameSpace;
 
-                            uniqueId = Ax.Items[item].UniqueId;
-                            return Ax.Items[item].Control;
+                                if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
+                                {
+                                    Ax.Items[item].TypeName = typeName;
+                                    Ax.Items[item].TypeNameSpace = typeNameSpace;
+                                }
+
+                                uniqueId = Ax.Items[item].UniqueId;
+                                return Ax.Items[item].Control;
+                            }
                         }
                     }
                 }
@@ -133,18 +136,21 @@ namespace APE.Communication
                     {
                         if (Ax.Items[item].UniqueId == uniqueId)
                         {
-                            name = Ax.Items[item].Name;
-                            typeName = Ax.Items[item].TypeName;
-                            typeNameSpace = Ax.Items[item].TypeNameSpace;
-
-                            if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
+                            if (Ax.Items[item].Control != null)
                             {
-                                Ax.Items[item].TypeName = typeName;
-                                Ax.Items[item].TypeNameSpace = typeNameSpace;
-                            }
+                                name = Ax.Items[item].Name;
+                                typeName = Ax.Items[item].TypeName;
+                                typeNameSpace = Ax.Items[item].TypeNameSpace;
 
-                            handle = Ax.Items[item].Handle;
-                            return Ax.Items[item].Control;
+                                if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
+                                {
+                                    Ax.Items[item].TypeName = typeName;
+                                    Ax.Items[item].TypeNameSpace = typeNameSpace;
+                                }
+
+                                handle = Ax.Items[item].Handle;
+                                return Ax.Items[item].Control;
+                            }
                         }
                     }
                 }
@@ -172,14 +178,17 @@ namespace APE.Communication
                     {
                         if (Ax.Items[item].Handle == handle)
                         {
-                            parentHandle = Ax.Items[item].ParentHandle;
-                            name = Ax.Items[item].Name;
-                            typeName = Ax.Items[item].TypeName;
-                            typeNameSpace = Ax.Items[item].TypeNameSpace;
-                            uniqueId = Ax.Items[item].UniqueId;
-                            control = Ax.Items[item].Control;
-                            found = true;
-                            break;
+                            if (Ax.Items[item].Control != null)
+                            {
+                                parentHandle = Ax.Items[item].ParentHandle;
+                                name = Ax.Items[item].Name;
+                                typeName = Ax.Items[item].TypeName;
+                                typeNameSpace = Ax.Items[item].TypeNameSpace;
+                                uniqueId = Ax.Items[item].UniqueId;
+                                control = Ax.Items[item].Control;
+                                found = true;
+                                break;
+                            }
                         }
                     }
 
@@ -341,6 +350,11 @@ namespace APE.Communication
                         typeNameSpace = Ax.Items[item].TypeNameSpace;
                         uniqueId = Ax.Items[item].UniqueId;
                         control = Ax.Items[item].Control;
+
+                        if (Ax.Items[item].Control == null)
+                        {
+                            continue;
+                        }
 
                         if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
                         {

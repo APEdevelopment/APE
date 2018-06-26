@@ -136,6 +136,15 @@ namespace APE.Bridge
                     if (Items[index].UniqueId == item.UniqueId)
                     {
                         found = true;
+                        if (Items[index].Control == null)
+                        {
+                            Items[index].Control = item.Control;
+                        }
+                        else
+                        {
+                            //Already added this so decrement the RCW reference count
+                            Marshal.ReleaseComObject(item.Control);
+                        }
                         //Debug.Write("Updating: name: " + Items[index].Name + " now:");
                         //Update the handles and name if need be
                         if (!string.IsNullOrEmpty(item.Name))
@@ -156,12 +165,7 @@ namespace APE.Bridge
                         break;
                     }
                 }
-                if (found)
-                {
-                    //Already added this so decrement the RCW reference count
-                    Marshal.ReleaseComObject(item.Control);
-                }
-                else
+                if (!found)
                 {
                     //Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
                     Items.Add(item);
@@ -177,7 +181,36 @@ namespace APE.Bridge
                 int numberOfItems = Items.Count;
                 for (int index = numberOfItems - 1; index > -1; index--)
                 {
-                    if (Items[index].ParentHandle == handleOfContainerToRemove ||   //We check the ParentHandle to be certain that we don't leak any controls, its not really needed but doesn't hurt
+                    if (Items[index].ParentHandle != handleOfContainerToRemove &&
+                        (Items[index].ContainerHandle == handleOfContainerToRemove ||
+                        Items[index].Handle == handleOfContainerToRemove))
+                    {
+                        //unloading a control (rather than a form)
+
+                        //is the parent form in the list
+                        int numberOfItems2 = Items.Count;
+                        bool foundParent = false;
+                        for (int index2 = numberOfItems2 - 1; index2 > -1; index2--)
+                        {
+                            if (Items[index].ParentHandle == Items[index2].Handle)
+                            {
+                                foundParent = true;
+                                break;
+                            }
+                        }
+
+                        if (foundParent)
+                        {
+                            Marshal.ReleaseComObject(Items[index].Control);
+                            Items[index].Control = null;
+                        }
+                        else
+                        {
+                            Marshal.ReleaseComObject(Items[index].Control);
+                            Items.RemoveAt(index);
+                        }
+                    }
+                    else if (Items[index].ParentHandle == handleOfContainerToRemove ||   //We check the ParentHandle to be certain that we don't leak any controls, its not really needed but doesn't hurt
                         Items[index].ContainerHandle == handleOfContainerToRemove ||
                         Items[index].Handle == handleOfContainerToRemove)
                     {
