@@ -373,7 +373,7 @@ namespace APE.Language
 
         private string SelectedTabText()
         {
-            string selectedTabText;
+            string selectedTabText = null;
             switch (Identity.TechnologyType)
             {
                 case "Windows Forms (WinForms)":
@@ -413,7 +413,11 @@ namespace APE.Language
                         default:
                             throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
                     }
-                    selectedTabText = TabText(currentTabIndex - TabOffset);
+                    int actualTabIndex = currentTabIndex - TabOffset;
+                    if (actualTabIndex > -1)
+                    {
+                        selectedTabText = TabText(actualTabIndex);
+                    }
                     break;
                 default:
                     throw GUI.ApeException("The " + Description + " is of an unsupported type " + Identity.TypeNameSpace + "." + Identity.TypeName);
