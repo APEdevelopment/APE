@@ -1046,7 +1046,14 @@ namespace APE.Language
                         return false;
                     }
 
-                    Thread.Yield();
+                    if (x == 0)
+                    {
+                        Thread.Sleep(15);
+                    }
+                    else
+                    {
+                        Thread.Yield();
+                    }
                     WaitForInputIdleProcess.Refresh();
                 }
             }
