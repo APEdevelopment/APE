@@ -187,7 +187,7 @@ namespace APE.Bridge
                 int numberOfItems = Items.Count;
 
                 //Are we removing all controls on a parent form?
-                if (ParentForms.Contains(containerHandle))
+                if (ParentForms.Contains(handleOfContainerToRemove))
                 {
                     //If so remove everything we have related to the form
                     for (int index = numberOfItems - 1; index > -1; index--)
@@ -203,7 +203,7 @@ namespace APE.Bridge
                             Items.RemoveAt(index);
                         }
                     }
-                    ParentForms.Remove(containerHandle);
+                    ParentForms.Remove(handleOfContainerToRemove);
                 }
                 else
                 {
