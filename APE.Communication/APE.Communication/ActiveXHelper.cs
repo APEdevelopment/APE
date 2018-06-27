@@ -49,13 +49,17 @@ namespace APE.Communication
                     int items = Ax.Items.Count;
                     for (int item = 0; item < items; item++)
                     {
+                        PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref Ax.Items[item].TypeName, ref Ax.Items[item].TypeNameSpace);
+
                         dump.Append("Name: " + Ax.Items[item].Name);
                         dump.Append(" TypeName: " + Ax.Items[item].TypeName);
                         dump.Append(" TypeNameSpace: " + Ax.Items[item].TypeNameSpace);
                         dump.Append(" UniqueId: " + Ax.Items[item].UniqueId);
                         dump.Append(" Handle: " + Ax.Items[item].Handle.ToString());
                         dump.Append(" Parent: " + Ax.Items[item].ParentHandle.ToString());
+                        dump.Append(" ContainerUniqueId: " + Ax.Items[item].ContainerUniqueId);
                         dump.Append(" Rendered: " + Ax.Items[item].Rendered.ToString());
+                        dump.Append(" Control: " + (Ax.Items[item].Control != null).ToString());
                         dump.AppendLine();
                     }
                 }

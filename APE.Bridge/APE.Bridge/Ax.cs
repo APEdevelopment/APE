@@ -51,7 +51,7 @@ namespace APE.Bridge
         {
             public string UniqueId;
             public IntPtr ParentHandle;
-            public IntPtr ContainerHandle;
+            public string ContainerUniqueId;
             public IntPtr Handle;
             public string Name;
             public string TypeName;
@@ -59,11 +59,11 @@ namespace APE.Bridge
             public object Control;
             public bool Rendered;
 
-            public Item(IntPtr objectPointer, IntPtr containerHandle, IntPtr handle, string name, object control, bool rendered)
+            public Item(IntPtr objectPointer, IntPtr containerObjectPointer, IntPtr handle, string name, object control, bool rendered)
             {
                 UniqueId = "A" + objectPointer.ToString();
                 ParentHandle = GetAncestor(handle, GetAncestorFlags.GetRoot);
-                ContainerHandle = containerHandle;
+                ContainerUniqueId = "A" + containerObjectPointer.ToString();
                 Handle = handle;
                 Name = name;
                 TypeName = null;
@@ -73,15 +73,14 @@ namespace APE.Bridge
             }
         }
 
-        private static List<IntPtr> ParentForms = new List<IntPtr>();
         public static List<Item> Items = new List<Item>();
         public static readonly object AxItemsLock = new object();
         public static Form InvokeForm;
         private static bool Abort = false;
 
         //We use dynamic instead of IntPtr as IntPtr causes issues when using late binding
-        [MethodImplAttribute(MethodImplOptions.NoOptimization)]
-        public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, object control, bool rendered)
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        public void AddItem(dynamic objectPointer, dynamic containerObjectPointer, dynamic handle, string name, object control, bool rendered)
         {
             if (Abort)
             {
@@ -115,14 +114,12 @@ namespace APE.Bridge
                         catch
                         {
                             //Some controls support the IOleWindow interface but don't actually have windows
-                            //Debug.WriteLine("No window: name: " + name + " typename: " + typeName);
                             Marshal.ReleaseComObject(control);
                             return;
                         }
                     }
                     else
                     {
-                        //Debug.WriteLine("Not an IOleWindow: name: " + name + " typename: " + typeName);
                         Marshal.ReleaseComObject(control);
                         return;
                     }
@@ -133,49 +130,24 @@ namespace APE.Bridge
                     windowHandle = new IntPtr(handle);
                 }
 
-                Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), windowHandle, name, control, rendered);
+                Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerObjectPointer), windowHandle, name, control, rendered);
+                
                 //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
-
                 bool found = false;
                 lock (AxItemsLock)
                 {
-                    if (!ParentForms.Contains(item.ParentHandle))
-                    {
-                        ParentForms.Add(item.ParentHandle);
-                    }
-
                     int numberOfItems = Items.Count;
                     for (int index = 0; index < numberOfItems; index++)
                     {
                         if (Items[index].UniqueId == item.UniqueId)
                         {
                             found = true;
-                            if (Items[index].Control == null)
+                            if (item.UniqueId != item.ContainerUniqueId)
                             {
-                                Items[index].Control = item.Control;
+                                Marshal.ReleaseComObject(Items[index].Control);
+                                Items.RemoveAt(index);
+                                found = false;
                             }
-                            else
-                            {
-                                //Already added this so decrement the RCW reference count
-                                Marshal.ReleaseComObject(item.Control);
-                            }
-                            //Debug.Write("Updating: name: " + Items[index].Name + " now:");
-                            //Update the handles and name if need be
-                            if (!string.IsNullOrEmpty(item.Name))
-                            {
-                                if (string.IsNullOrEmpty(Items[index].Name) || handle == 0) //0 for the handle means we have the control extender name which is the prefered name to use
-                                {
-                                    Items[index].Name = item.Name;
-                                    //Debug.Write(" name: " + Items[index].Name);
-                                }
-                            }
-                            if (Items[index].Handle == IntPtr.Zero)
-                            {
-                                Items[index].Handle = item.Handle;
-                                Items[index].ParentHandle = item.ParentHandle;
-                                //Debug.Write(" hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString());
-                            }
-                            //Debug.WriteLine("");
                             break;
                         }
                     }
@@ -193,7 +165,7 @@ namespace APE.Bridge
             }
         }
 
-        public void RemoveAllItemsFromContainer(dynamic containerHandle)
+        public void RemoveAllItemsFromContainer(dynamic containerToRemoveObjectPointer)
         {
             if (Abort)
             {
@@ -202,62 +174,16 @@ namespace APE.Bridge
 
             try
             {
-                IntPtr handleOfContainerToRemove = new IntPtr(containerHandle);
+                string containerToRemoveUniqueId = "A" + containerToRemoveObjectPointer.ToString();
                 lock (AxItemsLock)
                 {
                     int numberOfItems = Items.Count;
-
-                    //Are we removing all controls on a parent form?
-                    if (ParentForms.Contains(handleOfContainerToRemove))
+                    for (int index = numberOfItems - 1; index > -1; index--)
                     {
-                        //If so remove everything we have related to the form
-                        for (int index = numberOfItems - 1; index > -1; index--)
+                        if (Items[index].ContainerUniqueId == containerToRemoveUniqueId)
                         {
-                            if (Items[index].ParentHandle == handleOfContainerToRemove ||
-                                Items[index].ContainerHandle == handleOfContainerToRemove ||
-                                Items[index].Handle == handleOfContainerToRemove)
-                            {
-                                if (Items[index].Control != null)
-                                {
-                                    Marshal.ReleaseComObject(Items[index].Control);
-                                }
-                                Items.RemoveAt(index);
-                            }
-                        }
-                        ParentForms.Remove(handleOfContainerToRemove);
-                    }
-                    else
-                    {
-                        //Otherwise we are removing a custom control which happens when it get hidden
-                        for (int index = numberOfItems - 1; index > -1; index--)
-                        {
-                            if (Items[index].ContainerHandle == handleOfContainerToRemove ||
-                                Items[index].Handle == handleOfContainerToRemove)
-                            {
-                                //Does the controls parent form exist in the form collection?
-                                if (ParentForms.Contains(Items[index].ParentHandle))
-                                {
-                                    //If so release the underlying object and set it to null but don't remove
-                                    //the object from the list yet so that if the custom control is reshown
-                                    //the name is reused and so doesn't change
-                                    //An example of this case is when an ActiveX custom control is hosted on a ActiveX form
-                                    if (Items[index].Control != null)
-                                    {
-                                        Marshal.ReleaseComObject(Items[index].Control);
-                                    }
-                                    Items[index].Control = null;
-                                }
-                                else
-                                {
-                                    //Otherwise we don't have a reference to the parent form so remove the item now
-                                    //An example of this case is when an ActiveX control is hosted on a .NET form
-                                    if (Items[index].Control != null)
-                                    {
-                                        Marshal.ReleaseComObject(Items[index].Control);
-                                    }
-                                    Items.RemoveAt(index);
-                                }
-                            }
+                            Marshal.ReleaseComObject(Items[index].Control);
+                            Items.RemoveAt(index);
                         }
                     }
                 }
