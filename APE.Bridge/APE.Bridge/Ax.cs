@@ -77,159 +77,146 @@ namespace APE.Bridge
         public static List<Item> Items = new List<Item>();
         public static readonly object AxItemsLock = new object();
         public static Form InvokeForm;
+        private static bool Abort = false;
 
         //We use dynamic instead of IntPtr as IntPtr causes issues when using late binding
         [MethodImplAttribute(MethodImplOptions.NoOptimization)]
         public void AddItem(dynamic objectPointer, dynamic containerHandle, dynamic handle, string name, object control, bool rendered)
         {
-            //We use this form to be able to invoke on to the thread which created the activex object.
-            //Since the form is static if the application has more than one gui thread this won't work
-            //but thats unlikely so no need to complicate the code unless I come across a case where 
-            //its needed.
-            if (InvokeForm == null)
+            if (Abort)
             {
-                InvokeForm = new Form();
-                IntPtr ignore = InvokeForm.Handle; //Force the form handle to be created
+                return;
             }
 
-            IntPtr windowHandle = IntPtr.Zero;
-
-            if (handle == 0)
+            try
             {
-                //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
-                IOleWindow controlAsOleWindow = control as IOleWindow;
-                if (controlAsOleWindow != null)
+                //We use this form to be able to invoke on to the thread which created the activex object.
+                //Since the form is static if the application has more than one gui thread this won't work
+                //but thats unlikely so no need to complicate the code unless I come across a case where 
+                //its needed.
+                if (InvokeForm == null)
                 {
-                    try
+                    InvokeForm = new Form();
+                    IntPtr ignore = InvokeForm.Handle; //Force the form handle to be created
+                }
+
+                IntPtr windowHandle = IntPtr.Zero;
+
+                if (handle == 0)
+                {
+                    //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
+                    IOleWindow controlAsOleWindow = control as IOleWindow;
+                    if (controlAsOleWindow != null)
                     {
-                        controlAsOleWindow.GetWindow(out windowHandle);
+                        try
+                        {
+                            controlAsOleWindow.GetWindow(out windowHandle);
+                        }
+                        catch
+                        {
+                            //Some controls support the IOleWindow interface but don't actually have windows
+                            //Debug.WriteLine("No window: name: " + name + " typename: " + typeName);
+                            Marshal.ReleaseComObject(control);
+                            return;
+                        }
                     }
-                    catch
+                    else
                     {
-                        //Some controls support the IOleWindow interface but don't actually have windows
-                        //Debug.WriteLine("No window: name: " + name + " typename: " + typeName);
+                        //Debug.WriteLine("Not an IOleWindow: name: " + name + " typename: " + typeName);
                         Marshal.ReleaseComObject(control);
                         return;
                     }
                 }
                 else
                 {
-                    //Debug.WriteLine("Not an IOleWindow: name: " + name + " typename: " + typeName);
-                    Marshal.ReleaseComObject(control);
-                    return;
-                }
-            }
-            else
-            {
-                //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
-                windowHandle = new IntPtr(handle);
-            }
-
-            Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), windowHandle, name, control, rendered);
-            //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
-
-            bool found = false;
-            lock (AxItemsLock)
-            {
-                if (!ParentForms.Contains(item.ParentHandle))
-                {
-                    ParentForms.Add(item.ParentHandle);
+                    //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
+                    windowHandle = new IntPtr(handle);
                 }
 
-                int numberOfItems = Items.Count;
-                for (int index = 0; index < numberOfItems; index++)
+                Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerHandle), windowHandle, name, control, rendered);
+                //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
+
+                bool found = false;
+                lock (AxItemsLock)
                 {
-                    if (Items[index].UniqueId == item.UniqueId)
+                    if (!ParentForms.Contains(item.ParentHandle))
                     {
-                        found = true;
-                        if (Items[index].Control == null)
+                        ParentForms.Add(item.ParentHandle);
+                    }
+
+                    int numberOfItems = Items.Count;
+                    for (int index = 0; index < numberOfItems; index++)
+                    {
+                        if (Items[index].UniqueId == item.UniqueId)
                         {
-                            Items[index].Control = item.Control;
-                        }
-                        else
-                        {
-                            //Already added this so decrement the RCW reference count
-                            Marshal.ReleaseComObject(item.Control);
-                        }
-                        //Debug.Write("Updating: name: " + Items[index].Name + " now:");
-                        //Update the handles and name if need be
-                        if (!string.IsNullOrEmpty(item.Name))
-                        {
-                            if (string.IsNullOrEmpty(Items[index].Name) || handle == 0) //0 for the handle means we have the control extender name which is the prefered name to use
+                            found = true;
+                            if (Items[index].Control == null)
                             {
-                                Items[index].Name = item.Name;
-                                //Debug.Write(" name: " + Items[index].Name);
+                                Items[index].Control = item.Control;
                             }
+                            else
+                            {
+                                //Already added this so decrement the RCW reference count
+                                Marshal.ReleaseComObject(item.Control);
+                            }
+                            //Debug.Write("Updating: name: " + Items[index].Name + " now:");
+                            //Update the handles and name if need be
+                            if (!string.IsNullOrEmpty(item.Name))
+                            {
+                                if (string.IsNullOrEmpty(Items[index].Name) || handle == 0) //0 for the handle means we have the control extender name which is the prefered name to use
+                                {
+                                    Items[index].Name = item.Name;
+                                    //Debug.Write(" name: " + Items[index].Name);
+                                }
+                            }
+                            if (Items[index].Handle == IntPtr.Zero)
+                            {
+                                Items[index].Handle = item.Handle;
+                                Items[index].ParentHandle = item.ParentHandle;
+                                //Debug.Write(" hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString());
+                            }
+                            //Debug.WriteLine("");
+                            break;
                         }
-                        if (Items[index].Handle == IntPtr.Zero)
-                        {
-                            Items[index].Handle = item.Handle;
-                            Items[index].ParentHandle = item.ParentHandle;
-                            //Debug.Write(" hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString());
-                        }
-                        //Debug.WriteLine("");
-                        break;
+                    }
+                    if (!found)
+                    {
+                        //Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
+                        Items.Add(item);
                     }
                 }
-                if (!found)
-                {
-                    //Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
-                    Items.Add(item);
-                }
+            }
+            catch
+            {
+                //If any errors occur in the code in this class then don't do any more processing so we don't leak
+                Abort = true;
             }
         }
 
         public void RemoveAllItemsFromContainer(dynamic containerHandle)
         {
-            IntPtr handleOfContainerToRemove = new IntPtr(containerHandle);
-            lock (AxItemsLock)
+            if (Abort)
             {
-                int numberOfItems = Items.Count;
+                return;
+            }
 
-                //Are we removing all controls on a parent form?
-                if (ParentForms.Contains(handleOfContainerToRemove))
+            try
+            {
+                IntPtr handleOfContainerToRemove = new IntPtr(containerHandle);
+                lock (AxItemsLock)
                 {
-                    //If so remove everything we have related to the form
-                    for (int index = numberOfItems - 1; index > -1; index--)
+                    int numberOfItems = Items.Count;
+
+                    //Are we removing all controls on a parent form?
+                    if (ParentForms.Contains(handleOfContainerToRemove))
                     {
-                        if (Items[index].ParentHandle == handleOfContainerToRemove ||
-                            Items[index].ContainerHandle == handleOfContainerToRemove ||
-                            Items[index].Handle == handleOfContainerToRemove)
+                        //If so remove everything we have related to the form
+                        for (int index = numberOfItems - 1; index > -1; index--)
                         {
-                            if (Items[index].Control != null)
+                            if (Items[index].ParentHandle == handleOfContainerToRemove ||
+                                Items[index].ContainerHandle == handleOfContainerToRemove ||
+                                Items[index].Handle == handleOfContainerToRemove)
                             {
-                                Marshal.ReleaseComObject(Items[index].Control);
-                            }
-                            Items.RemoveAt(index);
-                        }
-                    }
-                    ParentForms.Remove(handleOfContainerToRemove);
-                }
-                else
-                {
-                    //Otherwise we are removing a custom control which happens when it get hidden
-                    for (int index = numberOfItems - 1; index > -1; index--)
-                    {
-                        if (Items[index].ContainerHandle == handleOfContainerToRemove ||
-                            Items[index].Handle == handleOfContainerToRemove)
-                        {
-                            //Does the controls parent form exist in the form collection?
-                            if (ParentForms.Contains(Items[index].ParentHandle))
-                            {
-                                //If so release the underlying object and set it to null but don't remove
-                                //the object from the list yet so that if the custom control is reshown
-                                //the name is reused and so doesn't change
-                                //An example of this case is when an ActiveX custom control is hosted on a ActiveX form
-                                if (Items[index].Control != null)
-                                {
-                                    Marshal.ReleaseComObject(Items[index].Control);
-                                }
-                                Items[index].Control = null;
-                            }
-                            else
-                            {
-                                //Otherwise we don't have a reference to the parent form so remove the item now
-                                //An example of this case is when an ActiveX control is hosted on a .NET form
                                 if (Items[index].Control != null)
                                 {
                                     Marshal.ReleaseComObject(Items[index].Control);
@@ -237,8 +224,48 @@ namespace APE.Bridge
                                 Items.RemoveAt(index);
                             }
                         }
+                        ParentForms.Remove(handleOfContainerToRemove);
+                    }
+                    else
+                    {
+                        //Otherwise we are removing a custom control which happens when it get hidden
+                        for (int index = numberOfItems - 1; index > -1; index--)
+                        {
+                            if (Items[index].ContainerHandle == handleOfContainerToRemove ||
+                                Items[index].Handle == handleOfContainerToRemove)
+                            {
+                                //Does the controls parent form exist in the form collection?
+                                if (ParentForms.Contains(Items[index].ParentHandle))
+                                {
+                                    //If so release the underlying object and set it to null but don't remove
+                                    //the object from the list yet so that if the custom control is reshown
+                                    //the name is reused and so doesn't change
+                                    //An example of this case is when an ActiveX custom control is hosted on a ActiveX form
+                                    if (Items[index].Control != null)
+                                    {
+                                        Marshal.ReleaseComObject(Items[index].Control);
+                                    }
+                                    Items[index].Control = null;
+                                }
+                                else
+                                {
+                                    //Otherwise we don't have a reference to the parent form so remove the item now
+                                    //An example of this case is when an ActiveX control is hosted on a .NET form
+                                    if (Items[index].Control != null)
+                                    {
+                                        Marshal.ReleaseComObject(Items[index].Control);
+                                    }
+                                    Items.RemoveAt(index);
+                                }
+                            }
+                        }
                     }
                 }
+            }
+            catch
+            {
+                //If any errors occur in the code in this class then don't do any more processing so we don't leak
+                Abort = true;
             }
         }
     }
