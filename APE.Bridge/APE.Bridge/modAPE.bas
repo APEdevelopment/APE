@@ -18,8 +18,8 @@ Option Explicit
 Private Const strProgIDBridgeToAPE = "APE.Bridge.Ax"
 Private BridgeToAPE As Object
 
-Public Sub AddObjectToBridgeToAPE(containerHandle As Long, containerName As String, containerControl As Object, containerControlCollection As Object)
-On Error Resume Next    'For debuging remove this line its just there to make sure if things go wrong it doesn't crash the application
+Public Sub AddObjectToBridgeToAPE(containerHandle As Long, containerName As String, containerScaleMode as Integer, containerControl As Object, containerControlCollection As Object)
+On Error Resume Next    'For debugging remove this line its just there to make sure if things go wrong it doesn't crash the application
     Dim ctrl As VB.Control
     
     If BridgeToAPE Is Nothing Then
@@ -29,20 +29,20 @@ On Error Resume Next    'For debuging remove this line its just there to make su
         End If
     End If
     
-    Call BridgeToAPE.AddItem(ObjPtr(containerControl), ObjPtr(containerControl), containerHandle, containerName, containerControl, False)
+    Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerScaleMode, ObjPtr(containerControl), containerHandle, containerName, False)
     
     For Each ctrl In containerControlCollection
-        Call AddControlToBridge(containerHandle, containerControl, ctrl)
+        Call AddControlToBridge(containerHandle, containerScaleMode, containerControl, ctrl)
     Next ctrl
 End Sub
 
-Public Sub RemoveContainerFromBridgeToAPE(containerControl As Object)
-On Error Resume Next    'For debuging remove this line its just there to make sure if things go wrong it doesn't crash the application
+Public Sub RemoveContainerFromBridgeToAPE(containerControl As Object, containerName As String)
+On Error Resume Next    'For debugging remove this line its just there to make sure if things go wrong it doesn't crash the application
     If BridgeToAPE Is Nothing Then
         Exit Sub
     End If
     
-    Call BridgeToAPE.RemoveAllItemsFromContainer(ObjPtr(containerControl))
+    Call BridgeToAPE.RemoveAllItemsFromContainer(ObjPtr(containerControl), containerName)
 End Sub
 
 Private Sub CreateBridgeToAPE()
@@ -58,7 +58,7 @@ Private Function GetRenderedContainerHandle(containerHandle As Long, containerCo
     End If
 End Function
 
-Private Sub AddControlToBridge(containerHandle As Long, containerControl As Object, ctrl As Object)
+Private Sub AddControlToBridge(containerHandle As Long, containerScaleMode as Integer, containerControl As Object, ctrl As Object)
     Dim extender As VB.VBControlExtender
     
     Select Case True
@@ -76,7 +76,7 @@ Private Sub AddControlToBridge(containerHandle As Long, containerControl As Obje
         'VBControlExtender hosting a custom control
         Case TypeOf ctrl Is VB.VBControlExtender
             Set extender = ctrl
-            Call BridgeToAPE.AddItem(ObjPtr(extender.object), ObjPtr(containerControl), 0, extender.Name, extender.object, False)
+            Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerScaleMode, ObjPtr(extender.object), 0, extender.Name, False)
             
         'Rendered Intrinsic GUI controls
         Case TypeOf ctrl Is VB.Image, _
@@ -84,7 +84,7 @@ Private Sub AddControlToBridge(containerHandle As Long, containerControl As Obje
              TypeOf ctrl Is VB.Line, _
              TypeOf ctrl Is VB.Menu, _
              TypeOf ctrl Is VB.Shape
-            Call BridgeToAPE.AddItem(ObjPtr(ctrl), ObjPtr(containerControl), GetRenderedContainerHandle(containerHandle, containerControl, ctrl), ctrl.Name, ctrl, True)
+            Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerScaleMode, ObjPtr(ctrl), GetRenderedContainerHandle(containerHandle, containerControl, ctrl), ctrl.Name, True)
             
         'Intrinsic GUI controls
         Case TypeOf ctrl Is VB.CheckBox, _
@@ -104,7 +104,7 @@ Private Sub AddControlToBridge(containerHandle As Long, containerControl As Obje
              TypeOf ctrl Is VB.TextBox, _
              TypeOf ctrl Is VB.UserDocument, _
              TypeOf ctrl Is VB.VScrollBar
-            Call BridgeToAPE.AddItem(ObjPtr(ctrl), ObjPtr(containerControl), ctrl.hWnd, ctrl.Name, ctrl, False)
+            Call BridgeToAPE.AddItem(ObjPtr(containerControl), containerScaleMode, ObjPtr(ctrl), ctrl.hWnd, ctrl.Name, False)
             
         'Case TypeOf ctrl Is VB.UserControl
         'Case TypeOf ctrl Is VB.Control

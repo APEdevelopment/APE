@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -58,16 +59,18 @@ namespace APE.Bridge
             public string TypeNameSpace;
             public object Control;
             public bool Rendered;
+            public short ContainerScaleMode;
 
-            public Item(IntPtr objectPointer, IntPtr containerObjectPointer, IntPtr handle, string name, object control, bool rendered)
+            public Item(string containerUniqueId, short containerScaleMode, string objectUniqueId, IntPtr windowHandle, object control, string objectName, bool rendered)
             {
-                UniqueId = "A" + objectPointer.ToString();
-                ParentHandle = GetAncestor(handle, GetAncestorFlags.GetRoot);
-                ContainerUniqueId = "A" + containerObjectPointer.ToString();
-                Handle = handle;
-                Name = name;
-                TypeName = null;
-                TypeNameSpace = null;
+                ContainerUniqueId = containerUniqueId;
+                UniqueId = objectUniqueId;
+                ParentHandle = GetAncestor(windowHandle, GetAncestorFlags.GetRoot);
+                Handle = windowHandle;
+                ContainerScaleMode = containerScaleMode;
+                Name = objectName;
+                TypeName = null;        //lazy populate this as it can be relativly slow to do
+                TypeNameSpace = null;   //lazy populate this as it can be relativly slow to do
                 Control = control;
                 Rendered = rendered;
             }
@@ -78,9 +81,24 @@ namespace APE.Bridge
         public static Form InvokeForm;
         private static bool Abort = false;
 
-        //We use dynamic instead of IntPtr as IntPtr causes issues when using late binding
-        [MethodImpl(MethodImplOptions.NoOptimization)]
-        public void AddItem(dynamic objectPointer, dynamic containerObjectPointer, dynamic handle, string name, object control, bool rendered)
+        //IntPtr can causes issues with late binding so we use int / long and convert manually
+        public void AddItem(int containerPointer, short containerScaleMode, int objectPointer, int objectHandle, string objectName, bool objectRendered)
+        {
+            IntPtr containerIntPtr = new IntPtr(containerPointer);
+            IntPtr objectIntPtr = new IntPtr(objectPointer);
+            IntPtr objectHandleIntPtr = new IntPtr(objectHandle);
+            AddItem(containerIntPtr, containerScaleMode, objectIntPtr, objectHandleIntPtr, objectName, objectRendered);
+        }
+
+        public void AddItem(long containerPointer, short containerScaleMode, long objectPointer, long objectHandle, string objectName, bool objectRendered)
+        {
+            IntPtr containerIntPtr = new IntPtr(containerPointer);
+            IntPtr objectIntPtr = new IntPtr(objectPointer);
+            IntPtr objectHandleIntPtr = new IntPtr(objectHandle);
+            AddItem(containerIntPtr, containerScaleMode, objectIntPtr, objectHandleIntPtr, objectName, objectRendered);
+        }
+
+        private void AddItem(IntPtr containerIntPtr, short containerScaleMode, IntPtr objectIntPtr, IntPtr objectHandleIntPtr, string objectName, bool objectRendered)
         {
             if (Abort)
             {
@@ -99,73 +117,114 @@ namespace APE.Bridge
                     IntPtr ignore = InvokeForm.Handle; //Force the form handle to be created
                 }
 
-                IntPtr windowHandle = IntPtr.Zero;
+                string containerUniqueId = "A" + containerIntPtr.ToString();
+                string objectUniqueId = "A" + objectIntPtr.ToString();
 
-                if (handle == 0)
-                {
-                    //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
-                    IOleWindow controlAsOleWindow = control as IOleWindow;
-                    if (controlAsOleWindow != null)
-                    {
-                        try
-                        {
-                            controlAsOleWindow.GetWindow(out windowHandle);
-                        }
-                        catch
-                        {
-                            //Some controls support the IOleWindow interface but don't actually have windows
-                            Marshal.ReleaseComObject(control);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        Marshal.ReleaseComObject(control);
-                        return;
-                    }
-                }
-                else
-                {
-                    //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
-                    windowHandle = new IntPtr(handle);
-                }
-
-                Item item = new Item(new IntPtr(objectPointer), new IntPtr(containerObjectPointer), windowHandle, name, control, rendered);
-                
-                //Debug.WriteLine("Checking: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
                 bool found = false;
                 lock (AxItemsLock)
                 {
                     int numberOfItems = Items.Count;
                     for (int index = 0; index < numberOfItems; index++)
                     {
-                        if (Items[index].UniqueId == item.UniqueId)
+                        if (Items[index].UniqueId == objectUniqueId)
                         {
+                            //Found the item in the list
                             found = true;
-                            if (item.UniqueId != item.ContainerUniqueId)
+                            
+                            if (containerIntPtr == objectIntPtr)
                             {
-                                Marshal.ReleaseComObject(Items[index].Control);
-                                Items.RemoveAt(index);
-                                found = false;
+                                //The newly found item references its self so make sure the scale mode is updated
+                                Items[index].ContainerScaleMode = containerScaleMode;
+                                //Debug
+                                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Adding container: " + objectUniqueId + " Name: " + objectName + Environment.NewLine);
+                            }
+                            else
+                            {
+                                //The newly found item references its parents container so update the 
+                                //container unique id and name
+                                Items[index].ContainerUniqueId = containerUniqueId;
+                                Items[index].Name = objectName;
                             }
                             break;
                         }
                     }
+
+                    //The item was not found in the list so add it
                     if (!found)
                     {
-                        //Debug.WriteLine("Adding: name: " + item.Name + " hwnd: " + item.Handle.ToString() + " parent: " + item.ParentHandle.ToString() + " address: " + ((uint)objectPointer).ToString());
+                        //Create a unique rcw for the com object (unique so we can call finalrelease without causing issues)
+                        object control = Marshal.GetUniqueObjectForIUnknown(objectIntPtr);
+
+                        //Workout the window handle
+                        IntPtr windowHandle = IntPtr.Zero;
+                        if (objectHandleIntPtr == IntPtr.Zero)
+                        {
+                            //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
+                            IOleWindow controlAsOleWindow = control as IOleWindow;
+                            if (controlAsOleWindow != null)
+                            {
+                                try
+                                {
+                                    controlAsOleWindow.GetWindow(out windowHandle);
+                                }
+                                catch
+                                {
+                                    //Some controls support the IOleWindow interface but don't actually have windows
+                                    Marshal.FinalReleaseComObject(control);
+                                    control = null;
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                Marshal.FinalReleaseComObject(control);
+                                control = null;
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
+                            windowHandle = objectHandleIntPtr;
+                        }
+
+                        //Create the item
+                        Item item = new Item(containerUniqueId, containerScaleMode, objectUniqueId, windowHandle, control, objectName, objectRendered);
+
+                        //Add it
                         Items.Add(item);
+
+                        //Debug
+                        //if (containerIntPtr == objectIntPtr)
+                        //{
+                        //    File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Adding container: " + item.UniqueId + " Name: " + item.Name + Environment.NewLine);
+                        //}
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                //Debug
+                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "AddItem: Name: " + objectName + " Message: " + ex.Message + Environment.NewLine + ex.StackTrace + Environment.NewLine);
                 //If any errors occur in the code in this class then don't do any more processing so we don't leak
                 Abort = true;
             }
         }
 
-        public void RemoveAllItemsFromContainer(dynamic containerToRemoveObjectPointer)
+        //IntPtr can causes issues with late binding so we use int / long and convert manually
+        public void RemoveAllItemsFromContainer(int containerToRemovePointer, string containerName)
+        {
+            IntPtr containerToRemoveIntPtr = new IntPtr(containerToRemovePointer);
+            RemoveAllItemsFromContainer(containerToRemoveIntPtr, containerName);
+        }
+
+        public void RemoveAllItemsFromContainer(long containerToRemovePointer, string containerName)
+        {
+            IntPtr containerToRemoveIntPtr = new IntPtr(containerToRemovePointer);
+            RemoveAllItemsFromContainer(containerToRemoveIntPtr, containerName);
+        }
+
+        private void RemoveAllItemsFromContainer(IntPtr containerToRemoveIntPtr, string containerName)
         {
             if (Abort)
             {
@@ -174,7 +233,11 @@ namespace APE.Bridge
 
             try
             {
-                string containerToRemoveUniqueId = "A" + containerToRemoveObjectPointer.ToString();
+                string containerToRemoveUniqueId = "A" + containerToRemoveIntPtr.ToString();
+
+                //Debug
+                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Removing container: " + containerToRemoveUniqueId + " Name: " + containerName + Environment.NewLine);
+
                 lock (AxItemsLock)
                 {
                     int numberOfItems = Items.Count;
@@ -182,14 +245,17 @@ namespace APE.Bridge
                     {
                         if (Items[index].ContainerUniqueId == containerToRemoveUniqueId)
                         {
-                            Marshal.ReleaseComObject(Items[index].Control);
+                            Marshal.FinalReleaseComObject(Items[index].Control);
+                            Items[index].Control = null;
                             Items.RemoveAt(index);
                         }
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                //Debug
+                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "RemoveAllItemsFromContainer: Name: " + containerName + " Message: " + ex.Message + Environment.NewLine + ex.StackTrace + Environment.NewLine);
                 //If any errors occur in the code in this class then don't do any more processing so we don't leak
                 Abort = true;
             }
