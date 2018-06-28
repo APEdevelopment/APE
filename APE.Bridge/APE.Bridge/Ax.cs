@@ -161,7 +161,13 @@ namespace APE.Bridge
                         {
                             //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
                             IOleWindow controlAsOleWindow = control as IOleWindow;
-                            if (controlAsOleWindow != null)
+                            if (controlAsOleWindow == null)
+                            {
+                                Marshal.FinalReleaseComObject(control);
+                                control = null;
+                                return;
+                            }
+                            else
                             {
                                 try
                                 {
@@ -175,12 +181,6 @@ namespace APE.Bridge
                                     control = null;
                                     return;
                                 }
-                            }
-                            else
-                            {
-                                Marshal.FinalReleaseComObject(control);
-                                control = null;
-                                return;
                             }
                             controlAsOleWindow = null;
                         }
