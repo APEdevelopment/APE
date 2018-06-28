@@ -171,6 +171,7 @@ namespace APE.Bridge
                                 {
                                     //Some controls support the IOleWindow interface but don't actually have windows
                                     Marshal.FinalReleaseComObject(control);
+                                    controlAsOleWindow = null;
                                     control = null;
                                     return;
                                 }
@@ -181,6 +182,7 @@ namespace APE.Bridge
                                 control = null;
                                 return;
                             }
+                            controlAsOleWindow = null;
                         }
                         else
                         {
