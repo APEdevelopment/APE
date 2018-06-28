@@ -120,7 +120,6 @@ namespace APE.Bridge
                 string containerUniqueId = "A" + containerIntPtr.ToString();
                 string objectUniqueId = "A" + objectIntPtr.ToString();
 
-                bool found = false;
                 lock (AxItemsLock)
                 {
                     int numberOfItems = Items.Count;
@@ -129,8 +128,6 @@ namespace APE.Bridge
                         if (Items[index].UniqueId == objectUniqueId)
                         {
                             //Found the item in the list
-                            found = true;
-                            
                             if (containerIntPtr == objectIntPtr)
                             {
                                 //The newly found item references its self so make sure the scale mode is updated
@@ -145,63 +142,57 @@ namespace APE.Bridge
                                 Items[index].ContainerUniqueId = containerUniqueId;
                                 Items[index].Name = objectName;
                             }
-                            break;
+                            return;
                         }
                     }
 
-                    //The item was not found in the list so add it
-                    if (!found)
+                    //Create a unique rcw for the com object (unique so we can call finalrelease without causing issues)
+                    object control = Marshal.GetUniqueObjectForIUnknown(objectIntPtr);
+
+                    //Workout the window handle
+                    IntPtr windowHandle = IntPtr.Zero;
+                    if (objectHandleIntPtr == IntPtr.Zero)
                     {
-                        //Create a unique rcw for the com object (unique so we can call finalrelease without causing issues)
-                        object control = Marshal.GetUniqueObjectForIUnknown(objectIntPtr);
-
-                        //Workout the window handle
-                        IntPtr windowHandle = IntPtr.Zero;
-                        if (objectHandleIntPtr == IntPtr.Zero)
+                        //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
+                        IOleWindow controlAsOleWindow = control as IOleWindow;
+                        if (controlAsOleWindow == null)
                         {
-                            //If we didn't pass in a handle then we have a custom activex control which should support the IOleWindow interface if it has a window
-                            IOleWindow controlAsOleWindow = control as IOleWindow;
-                            if (controlAsOleWindow == null)
-                            {
-                                Marshal.FinalReleaseComObject(control);
-                                control = null;
-                                return;
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    controlAsOleWindow.GetWindow(out windowHandle);
-                                }
-                                catch
-                                {
-                                    //Some controls support the IOleWindow interface but don't actually have windows
-                                    Marshal.FinalReleaseComObject(control);
-                                    controlAsOleWindow = null;
-                                    control = null;
-                                    return;
-                                }
-                            }
+                            Marshal.FinalReleaseComObject(control);
+                            control = null;
+                            return;
+                        }
+
+                        try
+                        {
+                            controlAsOleWindow.GetWindow(out windowHandle);
+                        }
+                        catch
+                        {
+                            //Some controls support the IOleWindow interface but don't actually have windows
+                            Marshal.FinalReleaseComObject(control);
                             controlAsOleWindow = null;
+                            control = null;
+                            return;
                         }
-                        else
-                        {
-                            //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
-                            windowHandle = objectHandleIntPtr;
-                        }
-
-                        //Create the item
-                        Item item = new Item(containerUniqueId, containerScaleMode, objectUniqueId, windowHandle, control, objectName, objectRendered);
-
-                        //Add it
-                        Items.Add(item);
-
-                        //Debug
-                        //if (containerIntPtr == objectIntPtr)
-                        //{
-                        //    File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Adding container: " + item.UniqueId + " Name: " + item.Name + Environment.NewLine);
-                        //}
+                        controlAsOleWindow = null;
                     }
+                    else
+                    {
+                        //We passed in a handle so we have a VB Intrinsic control (which doesn't support the IOleWindow interface)
+                        windowHandle = objectHandleIntPtr;
+                    }
+
+                    //Create the item
+                    Item item = new Item(containerUniqueId, containerScaleMode, objectUniqueId, windowHandle, control, objectName, objectRendered);
+
+                    //Add it
+                    Items.Add(item);
+                    control = null;
+                    //Debug
+                    //if (containerIntPtr == objectIntPtr)
+                    //{
+                    //    File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Adding container: " + item.UniqueId + " Name: " + item.Name + Environment.NewLine);
+                    //}
                 }
             }
             catch (Exception ex)
