@@ -69,8 +69,8 @@ namespace APE.Bridge
                 Handle = windowHandle;
                 ContainerScaleMode = containerScaleMode;
                 Name = objectName;
-                TypeName = null;        //lazy populate this as it can be relativly slow to do
-                TypeNameSpace = null;   //lazy populate this as it can be relativly slow to do
+                TypeName = null;        //lazy populate this as it can be relatively slow to do
+                TypeNameSpace = null;   //lazy populate this as it can be relatively slow to do
                 Control = control;
                 Rendered = rendered;
             }
