@@ -1133,7 +1133,7 @@ namespace APE.Spy
         }
 
         private string GetAPEType(ControlIdentifier Identity)
-        {           
+        {
             string APEType = "";
 
             if (Identity.ParentHandle == IntPtr.Zero)
@@ -1151,49 +1151,107 @@ namespace APE.Spy
 
             if (Identity.TechnologyType == "Windows ActiveX")
             {
-                switch (Identity.TypeName)
+                switch (Identity.TypeNameSpace)
                 {
-                    case "ArrowButton":
-                    case "CommandButton":
-                        APEType = "GUIButton";
+                    case null:
+                    case "":
+                        switch (Identity.TypeName)
+                        {
+                            case "CommandButton":
+                                APEType = "GUIButton";
+                                break;
+                            case "CheckBox":
+                                APEType = "GUICheckBox";
+                                break;
+                            case "ComboBox":
+                                APEType = "GUIComboBox";
+                                break;
+                            case "Label":
+                                APEType = "GUILabel";
+                                break;
+                            case "ListBox":
+                                APEType = "GUIListBox";
+                                break;
+                            case "PictureBox":
+                                APEType = "GUIPictureBox";
+                                break;
+                            case "OptionButton":
+                                APEType = "GUIRadioButton";
+                                break;
+                            case "TextBox":
+                                APEType = "GUITextBox";
+                                break;
+                        }
                         break;
-                    case "CheckBox":
-                        APEType = "GUICheckBox";
+                    case "VSFlex7L":
+                    case "VSFlex7N":
+                    case "VSFlex8L":
+                    case "VSFlex8N":
+                        switch (Identity.TypeName)
+                        {
+                            case "VSFlexGrid":
+                                APEType = "GUIFlexgrid";
+                                break;
+                        }
                         break;
-                    case "ComboBox":
-                    case "ImageCombo":
-                        APEType = "GUIComboBox";
+                    case "LzArrowButton":
+                        switch (Identity.TypeName)
+                        {
+                            case "ArrowButton":
+                                APEType = "GUIButton";
+                                break;
+                        }
                         break;
-                    case "LzFlexGridCtrl":
-                    case "VSFlexGrid":
-                        APEType = "GUIFlexgrid";
+                    case "LZFLEXGRIDLib":
+                        switch (Identity.TypeName)
+                        {
+                            case "LzFlexGridCtrl":
+                                APEType = "GUIFlexgrid";
+                                break;
+                        }
                         break;
-                    case "GenericWalker":
-                        APEType = "GUIGenericWalker";
+                    case "LzGenericWalker":
+                        switch (Identity.TypeName)
+                        {
+                            case "GenericWalker":
+                                APEType = "GUIGenericWalker";
+                                break;
+                        }
                         break;
-                    case "Label":
-                        APEType = "GUILabel";
+                    case "LzNavBarControls":
+                        switch (Identity.TypeName)
+                        {
+                            case "LzNavBarGridControl":
+                                APEType = "GUILzNavBarGridControl";
+                                break;
+                        }
                         break;
-                    case "ListBox":
-                        APEType = "GUIListBox";
+                    case "DRILLDOWNLib":
+                        switch (Identity.TypeName)
+                        {
+                            case "LZResultsGrid":
+                                APEType = "GUIAxLZResultsGrid";
+                                break;
+                        }
                         break;
-                    case "LzNavBarGridControl":
-                        APEType = "GUILzNavBarGridControl";
+                    case "MSComctlLib":
+                        switch (Identity.TypeName)
+                        {
+                            case "ImageCombo":
+                                APEType = "GUIComboBox";
+                                break;
+                            case "TabStrip":
+                                APEType = "GUITabControl";
+                                break;
+                        }
                         break;
-                    case "PictureBox":
-                        APEType = "GUIPictureBox";
-                        break;
-                    case "LZResultsGrid":
-                        APEType = "GUIAxLZResultsGrid";
-                        break;
-                    case "OptionButton":
-                        APEType = "GUIRadioButton";
-                        break;
-                    case "SftTabs":
-                        APEType = "GUITabControl";
-                        break;
-                    case "TextBox":
-                        APEType = "GUITextBox";
+                    case "SftTabsLib":
+                        switch (Identity.TypeName)
+                        {
+                            case "SftTabs":
+                                APEType = "GUITabControl";
+                                break;
+                        }
                         break;
                 }
             }
