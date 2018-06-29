@@ -98,7 +98,8 @@ namespace APE.Bridge
             AddItem(containerIntPtr, containerScaleMode, objectIntPtr, objectHandleIntPtr, objectName, objectRendered);
         }
 
-        private void AddItem(IntPtr containerIntPtr, short containerScaleMode, IntPtr objectIntPtr, IntPtr objectHandleIntPtr, string objectName, bool objectRendered)
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        private static void AddItem(IntPtr containerIntPtr, short containerScaleMode, IntPtr objectIntPtr, IntPtr objectHandleIntPtr, string objectName, bool objectRendered)
         {
             if (Abort)
             {
@@ -107,21 +108,21 @@ namespace APE.Bridge
 
             try
             {
-                //We use this form to be able to invoke on to the thread which created the activex object.
-                //Since the form is static if the application has more than one gui thread this won't work
-                //but thats unlikely so no need to complicate the code unless I come across a case where 
-                //its needed.
-                if (InvokeForm == null)
-                {
-                    InvokeForm = new Form();
-                    IntPtr ignore = InvokeForm.Handle; //Force the form handle to be created
-                }
-
-                string containerUniqueId = "A" + containerIntPtr.ToString();
-                string objectUniqueId = "A" + objectIntPtr.ToString();
-
                 lock (AxItemsLock)
                 {
+                    //We use this form to be able to invoke on to the thread which created the activex object.
+                    //Since the form is static if the application has more than one gui thread this won't work
+                    //but thats unlikely so no need to complicate the code unless I come across a case where 
+                    //its needed.
+                    if (InvokeForm == null)
+                    {
+                        InvokeForm = new Form();
+                        IntPtr ignore = InvokeForm.Handle; //Force the form handle to be created
+                    }
+
+                    string containerUniqueId = "A" + containerIntPtr.ToString();
+                    string objectUniqueId = "A" + objectIntPtr.ToString();
+
                     int numberOfItems = Items.Count;
                     for (int index = 0; index < numberOfItems; index++)
                     {
@@ -217,7 +218,7 @@ namespace APE.Bridge
             RemoveAllItemsFromContainer(containerToRemoveIntPtr, containerName);
         }
 
-        private void RemoveAllItemsFromContainer(IntPtr containerToRemoveIntPtr, string containerName)
+        private static void RemoveAllItemsFromContainer(IntPtr containerToRemoveIntPtr, string containerName)
         {
             if (Abort)
             {
@@ -226,13 +227,13 @@ namespace APE.Bridge
 
             try
             {
-                string containerToRemoveUniqueId = "A" + containerToRemoveIntPtr.ToString();
-
-                //Debug
-                //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Removing container: " + containerToRemoveUniqueId + " Name: " + containerName + Environment.NewLine);
-
                 lock (AxItemsLock)
                 {
+                    string containerToRemoveUniqueId = "A" + containerToRemoveIntPtr.ToString();
+
+                    //Debug
+                    //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "Removing container: " + containerToRemoveUniqueId + " Name: " + containerName + Environment.NewLine);
+
                     int numberOfItems = Items.Count;
                     for (int index = numberOfItems - 1; index > -1; index--)
                     {
