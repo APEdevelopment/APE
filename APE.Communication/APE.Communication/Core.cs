@@ -122,6 +122,7 @@ namespace APE.Communication
         GetTabRect = 61,
         GetInvokeFormActiveX = 62,
         GetComboBoxExItemText = 63,
+        WaitForMouseMove = 64,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -448,6 +449,9 @@ namespace APE.Communication
                                 case MessageAction.GetComboBoxExItemText:
                                     GetComboBoxExItemText(ptrMessage, messageNumber);
                                     break;
+                                case MessageAction.WaitForMouseMove:
+                                    WaitForMouseMove(ptrMessage, messageNumber);
+                                    break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
                             }
@@ -491,15 +495,65 @@ namespace APE.Communication
 
                     //clear the data stores so we don't hold any references to objects in the AUT
                     //which would stop them being garbage collected
+                    if (tempStore0ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore0);
+                        tempStore0ReleaseComObject = false;
+                    }
                     tempStore0 = null;
+                    if (tempStore1ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore1);
+                        tempStore1ReleaseComObject = false;
+                    }
                     tempStore1 = null;
+                    if (tempStore2ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore2);
+                        tempStore2ReleaseComObject = false;
+                    }
                     tempStore2 = null;
+                    if (tempStore3ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore3);
+                        tempStore3ReleaseComObject = false;
+                    }
                     tempStore3 = null;
+                    if (tempStore4ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore4);
+                        tempStore4ReleaseComObject = false;
+                    }
                     tempStore4 = null;
+                    if (tempStore5ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore5);
+                        tempStore5ReleaseComObject = false;
+                    }
                     tempStore5 = null;
+                    if (tempStore6ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore6);
+                        tempStore6ReleaseComObject = false;
+                    }
                     tempStore6 = null;
+                    if (tempStore7ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore7);
+                        tempStore7ReleaseComObject = false;
+                    }
                     tempStore7 = null;
+                    if (tempStore8ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore8);
+                        tempStore8ReleaseComObject = false;
+                    }
                     tempStore8 = null;
+                    if (tempStore9ReleaseComObject)
+                    {
+                        Marshal.ReleaseComObject(tempStore9);
+                        tempStore9ReleaseComObject = false;
+                    }
                     tempStore9 = null;
 
                     //send back our response

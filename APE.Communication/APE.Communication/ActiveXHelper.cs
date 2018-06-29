@@ -49,8 +49,6 @@ namespace APE.Communication
                     int items = Ax.Items.Count;
                     for (int item = 0; item < items; item++)
                     {
-                        PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref Ax.Items[item].TypeName, ref Ax.Items[item].TypeNameSpace);
-
                         dump.Append("Name: " + Ax.Items[item].Name);
                         dump.Append(" TypeName: " + Ax.Items[item].TypeName);
                         dump.Append(" TypeNameSpace: " + Ax.Items[item].TypeNameSpace);
@@ -59,7 +57,6 @@ namespace APE.Communication
                         dump.Append(" Parent: " + Ax.Items[item].ParentHandle.ToString());
                         dump.Append(" ContainerUniqueId: " + Ax.Items[item].ContainerUniqueId);
                         dump.Append(" Rendered: " + Ax.Items[item].Rendered.ToString());
-                        dump.Append(" Control: " + (Ax.Items[item].Control != null).ToString());
                         dump.AppendLine();
                     }
                 }
@@ -103,21 +100,11 @@ namespace APE.Communication
                     {
                         if (Ax.Items[item].Handle == handle)
                         {
-                            if (Ax.Items[item].Control != null)
-                            {
-                                name = Ax.Items[item].Name;
-                                typeName = Ax.Items[item].TypeName;
-                                typeNameSpace = Ax.Items[item].TypeNameSpace;
-
-                                if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
-                                {
-                                    Ax.Items[item].TypeName = typeName;
-                                    Ax.Items[item].TypeNameSpace = typeNameSpace;
-                                }
-
-                                uniqueId = Ax.Items[item].UniqueId;
-                                return Ax.Items[item].Control;
-                            }
+                            name = Ax.Items[item].Name;
+                            typeName = Ax.Items[item].TypeName;
+                            typeNameSpace = Ax.Items[item].TypeNameSpace;
+                            uniqueId = Ax.Items[item].UniqueId;
+                            return Ax.Items[item].Control;
                         }
                     }
                 }
@@ -140,21 +127,11 @@ namespace APE.Communication
                     {
                         if (Ax.Items[item].UniqueId == uniqueId)
                         {
-                            if (Ax.Items[item].Control != null)
-                            {
-                                name = Ax.Items[item].Name;
-                                typeName = Ax.Items[item].TypeName;
-                                typeNameSpace = Ax.Items[item].TypeNameSpace;
-
-                                if (PopulateTypeNameAndTypeNameSpace(Ax.Items[item].Control, ref typeName, ref typeNameSpace))
-                                {
-                                    Ax.Items[item].TypeName = typeName;
-                                    Ax.Items[item].TypeNameSpace = typeNameSpace;
-                                }
-
-                                handle = Ax.Items[item].Handle;
-                                return Ax.Items[item].Control;
-                            }
+                            name = Ax.Items[item].Name;
+                            typeName = Ax.Items[item].TypeName;
+                            typeNameSpace = Ax.Items[item].TypeNameSpace;
+                            handle = Ax.Items[item].Handle;
+                            return Ax.Items[item].Control;
                         }
                     }
                 }
@@ -182,17 +159,12 @@ namespace APE.Communication
                     {
                         if (Ax.Items[item].Handle == handle)
                         {
-                            if (Ax.Items[item].Control != null)
-                            {
-                                parentHandle = Ax.Items[item].ParentHandle;
-                                name = Ax.Items[item].Name;
-                                typeName = Ax.Items[item].TypeName;
-                                typeNameSpace = Ax.Items[item].TypeNameSpace;
-                                uniqueId = Ax.Items[item].UniqueId;
-                                control = Ax.Items[item].Control;
-                                found = true;
-                                break;
-                            }
+                            parentHandle = Ax.Items[item].ParentHandle;
+                            name = Ax.Items[item].Name;
+                            uniqueId = Ax.Items[item].UniqueId;
+                            control = Ax.Items[item].Control;
+                            found = true;
+                            break;
                         }
                     }
 
@@ -227,12 +199,7 @@ namespace APE.Communication
 
                     if (identifier.TypeNameSpace != null)
                     {
-                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                        {
-                            Ax.Items[item].TypeName = typeName;
-                            Ax.Items[item].TypeNameSpace = typeNameSpace;
-                        }
-
+                        typeNameSpace = Ax.Items[item].TypeNameSpace;   //Lazy load it only if we need it
                         if (typeNameSpace != identifier.TypeNameSpace)
                         {
                             return;
@@ -241,12 +208,7 @@ namespace APE.Communication
 
                     if (identifier.TypeName != null)
                     {
-                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                        {
-                            Ax.Items[item].TypeName = typeName;
-                            Ax.Items[item].TypeNameSpace = typeNameSpace;
-                        }
-
+                        typeName = Ax.Items[item].TypeName; //Lazy load it only if we need it
                         if (typeName != identifier.TypeName)
                         {
                             return;
@@ -320,15 +282,12 @@ namespace APE.Communication
                         }
                     }
 
+                    //Make sure the type name space and type name are populated
+                    typeName = Ax.Items[item].TypeName;
+                    typeNameSpace = Ax.Items[item].TypeNameSpace;
+
                     //we have a match
                     foundControl = true;
-
-                    //Make sure the type name space and type name are populated
-                    if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                    {
-                        Ax.Items[item].TypeName = typeName;
-                        Ax.Items[item].TypeNameSpace = typeNameSpace;
-                    }
                 }
             }
         }
@@ -355,8 +314,6 @@ namespace APE.Communication
                         handle = Ax.Items[item].Handle;
                         parentHandle = Ax.Items[item].ParentHandle;
                         name = Ax.Items[item].Name;
-                        typeName = Ax.Items[item].TypeName;
-                        typeNameSpace = Ax.Items[item].TypeNameSpace;
                         uniqueId = Ax.Items[item].UniqueId;
                         control = Ax.Items[item].Control;
 
@@ -391,12 +348,7 @@ namespace APE.Communication
 
                         if (identifier.TypeNameSpace != null)
                         {
-                            if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                            {
-                                Ax.Items[item].TypeName = typeName;
-                                Ax.Items[item].TypeNameSpace = typeNameSpace;
-                            }
-
+                            typeNameSpace = Ax.Items[item].TypeNameSpace;   //Lazy load it only if we need it
                             if (typeNameSpace != identifier.TypeNameSpace)
                             {
                                 return;
@@ -405,12 +357,7 @@ namespace APE.Communication
 
                         if (identifier.TypeName != null)
                         {
-                            if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                            {
-                                Ax.Items[item].TypeName = typeName;
-                                Ax.Items[item].TypeNameSpace = typeNameSpace;
-                            }
-
+                            typeName = Ax.Items[item].TypeName; //Lazy load it only if we need it
                             if (typeName != identifier.TypeName)
                             {
                                 continue;
@@ -452,11 +399,8 @@ namespace APE.Communication
                         }
 
                         //Make sure the type name space and type name are populated
-                        if (PopulateTypeNameAndTypeNameSpace(control, ref typeName, ref typeNameSpace))
-                        {
-                            Ax.Items[item].TypeName = typeName;
-                            Ax.Items[item].TypeNameSpace = typeNameSpace;
-                        }
+                        typeName = Ax.Items[item].TypeName;
+                        typeNameSpace = Ax.Items[item].TypeNameSpace;
 
                         if (typeName == "Label" && string.IsNullOrEmpty(typeNameSpace))
                         {
@@ -499,41 +443,6 @@ namespace APE.Communication
                     }
                 }
             }
-        }
-
-        private bool PopulateTypeNameAndTypeNameSpace(object control, ref string typeName, ref string typeNameSpace)
-        {
-            if (typeName == null && typeNameSpace == null)
-            {
-                APE.Bridge.Ole.ComTypeInformation(control, out string interfaceName, out string typeLibraryName, out string className);
-
-                if (string.IsNullOrEmpty(typeLibraryName))
-                {
-                    typeNameSpace = "";
-                }
-                else
-                {
-                    typeNameSpace = typeLibraryName;
-                }
-
-                if (string.IsNullOrEmpty(className))
-                {
-                    if (string.IsNullOrEmpty(interfaceName))
-                    {
-                        typeName = "";
-                    }
-                    else
-                    {
-                        typeName = interfaceName;
-                    }
-                }
-                else
-                {
-                    typeName = className;
-                }
-                return true;
-            }
-            return false;
         }
     }
 }

@@ -1322,6 +1322,7 @@ namespace APE.Native
         public const int HC_ACTION = 0;
         public const int WH_MOUSE = 7;
         public const int WH_FOREGROUNDIDLE = 11;
+        public const int WM_MOUSEMOVE = 0x0200;
         public const int WM_LBUTTONDOWN = 0x0201;
         public const int WM_LBUTTONUP = 0x0202;
         public const int WM_LBUTTONDBLCLK = 0x0203;
@@ -1331,6 +1332,7 @@ namespace APE.Native
         public const int WM_MBUTTONDOWN = 0x0207;
         public const int WM_MBUTTONUP = 0x0208;
         public const int WM_MBUTTONDBLCLK = 0x0209;
+        public const int WM_NCMOUSEMOVE = 0x00A0;
         public const int WM_NCLBUTTONDOWN = 0x00A1;
         public const int WM_NCLBUTTONUP = 0x00A2;
         public const int WM_NCLBUTTONDBLCLK = 0x00A3;

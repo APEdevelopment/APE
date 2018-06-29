@@ -1110,21 +1110,21 @@ namespace APE.Language
 
                 if (performCheck)
                 {
-                    IntPtr ChildHandle;
+                    IntPtr childHandle;
 
                     thePoint.x = xOffset + WindowRect.left;
                     thePoint.y = yOffset + WindowRect.top;
 
-                    ChildHandle = NM.WindowFromPoint(thePoint);
+                    childHandle = NM.WindowFromPoint(thePoint);
 
                     // Make sure we are inside the controls window area
-                    if (handle == ChildHandle)
+                    if (handle == childHandle)
                     {
                         break;
                     }
                     else
                     {
-                        if (loops == 100)
+                        if (loops == 7)
                         {
                             // Try to scroll it into view
                             GUI.m_APE.AddFirstMessageScrollControlIntoView(handle);
@@ -1142,6 +1142,44 @@ namespace APE.Language
                         {
                             if (NM.IsWindowEnabled(handle) && NM.IsWindowEnabled(NM.GetAncestor(handle, NM.GetAncestorFlags.GetParent)))
                             {
+                                string childName = null;
+                                string controlName = null;
+                                try
+                                {
+                                    ControlIdentifier identity;
+                                    
+                                    //try to work out the child
+                                    identity = GUI.BuildIdentity(null, null, new Identifier(Identifiers.Handle, childHandle));
+                                    GUI.m_APE.AddFirstMessageControlExistsByProperty(identity);
+                                    GUI.m_APE.SendMessages(EventSet.APE);
+                                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                                    GUI.m_APE.DecodeControl(1, out identity);
+                                    if (identity.Handle != IntPtr.Zero)
+                                    {
+                                        childName = identity.Name;
+                                    }
+
+                                    //work out this control
+                                    identity = GUI.BuildIdentity(null, null, new Identifier(Identifiers.Handle, handle));
+                                    GUI.m_APE.AddFirstMessageControlExistsByProperty(identity);
+                                    GUI.m_APE.SendMessages(EventSet.APE);
+                                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                                    GUI.m_APE.DecodeControl(1, out identity);
+                                    if (identity.Handle != IntPtr.Zero)
+                                    {
+                                        controlName = identity.Name;
+                                    }
+                                }
+                                catch
+                                {
+                                }
+
+                                if (!string.IsNullOrEmpty(childName) && !string.IsNullOrEmpty(childName))
+                                {
+                                    throw GUI.ApeException("Coordinates are not inside the " + description + " control area (Found " + childName + " Expecting " + controlName + ")");
+                                }
                                 throw GUI.ApeException("Coordinates are not inside the " + description + " control area");
                             }
                             else
@@ -1157,14 +1195,60 @@ namespace APE.Language
                 }
 
                 loops++;
+
+                Thread.Sleep(15);
             }
 
-            MoveMouse(WindowRect.left + xOffset, WindowRect.top + yOffset);
+            int screenX = WindowRect.left + xOffset;
+            int screenY = WindowRect.top + yOffset;
 
-            // Make sure the AUT recieves the mouse move message and has painted
-            if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
+            if (performCheck)
             {
-                throw GUI.ApeException(description + " did not go idle within timeout");
+                bool hooked = false;
+                try
+                {
+                    GUI.m_APE.AddFirstMessageAddMouseHook(handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    hooked = true;
+
+                    MoveMouse(screenX - 1, screenY - 1);
+                    MoveMouse(screenX, screenY);
+                    MoveMouse(screenX + 1, screenY + 1);
+                    MoveMouse(screenX, screenY);
+
+                    // Make sure the AUT recieves the mouse move message
+                    if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
+                    {
+                        throw GUI.ApeException(description + " did not go idle within timeout");
+                    }
+
+                    GUI.m_APE.AddFirstMessageWaitForMouseMove(screenX, screenY);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                finally
+                {
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+                }
+            }
+            else
+            {
+                MoveMouse(screenX - 1, screenY - 1);
+                MoveMouse(screenX, screenY);
+                MoveMouse(screenX + 1, screenY + 1);
+                MoveMouse(screenX, screenY);
+
+                // Make sure the AUT recieves the mouse move message
+                if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
+                {
+                    throw GUI.ApeException(description + " did not go idle within timeout");
+                }
             }
 
             return thePoint;
@@ -1249,12 +1333,56 @@ namespace APE.Language
                 loops++;
             }
 
-            MoveMouse(thePoint.x, thePoint.y);
+            int screenX = thePoint.x;
+            int screenY = thePoint.y;
 
-            // Make sure the AUT recieves the mouse move message and has painted
-            if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
+            if (performCheck)
             {
-                throw GUI.ApeException(apeObject.Description + " did not go idle within timeout");
+                bool hooked = false;
+                try
+                {
+                    GUI.m_APE.AddFirstMessageAddMouseHook(apeObject.Handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    hooked = true;
+
+                    MoveMouse(screenX - 1, screenY - 1);
+                    MoveMouse(screenX, screenY);
+                    MoveMouse(screenX + 1, screenY + 1);
+                    MoveMouse(screenX, screenY);
+
+                    // Make sure the AUT recieves the mouse move message and has painted
+                    if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
+                    {
+                        throw GUI.ApeException(apeObject.Description + " did not go idle within timeout");
+                    }
+
+                    GUI.m_APE.AddFirstMessageWaitForMouseMove(screenX, screenY);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
+                finally
+                {
+                    if (hooked)
+                    {
+                        GUI.m_APE.AddFirstMessageRemoveMouseHook(apeObject.Handle);
+                        GUI.m_APE.SendMessages(EventSet.APE);
+                        GUI.m_APE.WaitForMessages(EventSet.APE);
+                    }
+                }
+            }
+            else
+            {
+                MoveMouse(screenX - 1, screenY - 1);
+                MoveMouse(screenX, screenY);
+                MoveMouse(screenX + 1, screenY + 1);
+                MoveMouse(screenX, screenY);
+
+                // Make sure the AUT recieves the mouse move message
+                if (!WaitForInputIdle(apeObject.Handle, GUI.m_APE.TimeOut))
+                {
+                    throw GUI.ApeException(apeObject.Description + " did not go idle within timeout");
+                }
             }
 
             return thePoint;

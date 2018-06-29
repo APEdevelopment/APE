@@ -28,6 +28,8 @@ namespace APE.Communication
     /// </summary>
     public partial class APEIPC
     {
+        private int m_WM_MouseMove_ScreenX = -1;
+        private int m_WM_MouseMove_ScreenY = -1;
         private bool m_WM_LBUTTONDOWN = false;
         private bool m_WM_LBUTTONUP = false;
         private bool m_WM_LBUTTONDBLCLK = false;
@@ -79,6 +81,8 @@ namespace APE.Communication
         /// </summary>
         private void ClearMouseState()
         {
+            m_WM_MouseMove_ScreenX = -1;
+            m_WM_MouseMove_ScreenY = -1;
             m_WM_LBUTTONDBLCLK = false;
             m_WM_LBUTTONDOWN = false;
             m_WM_LBUTTONUP = false;
@@ -232,7 +236,7 @@ namespace APE.Communication
         }
         
         /// <summary>
-        /// Gets the parameters from the message then waits for the desired mouse messages to arrive
+        /// Gets the parameters from the message then waits for the desired mouse button messages to arrive
         /// </summary>
         /// <param name="ptrMessage">A pointer to the message</param>
         /// <param name="messageNumber">The message number</param>
@@ -383,6 +387,77 @@ namespace APE.Communication
         }
 
         /// <summary>
+        /// Calls into the AUT to wait for a previously hooked thread to recieve the desired mouse messages
+        /// </summary>
+        /// <param name="button">The mouse button to wait for</param>
+        /// <param name="mouseDown">Whether the button should be down or up</param>
+        /// <param name="firstClick">Whether the click to wait for is the first click or not</param>
+        unsafe public void AddFirstMessageWaitForMouseMove(int screenX, int screenY)
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->Action = MessageAction.WaitForMouseMove;
+
+            Parameter screenXParameter = new Parameter(this, screenX);
+            Parameter screenYParameter = new Parameter(this, screenY);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        /// <summary>
+        /// Gets the parameters from the message then waits for the desired mouse button messages to arrive
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        /// <param name="messageNumber">The message number</param>
+        private unsafe void WaitForMouseMove(Message* ptrMessage, int messageNumber)
+        {
+            if (messageNumber != 1)
+            {
+                throw new Exception("WaitForMouseState must be the first message");
+            }
+
+            int screenXParameter = GetParameterInt32(ptrMessage, 0);
+            int screenYParameter = GetParameterInt32(ptrMessage, 1);
+
+            CleanUpMessage(ptrMessage);
+            Stopwatch timer = Stopwatch.StartNew();
+
+            DebugLogging.WriteLog("Waiting on mouse move " + screenXParameter.ToString() + ", " + screenYParameter.ToString());
+
+            try
+            {
+                while (true)
+                {
+                    if (m_WM_MouseMove_ScreenX <= screenXParameter + 1 && m_WM_MouseMove_ScreenX >= screenXParameter - 1)
+                    {
+                        if (m_WM_MouseMove_ScreenY <= screenYParameter + 1 && m_WM_MouseMove_ScreenY >= screenYParameter - 1)
+                        {
+                            break;
+                        }
+                    }
+
+                    Thread.Sleep(15);
+                    
+                    if (timer.ElapsedMilliseconds > m_TimeOut)
+                    {
+                        //throw new Exception("Want: " + screenXParameter.ToString() + ", " + screenYParameter.ToString() + " got: " + m_WM_MouseMove_ScreenX.ToString() + ", " + m_WM_MouseMove_ScreenY.ToString());
+                        throw new Exception("Failed to find Mouse Move");
+                    }
+                }
+            }
+            finally
+            {
+                ClearMouseState();
+            }
+
+            DebugLogging.WriteLog("Mouse Move done");
+        }
+
+        /// <summary>
         /// Callback that is called after the mouse hook has been installed when the thread recieves a mouse message
         /// </summary>
         /// <param name="nCode">A code that the hook procedure uses to determine how to process the message</param>
@@ -406,6 +481,11 @@ namespace APE.Communication
                     {
                         switch (wParam.ToInt32())
                         {
+                            case NM.WM_MOUSEMOVE:
+                            case NM.WM_NCMOUSEMOVE:
+                                m_WM_MouseMove_ScreenX = MyMouseHookStruct.pt.x;
+                                m_WM_MouseMove_ScreenY = MyMouseHookStruct.pt.y;
+                                break;
                             case NM.WM_LBUTTONDOWN:
                                 DebugLogging.WriteLog("Left Down " + nCode.ToString() + " " + MyMouseHookStruct.hwnd.ToString() + " " + MyMouseHookStruct.pt.x.ToString() + " x " + MyMouseHookStruct.pt.y.ToString() + " " + MyMouseHookStruct.wHitTestCode.ToString());
                                 m_WM_LBUTTONDOWN = true;

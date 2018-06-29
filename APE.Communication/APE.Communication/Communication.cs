@@ -129,15 +129,25 @@ namespace APE.Communication
         private Type m_TypeIntPtrByRef = typeof(IntPtr).MakeByRefType();
 
         private object tempStore0;
+        private bool tempStore0ReleaseComObject = false;
         private object tempStore1;
+        private bool tempStore1ReleaseComObject = false;
         private object tempStore2;
+        private bool tempStore2ReleaseComObject = false;
         private object tempStore3;
+        private bool tempStore3ReleaseComObject = false;
         private object tempStore4;
+        private bool tempStore4ReleaseComObject = false;
         private object tempStore5;
+        private bool tempStore5ReleaseComObject = false;
         private object tempStore6;
+        private bool tempStore6ReleaseComObject = false;
         private object tempStore7;
+        private bool tempStore7ReleaseComObject = false;
         private object tempStore8;
+        private bool tempStore8ReleaseComObject = false;
         private object tempStore9;
+        private bool tempStore9ReleaseComObject = false;
 
         private Boolean m_DoneFind;
         private Boolean m_DoneQuery;
@@ -3683,6 +3693,7 @@ namespace APE.Communication
                     throw new Exception("Unsupported SourceStore " + (PtrMessage->SourceStore).ToString());
             }
 
+            bool releaseComObject = false;
             if (SourceObject == null)
             {
                 DestinationObject = null;
@@ -4093,6 +4104,11 @@ namespace APE.Communication
                     comParameters[2] = ParametersObject;
 
                     DestinationObject = invokeControl.Invoke(m_ComReflectDelegater, comParameters);
+
+                    if (DestinationObject != null && Marshal.IsComObject(DestinationObject))
+                    {
+                        releaseComObject = true;
+                    }
                 }
                 else
                 {
@@ -4236,33 +4252,43 @@ namespace APE.Communication
             {
                 case DataStores.Store0:
                     tempStore0 = DestinationObject;
+                    tempStore0ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store1:
                     tempStore1 = DestinationObject;
+                    tempStore1ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store2:
                     tempStore2 = DestinationObject;
+                    tempStore2ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store3:
                     tempStore3 = DestinationObject;
+                    tempStore3ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store4:
                     tempStore4 = DestinationObject;
+                    tempStore4ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store5:
                     tempStore5 = DestinationObject;
+                    tempStore5ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store6:
                     tempStore6 = DestinationObject;
+                    tempStore6ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store7:
                     tempStore7 = DestinationObject;
+                    tempStore7ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store8:
                     tempStore8 = DestinationObject;
+                    tempStore8ReleaseComObject = releaseComObject;
                     break;
                 case DataStores.Store9:
                     tempStore9 = DestinationObject;
+                    tempStore9ReleaseComObject = releaseComObject;
                     break;
                 default:
                     throw new Exception("Unsupported DestinationStore " + (PtrMessage->DestinationStore).ToString());

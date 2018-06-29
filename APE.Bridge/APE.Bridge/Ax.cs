@@ -50,13 +50,41 @@ namespace APE.Bridge
 
         public class Item
         {
+            public IntPtr ParentHandle
+            {
+                get
+                {
+                    return GetAncestor(Handle, GetAncestorFlags.GetRoot);
+                }
+            }
             public string UniqueId;
-            public IntPtr ParentHandle;
             public string ContainerUniqueId;
             public IntPtr Handle;
             public string Name;
-            public string TypeName;
-            public string TypeNameSpace;
+            private string TypeNameInternal = null;
+            public string TypeName
+            {
+                get
+                {
+                    if (TypeNameInternal == null)
+                    {
+                        PopulateTypeNameAndTypeNameSpace(Control, ref TypeNameInternal, ref TypeNameSpaceInternal);
+                    }
+                    return TypeNameInternal;
+                }
+            }
+            private string TypeNameSpaceInternal = null;
+            public string TypeNameSpace
+            {
+                get
+                {
+                    if (TypeNameSpaceInternal == null)
+                    {
+                        PopulateTypeNameAndTypeNameSpace(Control, ref TypeNameInternal, ref TypeNameSpaceInternal);
+                    }
+                    return TypeNameSpaceInternal;
+                }
+            }
             public object Control;
             public bool Rendered;
             public short ContainerScaleMode;
@@ -65,12 +93,9 @@ namespace APE.Bridge
             {
                 ContainerUniqueId = containerUniqueId;
                 UniqueId = objectUniqueId;
-                ParentHandle = GetAncestor(windowHandle, GetAncestorFlags.GetRoot);
                 Handle = windowHandle;
                 ContainerScaleMode = containerScaleMode;
                 Name = objectName;
-                TypeName = null;        //lazy populate this as it can be relatively slow to do
-                TypeNameSpace = null;   //lazy populate this as it can be relatively slow to do
                 Control = control;
                 Rendered = rendered;
             }
@@ -252,6 +277,36 @@ namespace APE.Bridge
                 //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "RemoveAllItemsFromContainer: Name: " + containerName + " Message: " + ex.Message + Environment.NewLine + ex.StackTrace + Environment.NewLine);
                 //If any errors occur in the code in this class then don't do any more processing so we don't leak
                 Abort = true;
+            }
+        }
+
+        private static void PopulateTypeNameAndTypeNameSpace(object control, ref string typeName, ref string typeNameSpace)
+        {
+            APE.Bridge.Ole.ComTypeInformation(control, out string interfaceName, out string typeLibraryName, out string className);
+
+            if (string.IsNullOrEmpty(typeLibraryName))
+            {
+                typeNameSpace = "";
+            }
+            else
+            {
+                typeNameSpace = typeLibraryName;
+            }
+
+            if (string.IsNullOrEmpty(className))
+            {
+                if (string.IsNullOrEmpty(interfaceName))
+                {
+                    typeName = "";
+                }
+                else
+                {
+                    typeName = interfaceName;
+                }
+            }
+            else
+            {
+                typeName = className;
             }
         }
     }
