@@ -362,35 +362,25 @@ namespace APE.Language
             try
             {
                 NM.tagPoint thePoint = new NM.tagPoint();
-                thePoint.x = x;
-                thePoint.y = y;
-                IntPtr TopLevelHandle = NM.ChildWindowFromPoint(NM.GetDesktopWindow(), thePoint);
-
                 NM.GetWindowRect(control, out NM.tagRect WindowSize);
 
                 thePoint.x = x + WindowSize.left;
                 thePoint.y = y + WindowSize.top;
-                IntPtr ChildHandle = NM.WindowFromPoint(thePoint);
-
-                if (!WaitForInputIdle(ChildHandle, GUI.m_APE.TimeOut))
-                {
-                    throw GUI.ApeException(description + " did not go idle within timeout");
-                }
-
-                IntPtr ActualParent;
+                IntPtr childHandle = NM.WindowFromPoint(thePoint);
+                IntPtr actualParent;
 
                 if (parent == IntPtr.Zero)
                 {
-                    ActualParent = control;
+                    actualParent = control;
                 }
                 else
                 {
-                    ActualParent = parent;
+                    actualParent = parent;
                 }
 
                 TimerResolution.SetMaxTimerResolution();
 
-                if (ChildHandle == control)
+                if (childHandle == control)
                 {
                     ClickCommon(parent, control, description, x, y, apeObject);
                 }
@@ -406,7 +396,7 @@ namespace APE.Language
                     }
                 }
 
-                if (control == ActualParent || ActualParent == NM.GetAncestor(control, NM.GetAncestorFlags.GetParent))
+                if (control == actualParent || actualParent == NM.GetAncestor(control, NM.GetAncestorFlags.GetParent))
                 {
                     GUI.m_APE.AddFirstMessageAddMouseHook(control);
                     GUI.m_APE.SendMessages(EventSet.APE);
@@ -416,7 +406,7 @@ namespace APE.Language
 
                 MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
-                if (control == ActualParent)
+                if (control == actualParent)
                 {
                     GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
                     GUI.m_APE.SendMessages(EventSet.APE);
