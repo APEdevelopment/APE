@@ -60,7 +60,7 @@ namespace APE.Language
 
                 if (dropAfter == 0)
                 {
-                    return 999999999;   //Don't yet have a drop after value so set it to a really large value
+                    return int.MaxValue;   //Don't yet have a drop after value so set it to a really large value
                 }
                 else
                 {
