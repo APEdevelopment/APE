@@ -75,7 +75,7 @@ namespace APE.Language
 
         private string GetCurrentState()
         {
-            if (Identity.TypeNameSpace == "LzGenericWalker")
+            if (Identity.TypeNameSpace == "LzGenericWalker" || Identity.TypeName == "AxGenericWalker")
             {
                 throw GUI.ApeException("Not supported");
             }
