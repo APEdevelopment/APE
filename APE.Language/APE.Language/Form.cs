@@ -564,9 +564,9 @@ namespace APE.Language
                         NM.GetWindowRect(Identity.Handle, out windowRect);
 
                         //if we are in the right place +/- 2 pixel then break the loop
-                        if (windowRect.left > destinationUpperLeftX - 2 && windowRect.left < destinationUpperLeftX + 2)
+                        if (windowRect.left > destinationUpperLeftX - 3 && windowRect.left < destinationUpperLeftX + 3)
                         {
-                            if (windowRect.top > destinationUpperLeftY - 2 && windowRect.top < destinationUpperLeftY + 2)
+                            if (windowRect.top > destinationUpperLeftY - 3 && windowRect.top < destinationUpperLeftY + 3)
                             {
                                 break;
                             }

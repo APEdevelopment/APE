@@ -47,7 +47,7 @@ namespace APE.Language
 
         private int GetCurrentDropAfter()
         {
-            if (Identity.TypeNameSpace == "LzGenericWalker")
+            if (Identity.TypeNameSpace == "LzGenericWalker" || Identity.TypeName == "AxGenericWalker")
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Driver", MemberTypes.Property);
@@ -107,9 +107,9 @@ namespace APE.Language
             try
             {
                 GUITextBox textbox;
-                if (Identity.TypeNameSpace == "LzGenericWalker")
+                if (Identity.TypeNameSpace == "LzGenericWalker" || Identity.TypeName == "AxGenericWalker")
                 {
-                    if (Identity.TechnologyType == "Windows Forms (WinForms)")
+                    if (Identity.TechnologyType == "Windows Forms (WinForms)" && Identity.TypeName != "AxGenericWalker")
                     {
                         GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                         GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "txtText", MemberTypes.Field);
@@ -187,7 +187,7 @@ namespace APE.Language
 
                             while (true)
                             {
-                                if (Identity.TypeNameSpace == "LzGenericWalker")
+                                if (Identity.TypeNameSpace == "LzGenericWalker" || Identity.TypeName == "AxGenericWalker")
                                 {
                                     searchAfter = GetCurrentDropAfter();
                                 }
@@ -238,7 +238,7 @@ namespace APE.Language
                             while (true)
                             {
                                 //Get the state of the popup control
-                                if (Identity.TypeNameSpace == "LzGenericWalker")
+                                if (Identity.TypeNameSpace == "LzGenericWalker" || Identity.TypeName == "AxGenericWalker")
                                 {
                                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "IsDropped", MemberTypes.Property);
