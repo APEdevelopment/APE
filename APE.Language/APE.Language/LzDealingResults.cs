@@ -61,15 +61,7 @@ namespace APE.Language
         /// <returns>The results grid</returns>
         public GUIAxLZResultsGrid GetResultsGrid()
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "lzcResultsGrid", MemberTypes.Field);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Handle", MemberTypes.Property);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            IntPtr resultsGridHandle = GUI.m_APE.GetValueFromMessage();
-            GUIAxLZResultsGrid resultsGrid = new GUIAxLZResultsGrid(ParentForm, "results grid", new Identifier(Identifiers.Handle, resultsGridHandle));
+            GUIAxLZResultsGrid resultsGrid = new GUIAxLZResultsGrid(ParentForm, Description + " results grid", new Identifier(Identifiers.Name, "lzcResultsGrid"), new Identifier(Identifiers.ChildOf, this));
             return resultsGrid;
         }
     }
