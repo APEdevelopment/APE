@@ -132,13 +132,13 @@ namespace APE.Communication
             m_HookWindow = handle;
 
             // Add the mouse hook
-            DebugLogging.WriteLog("Adding Mouse hook");
+            //DebugLogging.WriteLog("Adding Mouse hook");
             m_hMouseHook = NM.SetWindowsHookEx(NM.WH_MOUSE, MouseHookProcedure, IntPtr.Zero, threadId);
             if (m_hMouseHook == 0)
             {
                 throw new Exception("SetWindowsHookEx failed to add mouse hook");
             }
-            DebugLogging.WriteLog("Added Mouse hook");
+            //DebugLogging.WriteLog("Added Mouse hook");
 
             ClearMouseState();
         }

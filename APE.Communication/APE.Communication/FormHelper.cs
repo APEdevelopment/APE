@@ -420,6 +420,10 @@ namespace APE.Communication
                             {
                                 messageAvailble = true; // Don't invoke anything just continue to loop till the control has recreated the handle
                             }
+                            else if (!control.Enabled)
+                            {
+                                // Nothing move on to the next window
+                            }
                             else
                             {
                                 try
