@@ -1073,7 +1073,8 @@ namespace APE.Language
                     // Click on the checkbox
                     GUI.Log("Single " + MouseButton.Left.ToString() + " click on the checkbox in the " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText, LogItemType.Action);
                     int treeColumn = TreeViewColumn();
-                    if (treeColumn == columnIndex)
+                    bool isNode = IsNode(rowIndex);
+                    if (treeColumn == columnIndex && isNode)
                     {
                         this.SingleClickCellInternal(rowIndex, columnIndex, MouseButton.Left, CellClickLocation.LeftSideOfTreeItem, MouseKeyModifier.None);
                     }
