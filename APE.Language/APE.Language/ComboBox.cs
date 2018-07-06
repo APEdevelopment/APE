@@ -453,6 +453,42 @@ namespace APE.Language
             }
         }
 
+        /// <summary>
+        /// Returns the number of items in the combo box
+        /// </summary>
+        /// <returns>The number of items</returns>
+        public int ItemCount()
+        {
+            IntPtr messageResult;
+            IntPtr sendResult;
+            int itemCount = -1;
+
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
+            {
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETCOUNT, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                itemCount = unchecked((int)messageResult.ToInt64());
+                if (sendResult == IntPtr.Zero)
+                {
+                    throw GUI.ApeException("Failed to access the " + Description);
+                }
+
+                if (itemCount != NM.CB_ERR)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                {
+                    throw GUI.ApeException("Failed to get the number of items in the " + Description);
+                }
+
+                Thread.Sleep(50);
+            }
+
+            return itemCount;
+        }
+
         private int ItemIndex(string itemText, CaseSensitivity caseSensitivity)
         {
             IntPtr messageResult;
@@ -461,17 +497,7 @@ namespace APE.Language
             if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
             {
                 //CB_FINDSTRINGEXACT seems to have some issues with ImageCombo so use a less efficent method
-                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ComboBoxMessages.CB_GETCOUNT, IntPtr.Zero, IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
-                int itemCount = unchecked((int)messageResult.ToInt64());
-                if (sendResult == IntPtr.Zero)
-                {
-                    throw GUI.ApeException("Failed to access the " + Description);
-                }
-                else if (itemCount == NM.CB_ERR)
-                {
-                    return NM.CB_ERR;
-                }
-
+                int itemCount = ItemCount();
                 string lowerCaseItem = null;
                 if (caseSensitivity == CaseSensitivity.Insensitive)
                 {
