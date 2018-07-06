@@ -845,7 +845,7 @@ namespace APE.Language
                     break;
                 }
 
-                if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
                     throw GUI.ApeException("Window is not visible");
                 }
@@ -928,7 +928,7 @@ namespace APE.Language
                         i--;
                     }
 
-                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                    if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                     {
                         timer.Stop();
                         throw GUI.ApeException("Failed to detect window finishing animation");
@@ -1005,7 +1005,7 @@ namespace APE.Language
                     }
                 }
                 
-                if (timer.ElapsedMilliseconds > 3000)
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
                     if (!isVisible)
                     {
@@ -1169,7 +1169,7 @@ namespace APE.Language
                     }
                 }
 
-                if (timer.ElapsedMilliseconds > 3000)
+                if (timer.ElapsedMilliseconds > GUI.GetTimeOut())
                 {
                     //Failed to find it            
                     throw GUI.ApeException("Failed to find menu item [" + menuItem + "]");
