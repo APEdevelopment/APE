@@ -90,19 +90,7 @@ namespace APE.Language
         /// <param name="textToSend">The text to send to the control</param>
         protected void SendKeysInternal(string textToSend)
         {
-            Input.Block();
-            try
-            {
-                Input.SendKeys(this, textToSend);
-            }
-            catch when (Input.ResetInputFilter())
-            {
-                // Will never be reached as ResetInputFilter always returns false
-            }
-            finally
-            {
-                Input.Unblock();
-            }
+            Input.SendKeys(this, textToSend);
         }
     }
 }

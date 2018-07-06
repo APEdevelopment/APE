@@ -20,6 +20,7 @@ using System.Threading;
 using APE.Communication;
 using System.Windows.Forms;
 using NM = APE.Native.NativeMethods;
+using System.Reflection;
 
 namespace APE.Language
 {
@@ -77,9 +78,8 @@ namespace APE.Language
                     throw GUI.ApeException(focusableObject.Description + " did not go idle within timeout");
                 }
             }
-            TimerResolution.SetMaxTimerResolution();
-            System.Windows.Forms.SendKeys.SendWait(text);
-            TimerResolution.UnsetMaxTimerResolution();
+
+            System.Windows.Forms.SendKeys.SendWait(text);   //Doesn't actually wait on Vista an newer OS where sendinput is used
         }
 
         public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
@@ -520,7 +520,7 @@ namespace APE.Language
 
         public static bool SetFocus(IntPtr parent, IntPtr control, string description)
         {
-            string debugMessage = "";
+            //string debugMessage = "";
             bool ret = false;
 
             IntPtr actualParent;
@@ -535,7 +535,7 @@ namespace APE.Language
 
             if (!IsFocusWindow(control))
             {
-                debugMessage += "1 ";
+                //debugMessage += "1 ";
                 GUI.m_APE.AddFirstMessageSetFocus(control);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -544,7 +544,7 @@ namespace APE.Language
 
             if (!IsActiveWindow(actualParent))
             {
-                debugMessage += "2 ";
+                //debugMessage += "2 ";
                 NM.SetForegroundWindow(actualParent);
                 ret = true;
             }
@@ -553,11 +553,11 @@ namespace APE.Language
             {
                 Thread.Sleep(1);    //This seems to help when stepping through code in visual studio
 
-                debugMessage += "3 ";
+                //debugMessage += "3 ";
                 Stopwatch timer = Stopwatch.StartNew();
                 if (!NM.SetForegroundWindow(control))
                 {
-                    debugMessage += "4 ";
+                    //debugMessage += "4 ";
                     SetFocusForced(control);
                 }
                 ret = true;
@@ -573,11 +573,11 @@ namespace APE.Language
                 }
             }
 
-            if (debugMessage != "")
-            {
-                // Temporary debug message
-                //GUI.Log(debugMessage, LogItemType.Warning);
-            }
+            //if (debugMessage != "")
+            //{
+            //    // Temporary debug message
+            //    //GUI.Log(debugMessage, LogItemType.Warning);
+            //}
 
             return ret;
         }
