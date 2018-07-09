@@ -1382,6 +1382,7 @@ namespace APE.Language
         {
             NM.INPUT[] MouseEvent = new NM.INPUT[1];
             MouseEvent[0].type = NM.INPUT_TYPE.INPUT_MOUSE;
+            //TODO do we want to include MOUSEEVENTF_VIRTUALDESK ?
             MouseEvent[0].U.mi = CreateMouseInput(x, y, 0, 0, NM.MOUSEEVENTF.ABSOLUTE | NM.MOUSEEVENTF.MOVE | NM.MOUSEEVENTF.MOVE_NOCOALESCE);
             NM.SendInput((uint)MouseEvent.Length, MouseEvent, Marshal.SizeOf(MouseEvent[0].GetType()));
         }
