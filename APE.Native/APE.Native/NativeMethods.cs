@@ -1321,6 +1321,7 @@ namespace APE.Native
 
         public const int HC_ACTION = 0;
         public const int WH_MOUSE = 7;
+        public const int WH_GETMESSAGE = 3;
         public const int WH_FOREGROUNDIDLE = 11;
         public const int WM_MOUSEMOVE = 0x0200;
         public const int WM_LBUTTONDOWN = 0x0201;
@@ -1352,6 +1353,18 @@ namespace APE.Native
             public IntPtr hwnd;
             public int wHitTestCode;
             public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MSG
+        {
+            public IntPtr hwnd;
+            public int message;
+            public IntPtr wParam;
+            public IntPtr lParam;
+            public uint time;
+            public int pointX;
+            public int pointY;
         }
 
         // local process hooking
