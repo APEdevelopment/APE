@@ -1473,205 +1473,49 @@ namespace APE.Communication
             AddQueryMessageReflect(SourceStore, DestinationStore, Name, MemberType);
         }
 
-        unsafe public void DecodeControl(int messageNumber, out ControlIdentifier Identifier)
+        unsafe public void DecodeControl(int messageNumber, out ControlIdentifier identifier)
         {
-            Message* PtrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
-            Identifier = new ControlIdentifier();
+            Message* ptrMessage = (Message*)(m_IntPtrMemoryMappedFileViewMessageStore + ((messageNumber - 1) * m_SizeOfMessage));
+            identifier = new ControlIdentifier();
 
             // p1 = Parent handle
-            if ((PtrMessage->Parameter.TypeCode[0]) == (int)ApeTypeCode.IntPtr)
-            {
-                Identifier.ParentHandle = (IntPtr)PtrMessage->Parameter.IntPtr[0];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[0]).ToString());
-            }
-
+            identifier.ParentHandle = GetParameterIntPtr(ptrMessage, 0);
             // p2 = Handle
-            if ((PtrMessage->Parameter.TypeCode[1]) == (int)ApeTypeCode.IntPtr)
-            {
-                Identifier.Handle = (IntPtr)PtrMessage->Parameter.IntPtr[1];
-            }
-            else
-            {
-                throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + (PtrMessage->Parameter.TypeCode[1]).ToString());
-            }
+            identifier.Handle = GetParameterIntPtr(ptrMessage, 1);
 
-            if (PtrMessage->NumberOfParameters > 2)
+            if (ptrMessage->NumberOfParameters > 2)
             {
                 // p3 = Name
-                if (PtrMessage->Parameter.StringLength[2] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[2]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.Name = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[2]), 0, PtrMessage->Parameter.StringLength[2]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[2])).ToString());
-                    }
-                }
-
+                identifier.Name = GetParameterString(ptrMessage, 2);
                 // p4 = Technology Type (Winforms, WPF, etc)
-                if (PtrMessage->Parameter.StringLength[3] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[3]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.TechnologyType = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[3]), 0, PtrMessage->Parameter.StringLength[3]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[3])).ToString());
-                    }
-                }
-
+                identifier.TechnologyType = GetParameterString(ptrMessage, 3);
                 // p5 = Type Namespace
-                if (PtrMessage->Parameter.StringLength[4] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[4]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.TypeNameSpace = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[4]), 0, PtrMessage->Parameter.StringLength[4]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[4])).ToString());
-                    }
-                }
-
+                identifier.TypeNameSpace = GetParameterString(ptrMessage, 4);
                 // p6 = Type Name
-                if (PtrMessage->Parameter.StringLength[5] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[5]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.TypeName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[5]), 0, PtrMessage->Parameter.StringLength[5]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[5])).ToString());
-                    }
-                }
-
+                identifier.TypeName = GetParameterString(ptrMessage, 5);
                 // p7 = Module Name
-                if (PtrMessage->Parameter.StringLength[6] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[6]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.ModuleName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[6]), 0, PtrMessage->Parameter.StringLength[6]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[6])).ToString());
-                    }
-                }
-
+                identifier.ModuleName = GetParameterString(ptrMessage, 6);
                 // p8 = Assembly Name
-                if (PtrMessage->Parameter.StringLength[7] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[7]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.AssemblyName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[7]), 0, PtrMessage->Parameter.StringLength[7]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[7])).ToString());
-                    }
-                }
-
+                identifier.AssemblyName = GetParameterString(ptrMessage, 7);
                 // p9 = Index
-                if ((PtrMessage->Parameter.TypeCode[8]) == (Int32)ApeTypeCode.Int32)
-                {
-                    Identifier.Index = PtrMessage->Parameter.Int32[8];
-                }
-                else
-                {
-                    throw new Exception("Expected ApeTypeCode." + ApeTypeCode.Int32.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[8])).ToString());
-                }
-
+                identifier.Index = GetParameterInt32(ptrMessage, 8);
                 // p10 = Text
-                if (PtrMessage->Parameter.StringLength[9] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[9]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.Text = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[9]), 0, PtrMessage->Parameter.StringLength[9]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + TypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[9])).ToString());
-                    }
-                }
-
+                identifier.Text = GetParameterString(ptrMessage, 9);
                 // p11 = ChildOf
-                if ((PtrMessage->Parameter.TypeCode[10]) == (int)ApeTypeCode.IntPtr)
-                {
-                    Identifier.ChildOf = (IntPtr)PtrMessage->Parameter.IntPtr[10];
-                }
-                else
-                {
-                    throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[10])).ToString());
-                }
-
+                identifier.ChildOf = GetParameterIntPtr(ptrMessage, 10);
                 // p12 = SiblingOf
-                if ((PtrMessage->Parameter.TypeCode[11]) == (int)ApeTypeCode.IntPtr)
-                {
-                    Identifier.SiblingOf = (IntPtr)PtrMessage->Parameter.IntPtr[11];
-                }
-                else
-                {
-                    throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[11])).ToString());
-                }
-
+                identifier.SiblingOf = GetParameterIntPtr(ptrMessage, 11);
                 // p13 = ParentOf
-                if ((PtrMessage->Parameter.TypeCode[12]) == (int)ApeTypeCode.IntPtr)
-                {
-                    Identifier.ParentOf = (IntPtr)PtrMessage->Parameter.IntPtr[12];
-                }
-                else
-                {
-                    throw new Exception("Expected ApeTypeCode.IntPtr got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[12])).ToString());
-                }
-
+                identifier.ParentOf = GetParameterIntPtr(ptrMessage, 12);
                 // p14 = Description
-                if (PtrMessage->Parameter.StringLength[13] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[13]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.Description = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[13]), 0, PtrMessage->Parameter.StringLength[13]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[13])).ToString());
-                    }
-                }
-
+                identifier.Description = GetParameterString(ptrMessage, 13);
                 // p15 = AccessibilityObjectName
-                if (PtrMessage->Parameter.StringLength[14] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[14]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.AccessibilityObjectName = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[14]), 0, PtrMessage->Parameter.StringLength[14]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[14])).ToString());
-                    }
-                }
-
+                identifier.AccessibilityObjectName = GetParameterString(ptrMessage, 14);
                 // p16 = UniqueId
-                if (PtrMessage->Parameter.StringLength[15] > 0)
-                {
-                    if ((PtrMessage->Parameter.TypeCode[15]) == (Int32)ApeTypeCode.String)
-                    {
-                        Identifier.UniqueId = new string((char*)(m_IntPtrMemoryMappedFileViewStringStore + PtrMessage->Parameter.StringOffset[15]), 0, PtrMessage->Parameter.StringLength[15]);
-                    }
-                    else
-                    {
-                        throw new Exception("Expected ApeTypeCode." + ApeTypeCode.String.ToString() + " got ApeTypeCode." + ((TypeCode)(PtrMessage->Parameter.TypeCode[15])).ToString());
-                    }
-                }
+                identifier.UniqueId = GetParameterString(ptrMessage, 15);
             }
 
-            CleanUpMessage(PtrMessage);
+            CleanUpMessage(ptrMessage);
         }
 
         private void GetWPFHandleAndNameAndTitle(WPF.Window theWindow)
