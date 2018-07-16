@@ -19,6 +19,7 @@ using System.Drawing;
 using System.Text;
 using System.Diagnostics;
 using System.Security;
+using System.Threading;
 
 namespace APE.Native
 {
@@ -1319,9 +1320,11 @@ namespace APE.Native
             STATE_SYSTEM_VALID = 0x1FFFFFFF,
         }
 
+        public const int PM_REMOVE = 1;
         public const int HC_ACTION = 0;
         public const int WH_MOUSE = 7;
         public const int WH_GETMESSAGE = 3;
+        public const int WH_CALLWNDPROC = 4;
         public const int WH_FOREGROUNDIDLE = 11;
         public const int WM_MOUSEMOVE = 0x0200;
         public const int WM_LBUTTONDOWN = 0x0201;
@@ -1353,6 +1356,15 @@ namespace APE.Native
             public IntPtr hwnd;
             public int wHitTestCode;
             public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct CWPSTRUCT
+        {
+            public IntPtr lparam;
+            public IntPtr wparam;
+            public int message;
+            public IntPtr hwnd;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1590,6 +1602,9 @@ namespace APE.Native
         public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, ref TITLEBARINFOEX lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
 
         [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint uMsg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
+
+        [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr SendMessageTimeout(IntPtr hwnd, int uMsg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags flags, uint uTimeout, out IntPtr result);
 
         [DllImport("user32.dll", EntryPoint = "SendMessageTimeout", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -1791,6 +1806,29 @@ namespace APE.Native
             public IntPtr hwndMoveSize;
             public IntPtr hwndCaret;
             public tagRect rcCaret;
+        }
+
+        [DllImport("user32.dll")]
+        public static extern uint GetQueueStatus(QueueStatusFlags flags);
+
+        [Flags]
+        public enum QueueStatusFlags : uint
+        {
+            QS_KEY = 0x0001,
+            QS_MOUSEMOVE = 0x0002,
+            QS_MOUSEBUTTON = 0x0004,
+            QS_POSTMESSAGE = 0x0008,
+            QS_TIMER = 0x0010,
+            QS_PAINT = 0x0020,
+            QS_SENDMESSAGE = 0x0040,
+            QS_HOTKEY = 0x0080,
+            QS_ALLPOSTMESSAGE = 0x0100,
+            QS_RAWINPUT = 0x0400,
+            QS_MOUSE = (QS_MOUSEMOVE | QS_MOUSEBUTTON),
+            QS_INPUT = (QS_MOUSE | QS_KEY | QS_RAWINPUT),
+            QS_REFRESH = (QS_HOTKEY | QS_KEY | QS_MOUSEBUTTON | QS_PAINT),
+            QS_ALLEVENTS = (QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY),
+            QS_ALLINPUT = (QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY | QS_SENDMESSAGE)
         }
 
         [DllImport("user32.dll", SetLastError = true)]

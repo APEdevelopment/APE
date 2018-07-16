@@ -1630,11 +1630,6 @@ namespace APE.Language
 
                             Thread.Sleep(15);
                         }
-
-                        // TODO is this actually needed run some tests
-                        GUI.m_APE.AddFirstMessagePeakMessage(this.Identity.Handle);
-                        GUI.m_APE.SendMessages(EventSet.APE);
-                        GUI.m_APE.WaitForMessages(EventSet.APE);
                     }
 
                     // Put the cell into edit mode

@@ -1271,12 +1271,8 @@ namespace APE.Language
             }
 
             if (IsEnabled && ParentForm.IsEnabled)
-            {
-                // We have changed a value so make sure it has painted
-                GUI.m_APE.AddFirstMessagePeakMessage(Identity.Handle);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                
+            {   
+                // Wait for the application to be idle
                 Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
 
                 // Set focus to the grid, we can't use SetFocus() here as we want the grid to get focus regardless
@@ -3499,13 +3495,12 @@ namespace APE.Language
 
             if (IsEnabled && ParentForm.IsEnabled)
             {
-                // We have changed a value so make sure it has painted
-                GUI.m_APE.AddFirstMessagePeakMessage(Identity.Handle);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-
+                // Wait for the application to be idle
                 Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
-                Input.SetFocusForced(Identity.Handle);
+
+                // Set focus to the grid, we can't use SetFocus() here as we want the grid to get focus regardless
+                // of whether a child of the grid has it or not
+                Input.SetFocusForced(Identity.Handle);                
             }
 
             switch (compareMethod)
