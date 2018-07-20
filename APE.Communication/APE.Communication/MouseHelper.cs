@@ -475,8 +475,8 @@ namespace APE.Communication
                 NM.MouseHookStruct MyMouseHookStruct = (NM.MouseHookStruct)Marshal.PtrToStructure(lParam, typeof(NM.MouseHookStruct));
 
                 //Check if the window or its parent recieved a mouse message (we check for a parent as they have a bad habit of eating some clicks)
-                if (MyMouseHookStruct.hwnd == m_HookWindow || NM.IsChild(MyMouseHookStruct.hwnd, m_HookWindow))
-                {
+                //if (MyMouseHookStruct.hwnd == m_HookWindow || NM.IsChild(MyMouseHookStruct.hwnd, m_HookWindow))
+                //{
                     if (nCode == NM.HC_ACTION)
                     {
                         switch (wParam.ToInt32())
@@ -559,7 +559,7 @@ namespace APE.Communication
                                 break;
                         }
                     }
-                }
+                //}
                 return NM.CallNextHookEx(m_hMouseHook, nCode, wParam, lParam);
             }
         }

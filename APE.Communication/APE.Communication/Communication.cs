@@ -426,14 +426,42 @@ namespace APE.Communication
             //        break;
             //    }
             //}
+            List<IntPtr> formList = new List<IntPtr>();
+            foreach (WF.Form form in WF.Application.OpenForms)
+            {
+                GetHandleAndName(form);
+                if (NM.IsWindowVisible(m_Handle))
+                {
+                    formList.Add(m_Handle);
+                    NM.SuspendDrawing(m_Handle, TimeOut);
+                }
+            }
 
-            // Do a single GC (more than this can have undesirable effects on performance)
             if (generation == GC.MaxGeneration)
             {
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect(generation, GCCollectionMode.Forced, true);
             }
-            GC.Collect(generation);
+            else
+            {
+                GC.Collect(generation);
+            }
             GC.WaitForPendingFinalizers();
+
+            foreach (IntPtr form in formList)
+            {
+                    NM.ResumeDrawing(form, TimeOut);
+                    //NM.RedrawWindow(m_Handle, IntPtr.Zero, IntPtr.Zero, NM.RedrawWindowFlags.Invalidate | NM.RedrawWindowFlags.Erase | NM.RedrawWindowFlags.AllChildren);
+                    //NM.UpdateWindow(m_Handle);   
+            }
+
+            //// Do a single GC (more than this can have undesirable effects on performance)
+            //if (generation == GC.MaxGeneration)
+            //{
+            //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            //}
+            //GC.Collect(generation);
+            //GC.WaitForPendingFinalizers();
 
             Thread.Sleep(150);  //A small sleep after GC seems to make the performance timings more accurate
         }

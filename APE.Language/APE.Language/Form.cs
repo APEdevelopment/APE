@@ -97,30 +97,18 @@ namespace APE.Language
                     int X = Left + ((Right - Left) / 2) - WindowRect.left;
                     int Y = Top + ((Bottom - Top) / 2) - WindowRect.top;
 
-                    Input.Block();
+                    GUI.Log("Close the " + Identity.Description, LogItemType.Action);
                     try
                     {
-                        GUI.Log("Close the " + Identity.Description, LogItemType.Action);
-                        try
-                        {
-                            base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
-                        }
-                        catch (Exception ex) when (ex.Message.Contains("has exited"))
-                        {
-                            //Ignore
-                        }
-
-                        //Wait for the window to disappear
-                        base.WaitForControlToNotBeVisible();
+                        base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
                     }
-                    catch when (Input.ResetInputFilter())
+                    catch (Exception ex) when (ex.Message.Contains("has exited"))
                     {
-                        // Will never be reached as ResetInputFilter always returns false
+                        //Ignore
                     }
-                    finally
-                    {
-                        Input.Unblock();
-                    }
+                    
+                    //Wait for the window to disappear
+                    base.WaitForControlToNotBeVisible();
                 }
             }
         }

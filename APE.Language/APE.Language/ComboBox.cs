@@ -80,6 +80,13 @@ namespace APE.Language
         /// <returns>The text of the item</returns>
         public string ItemText(int itemIndex)
         {
+            int itemCount = ItemCount();
+
+            if (itemIndex >= itemCount)
+            {
+                throw GUI.ApeException("Item index does not exist");
+            }
+
             string itemText;
             if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
             {
@@ -195,6 +202,17 @@ namespace APE.Language
         /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
         public void SingleClickItem(string itemText, CaseSensitivity caseSensitivity)
         {
+            SingleClickItem(itemText, caseSensitivity, true);
+        }
+
+        /// <summary>
+        /// Selects the specified item in the combobox by clicking on it
+        /// </summary>
+        /// <param name="itemText">The item to select</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        /// <param name="checkSelected">Whether to check the item selected is the current item after selecting</param>
+        public void SingleClickItem(string itemText, CaseSensitivity caseSensitivity, bool checkSelected)
+        {
             Stopwatch timer;
 
             //Check if its already selected
@@ -268,19 +286,7 @@ namespace APE.Language
                     
                     if (!droppedDown)
                     {
-                        //Show the dropdown (the dropdown appears on the mouse down and the mouse up goes missing in 
-                        //some environments but since it isn't critical we just make sure down input is recieved) 
-                        actualComboBox.MouseDownInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
-                        //Release the mouse without any checks
-                        try
-                        {
-                            TimerResolution.SetMaxTimerResolution();
-                            Input.MouseClick(MouseButton.Left, false, true, 1, false, false);
-                        }
-                        finally
-                        {
-                            TimerResolution.UnsetMaxTimerResolution();
-                        }
+                        actualComboBox.SingleClickInternal(Width - 5, -1, MouseButton.Left, MouseKeyModifier.None);
                     }
 
                     //find the dropdown
@@ -332,41 +338,44 @@ namespace APE.Language
 
                 comboBoxDropdown.SingleClickInternal(-1, (itemRectangle.Height / 2) + itemRectangle.Top, MouseButton.Left, MouseKeyModifier.None);
 
-                //wait for CurrentItemText() to == text
-                bool selected = false;
-                timer = Stopwatch.StartNew();
-                
-                while (true)
+                if (checkSelected)
                 {
-                    switch (caseSensitivity)
+                    //wait for CurrentItemText() to == text
+                    bool selected = false;
+                    timer = Stopwatch.StartNew();
+
+                    while (true)
                     {
-                        case CaseSensitivity.Sensitive:
-                            if (CurrentItemText() == itemText)
-                            {
-                                selected = true;
-                            }
+                        switch (caseSensitivity)
+                        {
+                            case CaseSensitivity.Sensitive:
+                                if (CurrentItemText() == itemText)
+                                {
+                                    selected = true;
+                                }
+                                break;
+                            case CaseSensitivity.Insensitive:
+                                if (CurrentItemText().ToLower() == itemText.ToLower())
+                                {
+                                    selected = true;
+                                }
+                                break;
+                            default:
+                                throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
+                        }
+
+                        if (selected)
+                        {
                             break;
-                        case CaseSensitivity.Insensitive:
-                            if (CurrentItemText().ToLower() == itemText.ToLower())
-                            {
-                                selected = true;
-                            }
-                            break;
-                        default:
-                            throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
-                    }
+                        }
 
-                    if (selected)
-                    {
-                        break;
-                    }
+                        if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
+                        {
+                            throw GUI.ApeException("Failed to select the item in the " + Description);
+                        }
 
-                    if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
-                    {
-                        throw GUI.ApeException("Failed to select the item in the " + Description);
+                        Thread.Sleep(15);
                     }
-
-                    Thread.Sleep(15);
                 }
             }
             catch when (Input.ResetInputFilter())

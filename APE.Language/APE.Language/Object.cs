@@ -128,6 +128,10 @@ namespace APE.Language
 
             // Small sleep to let focus switch
             Thread.Sleep(20);
+            if (NM.IsWindow(Handle))
+            {
+                Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut);
+            }
         }
 
         /// <summary>

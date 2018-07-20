@@ -38,6 +38,30 @@ namespace APE.Native
         [DllImport("kernel32.dll", EntryPoint = "OpenProcess", SetLastError = true)]
         public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
 
+        private const int WM_SETREDRAW = 11;
+
+        public static void SuspendDrawing(IntPtr form, uint timeout)
+        {
+            IntPtr messageResult;
+            IntPtr sendResult;
+            sendResult = SendMessageTimeout(form, WM_SETREDRAW, new IntPtr(0), IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, timeout, out messageResult);
+            if (sendResult == IntPtr.Zero) //Failed
+            {
+                throw new Exception("Failed to access the suspend drawing");
+            }
+        }
+
+        public static void ResumeDrawing(IntPtr form, uint timeout)
+        {
+            IntPtr messageResult;
+            IntPtr sendResult;
+            sendResult = SendMessageTimeout(form, WM_SETREDRAW, new IntPtr(1), IntPtr.Zero, SendMessageTimeoutFlags.SMTO_NORMAL, timeout, out messageResult);
+            if (sendResult == IntPtr.Zero) //Failed
+            {
+                throw new Exception("Failed to access the suspend drawing");
+            }
+        }
+
         [Flags]
         public enum ProcessAccessFlags : uint
         {
@@ -1618,7 +1642,6 @@ namespace APE.Native
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern IntPtr SendMessageTimeout(IntPtr hWnd, ListBoxMessages Msg, IntPtr wParam, int[] lParam, SendMessageTimeoutFlags fuFlags, uint uTimeout, out IntPtr lpdwResult);
-
 
         [Flags]
         public enum SendMessageTimeoutFlags : uint

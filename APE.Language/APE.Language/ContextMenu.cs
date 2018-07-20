@@ -53,9 +53,6 @@ namespace APE.Language
             Input.SendAltKey();
 
             WaitForControlToNotBeVisible();
-
-            // Small sleep to let focus switch
-            Thread.Sleep(20);
         }
 
         internal abstract void SingleClickItemInternal(string contextMenuItem, string logMessageAction, ItemIdentifier itemIdentifier);

@@ -123,6 +123,8 @@ namespace APE.Communication
         GetInvokeFormActiveX = 62,
         GetComboBoxExItemText = 63,
         WaitForMouseMove = 64,
+        AddToolStripItemEnteredHandler = 65,
+        WaitForAndRemoveToolStripItemEnteredHandler = 66,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -452,6 +454,12 @@ namespace APE.Communication
                                 case MessageAction.WaitForMouseMove:
                                     WaitForMouseMove(ptrMessage, messageNumber);
                                     break;
+                                case MessageAction.AddToolStripItemEnteredHandler:
+                                    AddToolStripItemEnteredHandler(ptrMessage);
+                                    break;
+                                case MessageAction.WaitForAndRemoveToolStripItemEnteredHandler:
+                                    WaitForAndRemoveToolStripItemEnteredHandler(ptrMessage);
+                                    break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
                             }
@@ -734,7 +742,7 @@ namespace APE.Communication
         {
             if ((ptrMessage->Parameter.TypeCode[parameter]) == (int)ApeTypeCode.IntPtr)
             {
-                return (IntPtr)ptrMessage->Parameter.IntPtr[parameter];
+                return (IntPtr)(void*)ptrMessage->Parameter.IntPtr[parameter];
             }
             else
             {

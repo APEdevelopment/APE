@@ -82,6 +82,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SentinelGridsHelper.cs" />
     <Compile Include="TabHelper.cs" />
+    <Compile Include="ToolStripHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

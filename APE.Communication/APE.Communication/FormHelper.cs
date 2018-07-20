@@ -389,17 +389,18 @@ namespace APE.Communication
             //0 for the thread seems to enumerate all threads
             NM.EnumThreadWindows(0, EnumThreadProcedue, IntPtr.Zero);
 
-            //bool sleepBeforeReturn = false;
             Stopwatch timer = Stopwatch.StartNew();
             for (int loop = 0; loop < 2; loop++)
             {
                 foreach (IntPtr hWnd in m_AllControls)  //TODO maybe only once per thread rather than once per window handle on a thread?
                 {
-                    NM.UpdateWindow(hWnd);
+                    WF.Control control = WF.Control.FromHandle(hWnd);
 
-                    WF.Control control = WF.Control.FromHandle(handle);
-
-                    if (control != null)
+                    if (control == null)
+                    {
+                        //Todo
+                    }
+                    else
                     {
                         while (true)
                         {
@@ -428,7 +429,59 @@ namespace APE.Communication
                             {
                                 try
                                 {
-                                    messageAvailble = (bool)control.Invoke(m_PeakMessagDelegater, null);
+                                    //control.BeginInvoke(m_RefreshControlDelegater, new object[] { control });
+                                    IAsyncResult result = control.BeginInvoke(m_PeakMessagDelegater, null);
+                                    while (true)
+                                    {
+                                        int innerLoop = 0;
+                                        if (result.IsCompleted)
+                                        {
+                                            messageAvailble = (bool)control.EndInvoke(result);
+                                            break;
+                                        }
+
+                                        if (control.IsDisposed)
+                                        {
+                                            // Nothing
+                                            break;
+                                        }
+                                        else if (control.Disposing)
+                                        {
+                                            // Don't do anything just continue to loop till the control is fully disposed
+                                        }
+                                        else if (!control.IsHandleCreated)
+                                        {
+                                            // Nothing as to get to here the handle must have existed at some point so it must have been destroyed
+                                            break;
+                                        }
+                                        else if (control.RecreatingHandle)
+                                        {
+                                            messageAvailble = true; // Don't invoke anything just continue to loop till the control has recreated the handle
+                                            break;
+                                        }
+                                        else if (!control.Enabled)
+                                        {
+                                            // Nothing move on to the next window
+                                            break;
+                                        }
+
+                                        if (timer.ElapsedMilliseconds > m_TimeOut)
+                                        {
+                                            throw new Exception("Thread failed to have zero messages within timeout");
+                                        }
+
+                                        innerLoop++;
+
+                                        if (innerLoop == 100)
+                                        {
+                                            innerLoop = 0;
+                                            Thread.Sleep(15);
+                                        }
+                                        else
+                                        {
+                                            Thread.Yield();
+                                        }
+                                    }
                                 }
                                 catch (ObjectDisposedException) { }
                                 catch (InvalidAsynchronousStateException) { }
@@ -455,11 +508,11 @@ namespace APE.Communication
             CleanUpMessage(ptrMessage);
         }
 
-        private unsafe bool PeakMessageInternal()
+        private bool PeakMessageInternal()
         {
             // Might want to include timer here as well at some point ( PM_QS_POSTMESSAGE ) but it might effect things to much
             NativeMessage msg;
-            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield | PeekMessageFlags.PM_QS_INPUT | PeekMessageFlags.PM_QS_PAINT);
+            bool messageAvailble = PeekMessage(out msg, IntPtr.Zero, 0, 0, PeekMessageFlags.NoRemove | PeekMessageFlags.NoYield | PeekMessageFlags.PM_QS_INPUT);// | PeekMessageFlags.PM_QS_PAINT);
             return messageAvailble;
         }
 

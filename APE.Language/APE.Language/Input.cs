@@ -79,7 +79,15 @@ namespace APE.Language
                 }
             }
 
-            System.Windows.Forms.SendKeys.SendWait(text);   //Doesn't actually wait on Vista an newer OS where sendinput is used
+            try
+            {
+                TimerResolution.SetMaxTimerResolution();
+                System.Windows.Forms.SendKeys.SendWait(text);   //Doesn't actually wait on Vista and newer where sendinput is used
+            }
+            finally
+            {
+                TimerResolution.UnsetMaxTimerResolution();
+            }
         }
 
         public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
@@ -531,6 +539,11 @@ namespace APE.Language
             else
             {
                 actualParent = parent;
+            }
+
+            if (!NM.IsWindowEnabled(control))
+            {
+                throw GUI.ApeException(description + " is not enabled");
             }
 
             if (!IsFocusWindow(control))
