@@ -666,15 +666,38 @@ namespace APE.Language
             if (apeObject is GUILabel && apeObject?.TechnologyType == "Windows ActiveX")
             {
                 thePoint = MouseMoveLabelActiveX(apeObject, x, y);
+                if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
+                {
+                    throw GUI.ApeException(description + " did not go idle within timeout");
+                }
             }
             else
             {
-                thePoint = MouseMove(control, description, x, y);
-            }
+                // hook mouse entered for toolstrips
+                bool unHookToolStripItemMouseEntered = false;
+                if (apeObject is GUIToolStrip && apeObject?.TechnologyType == "Windows Forms (WinForms)")
+                {
+                    MoveMouse(0, 0);
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, apeObject.ParentForm.Handle, apeObject.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetItemAt", MemberTypes.Method, new Parameter(GUI.m_APE, x), new Parameter(GUI.m_APE, y));
+                    GUI.m_APE.AddQueryMessageToolStripItemEnteredHandler(DataStores.Store1, apeObject.Handle);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    unHookToolStripItemMouseEntered = true;
+                }
 
-            if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
-            {
-                throw GUI.ApeException(description + " did not go idle within timeout");
+                thePoint = MouseMove(control, description, x, y);
+                if (!WaitForInputIdle(control, GUI.m_APE.TimeOut))
+                {
+                    throw GUI.ApeException(description + " did not go idle within timeout");
+                }
+
+                if (unHookToolStripItemMouseEntered)
+                {
+                    GUI.m_APE.AddFirstMessageWaitForAndRemoveToolStripItemEnteredHandler();
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
             }
 
             IntPtr windowAtPoint = NM.WindowFromPoint(thePoint);
