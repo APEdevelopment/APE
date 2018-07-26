@@ -45,7 +45,7 @@ namespace APE.Language
         /// <returns>True if all results have been returned or there are no results otherwise false</returns>
         public bool AllResultsBack()
         {
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddFirstMessageFindByUniqueId(DataStores.Store0, Identity.UniqueId);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "AllResultsBack", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);

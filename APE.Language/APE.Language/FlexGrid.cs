@@ -3191,6 +3191,9 @@ namespace APE.Language
         {
             string rowFriendlyText;
             string columnFriendlyText;
+            string checkboxExpectedState = null;
+            string currentValue;
+            T currentValueT;
             Stopwatch timer;
 
             if (rowText == null)
@@ -3227,17 +3230,45 @@ namespace APE.Language
                 throw GUI.ApeException("Must supply a column index greater than 0 in the " + Description);
             }
 
-            // Check if the cell is already set to the correct value
-            string currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
-            T currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
-            {
-                GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
-                return false;
-            }
-
             // Get the data type of the cell we want to set
             VSFlexgridColumnDataType cellDataType = GetColumnDataType(columnIndex);
+
+            //Check if its checkbox
+            string cellCheckBox = this.GetCell(rowIndex, columnIndex, CellProperty.CheckBox);
+            if (cellCheckBox != "None")
+            {
+                cellDataType = VSFlexgridColumnDataType.flexDTBoolean;
+                switch (expectedValue.ToString().ToLower())
+                {
+                    case "true":
+                        checkboxExpectedState = "Checked";
+                        break;
+                    case "false":
+                        checkboxExpectedState = "Unchecked";
+                        break;
+                    default:
+                        checkboxExpectedState = expectedValue.ToString();
+                        break;
+                }
+
+                // Check if the cell is already set to the correct value
+                if (cellCheckBox == checkboxExpectedState)
+                {
+                    GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + checkboxExpectedState, LogItemType.Action);
+                    return false;
+                }
+            }
+            else
+            {
+                // Check if the cell is already set to the correct value
+                currentValue = this.GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+                currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+                if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                {
+                    GUI.Log("Ensure " + Identity.Description + " row " + rowFriendlyText + " column " + columnFriendlyText + " is set to " + expectedValue, LogItemType.Action);
+                    return false;
+                }
+            }
 
             switch (cellDataType)
             {
@@ -3512,11 +3543,24 @@ namespace APE.Language
                     int sleep = 15;
                     while (true)
                     {
-                        currentValue = GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
-                        currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
-                        if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                        if (cellCheckBox != "None")
                         {
-                            break;
+                            cellCheckBox = this.GetCell(rowIndex, columnIndex, CellProperty.CheckBox);
+
+                            // Check if the cell is already set to the correct value
+                            if (cellCheckBox == checkboxExpectedState)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            currentValue = GetCell(rowIndex, columnIndex, CellProperty.TextDisplay);
+                            currentValueT = (T)Convert.ChangeType(currentValue, typeof(T));
+                            if (EqualityComparer<T>.Default.Equals(currentValueT, expectedValue))
+                            {
+                                break;
+                            }
                         }
 
                         // If the form it belongs to isn't enabled then there is likely a modal form displayed
