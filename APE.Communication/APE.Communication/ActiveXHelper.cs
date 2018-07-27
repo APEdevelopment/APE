@@ -317,7 +317,7 @@ namespace APE.Communication
                         uniqueId = Ax.Items[item].UniqueId;
                         control = Ax.Items[item].Control;
 
-                        if (identifier.ParentHandle == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
+                        if (identifier.ParentHandle == parentHandle || NM.GetAncestor(identifier.ParentHandle, NM.GetAncestorFlags.GetRoot) == parentHandle || (identifier.ParentHandle == IntPtr.Zero && parentHandle == handle))
                         {
                         }
                         else
