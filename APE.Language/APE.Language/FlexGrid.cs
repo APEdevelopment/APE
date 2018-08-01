@@ -3416,6 +3416,8 @@ namespace APE.Language
                     {
                         // Put the cell into edit mode
                         GUI.Log("Press F2 to enter edit mode", LogItemType.Action);
+                        base.SendKeysInternal("{NUMLOCK}");
+                        base.SendKeysInternal("{NUMLOCK}");
                         base.SendKeysInternal("{F2}");
 
                         IntPtr EditorHandle;

@@ -325,6 +325,11 @@ namespace APE.Communication
                             continue;
                         }
 
+                        if (!NM.IsWindowVisible(handle))
+                        {
+                            continue;
+                        }
+
                         //if (!Ax.Items[item].Rendered)
                         //{
                         //    continue;
