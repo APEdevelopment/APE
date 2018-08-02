@@ -503,7 +503,7 @@ namespace APE.Language
             IntPtr messageResult;
             IntPtr sendResult;
 
-            if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")))
+            if ((Identity.TechnologyType == "Windows ActiveX" && Identity.TypeName == "ImageCombo") || (Identity.TechnologyType == "Windows Native" && Identity.TypeName.StartsWith("ImageCombo")) || itemText == "")
             {
                 //CB_FINDSTRINGEXACT seems to have some issues with ImageCombo so use a less efficent method
                 int itemCount = ItemCount();

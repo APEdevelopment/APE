@@ -1237,31 +1237,47 @@ namespace APE.Language
 
             // Scroll the cell into view
             Rectangle CellRectangle;
-            
-            ShowCell(rowIndex, columnIndex);
-            CellRectangle = GetCellRectangle(rowIndex, columnIndex);
-
-            // Check the cell can be scrolled into view
-            if (CellRectangle.Top > Height)
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
             {
-                throw GUI.ApeException("Row can not be scrolled into view (below bottom) in the " + Description);
+                ShowCell(rowIndex, columnIndex);
+                CellRectangle = GetCellRectangle(rowIndex, columnIndex);
+
+                // Check the cell can be scrolled into view
+                string errorText = null;
+                if (CellRectangle.Top > Height)
+                {
+                    errorText = "Row can not be scrolled into view (below bottom) in the " + Description;
+                }
+
+                if (CellRectangle.Left > Width)
+                {
+                    errorText = "Column can not be scrolled into view (after right) in the " + Description;
+                }
+
+                if (CellRectangle.Top < 0)
+                {
+                    errorText = "Row can not be scrolled into view (above top) in the " + Description;
+                }
+
+                if (CellRectangle.Left < 0)
+                {
+                    errorText = "Column can not be scrolled into view (before left) in the " + Description;
+                }
+
+                if (errorText == null)
+                {
+                    break;
+                }
+
+                if (timer.ElapsedMilliseconds > 2000)
+                {
+                    throw GUI.ApeException(errorText);
+                }
+
+                Thread.Sleep(50);
             }
 
-            if (CellRectangle.Left > Width)
-            {
-                throw GUI.ApeException("Column can not be scrolled into view (after right) in the " + Description);
-            }
-
-            if (CellRectangle.Top < 0)
-            {
-                throw GUI.ApeException("Row can not be scrolled into view (above top) in the " + Description);
-            }
-
-            if (CellRectangle.Left < 0)
-            {
-                throw GUI.ApeException("Column can not be scrolled into view (before left) in the " + Description);
-            }
-            
             Point Location = new Point();
 
             //Adjust for where we want to click in the cell

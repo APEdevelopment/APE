@@ -1274,6 +1274,12 @@ namespace APE.Language
             {   
                 // Wait for the application to be idle
                 Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
+
+                // Set focus to the grid, we can't use SetFocus() here as we want the grid to get focus regardless
+                // of whether a child of the grid has it or not
+                GUI.m_APE.AddFirstMessageSetFocusAsync(Identity.Handle);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
             }
 
             switch (compareMethod)
@@ -3389,17 +3395,13 @@ namespace APE.Language
                     {
                         if (GUI.Exists(this.ParentForm, new Identifier(Identifiers.TypeName, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, index)))
                         {
-                            combotreepopupctl = new GUIButton(this.ParentForm, Description + " combotreepopupctl", new Identifier(Identifiers.Name, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, index));
-                            if (combotreepopupctl.IsVisible)
-                            {
-                                break;
-                            }
+                            combotreepopupctl = new GUIButton(this.ParentForm, Description + " combotreepopupctl", new Identifier(Identifiers.TypeName, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, index));
+                            break;
                         }
                         else
                         {
                             break;
                         }
-                        combotreepopupctl = null;
                     }
 
                     if (combotreepopupctl != null)
@@ -3407,7 +3409,7 @@ namespace APE.Language
                         GUIButton dropdownButton = new GUIButton(this.ParentForm, Description + " combotreepopupctl dropdown button", new Identifier(Identifiers.Name, "cmdDropDown"), new Identifier(Identifiers.ChildOf, combotreepopupctl));
                         dropdownButton.SingleClick();
 
-                        GUIForm dropDownForm = new GUIForm(Description + " combotreepopupctl dropdown form", new Identifier(Identifiers.Name, "frmDropdown"), new Identifier(Identifiers.Index, 6));
+                        GUIForm dropDownForm = new GUIForm(Description + " combotreepopupctl dropdown form", new Identifier(Identifiers.Name, "frmDropdown"));
                         GUIFlexgrid dropDownGrid = new GUIFlexgrid(dropDownForm, dropDownForm.Description + " dropdowngrid", new Identifier(Identifiers.Name, "fgData"));
 
                         dropDownGrid.SingleClickCell(value.ToString(), dropDownGrid.Columns() - 1, MouseButton.Left, CellClickLocation.CentreOfCell);
@@ -3536,6 +3538,10 @@ namespace APE.Language
             {
                 // Wait for the application to be idle
                 Input.WaitForInputIdle(this.Handle, (uint)GUI.GetTimeOut());
+
+                // Set focus to the grid, we can't use SetFocus() here as we want the grid to get focus regardless
+                // of whether a child of the grid has it or not
+                Input.SetFocusForced(Identity.Handle);
             }
 
             switch (compareMethod)
