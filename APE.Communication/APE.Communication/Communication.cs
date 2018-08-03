@@ -197,6 +197,35 @@ namespace APE.Communication
             Failure = 2,
         }
 
+        private void BuildListOfAllControls(IntPtr parentWindow)
+        {
+            IntPtr child = NM.GetWindow(parentWindow, NM.GetWindowEnum.CHILD);
+
+            if (child != IntPtr.Zero)
+            {
+                if (NM.IsWindowVisible(child))
+                {
+                    m_AllControls.Add(child);
+                    BuildListOfAllControls(child);
+                }
+
+                IntPtr sibling = child;
+                do
+                {
+                    sibling = NM.GetWindow(sibling, NM.GetWindowEnum.HWNDNEXT);
+                    if (sibling != IntPtr.Zero)
+                    {
+                        if (NM.IsWindowVisible(sibling))
+                        {
+                            m_AllControls.Add(sibling);
+                            BuildListOfAllControls(sibling);
+                        }
+                    }
+                }
+                while (sibling != IntPtr.Zero);
+            }
+        }
+
         private bool EnumThreadCallback(IntPtr hWnd, IntPtr lParam)
         {
             if (NM.IsWindowVisible(hWnd))
@@ -2193,7 +2222,8 @@ namespace APE.Communication
 
                         m_AllControls = new List<IntPtr>();
                         //Build a list of all the visible child windows of the parent form
-                        NM.EnumChildWindows(Identifier.ParentHandle, EnumThreadProcedue, IntPtr.Zero);
+                        BuildListOfAllControls(Identifier.ParentHandle);
+                        //NM.EnumChildWindows(Identifier.ParentHandle, EnumThreadProcedue, IntPtr.Zero);
 
                         foreach (IntPtr hWnd in m_AllControls)
                         {

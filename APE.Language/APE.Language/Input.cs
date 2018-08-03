@@ -677,7 +677,9 @@ namespace APE.Language
                 bool unHookToolStripItemMouseEntered = false;
                 if (apeObject is GUIToolStrip && apeObject?.TechnologyType == "Windows Forms (WinForms)")
                 {
-                    MoveMouse(0, 0);
+                    NM.tagPoint p = new NM.tagPoint();
+                    NM.ClientToScreen(apeObject.ParentForm.Handle, ref p);
+                    MoveMouse(p.x, p.y);
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, apeObject.ParentForm.Handle, apeObject.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetItemAt", MemberTypes.Method, new Parameter(GUI.m_APE, x), new Parameter(GUI.m_APE, y));
                     GUI.m_APE.AddQueryMessageToolStripItemEnteredHandler(DataStores.Store1, apeObject.Handle);
