@@ -177,28 +177,22 @@ namespace APE.Language
         public virtual int FindColumn(string[] columnHeader)
         {
             int column = -1;
-            Stopwatch timer = Stopwatch.StartNew();
-            while (true)
+
+            // Columns present may change so try twice
+            try
             {
-                try
-                {
-                    column = FindColumnInternal(columnHeader);
-                    if (column != -1)
-                    {
-                        break;
-                    }
-                }
-                catch
-                {
-                }
-
-                if (timer.ElapsedMilliseconds > 2000)
-                {
-                    throw GUI.ApeException("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
-                }
-
-                Thread.Sleep(50);
+                column = FindColumnInternal(columnHeader);
             }
+            catch
+            {
+                column = FindColumnInternal(columnHeader);
+            }
+
+            if (column == -1)
+            {
+                throw GUI.ApeException("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
+            }
+
             return column;
         }
 

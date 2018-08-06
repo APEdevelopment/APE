@@ -184,7 +184,7 @@ namespace APE.Language
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Group", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex + 1));
                 GUI.m_APE.AddQueryMessageGetTypeInformationActiveX(DataStores.Store4, DataStores.Store5);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                 try
@@ -228,7 +228,7 @@ namespace APE.Language
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
             if (Identity.TechnologyType == "Windows ActiveX")
             {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex + 1));
             }
             else
             {
@@ -251,7 +251,7 @@ namespace APE.Language
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
             if (Identity.TechnologyType == "Windows ActiveX")
             {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex + 1));
             }
             else
             {
@@ -274,7 +274,7 @@ namespace APE.Language
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Nodes", MemberTypes.Property);
             if (Identity.TechnologyType == "Windows ActiveX")
             {
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex));   
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store4, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, nodeIndex + 1));   
             }
             else
             {
