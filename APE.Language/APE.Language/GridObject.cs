@@ -15,7 +15,9 @@
 //
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 
 namespace APE.Language
 {
@@ -175,22 +177,28 @@ namespace APE.Language
         public virtual int FindColumn(string[] columnHeader)
         {
             int column = -1;
-
-            // Columns present may change so try twice
-            try
+            Stopwatch timer = Stopwatch.StartNew();
+            while (true)
             {
-                column = FindColumnInternal(columnHeader);
-            }
-            catch
-            {
-                column = FindColumnInternal(columnHeader);
-            }
+                try
+                {
+                    column = FindColumnInternal(columnHeader);
+                    if (column != -1)
+                    {
+                        break;
+                    }
+                }
+                catch
+                {
+                }
 
-            if (column == -1)
-            {
-                throw GUI.ApeException("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
-            }
+                if (timer.ElapsedMilliseconds > 2000)
+                {
+                    throw GUI.ApeException("Failed to find column " + string.Join(GUI.GridDelimiter, columnHeader) + " in the " + Description);
+                }
 
+                Thread.Sleep(50);
+            }
             return column;
         }
 
