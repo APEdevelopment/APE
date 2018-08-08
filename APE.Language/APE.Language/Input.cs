@@ -90,7 +90,7 @@ namespace APE.Language
             }
         }
 
-        public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
+        public static void MouseSingleClick(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject, int preClickDelay, int intraClickDelay)
         {
             bool hooked = false;
 
@@ -115,15 +115,23 @@ namespace APE.Language
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 hooked = true;
 
+                if (preClickDelay != -1)
+                {
+                    Thread.Sleep(preClickDelay);
+                }
+
                 MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
                 GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
-                
+
                 // Some controls don't like it if the mouse is released too quick (For instance Listview
-                // group selecting) but rather than slowing all clicks down put specific code in the problematic
-                // control to handle it (see SelectGroup in ListView.cs for an example)
+                // group selecting)
+                if (intraClickDelay != -1)
+                {
+                    Thread.Sleep(intraClickDelay);
+                }
 
                 MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
                 
@@ -309,7 +317,7 @@ namespace APE.Language
             }
         }
 
-        public static void MouseDown(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject)
+        public static void MouseDown(IntPtr parent, IntPtr control, string description, int x, int y, MouseButton button, MouseKeyModifier keys, GUIObject apeObject, int preClickDelay, int intraClickDelay)
         {
             bool hooked = false;
 
@@ -331,11 +339,21 @@ namespace APE.Language
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 hooked = true;
 
+                if (preClickDelay != -1)
+                {
+                    Thread.Sleep(preClickDelay);
+                }
+
                 MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
 
                 GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                if (intraClickDelay != -1)
+                {
+                    Thread.Sleep(intraClickDelay);
+                }
             }
             catch when (Input.ResetInputFilter())
             {

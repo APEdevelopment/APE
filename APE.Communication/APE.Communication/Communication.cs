@@ -1648,18 +1648,31 @@ namespace APE.Communication
 
                     if (Identifier.TypeNameSpace != null)
                     {
-                        if (theType.Namespace != Identifier.TypeNameSpace)
+                        if (theType.Namespace == null)
                         {
                             continue;
+                        }
+                        else
+                        {
+                            if (!Regex.IsMatch(theType.Namespace, Identifier.TypeNameSpace))
+                            {
+                                continue;
+                            }
                         }
                     }
 
                     if (Identifier.TypeName != null)
                     {
-                        if (theType.Name != Identifier.TypeName)
+                        if (theType.Name == null)
                         {
-                            DebugLogging.WriteLog(theType.Name + " != " + Identifier.TypeName);
                             continue;
+                        }
+                        else
+                        {
+                            if (!Regex.IsMatch(theType.Name, Identifier.TypeName))
+                            {
+                                continue;
+                            }
                         }
                     }
 
@@ -1866,18 +1879,31 @@ namespace APE.Communication
 
                                             if (Identifier.TypeNameSpace != null)
                                             {
-                                                if (theType.Namespace != Identifier.TypeNameSpace)
+                                                if (theType.Namespace == null)
                                                 {
                                                     continue;
+                                                }
+                                                else
+                                                {
+                                                    if (!Regex.IsMatch(theType.Namespace, Identifier.TypeNameSpace))
+                                                    {
+                                                        continue;
+                                                    }
                                                 }
                                             }
 
                                             if (Identifier.TypeName != null)
                                             {
-                                                if (theType.Name != Identifier.TypeName)
+                                                if (theType.Name == null)
                                                 {
-                                                    DebugLogging.WriteLog(theType.Name + " != " + Identifier.TypeName);
                                                     continue;
+                                                }
+                                                else
+                                                {
+                                                    if (!Regex.IsMatch(theType.Name, Identifier.TypeName))
+                                                    {
+                                                        continue;
+                                                    }
                                                 }
                                             }
 
@@ -2001,10 +2027,16 @@ namespace APE.Communication
                                         if (Identifier.TypeName != null)
                                         {
                                             string theTypeName = NM.GetClassName(Handle);
-                                            if (theTypeName != Identifier.TypeName)
+                                            if (theTypeName == null)
                                             {
-                                                DebugLogging.WriteLog(theTypeName + " != " + Identifier.TypeName);
                                                 continue;
+                                            }
+                                            else
+                                            {
+                                                if (!Regex.IsMatch(theTypeName, Identifier.TypeName))
+                                                {
+                                                    continue;
+                                                }
                                             }
                                         }
 
@@ -2258,18 +2290,31 @@ namespace APE.Communication
 
                                         if (Identifier.TypeNameSpace != null)
                                         {
-                                            if (theType.Namespace != Identifier.TypeNameSpace)
+                                            if (theType.Namespace == null)
                                             {
                                                 continue;
+                                            }
+                                            else
+                                            {
+                                                if (!Regex.IsMatch(theType.Namespace, Identifier.TypeNameSpace))
+                                                {
+                                                    continue;
+                                                }
                                             }
                                         }
 
                                         if (Identifier.TypeName != null)
                                         {
-                                            if (theType.Name != Identifier.TypeName)
+                                            if (theType.Name == null)
                                             {
-                                                DebugLogging.WriteLog(theType.Name + " != " + Identifier.TypeName);
                                                 continue;
+                                            }
+                                            else
+                                            {
+                                                if (!Regex.IsMatch(theType.Name, Identifier.TypeName))
+                                                {
+                                                    continue;
+                                                }
                                             }
                                         }
 
@@ -2391,10 +2436,16 @@ namespace APE.Communication
                                     if (Identifier.TypeName != null)
                                     {
                                         string theTypeName = NM.GetClassName(Handle);
-                                        if (theTypeName != Identifier.TypeName)
+                                        if (theTypeName == null)
                                         {
-                                            DebugLogging.WriteLog(theTypeName + " != " + Identifier.TypeName);
                                             continue;
+                                        }
+                                        else
+                                        {
+                                            if (!Regex.IsMatch(theTypeName, Identifier.TypeName))
+                                            {
+                                                continue;
+                                            }
                                         }
                                     }
 

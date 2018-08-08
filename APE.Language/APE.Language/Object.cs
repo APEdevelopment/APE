@@ -244,6 +244,11 @@ namespace APE.Language
 
         internal void SingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
+            SingleClickInternal(X, Y, button, keys, -1, -1);
+        }
+
+        internal void SingleClickInternal(int X, int Y, MouseButton button, MouseKeyModifier keys, int preClickDelay, int intraClickDelay)
+        {
             bool removeHandler = false;
             bool ok = false;
             try
@@ -268,7 +273,7 @@ namespace APE.Language
                     }
                 }
 
-                Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
+                Input.MouseSingleClick(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this, preClickDelay, intraClickDelay);
                 ok = true;
             }
             finally
@@ -415,7 +420,12 @@ namespace APE.Language
 
         internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys)
         {
-            Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this);
+            MouseDownInternal(X, Y, button, keys, -1, -1);
+        }
+
+        internal void MouseDownInternal(int X, int Y, MouseButton button, MouseKeyModifier keys, int preClickDelay, int intraClickDelay)
+        {
+            Input.MouseDown(Identity.ParentHandle, Identity.Handle, Identity.Description, X, Y, button, keys, this, preClickDelay, intraClickDelay);
             if (!Input.WaitForInputIdle(Identity.Handle, GUI.m_APE.TimeOut))
             {
                 throw GUI.ApeException(Identity.Description + " did not go idle within timeout");

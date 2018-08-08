@@ -100,7 +100,7 @@ namespace APE.Language
                     GUI.Log("Close the " + Identity.Description, LogItemType.Action);
                     try
                     {
-                        base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                        base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None, 32, 32);
                     }
                     catch (Exception ex) when (ex.Message.Contains("has exited"))
                     {
@@ -541,7 +541,7 @@ namespace APE.Language
             Input.Block();
             try
             {
-                base.MouseDownInternal(mouseDownX, mouseDownY, MouseButton.Left, MouseKeyModifier.None);
+                base.MouseDownInternal(mouseDownX, mouseDownY, MouseButton.Left, MouseKeyModifier.None, 32, 32);
                 base.MouseUpInternal(destinationUpperLeftX + mouseDownX - windowRect.left, destinationUpperLeftY + mouseDownY - windowRect.top, MouseButton.Left, MouseKeyModifier.None);
                 
                 if (checkMoveCompleted)

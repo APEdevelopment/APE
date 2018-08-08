@@ -131,11 +131,13 @@ namespace APE.Language
         /// </summary>
         TechnologyType = 3,
         /// <summary>
-        /// The name space of the type the control belongs to
+        /// The name space of the type the control belongs to.  Regular expression syntax is supported see msdn for details:
+        /// https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
         /// </summary>
         TypeNameSpace = 4,
         /// <summary>
-        /// The name of the type the control belongs to
+        /// The name of the type the control belongs to.  Regular expression syntax is supported see msdn for details:
+        /// https://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx
         /// </summary>
         TypeName = 5,
         /// <summary>
@@ -1000,7 +1002,7 @@ namespace APE.Language
                 {
                     if (isEnabled)
                     {
-                        Input.MouseSingleClick(parent, control, description, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None, null);
+                        Input.MouseSingleClick(parent, control, description, x + (width / 2), y + (height / 2), MouseButton.Left, MouseKeyModifier.None, null, -1, -1);
                         break;
                     }
                 }

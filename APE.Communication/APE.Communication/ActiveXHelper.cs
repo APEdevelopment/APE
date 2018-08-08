@@ -200,18 +200,32 @@ namespace APE.Communication
                     if (identifier.TypeNameSpace != null)
                     {
                         typeNameSpace = Ax.Items[item].TypeNameSpace;   //Lazy load it only if we need it
-                        if (typeNameSpace != identifier.TypeNameSpace)
+                        if (typeNameSpace == null)
                         {
                             return;
+                        }
+                        else
+                        {
+                            if (!Regex.IsMatch(typeNameSpace, identifier.TypeNameSpace))
+                            {
+                                return;
+                            }
                         }
                     }
 
                     if (identifier.TypeName != null)
                     {
                         typeName = Ax.Items[item].TypeName; //Lazy load it only if we need it
-                        if (typeName != identifier.TypeName)
+                        if (typeName == null)
                         {
                             return;
+                        }
+                        else
+                        {
+                            if (!Regex.IsMatch(typeName, identifier.TypeName))
+                            {
+                                return;
+                            }
                         }
                     }
 
@@ -354,18 +368,32 @@ namespace APE.Communication
                         if (identifier.TypeNameSpace != null)
                         {
                             typeNameSpace = Ax.Items[item].TypeNameSpace;   //Lazy load it only if we need it
-                            if (typeNameSpace != identifier.TypeNameSpace)
+                            if (typeNameSpace == null)
                             {
-                                return;
+                                continue;
+                            }
+                            else
+                            {
+                                if (!Regex.IsMatch(typeNameSpace, identifier.TypeNameSpace))
+                                {
+                                    continue;
+                                }
                             }
                         }
 
                         if (identifier.TypeName != null)
                         {
                             typeName = Ax.Items[item].TypeName; //Lazy load it only if we need it
-                            if (typeName != identifier.TypeName)
+                            if (typeName == null)
                             {
                                 continue;
+                            }
+                            else
+                            {
+                                if (!Regex.IsMatch(typeName, identifier.TypeName))
+                                {
+                                    continue;
+                                }
                             }
                         }
 
