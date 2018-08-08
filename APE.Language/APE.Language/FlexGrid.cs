@@ -1828,6 +1828,8 @@ namespace APE.Language
         /// <returns>The index of the row or -1</returns>
         internal override int FindRowTemp(string rowText, int columnIndex, int startAtRow)
         {
+            if (flexgridActiveX != null) return flexgridActiveX.FindRowTemp(rowText, columnIndex, startAtRow);
+
             int rowIndex;
             int treeColumn = TreeViewColumn();
             if (columnIndex == -1)
