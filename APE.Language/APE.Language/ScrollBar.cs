@@ -140,6 +140,7 @@ namespace APE.Language
         public GUIVScrollBar(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
             : base(parentForm, descriptionOfControl, identParams)
         {
+            this.DisableMouseEvents = true; //TODO work out what is going on here
         }
     }
 
