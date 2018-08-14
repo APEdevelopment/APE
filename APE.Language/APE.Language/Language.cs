@@ -329,6 +329,16 @@ namespace APE.Language
             Input.WaitForInputIdle(Control.Handle, m_APE.TimeOut);
         }
 
+        /// <summary>
+        /// Move the mouse cursor to the specified location
+        /// </summary>
+        /// <param name="x">x coordinate to move the mouse to</param>
+        /// <param name="y">y coordinate to move the mouse to</param>
+        public static void MoveMouse(int x, int y)
+        {
+            Input.MoveMouse(x, y);
+        }
+
         private static void DisplayViewPort()
         {
             m_ViewPort = new ViewPort();

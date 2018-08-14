@@ -110,10 +110,13 @@ namespace APE.Language
                 
                 ClickCommon(parent, control, description, x, y, apeObject);
 
-                GUI.m_APE.AddFirstMessageAddMouseHook(control);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                hooked = true;
+                if (!(apeObject is GUIForm))    //TODO some hangs in vb6
+                {
+                    GUI.m_APE.AddFirstMessageAddMouseHook(control);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    hooked = true;
+                }
 
                 if (preClickDelay != -1)
                 {
@@ -121,10 +124,13 @@ namespace APE.Language
                 }
 
                 MouseClick(button, true, false, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
-                
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                if (hooked)
+                {
+                    GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, true, true);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
 
                 // Some controls don't like it if the mouse is released too quick (For instance Listview
                 // group selecting)
@@ -134,10 +140,13 @@ namespace APE.Language
                 }
 
                 MouseClick(button, false, true, 1, keys.HasFlag(MouseKeyModifier.Control), keys.HasFlag(MouseKeyModifier.Shift));
-                
-                GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
+
+                if (hooked)
+                {
+                    GUI.m_APE.AddFirstMessageWaitForMouseState((APEIPC.MouseButton)button, false, true);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                }
             }
             catch when (Input.ResetInputFilter(doubleClickTimer))
             {

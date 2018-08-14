@@ -92,7 +92,7 @@ namespace APE.Language
             //TODO scroll the item into view if need be
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, IntPtr.Zero, dropDownForm.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_sngItemHeight", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ItemHeight", MemberTypes.Field);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -124,7 +124,7 @@ namespace APE.Language
         private bool IsDropped()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_bPopupDown", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "DroppedDown", MemberTypes.Field);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -139,7 +139,7 @@ namespace APE.Language
         public string SelectedItemText()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_sSelectedCaption", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedCaption", MemberTypes.Field);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -151,7 +151,7 @@ namespace APE.Language
         private int IndexOfItem(string item)
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_colItems", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ListItems", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Count", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.SendMessages(EventSet.APE);
@@ -162,8 +162,15 @@ namespace APE.Language
             for (int itemIndex = 0; itemIndex < itemCount; itemIndex++)
             {
                 GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "m_colItems", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ListItems", MemberTypes.Property);
+                if (Identity.TechnologyType == "Windows ActiveX")
+                {
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "Item", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex + 1));
+                }
+                else
+                {
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, itemIndex));
+                }
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Caption", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                 GUI.m_APE.SendMessages(EventSet.APE);

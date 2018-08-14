@@ -255,7 +255,6 @@ namespace APE.Language
             {
                 if (Identity.TechnologyType == "Windows Forms (WinForms)")
                 {
-
                     if (this is GUIForm || DisableMouseEvents)
                     {
                         //TODO / Oddities
