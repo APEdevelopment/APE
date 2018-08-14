@@ -1253,6 +1253,14 @@ namespace APE.Spy
                                 break;
                         }
                         break;
+                    case "LzStretchyCombo":
+                        switch (Identity.TypeName)
+                        {
+                            case "StretchyCombo":
+                                APEType = "GUIStretchyCombo";
+                                break;
+                        }
+                        break;
                 }
             }
             else if (Identity.TechnologyType == "Windows Forms (WinForms)")
