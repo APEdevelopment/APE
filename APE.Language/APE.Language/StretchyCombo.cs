@@ -92,7 +92,7 @@ namespace APE.Language
             //TODO scroll the item into view if need be
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, IntPtr.Zero, dropDownForm.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ItemHeight", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "ItemHeight", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -124,7 +124,7 @@ namespace APE.Language
         private bool IsDropped()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "DroppedDown", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "DroppedDown", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -139,7 +139,7 @@ namespace APE.Language
         public string SelectedItemText()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedCaption", MemberTypes.Field);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "SelectedCaption", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
