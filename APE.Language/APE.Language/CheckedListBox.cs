@@ -44,6 +44,17 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Checks if the specified item exists in the checkedlistbox
+        /// </summary>
+        /// <param name="itemText">The item to check if it exists</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        /// <returns>Whether item exists</returns>
+        public bool ItemExists(string itemText, CaseSensitivity caseSensitivity)
+        {
+            return ListBox.ItemExists(itemText, caseSensitivity);
+        }
+
+        /// <summary>
         /// Returns the number of items in the checkedlistbox
         /// </summary>
         /// <returns>The number of items</returns>
@@ -52,9 +63,9 @@ namespace APE.Language
             return ListBox.ItemCount();
         }
 
-        internal int ItemIndex(string itemText)
+        internal int ItemIndex(string itemText, CaseSensitivity caseSensitivity)
         {
-            return ListBox.ItemIndex(itemText);
+            return ListBox.ItemIndex(itemText, caseSensitivity);
         }
 
         /// <summary>
@@ -77,14 +88,36 @@ namespace APE.Language
         }
 
         /// <summary>
+        /// Selects the specified item in the checkedlistbox by clicking on it
+        /// </summary>
+        /// <param name="itemText">The item to select</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        public void SingleClickItem(string itemText, CaseSensitivity caseSensitivity)
+        {
+            ListBox.SingleClickItem(itemText, caseSensitivity);
+        }
+
+        /// <summary>
         /// Get whether the item in the checkedlistbox is checked or not
         /// </summary>
         /// <param name="itemText">The text of the item to determine if checked</param>
         /// <returns>True if the item is checked otherwise false</returns>
         public bool ItemChecked(string itemText)
         {
-            int itemIndex = ItemIndex(itemText);
-            return (ItemChecked(itemIndex));
+            int itemIndex = ItemIndex(itemText, CaseSensitivity.Sensitive);
+            return ItemChecked(itemIndex);
+        }
+
+        /// <summary>
+        /// Get whether the item in the checkedlistbox is checked or not
+        /// </summary>
+        /// <param name="itemText">The text of the item to determine if checked</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        /// <returns>True if the item is checked otherwise false</returns>
+        public bool ItemChecked(string itemText, CaseSensitivity caseSensitivity)
+        {
+            int itemIndex = ItemIndex(itemText, caseSensitivity);
+            return ItemChecked(itemIndex);
         }
 
         /// <summary>
@@ -110,15 +143,25 @@ namespace APE.Language
         /// <param name="itemText">The item to check</param>
         public void ItemCheck(string itemText)
         {
-            if (ItemChecked(itemText) == true)
+            ItemCheck(itemText, CaseSensitivity.Sensitive);
+        }
+
+        /// <summary>
+        /// Checks the specified item in the checkedlistbox
+        /// </summary>
+        /// <param name="itemText">The item to check</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        public void ItemCheck(string itemText, CaseSensitivity caseSensitivity)
+        {
+            if (ItemChecked(itemText, caseSensitivity) == true)
             {
                 GUI.Log("Ensure " + itemText + " in the " + Description + " is checked", LogItemType.Action);
             }
             else
             {
                 GUI.Log("Check " + itemText + " in the " + Description, LogItemType.Action);
-                ListBox.SingleClickItemInternal(itemText);
-                PollForState(itemText, true);
+                ListBox.SingleClickItemInternal(itemText, caseSensitivity);
+                PollForState(itemText, true, caseSensitivity);
             }
         }
 
@@ -128,15 +171,25 @@ namespace APE.Language
         /// <param name="itemText">The item to uncheck</param>
         public void ItemUncheck(string itemText)
         {
-            if (ItemChecked(itemText) == false)
+            ItemUncheck(itemText, CaseSensitivity.Sensitive);
+        }
+
+        /// <summary>
+        /// Unchecks the specified item in the checkedlistbox
+        /// </summary>
+        /// <param name="itemText">The item to uncheck</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        public void ItemUncheck(string itemText, CaseSensitivity caseSensitivity)
+        {
+            if (ItemChecked(itemText, caseSensitivity) == false)
             {
                 GUI.Log("Ensure " + itemText + " in the " + Description + " is unchecked", LogItemType.Action);
             }
             else
             {
                 GUI.Log("Uncheck " + itemText + " in the " + Description, LogItemType.Action);
-                ListBox.SingleClickItemInternal(itemText);
-                PollForState(itemText, false);
+                ListBox.SingleClickItemInternal(itemText, caseSensitivity);
+                PollForState(itemText, false, caseSensitivity);
             }
         }
 
@@ -150,9 +203,9 @@ namespace APE.Language
             SendKeys(text);
         }
 
-        private void PollForState(string itemText, bool state)
+        private void PollForState(string itemText, bool state, CaseSensitivity caseSensitivity)
         {
-            int itemIndex = ItemIndex(itemText);
+            int itemIndex = ItemIndex(itemText, caseSensitivity);
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {

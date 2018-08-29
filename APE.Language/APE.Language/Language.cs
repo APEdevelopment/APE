@@ -849,6 +849,11 @@ namespace APE.Language
 
         internal void WaitForAnimation(IntPtr Handle, bool ClearClientArea, WaitForAnimationSource Source)
         {
+            if (GUI.m_APESpy)
+            {
+                return;
+            }
+
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {

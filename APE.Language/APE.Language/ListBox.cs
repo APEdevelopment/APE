@@ -56,9 +56,19 @@ namespace APE.Language
         /// <returns>Whether item exists</returns>
         public bool ItemExists(string itemText)
         {
-            int Index = ItemIndex(itemText);
+            return ItemExists(itemText, CaseSensitivity.Sensitive);
+        }
 
-            if (Index == NM.LB_ERR)
+        /// <summary>
+        /// Checks if the specified item exists in the listbox
+        /// </summary>
+        /// <param name="itemText">The item to check if it exists</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        /// <returns>Whether item exists</returns>
+        public bool ItemExists(string itemText, CaseSensitivity caseSensitivity)
+        {
+            int index = ItemIndex(itemText, caseSensitivity);
+            if (index == NM.LB_ERR)
             {
                 return false;
             }
@@ -87,20 +97,39 @@ namespace APE.Language
             return itemCount;
         }
 
-        internal int ItemIndex(string itemText)
+        internal int ItemIndex(string itemText, CaseSensitivity caseSensitivity)
         {
             //Get the index
             IntPtr sendResult;
             IntPtr messageResult;
             int itemIndex;
 
-            sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_FINDSTRINGEXACT, new IntPtr(-1), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
-            if (sendResult == IntPtr.Zero)  //Failed
+            int startIndex = -1;
+            while (true)
             {
-                throw GUI.ApeException("Failed to find query the " + Description);
+                sendResult = NM.SendMessageTimeout(Identity.Handle, NM.ListBoxMessages.LB_FINDSTRINGEXACT, new IntPtr(startIndex), itemText, NM.SendMessageTimeoutFlags.SMTO_NORMAL, GUI.m_APE.TimeOut, out messageResult);
+                if (sendResult == IntPtr.Zero)  //Failed
+                {
+                    throw GUI.ApeException("Failed to find query the " + Description);
+                }
+                itemIndex = messageResult.ToInt32();
+
+                switch (caseSensitivity)
+                {
+                    case CaseSensitivity.Insensitive:
+                        return itemIndex;
+                    case CaseSensitivity.Sensitive:
+                        string foundItemText = ItemText(itemIndex);
+                        if (foundItemText == itemText)
+                        {
+                            return itemIndex;
+                        }
+                        break;
+                    default:
+                        throw GUI.ApeException("Unsupported CaseSensitivity value: " + caseSensitivity.ToString());
+                }
+                startIndex = itemIndex + 1;
             }
-            itemIndex = messageResult.ToInt32();
-            return (itemIndex);
         }
 
         /// <summary>
@@ -137,8 +166,18 @@ namespace APE.Language
         /// <param name="itemText">The item to select</param>
         public void SingleClickItem(string itemText)
         {
+            SingleClickItem(itemText, CaseSensitivity.Sensitive);
+        }
+
+        /// <summary>
+        /// Selects the specified item in the listbox by clicking on it
+        /// </summary>
+        /// <param name="itemText">The item to select</param>
+        /// <param name="caseSensitivity">Whether to include the case of the item in the comparison</param>
+        public void SingleClickItem(string itemText, CaseSensitivity caseSensitivity)
+        {
             GUI.Log("Single Left click on the item " + itemText + " from the " + Identity.Description, LogItemType.Action);
-            SingleClickItemInternal(itemText);
+            SingleClickItemInternal(itemText, caseSensitivity);
         }
 
         private Rectangle GetItemRectangle(int itemIndex)
@@ -156,10 +195,10 @@ namespace APE.Language
             return new Rectangle(rectangle.left, rectangle.top, (rectangle.right - rectangle.left), (rectangle.bottom - rectangle.top));
         }
 
-        internal void SingleClickItemInternal(string itemText)
+        internal void SingleClickItemInternal(string itemText, CaseSensitivity caseSensitivity)
         {
             //locate the item
-            int itemIndex = ItemIndex(itemText);
+            int itemIndex = ItemIndex(itemText, caseSensitivity);
             if (itemIndex == NM.LB_ERR)
             {
                 throw GUI.ApeException("Failed to find the item in the " + Description);

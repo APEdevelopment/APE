@@ -246,7 +246,7 @@ namespace APE.Language
             Input.Block();
             try
             {
-                base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None, 32, 32);
 
                 // Wait for the animation to finish
                 base.WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
@@ -316,7 +316,7 @@ namespace APE.Language
             Input.Block();
             try
             {
-                base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None, 32, 32);
 
                 // Wait for the animation to finish
                 base.WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
@@ -428,7 +428,7 @@ namespace APE.Language
                 Input.Block();
                 try
                 {
-                    base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None);
+                    base.SingleClickInternal(X, Y, MouseButton.Left, MouseKeyModifier.None, 32, 32);
 
                     // Wait for the animation to finish
                     base.WaitForAnimation(Identity.Handle, true, AnimationUtils.WaitForAnimationSource.Form);
