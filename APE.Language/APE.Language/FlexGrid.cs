@@ -672,7 +672,7 @@ namespace APE.Language
         /// Returns the number of fixed rows, that is a row which makes up the header of the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed rows</returns>
-        public int FixedRows()
+        public override int FixedRows()
         {
             if (flexgridActiveX != null) return flexgridActiveX.FixedRows();
 
@@ -818,7 +818,7 @@ namespace APE.Language
         /// Returns the number of rows in the grid, including those which are hidden
         /// </summary>
         /// <returns>The number of rows</returns>
-        public int Rows()
+        public override int Rows()
         {
             if (flexgridActiveX != null) return flexgridActiveX.Rows();
 
@@ -3069,7 +3069,7 @@ namespace APE.Language
         /// Returns the number of fixed rows, that is a row which doesn't scroll, in the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed rows</returns>
-        public int FixedRows()
+        public override int FixedRows()
         {
             FindGridByHandleAndPutInDatastore2();
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "FixedRows", MemberTypes.Property);
@@ -3133,7 +3133,7 @@ namespace APE.Language
         /// Returns the number of rows in the grid, including those which are hidden
         /// </summary>
         /// <returns>The number of rows</returns>
-        public int Rows()
+        public override int Rows()
         {
             FindGridByHandleAndPutInDatastore2();
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Rows", MemberTypes.Property);

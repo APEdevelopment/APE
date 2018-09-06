@@ -67,7 +67,7 @@ namespace APE.Language
         /// Returns the number of rows in the grid
         /// </summary>
         /// <returns>The number of rows</returns>
-        public int Rows()
+        public override int Rows()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NumRows", MemberTypes.Property);
@@ -84,7 +84,7 @@ namespace APE.Language
         /// Returns the number of fixed / frozen rows, that is a row which doesn't scroll, in the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed / frozen rows</returns>
-        public int FixedRows()
+        public override int FixedRows()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NumFrozenRows", MemberTypes.Method);

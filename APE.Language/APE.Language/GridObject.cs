@@ -196,6 +196,18 @@ namespace APE.Language
             return column;
         }
 
+        /// <summary>
+        /// Returns the number of fixed rows, that is a row which makes up the header of the grid (rows may or may not be hidden)
+        /// </summary>
+        /// <returns>The number of fixed rows</returns>
+        public abstract int FixedRows();
+
+        /// <summary>
+        /// Returns the number of rows in the grid, including those which are hidden
+        /// </summary>
+        /// <returns>The number of rows</returns>
+        public abstract int Rows();
+
         internal abstract int FindColumnInternal(string[] columnHeader);
 
         /// <summary>

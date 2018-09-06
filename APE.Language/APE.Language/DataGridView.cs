@@ -260,7 +260,7 @@ namespace APE.Language
         /// Returns the number of fixed rows, that is a row which makes up the header of the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed rows</returns>
-        public int FixedRows()
+        public override int FixedRows()
         {
             return TitleRows();
         }
@@ -350,7 +350,7 @@ namespace APE.Language
         /// Returns the number of rows in the grid, including those which are hidden
         /// </summary>
         /// <returns>The number of rows</returns>
-        public int Rows()
+        public override int Rows()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
