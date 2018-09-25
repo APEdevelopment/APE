@@ -49,20 +49,9 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified row is hidden in the grid
         /// </summary>
-        /// <param name="rowText">Row to check if hidden</param>
-        /// <returns>True or False</returns>
-        public bool IsRowHidden(string rowText)
-        {
-            int rowIndex = FindRow(rowText);
-            return IsRowHidden(rowIndex);
-        }
-
-        /// <summary>
-        /// Returns true if the specified row is hidden in the grid
-        /// </summary>
         /// <param name="rowIndex">Row index to check if hidden</param>
         /// <returns>True or False</returns>
-        public bool IsRowHidden(int rowIndex)
+        public override bool IsRowHidden(int rowIndex)
         {
             if (rowIndex < TitleRows())
             {
@@ -91,19 +80,8 @@ namespace APE.Language
         /// <summary>
         /// Returns true if the specified column is hidden in the grid
         /// </summary>
-        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
-        /// <returns>True or False</returns>
-        public bool IsColumnHidden(string columnText)
-        {
-            int columnIndex = FindColumn(columnText);
-            return IsColumnHidden(columnIndex);
-        }
-
-        /// <summary>
-        /// Returns true if the specified column is hidden in the grid
-        /// </summary>
         /// <param name="columnIndex">Column index to check if hidden</param>
-        public bool IsColumnHidden(int columnIndex)
+        public override bool IsColumnHidden(int columnIndex)
         {
             if (columnIndex < TitleColumns())
             {
@@ -129,104 +107,39 @@ namespace APE.Language
             return !visible;
         }
 
-        /// <summary>
-        /// Determines if the specified cell is currently viewable without scrolling
-        /// </summary>
-        /// <param name="rowIndex">The row index of the cell to check</param>
-        /// <param name="columnIndex">The column index of the cell to check</param>
-        /// <returns>True if the cell is visible without scrolling otherwise false</returns>
-        public bool IsCellVisible(int rowIndex, int columnIndex)
+        internal override void GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn)
         {
-            bool rowDisplayed;
-            bool columnDisplayed;
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "FirstDisplayedScrollingRowIndex", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "DisplayedRowCount", MemberTypes.Method, new Parameter(GUI.m_APE, true));
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "FirstDisplayedScrollingColumnIndex", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store4, "DisplayedColumnCount", MemberTypes.Method, new Parameter(GUI.m_APE, true));
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            topRow = GUI.m_APE.GetValueFromMessage();
+            int rowCount = GUI.m_APE.GetValueFromMessage();
+            leftColumn = GUI.m_APE.GetValueFromMessage();
+            int columnCount = GUI.m_APE.GetValueFromMessage();
 
-            //Check row
-            if (rowIndex < TitleRows())
-            {
-                rowDisplayed = true;   //title rows always shown?
-            }
-            else
-            {
-                int rowIndexData = rowIndex - TitleRows();
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Rows", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, rowIndexData));
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Displayed", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                rowDisplayed = GUI.m_APE.GetValueFromMessage();
-            }
+            int titleRows = TitleRows();
+            int titleColumns = TitleColumns();
 
-            //Check column
-            if (columnIndex < TitleRows())
-            {
-                columnDisplayed = true;   //title rows always shown?
-            }
-            else
-            {
-                int columnIndexData = columnIndex - TitleColumns();
-                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "<Indexer>", MemberTypes.Property, new Parameter(GUI.m_APE, columnIndexData));
-                GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Displayed", MemberTypes.Property);
-                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
-                GUI.m_APE.SendMessages(EventSet.APE);
-                GUI.m_APE.WaitForMessages(EventSet.APE);
-                //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                columnDisplayed = GUI.m_APE.GetValueFromMessage();
-            }
-            
-            if (rowDisplayed && columnDisplayed)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Returns the first visible (non-hidden) row in the grid
-        /// </summary>
-        /// <returns>The first visible row</returns>
-        public int FirstVisibleRow()
-        {
-            int rowCount = Rows();
-            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
-            {
-                if (!IsRowHidden(rowIndex))
-                {
-                    return rowIndex;
-                }
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Returns the first visible (non-hidden) column in the grid
-        /// </summary>
-        /// <returns>The first visible column</returns>
-        public int FirstVisibleColumn()
-        {
-            int columnCount = Columns();
-            for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
-            {
-                if (!IsColumnHidden(columnIndex))
-                {
-                    return columnIndex;
-                }
-            }
-            return -1;
+            topRow += titleRows;
+            bottomRow = topRow + rowCount - 1 + titleRows;
+            leftColumn += titleColumns;
+            rightColumn = leftColumn + columnCount - 1 + titleColumns;
         }
 
         /// <summary>
         /// Returns the selected row
         /// </summary>
         /// <returns>The selected row index</returns>
-        public int SelectedRow()
+        public override int SelectedRow()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "CurrentCell", MemberTypes.Property);
@@ -243,7 +156,7 @@ namespace APE.Language
         /// Returns the selected column
         /// </summary>
         /// <returns>The selected column index</returns>
-        public int SelectedColumn()
+        public override int SelectedColumn()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "CurrentCell", MemberTypes.Property);
@@ -269,7 +182,7 @@ namespace APE.Language
         /// Returns the number of frozen rows, that is a row which doesn't scroll, in the grid (rows may or may not be hidden)
         /// </summary>
         /// <returns>The number of frozen rows</returns>
-        public int FrozenRows()
+        public override int FrozenRows()
         {
             int dataRows = Rows() - TitleRows();
             for (int rowIndexData = dataRows - 1; rowIndexData >= 0; rowIndexData--)
@@ -296,7 +209,7 @@ namespace APE.Language
         /// Returns the number of fixed columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
         /// </summary>
         /// <returns>The number of fixed columns</returns>
-        public int FixedColumns()
+        public override int FixedColumns()
         {
             return TitleColumns();
         }
@@ -305,7 +218,7 @@ namespace APE.Language
         /// Returns the number of frozen columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
         /// </summary>
         /// <returns>The number of frozen columns</returns>
-        public int FrozenColumns()
+        public override int FrozenColumns()
         {
             int dataColumns = Columns() - TitleColumns();
             for (int columnIndexData = dataColumns - 1; columnIndexData >= 0; columnIndexData--)
@@ -332,7 +245,7 @@ namespace APE.Language
         /// Returns the number of title (column header) rows in the grid (the rows may or may not be visible)
         /// </summary>
         /// <returns>The number of title rows</returns>
-        public int TitleRows()
+        public override int TitleRows()
         {
             return 1;
         }
@@ -367,7 +280,7 @@ namespace APE.Language
         /// Returns the number of columns, including those which are hidden
         /// </summary>
         /// <returns>The number of columns</returns>
-        public int Columns()
+        public override int Columns()
         {
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Columns", MemberTypes.Property);
@@ -384,7 +297,7 @@ namespace APE.Language
         /// Returns whether at the grid level it is editable
         /// </summary>
         /// <returns>True if it is editable otherwise false</returns>
-        public bool IsEditable()
+        public override bool IsEditable()
         {
             if (IsEnabled)
             {
@@ -406,47 +319,10 @@ namespace APE.Language
         /// <summary>
         /// Returns whether the specified cell is editable
         /// </summary>
-        /// <param name="rowText">The row of the cell to check if its editable</param>
-        /// <param name="columnText">The column of the cell to check if its editable</param>
-        /// <returns>True if the cell is editable otherwise false</returns>
-        public bool IsCellEditable(string rowText, string columnText)
-        {
-            int columnIndex = FindColumn(columnText);
-            int rowIndex = FindRow(rowText, columnIndex);
-            return IsCellEditable(rowIndex, columnIndex);
-        }
-
-        /// <summary>
-        /// Returns whether the specified cell is editable
-        /// </summary>
-        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
-        /// <param name="columnText">The column of the cell to check if its editable</param>
-        /// <returns>True if the cell is editable otherwise false</returns>
-        public bool IsCellEditable(int rowIndex, string columnText)
-        {
-            int columnIndex = FindColumn(columnText);
-            return IsCellEditable(rowIndex, columnIndex);
-        }
-
-        /// <summary>
-        /// Returns whether the specified cell is editable
-        /// </summary>
-        /// <param name="rowText">The row of the cell to check if its editable</param>
-        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
-        /// <returns>True if the cell is editable otherwise false</returns>
-        public bool IsCellEditable(string rowText, int columnIndex)
-        {
-            int rowIndex = FindRow(rowText, columnIndex);
-            return IsCellEditable(rowIndex, columnIndex);
-        }
-
-        /// <summary>
-        /// Returns whether the specified cell is editable
-        /// </summary>
         /// <param name="rowIndex">The row index of the cell to check if its editable</param>
         /// <param name="columnIndex">The column index of the cell to check if its editable</param>
         /// <returns>True if the cell is editable otherwise false</returns>
-        public bool IsCellEditable(int rowIndex, int columnIndex)
+        public override bool IsCellEditable(int rowIndex, int columnIndex)
         {
             if (rowIndex < TitleRows())
             {
@@ -479,7 +355,7 @@ namespace APE.Language
         /// Polls for the specified row index to be the selected row
         /// </summary>
         /// <param name="rowIndex">The row index to wait to be selected</param>
-        public void SelectedRowPollForIndex(int rowIndex)
+        public override void SelectedRowPollForIndex(int rowIndex)
         {
             int rowIndexData = rowIndex - TitleRows();
 
@@ -1543,20 +1419,9 @@ namespace APE.Language
         /// each cell has a width and height greater than 1 pixel and the row or column is not
         /// hidden.  Collapsed nodes are also excluded.
         /// </summary>
-        /// <returns>A string containing the range of values</returns>
-        public string GetAllVisibleCells()
-        {
-            return GetAllVisibleCells(CellProperty.TextDisplay);
-        }
-
-        /// <summary>
-        /// Returns a range of cell values column separated by \t and row separated by \r where
-        /// each cell has a width and height greater than 1 pixel and the row or column is not
-        /// hidden.  Collapsed nodes are also excluded.
-        /// </summary>
         /// <param name="property">The property of the cell to get</param>
         /// <returns>A string containing the range of values</returns>
-        public string GetAllVisibleCells(CellProperty property)
+        public override string GetAllVisibleCells(CellProperty property)
         {
             //TODO make this more efficient by doing it in process
             int row1Index = 0;

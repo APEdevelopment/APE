@@ -105,10 +105,12 @@ namespace APE.Language
         }
 
         /// <summary>
-        /// Waits for the specified control to not be visible
+        /// Waits for the specified control to not be visible or for its parent form to be disabled
         /// </summary>
-        public void WaitForControlToNotBeVisible()
+        /// <returns>True if the control is not visible, false if its visible but its parent form is disabled</returns>
+        public bool WaitForControlToNotBeVisible()
         {
+            bool returnValue;
             //Wait for the control to not be visible
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
@@ -120,9 +122,27 @@ namespace APE.Language
 
                 if (!this.IsVisible)
                 {
+                    returnValue = true;
                     break;
                 }
                 
+                if (this is GUIForm)
+                {
+                    if (!this.IsEnabled)
+                    {
+                        returnValue = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (!ParentForm.IsEnabled)
+                    {
+                        returnValue = false;
+                        break;
+                    }
+                }
+
                 Thread.Sleep(15);
             }
 
@@ -132,6 +152,7 @@ namespace APE.Language
             {
                 Input.WaitForInputIdle(Handle, GUI.m_APE.TimeOut);
             }
+            return returnValue;
         }
 
         /// <summary>

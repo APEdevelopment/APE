@@ -136,7 +136,94 @@ namespace APE.Language
         public GUIGridObject(GUIForm parentForm, string descriptionOfControl, params Identifier[] identParams)
             : base(parentForm, descriptionOfControl, identParams)
         {
-        }       
+        }
+
+        /// <summary>
+        /// Returns true if the specified row is hidden in the grid
+        /// </summary>
+        /// <param name="row">Row to check if hidden</param>
+        /// <returns>True or False</returns>
+        public virtual bool IsRowHidden(string row)
+        {
+            int rowIndex = FindRow(row);
+            return IsRowHidden(rowIndex);
+        }
+
+        /// <summary>
+        /// Returns true if the specified row is hidden in the grid
+        /// </summary>
+        /// <param name="rowIndex">Row index to check if hidden</param>
+        /// <returns>True or False</returns>
+        public abstract bool IsRowHidden(int rowIndex);
+
+        /// <summary>
+        /// Returns true if the specified column is hidden in the grid
+        /// </summary>
+        /// <param name="columnText">Column to check if hidden delimited by -> (or the user defined GridDelimiter property) for example Order -> Id</param>
+        /// <returns>True or False</returns>
+        public virtual bool IsColumnHidden(string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            return IsColumnHidden(columnIndex);
+        }
+
+        /// <summary>
+        /// Returns true if the specified column is hidden in the grid
+        /// </summary>
+        /// <param name="columnIndex">Column index to check if hidden</param>
+        public abstract bool IsColumnHidden(int columnIndex);
+
+        /// <summary>
+        /// Returns the first visible (non-hidden) row in the grid
+        /// </summary>
+        /// <returns>The first visible row</returns>
+        public virtual int FirstVisibleRow()
+        {
+            int rowCount = Rows();
+            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+            {
+                if (!IsRowHidden(rowIndex))
+                {
+                    return rowIndex;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the first visible (non-hidden) column in the grid
+        /// </summary>
+        /// <returns>The first visible column</returns>
+        public virtual int FirstVisibleColumn()
+        {
+            int columnCount = Columns();
+            for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
+            {
+                if (!IsColumnHidden(columnIndex))
+                {
+                    return columnIndex;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the selected row
+        /// </summary>
+        /// <returns>The selected row index</returns>
+        public abstract int SelectedRow();
+
+        /// <summary>
+        /// Polls for the specified row index to be the selected row
+        /// </summary>
+        /// <param name="rowIndex">The row index to wait to be selected</param>
+        public abstract void SelectedRowPollForIndex(int rowIndex);
+
+        /// <summary>
+        /// Returns the selected column
+        /// </summary>
+        /// <returns>The selected column index</returns>
+        public abstract int SelectedColumn();
 
         /// <summary>
         /// Returns true if the specified column in the grid exists
@@ -203,10 +290,46 @@ namespace APE.Language
         public abstract int FixedRows();
 
         /// <summary>
+        /// Returns the number of frozen rows, that is a row which doesn't scroll, in the grid (rows may or may not be hidden)
+        /// </summary>
+        /// <returns>The number of frozen rows</returns>
+        public abstract int FrozenRows();
+
+        /// <summary>
+        /// Returns the number of fixed columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
+        /// </summary>
+        /// <returns>The number of fixed columns</returns>
+        public abstract int FixedColumns();
+
+        /// <summary>
+        /// Returns the number of frozen columns, that is a column which doesn't scroll, in the grid (columns may or may not be hidden)
+        /// </summary>
+        /// <returns>The number of frozen columns</returns>
+        public abstract int FrozenColumns();
+
+        /// <summary>
+        /// Returns the number of title (column header) rows in the grid (the rows may or may not be visible)
+        /// </summary>
+        /// <returns>The number of title rows</returns>
+        public abstract int TitleRows();
+
+        /// <summary>
         /// Returns the number of rows in the grid, including those which are hidden
         /// </summary>
         /// <returns>The number of rows</returns>
         public abstract int Rows();
+
+        /// <summary>
+        /// Returns the number of columns, including those which are hidden
+        /// </summary>
+        /// <returns>The number of columns</returns>
+        public abstract int Columns();
+
+        /// <summary>
+        /// Returns whether at the grid level it is editable
+        /// </summary>
+        /// <returns>True if it is editable otherwise false</returns>
+        public abstract bool IsEditable();
 
         internal abstract int FindColumnInternal(string[] columnHeader);
 
@@ -274,6 +397,51 @@ namespace APE.Language
         // TODO remove this
         internal abstract int FindRowTemp(string rowText, int columnIndex, int startAtRow);
         internal abstract int FindRowInternal(string rowText, int columnIndex, int startAtRow);
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowText">The row of the cell to check if its editable</param>
+        /// <param name="columnText">The column of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public virtual bool IsCellEditable(string rowText, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            int rowIndex = FindRow(rowText, columnIndex);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
+        /// <param name="columnText">The column of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public virtual bool IsCellEditable(int rowIndex, string columnText)
+        {
+            int columnIndex = FindColumn(columnText);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowText">The row of the cell to check if its editable</param>
+        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public virtual bool IsCellEditable(string rowText, int columnIndex)
+        {
+            int rowIndex = FindRow(rowText, columnIndex);
+            return IsCellEditable(rowIndex, columnIndex);
+        }
+
+        /// <summary>
+        /// Returns whether the specified cell is editable
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check if its editable</param>
+        /// <param name="columnIndex">The column index of the cell to check if its editable</param>
+        /// <returns>True if the cell is editable otherwise false</returns>
+        public abstract bool IsCellEditable(int rowIndex, int columnIndex);
 
         /// <summary>
         /// Sets the specified cell to the specified value using {Enter} as the submit key and comparing the value before to see if it actually needs setting and after to confirm it has been set
@@ -1199,6 +1367,75 @@ namespace APE.Language
             return GetCellRectangleInternal(rowIndex, columnIndex);
         }
 
+        /// <summary>
+        /// Returns the index of the top most row currently visible in the scrollable area
+        /// </summary>
+        /// <returns>Index of top most visible row in the scrollable area</returns>
+        public int TopVisibleRow()
+        {
+            GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn);
+            return topRow;
+        }
+
+        /// <summary>
+        /// Returns the index of the bottom most row currently visible in the scrollable area
+        /// </summary>
+        /// <returns>Index of bottom most visible row in the scrollable area</returns>
+        public int BottomVisibleRow()
+        {
+            GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn);
+            return bottomRow;
+        }
+
+        /// <summary>
+        /// Returns the index of the left most row currently visible in the scrollable area
+        /// </summary>
+        /// <returns>Index of left most visible row in the scrollable area</returns>
+        public int LeftVisibleColumn()
+        {
+            GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn);
+            return leftColumn;
+        }
+
+        /// <summary>
+        /// Returns the index of the right most row currently visible in the scrollable area
+        /// </summary>
+        /// <returns>Index of right most visible row in the scrollable area</returns>
+        public int RightVisibleColumn()
+        {
+            GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn);
+            return rightColumn;
+        }
+
+        /// <summary>
+        /// Determines if the specified cell is currently viewable without scrolling
+        /// </summary>
+        /// <param name="rowIndex">The row index of the cell to check</param>
+        /// <param name="columnIndex">The column index of the cell to check</param>
+        /// <returns>True if the cell is visible without scrolling otherwise false</returns>
+        public bool IsCellVisible(int rowIndex, int columnIndex)
+        {
+            if (rowIndex < FrozenRows() || rowIndex < FixedRows())
+            {
+                if (columnIndex < FrozenColumns() || columnIndex < FixedColumns())
+                {
+                    return true;
+                }
+            }
+
+            GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn);
+            if (columnIndex <= leftColumn || columnIndex >= rightColumn || rowIndex <= topRow || rowIndex >= bottomRow)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        internal abstract void GetRowColumnVisibleScrollableArea(out int topRow, out int bottomRow, out int leftColumn, out int rightColumn);
+
         internal abstract Rectangle GetCellRectangleInternal(int rowIndex, int columnIndex);
 
         /// <summary>
@@ -1414,6 +1651,26 @@ namespace APE.Language
         }
 
         internal abstract dynamic GetCellInternal(int rowIndex, int columnIndex, CellProperty property);
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r where
+        /// each cell has a width and height greater than 1 pixel and the row or column is not
+        /// hidden.  Collapsed nodes are also excluded.
+        /// </summary>
+        /// <returns>A string containing the range of values</returns>
+        public virtual string GetAllVisibleCells()
+        {
+            return GetAllVisibleCells(CellProperty.TextDisplay);
+        }
+
+        /// <summary>
+        /// Returns a range of cell values column separated by \t and row separated by \r where
+        /// each cell has a width and height greater than 1 pixel and the row or column is not
+        /// hidden.  Collapsed nodes are also excluded.
+        /// </summary>
+        /// <param name="property">The property of the cell to get</param>
+        /// <returns>A string containing the range of values</returns>
+        public abstract string GetAllVisibleCells(CellProperty property);
 
         /// <summary>
         /// Send the specified text to the control

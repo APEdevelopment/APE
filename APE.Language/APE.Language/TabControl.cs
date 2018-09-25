@@ -86,7 +86,6 @@ namespace APE.Language
         public int TabIndex(string tabText)
         {
             int tabCount = TabCount();
-
             for (int tabIndex = 0; tabIndex < tabCount; tabIndex++)
             {
                 if (TabText(tabIndex) == tabText)
@@ -96,6 +95,24 @@ namespace APE.Language
             }
 
             throw GUI.ApeException("Failed to find tab " + tabText);
+        }
+
+        /// <summary>
+        /// Checks if a tab exists with the specified text
+        /// </summary>
+        /// <param name="tabText">The text of the tab</param>
+        /// <returns>True if it exists otherwise false</returns>
+        public bool TabExists(string tabText)
+        {
+            int tabCount = TabCount();
+            for (int tabIndex = 0; tabIndex < tabCount; tabIndex++)
+            {
+                if (TabText(tabIndex) == tabText)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
