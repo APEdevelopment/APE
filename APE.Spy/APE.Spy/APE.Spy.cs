@@ -541,23 +541,30 @@ namespace APE.Spy
             catch (Exception ex)
             {
                 Debug.WriteLine("GetIdentity by handle failed " + Parent.ToString() + " " + Handle.ToString() + ": " + ex.Message + "\r\n" + ex.StackTrace.ToArray());
+            }
 
-                //if (NM.IsTopLevelWindow(m_Identity.Handle))
-                //{
-                //    IntPtr menu = NM.GetMenu(m_Identity.Handle);
-                //    if (menu == IntPtr.Zero)
-                //    {
-                //        IntPtr contextMenu = NM.GetContextMenu(m_Identity.Handle);
-                //        if (contextMenu != IntPtr.Zero)
-                //        {
-                //            Debug.WriteLine("----- " + NM.GetMenuString(contextMenu, 0, NM.GetMenuFlag.MF_BYPOSITION));
-                //        }
-                //    }
-                //    else
-                //    {
-                //        Debug.WriteLine("----- " + NM.GetMenuString(menu, 0, NM.GetMenuFlag.MF_BYPOSITION));
-                //    }
-                //}                
+            try
+            {
+                //If the type name starts with Ax then use that as a hint that there might be a native ActiveX version of the
+                //control which can be used instead
+                if (m_Identity.TypeName.StartsWith("Ax"))
+                {
+                    ControlIdentifier identity = new ControlIdentifier();
+                    if (Parent != Handle)
+                    {
+                        identity.ParentHandle = Parent;
+                    }
+                    identity.Handle = Handle;
+                    identity.TechnologyType = "Windows ActiveX";
+                    m_APE.AddFirstMessageFindByProperty(identity);
+                    m_APE.SendMessages(EventSet.APE);
+                    m_APE.WaitForMessages(EventSet.APE);
+                    m_APE.DecodeControl(1, out identity);
+                    m_Identity = identity;
+                }
+            }
+            catch
+            {
             }
         }
 
