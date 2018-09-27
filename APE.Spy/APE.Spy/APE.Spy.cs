@@ -624,13 +624,13 @@ namespace APE.Spy
                 {
                     //Use Typename and Text as the index key
                     identity.Text = "^" + Regex.Escape(m_Identity.Text) + "$";
-                    identity.TypeName = m_Identity.TypeName;
+                    identity.TypeName = "^" + m_Identity.TypeName + "$";
                 }
                 else
                 {
                     //Use type as the index key
-                    identity.TypeNameSpace = m_Identity.TypeNameSpace;
-                    identity.TypeName = m_Identity.TypeName;
+                    identity.TypeNameSpace = "^" + m_Identity.TypeNameSpace + "$";
+                    identity.TypeName = "^" + m_Identity.TypeName + "$";
                 }
                 identity.Index = m_Identity.Index;
                 identity = GetIdentity(identity);
@@ -827,7 +827,7 @@ namespace APE.Spy
             identity.ParentHandle = m_Identity.ParentHandle;
 
             identity.TechnologyType = m_Identity.TechnologyType;
-            identity.TypeName = typeName;
+            identity.TypeName = "^" + typeName + "$";
 
             identity.Index = index;
             identity = GetIdentity(identity);
