@@ -1261,6 +1261,16 @@ namespace APE.Spy
                                 break;
                         }
                         break;
+                    case "lzcDealingResults":
+                        {
+                            switch (Identity.TypeName)
+                            {
+                                case "lzDealingResults":
+                                    APEType = "GUILzDealingResults";
+                                    break;
+                            }
+                        }
+                        break;
                 }
             }
             else if (Identity.TechnologyType == "Windows Forms (WinForms)")
