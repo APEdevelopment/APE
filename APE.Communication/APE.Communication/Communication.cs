@@ -2955,6 +2955,15 @@ namespace APE.Communication
                         default:
                             return "";
                     }
+                case "LatentZero.Interop.LzCashViewerCtl":
+                case "LZCASHVIEWERLib":
+                    switch (TypeName)
+                    {
+                        case "LzCashViewerCtrl":
+                            return "GUIAxLzCashViewerCtrl";
+                        default:
+                            return "";
+                    }
                 case "LatentZero.Capstone.Controls.Walker":
                     switch (TypeName)
                     {

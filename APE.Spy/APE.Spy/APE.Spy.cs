@@ -1241,6 +1241,14 @@ namespace APE.Spy
                                 break;
                         }
                         break;
+                    case "LZCASHVIEWERLib":
+                        switch (Identity.TypeName)
+                        {
+                            case "LzCashViewerCtrl":
+                                APEType = "GUIAxLzCashViewerCtrl";
+                                break;
+                        }
+                        break;
                     case "MSComctlLib":
                         switch (Identity.TypeName)
                         {

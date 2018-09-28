@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AxLzCashViewerCtrl.cs" />
     <Compile Include="AxLZResultsGrid.cs" />
     <Compile Include="Button.cs" />
     <Compile Include="CheckBox.cs" />

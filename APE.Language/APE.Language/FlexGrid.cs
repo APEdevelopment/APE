@@ -2768,19 +2768,28 @@ namespace APE.Language
                     GUI.m_APE.AddFirstMessageGetInvokeFormActiveX(DataStores.Store0);
                     GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store2, Identity.ParentHandle, Identity.Handle);
                     break;
+                case "AxLzFlexGridCtrl":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "GetOcx", MemberTypes.Method);
+                    break;
                 case "LZResultsGrid":
                     GUI.m_APE.AddFirstMessageGetInvokeFormActiveX(DataStores.Store0);
                     GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store1, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
                     break;
-                case "AxLzFlexGridCtrl":
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "GetOcx", MemberTypes.Method);
-                    break;
                 case "AxLZResultsGrid":
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetOcx", MemberTypes.Method);
                     GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+                    break;
+                case "LzCashViewerCtrl":
+                    GUI.m_APE.AddFirstMessageGetInvokeFormActiveX(DataStores.Store0);
+                    GUI.m_APE.AddQueryMessageFindByHandle(DataStores.Store1, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageSentinelGridsGetUnderlyingGrid(DataStores.Store1, DataStores.Store2);
+                    break;
+                case "AxLzCashViewerCtrl":
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "UnderlyingGrid", MemberTypes.Property);
                     break;
                 default:
                     throw GUI.ApeException("Unsupported ActiveX flexgrid type: " + Identity.TypeName);
@@ -3809,6 +3818,8 @@ namespace APE.Language
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
                 case "LzFlexGridCtrl":
+                case "AxLzCashViewerCtrl":
+                case "LzCashViewerCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.MoveTo(X, Y);
@@ -3838,6 +3849,8 @@ namespace APE.Language
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
                 case "LzFlexGridCtrl":
+                case "AxLzCashViewerCtrl":
+                case "LzCashViewerCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.SingleClickInternal(location.X, location.Y, button, keyModifier);
@@ -3867,6 +3880,8 @@ namespace APE.Language
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
                 case "LzFlexGridCtrl":
+                case "AxLzCashViewerCtrl":
+                case "LzCashViewerCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.DoubleClickInternal(location.X, location.Y, button, keyModifier);
@@ -3896,6 +3911,8 @@ namespace APE.Language
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
                 case "LzFlexGridCtrl":
+                case "AxLzCashViewerCtrl":
+                case "LzCashViewerCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.MouseDownInternal(location.X, location.Y, button, keyModifier);
@@ -3925,6 +3942,8 @@ namespace APE.Language
                 case "LZResultsGrid":
                 case "AxLzFlexGridCtrl":
                 case "LzFlexGridCtrl":
+                case "AxLzCashViewerCtrl":
+                case "LzCashViewerCtrl":
                     // Find the actual native grid to click on
                     GUIAxLZResultsGrid nativeGrid = new GUIAxLZResultsGrid(ParentForm, "native flexgrid", new Identifier(Identifiers.TypeName, "VSFlexGrid8N"), new Identifier(Identifiers.TechnologyType, "Windows Native"), new Identifier(Identifiers.ChildOf, this));
                     nativeGrid.MouseUpInternal(location.X, location.Y, button, keyModifier);
