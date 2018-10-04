@@ -40,12 +40,12 @@ namespace APE.Spy
             {
                 string[] splitSeparator = { "\r\n" };
                 Baseline = res.Split(splitSeparator, StringSplitOptions.None).ToList();
+                labelBaselineCount.Text = Baseline.Count.ToString();
             }
         }
 
         private void buttonLeaks_Click(object sender, EventArgs e)
         {
-            
             if (radioButtonDotNET.Checked)
             {
                 m_APE.AddFirstMessageDumpControl();
@@ -66,9 +66,10 @@ namespace APE.Spy
                 string[] splitSeparator = { "\r\n" };
                 Leaks = res.Split(splitSeparator, StringSplitOptions.None).ToList();
             }
+            labelCompareCount.Text = Leaks.Count.ToString();
 
             List<string> leak = new List<string>();
-            leak.Add("Leaks:");
+            leak.Add("Potential Leaks:");
             foreach (string potentialLeak in Leaks)
             {
                 if (!Baseline.Contains(potentialLeak))
