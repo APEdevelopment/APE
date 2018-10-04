@@ -66,11 +66,20 @@
     <Compile Include="APE.Spy.Designer.cs">
       <DependentUpon>APE.Spy.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormLeaks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLeaks.Designer.cs">
+      <DependentUpon>FormLeaks.cs</DependentUpon>
+    </Compile>
     <Compile Include="Modules.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="APE.Spy.resx">
       <DependentUpon>APE.Spy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormLeaks.resx">
+      <DependentUpon>FormLeaks.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

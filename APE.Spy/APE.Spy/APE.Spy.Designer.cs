@@ -44,6 +44,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.aboutButton = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
+            this.buttonLeaks = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -66,9 +67,9 @@
             // 
             this.LocateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.LocateButton.Enabled = false;
-            this.LocateButton.Location = new System.Drawing.Point(645, 501);
+            this.LocateButton.Location = new System.Drawing.Point(636, 501);
             this.LocateButton.Name = "LocateButton";
-            this.LocateButton.Size = new System.Drawing.Size(52, 21);
+            this.LocateButton.Size = new System.Drawing.Size(61, 21);
             this.LocateButton.TabIndex = 3;
             this.LocateButton.Text = "Locate";
             this.LocateButton.UseVisualStyleBackColor = true;
@@ -143,7 +144,7 @@
             this.IdentifyButton.Enabled = false;
             this.IdentifyButton.Location = new System.Drawing.Point(12, 501);
             this.IdentifyButton.Name = "IdentifyButton";
-            this.IdentifyButton.Size = new System.Drawing.Size(52, 21);
+            this.IdentifyButton.Size = new System.Drawing.Size(61, 21);
             this.IdentifyButton.TabIndex = 9;
             this.IdentifyButton.Text = "Identify";
             this.IdentifyButton.UseVisualStyleBackColor = true;
@@ -206,11 +207,24 @@
             this.label4.Size = new System.Drawing.Size(0, 13);
             this.label4.TabIndex = 15;
             // 
+            // buttonLeaks
+            // 
+            this.buttonLeaks.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonLeaks.Enabled = false;
+            this.buttonLeaks.Location = new System.Drawing.Point(569, 501);
+            this.buttonLeaks.Name = "buttonLeaks";
+            this.buttonLeaks.Size = new System.Drawing.Size(61, 21);
+            this.buttonLeaks.TabIndex = 19;
+            this.buttonLeaks.Text = "Leaks";
+            this.buttonLeaks.UseVisualStyleBackColor = true;
+            this.buttonLeaks.Click += new System.EventHandler(this.buttonLeaks_Click);
+            // 
             // APESpy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(709, 532);
+            this.Controls.Add(this.buttonLeaks);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.aboutButton);
             this.Controls.Add(this.label3);
@@ -252,6 +266,7 @@
         private System.Windows.Forms.Button aboutButton;
         private System.Windows.Forms.ToolStripMenuItem generateLocatorCodeToolStripMenuItem;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button buttonLeaks;
     }
 }
 

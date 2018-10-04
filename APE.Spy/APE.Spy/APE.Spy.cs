@@ -380,6 +380,7 @@ namespace APE.Spy
 
             IdentifyButton.Enabled = false;
             WinformsProcessesCombobox.Enabled = false;
+            buttonLeaks.Enabled = false;
             label1.Text = "Move the mouse cursor over the desired window and then press";
             label4.Text = "the control key or press shift to refresh the list of windows";
 
@@ -481,6 +482,7 @@ namespace APE.Spy
                 label4.Text = "";
                 IdentifyButton.Enabled = true;
                 WinformsProcessesCombobox.Enabled = true;
+                buttonLeaks.Enabled = true;
             }
         }
 
@@ -1428,6 +1430,7 @@ namespace APE.Spy
                     AppDomainComboBox.Items.Clear();
                     AppDomainComboBox.Enabled = false;
                     IdentifyButton.Enabled = false;
+                    buttonLeaks.Enabled = false;
                 }
                 else
                 {
@@ -1448,6 +1451,7 @@ namespace APE.Spy
 
                     AppDomainComboBox.Enabled = true;
                     IdentifyButton.Enabled = true;
+                    buttonLeaks.Enabled = true;
                 }
             }
         }
@@ -1471,6 +1475,12 @@ namespace APE.Spy
                     generateLocatorCodeToolStripMenuItem.Enabled = true;
                 }
             }
+        }
+
+        private void buttonLeaks_Click(object sender, EventArgs e)
+        {
+            Form leaks = new FormLeaks(m_APE);
+            leaks.ShowDialog();
         }
     }
 }

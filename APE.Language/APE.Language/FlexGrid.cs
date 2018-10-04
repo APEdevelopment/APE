@@ -3336,17 +3336,9 @@ namespace APE.Language
 
                     // Does a LzComboTreePopupCtl exist which is a sibling of the grid and is visible
                     GUIButton combotreepopupctl = null;
-                    for (int index = 1; index < 200; index++)
+                    if (GUI.Exists(this.ParentForm, new Identifier(Identifiers.TypeName, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, 1)))
                     {
-                        if (GUI.Exists(this.ParentForm, new Identifier(Identifiers.TypeName, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, index)))
-                        {
-                            combotreepopupctl = new GUIButton(this.ParentForm, Description + " combotreepopupctl", new Identifier(Identifiers.TypeName, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, index));
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        combotreepopupctl = new GUIButton(this.ParentForm, Description + " combotreepopupctl", new Identifier(Identifiers.TypeName, "LzComboTreePopupCtl"), new Identifier(Identifiers.SiblingOf, this), new Identifier(Identifiers.Index, 1));
                     }
 
                     if (combotreepopupctl != null)

@@ -221,7 +221,9 @@ namespace APE.Bridge
                     //}
                 }
             }
+#pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception ex)
+#pragma warning restore CS0168 // Variable is declared but never used
             {
                 //Debug
                 //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "AddItem: Name: " + objectName + " Message: " + ex.Message + Environment.NewLine + ex.StackTrace + Environment.NewLine);
@@ -271,7 +273,9 @@ namespace APE.Bridge
                     }
                 }
             }
+#pragma warning disable CS0168 // Variable is declared but never used
             catch (Exception ex)
+#pragma warning restore CS0168 // Variable is declared but never used
             {
                 //Debug
                 //File.AppendAllText(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\ActiveX.debug.log", "RemoveAllItemsFromContainer: Name: " + containerName + " Message: " + ex.Message + Environment.NewLine + ex.StackTrace + Environment.NewLine);

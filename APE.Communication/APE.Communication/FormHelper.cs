@@ -18,9 +18,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using NM = APE.Native.NativeMethods;
 using NV = APE.Native.NativeVersion;
 using WF = System.Windows.Forms;
@@ -556,6 +560,82 @@ namespace APE.Communication
             PM_QS_PAINT = unchecked(QS_PAINT << 16),
             PM_QS_POSTMESSAGE = unchecked((QS_POSTMESSAGE | QS_HOTKEY | QS_TIMER) << 16),
             PM_QS_SENDMESSAGE = unchecked(QS_SENDMESSAGE << 16),
+        }
+
+        //
+        //  DumpControl
+        //
+
+        private static FieldInfo HashBucketsArrayFieldInfo = typeof(NativeWindow).GetField("hashBuckets", BindingFlags.Static | BindingFlags.NonPublic);
+        private static FieldInfo HashBucketHandleFieldInfo = ((Array)HashBucketsArrayFieldInfo.GetValue(null)).GetValue(0).GetType().GetField("handle", BindingFlags.Instance | BindingFlags.Public);
+        private static FieldInfo HashBucketGCHandleFieldInfo = ((Array)HashBucketsArrayFieldInfo.GetValue(null)).GetValue(0).GetType().GetField("window", BindingFlags.Instance | BindingFlags.Public);
+        private static IntPtr MinusOneIntPtr = new IntPtr(-1);
+
+        unsafe public void AddFirstMessageDumpControl()
+        {
+            FirstMessageInitialise();
+
+            Message* ptrMessage = GetPointerToNextMessage();
+
+            ptrMessage->Action = MessageAction.DumpControl;
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneFind = true;
+            m_DoneQuery = true;
+            m_DoneGet = true;
+        }
+
+        private unsafe void DumpControl(Message* ptrMessage, int messageNumber)
+        {
+            //must be first message
+            if (messageNumber != 1)
+            {
+                throw new Exception("DumpControl must be first message");
+            }
+
+            CleanUpMessage(ptrMessage);
+
+            StringBuilder dump = new StringBuilder();
+
+            //Get the buckets
+            Array hashBuckets = (Array)HashBucketsArrayFieldInfo.GetValue(null);
+
+            for (int item = 0; item < hashBuckets.Length; item++)
+            {
+                IntPtr handle = (IntPtr)HashBucketHandleFieldInfo.GetValue(hashBuckets.GetValue(item));
+                if (handle == IntPtr.Zero || handle == MinusOneIntPtr)
+                {
+                    //Nothing as not a real window handle
+                }
+                else
+                {
+                    Control control = Control.FromHandle(handle);
+                    if (control == null)
+                    {
+                        GCHandle gcHandle = (GCHandle)HashBucketGCHandleFieldInfo.GetValue(hashBuckets.GetValue(item));
+                        Type controlType = gcHandle.Target.GetType();
+                        dump.Append("TypeName: " + controlType.Name);
+                        dump.Append(" TypeNameSpace: " + controlType.Namespace);
+                        dump.Append(" ModuleName: " + controlType.Module.Name);
+                    }
+                    else
+                    {
+                        dump.Append("Name: " + control.Name);
+                        Type controlType = control.GetType();
+                        dump.Append(" TypeName: " + controlType.Name);
+                        dump.Append(" TypeNameSpace: " + controlType.Namespace);
+                        dump.Append(" ModuleName: " + controlType.Module.Name);
+                    }
+
+                    //IntPtr parent = NM.GetAncestor(handle, NM.GetAncestorFlags.GetRoot);
+                    IntPtr parent = NM.GetAncestor(handle, NM.GetAncestorFlags.GetParent);
+                    dump.Append(" Handle: " + handle.ToString());
+                    dump.Append(" Parent: " + parent.ToString());
+                    dump.AppendLine();
+                }
+            }
+
+            AddReturnValue(new Parameter(this, dump.ToString()));
         }
 
         //

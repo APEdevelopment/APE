@@ -125,6 +125,7 @@ namespace APE.Communication
         WaitForMouseMove = 64,
         AddToolStripItemEnteredHandler = 65,
         WaitForAndRemoveToolStripItemEnteredHandler = 66,
+        DumpControl = 67,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -459,6 +460,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.WaitForAndRemoveToolStripItemEnteredHandler:
                                     WaitForAndRemoveToolStripItemEnteredHandler(ptrMessage);
+                                    break;
+                                case MessageAction.DumpControl:
+                                    DumpControl(ptrMessage, messageNumber);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
