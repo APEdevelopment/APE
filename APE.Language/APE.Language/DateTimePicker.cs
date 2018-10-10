@@ -266,16 +266,14 @@ namespace APE.Language
                         throw GUI.ApeException("Implement support for date time picker format " + datePickerFormat);
                 }
 
-                //replace one or more M with a single M
+                //replace one or more M with a single M (to get numeric month)
                 customFormat = Regex.Replace(customFormat, "M+", "M");
-                string newDateTime = dateValue.ToString(customFormat);
-
-                //remove letters
-                newDateTime = Regex.Replace(newDateTime, "[a-zA-Z]", "");
+                //remove three or more d (to remove the day of the week)
+                customFormat = Regex.Replace(customFormat, "ddd+", "");
 
                 char[] splitSeparator = { '/', ':', ' ', ',', '.' };
                 string[] dateParts;
-                dateParts = newDateTime.Split(splitSeparator);
+                dateParts = dateValue.ToString(customFormat).Split(splitSeparator);
 
                 foreach (string part in dateParts)
                 {
