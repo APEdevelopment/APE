@@ -19,6 +19,8 @@ using System.Threading;
 using APE.Communication;
 using System.Reflection;
 using System.Drawing;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace APE.Language
 {
@@ -246,28 +248,42 @@ namespace APE.Language
                 GUI.Log("Single Left click on the " + Identity.Description, LogItemType.Action);
                 base.SingleClickInternal(x, y, MouseButton.Left, MouseKeyModifier.None);
 
-                char[] splitSeparator = { '/', ':', ' ' };
-                string[] dateParts;
                 switch (datePickerFormat)
                 {
                     case "Long":
+                        customFormat = CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern;
+                        break;
                     case "Short":
-                        dateParts = dateValue.ToShortDateString().Split(splitSeparator);
+                        customFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
                         break;
                     case "Time":
-                        dateParts = dateValue.ToLongTimeString().Split(splitSeparator);
+                        customFormat = CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern;
                         break;
                     case "Custom":
-                        dateParts = dateValue.ToString(customFormat).Split(splitSeparator);
+                        //nothing as we already have the custom format
                         break;
                     default:
                         throw GUI.ApeException("Implement support for date time picker format " + datePickerFormat);
                 }
 
+                //replace one or more M with a single M
+                customFormat = Regex.Replace(customFormat, "M+", "M");
+                string newDateTime = dateValue.ToString(customFormat);
+
+                //remove letters
+                newDateTime = Regex.Replace(newDateTime, "[a-zA-Z]", "");
+
+                char[] splitSeparator = { '/', ':', ' ', ',', '.' };
+                string[] dateParts;
+                dateParts = newDateTime.Split(splitSeparator);
+
                 foreach (string part in dateParts)
                 {
-                    base.SendKeys(part);
-                    base.SendKeys(":");
+                    if (part != "")
+                    {
+                        base.SendKeys(part);
+                        base.SendKeys(":");
+                    }
                 }
 
                 //wait for .Text to == text
