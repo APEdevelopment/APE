@@ -1507,6 +1507,15 @@ namespace APE.Language
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     string rangeHasBackgroundImage = GUI.m_APE.GetValueFromMessage();
                     return rangeHasBackgroundImage;
+                case CellProperty.FontStyle:
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.FontStyle, false);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeFontStyle = GUI.m_APE.GetValueFromMessage();
+                    return rangeFontStyle;
                 default:
                     throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }
@@ -4486,6 +4495,15 @@ namespace APE.Language
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     string rangeHasBackgroundImage = GUI.m_APE.GetValueFromMessage();
                     return rangeHasBackgroundImage;
+                case CellProperty.FontStyle:
+                    FindGridByHandleAndPutInDatastore2();
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.FontStyle, true);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    string rangeFontStyle = GUI.m_APE.GetValueFromMessage();
+                    return rangeFontStyle;
                 default:
                     throw GUI.ApeException("Implement support for getting cell property " + property.ToString());
             }

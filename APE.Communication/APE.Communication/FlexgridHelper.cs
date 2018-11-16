@@ -61,6 +61,10 @@ namespace APE.Communication
             /// Only for COM flexgrid to get displayed text of a range
             /// </summary>
             TextDisplay,
+            /// <summary>
+            /// The style of the font
+            /// </summary>
+            FontStyle,
         }
 
         string m_ColumnSeparator = "";
@@ -83,6 +87,7 @@ namespace APE.Communication
             m_FlexgridGetAllRowsHeightDelegater = new GetAllRowsHeightDelegate(FlexgridGetAllRowsHeightInternal);
             m_FlexgridGetNodeCollapsedStateDelegater = new GetNodeCollapsedStateDelegate(FlexgridGetNodeCollapsedStateInternal);
             m_FlexgridGetCellRangeTextDisplayDelegater = new GetCellRangeTestDisplayDelegate(FlexgridGetCellRangeTextDisplayInternal);
+            m_FlexgridGetCellRangeFontStyleDelegater = new GetCellRangeFontStyleDelegate(FlexgridGetCellRangeFontStyleInternal);
         }
 
         /// <summary>
@@ -151,6 +156,9 @@ namespace APE.Communication
                 case CellProperty.TextDisplay:
                     ptrMessage->Action = MessageAction.FlexgridGetCellRangeTextDisplay;
                     break;
+                case CellProperty.FontStyle:
+                    ptrMessage->Action = MessageAction.FlexgridGetCellRangeFontStyle;
+                    break;
                 default:
                     throw new Exception("Implement support for getting cell property " + property.ToString());
             }
@@ -205,6 +213,9 @@ namespace APE.Communication
                         break;
                     case CellProperty.TextDisplay:
                         destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetCellRangeTextDisplayDelegater, theParameters);
+                        break;
+                    case CellProperty.FontStyle:
+                        destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetCellRangeFontStyleDelegater, theParameters);
                         break;
                     default:
                         throw new Exception("Implement support for getting cell property " + property.ToString());
@@ -605,6 +616,89 @@ namespace APE.Communication
         }
 
         //
+        //  FlexgridGetCellRangeFontStyle
+        //
+
+        private delegate string GetCellRangeFontStyleDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private GetCellRangeFontStyleDelegate m_FlexgridGetCellRangeFontStyleDelegater;
+        private const int flexcpFontBold = 13;
+        private const int flexcpFontItalic = 14;
+        private const int flexcpFontUnderline = 15;
+        private const int flexcpFontStrikethru = 16;
+
+        /// <summary>
+        /// Iterates over every cell in the grid returning a \t \r separated string of font style
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <param name="row1">The start row of the range</param>
+        /// <param name="column1">The start column of the range</param>
+        /// <param name="row2">The end row of the range</param>
+        /// <param name="column2">The end column of the range</param>
+        /// <returns>A \t \r delimited string of the font style</returns>
+        private string FlexgridGetCellRangeFontStyleInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        {
+            DetermineClipSeparators(grid.ClipSeparators);
+
+            StringBuilder rangeTextDisplay = new StringBuilder(10240);
+            StringBuilder fontStyleStringBuilder = new StringBuilder();
+
+            for (int row = row1; row <= row2; row++)
+            {
+                for (int column = column1; column <= column2; column++)
+                {
+                    fontStyleStringBuilder.Clear();
+                    if (activeX)
+                    {
+                        bool bold = grid.Cell(flexcpFontBold, row, column, row, column);
+                        bool italic = grid.Cell(flexcpFontItalic, row, column, row, column);
+                        bool underline = grid.Cell(flexcpFontUnderline, row, column, row, column);
+                        bool strikeout = grid.Cell(flexcpFontStrikethru, row, column, row, column);
+
+                        if (bold)
+                        {
+                            fontStyleStringBuilder.Append("Bold,");
+                        }
+                        if (italic)
+                        {
+                            fontStyleStringBuilder.Append("Italic,");
+                        }
+                        if (underline)
+                        {
+                            fontStyleStringBuilder.Append("Underline,");
+                        }
+                        if (strikeout)
+                        {
+                            fontStyleStringBuilder.Append("Strikeout,");
+                        }
+                        if (fontStyleStringBuilder.Length == 0)
+                        {
+                            fontStyleStringBuilder.Append("Regular,");
+                        }
+                        fontStyleStringBuilder.Length--;
+                    }
+                    else
+                    {
+                        fontStyleStringBuilder.Append(grid.GetCellRange(row, column).StyleDisplay.Font.Style.ToString());
+                    }
+
+                    rangeTextDisplay.Append(fontStyleStringBuilder.ToString());
+
+                    if (column < column2)
+                    {
+                        rangeTextDisplay.Append(m_ColumnSeparator);
+                    }
+                }
+
+                if (row < row2)
+                {
+                    rangeTextDisplay.Append(m_RowSeparator);
+                }
+            }
+
+            return rangeTextDisplay.ToString();
+        }
+
+        //
         //  FlexgridGetCellRangeTextDisplay
         //
 
@@ -620,7 +714,7 @@ namespace APE.Communication
         /// <param name="column1">The start column of the range</param>
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
-        /// <returns>A \t \r delimited string of the data type</returns>
+        /// <returns>A \t \r delimited string of the displayed text</returns>
         private string FlexgridGetCellRangeTextDisplayInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
         {
             DetermineClipSeparators(grid.ClipSeparators);
