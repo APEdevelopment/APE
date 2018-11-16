@@ -276,11 +276,11 @@ namespace APE.Language
             {
                 if (Identity.TechnologyType == "Windows Forms (WinForms)")
                 {
-                    if (this is GUIForm || DisableMouseEvents)
+                    if (this is GUIForm || this is GUITabControl || DisableMouseEvents)
                     {
                         //TODO / Oddities
                         // GUIForm we want to exclude non client area clicks
-                        // GUITabControl If the tab scrolls then MouseClick may not fire but MouseUp does
+                        // GUITabControl If the tab scrolls then MouseClick may not fire but MouseUp does (also happens under some other circumstances!)
                         // GUIToolStrip Doesnt always fire MouseUp but MouseClick does
                     }
                     else

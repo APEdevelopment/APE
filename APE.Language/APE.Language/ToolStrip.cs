@@ -227,6 +227,17 @@ namespace APE.Language
             UpdateIndex();
         }
 
+        /// <summary>
+        /// The description of the control
+        /// </summary>
+        public string Description
+        {
+            get
+            {
+                return Identity.Description;
+            }
+        }
+
         internal bool ItemMatchIdentifier(int item)
         {
             string Name = null;

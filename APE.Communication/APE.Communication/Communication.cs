@@ -456,13 +456,20 @@ namespace APE.Communication
             //    }
             //}
             List<IntPtr> formList = new List<IntPtr>();
-            foreach (WF.Form form in WF.Application.OpenForms)
+            for (int index = WF.Application.OpenForms.Count - 1; index > -1; index--)
             {
-                GetHandleAndName(form);
-                if (NM.IsWindowVisible(m_Handle))
+                try
                 {
-                    formList.Add(m_Handle);
-                    NM.SuspendDrawing(m_Handle, TimeOut);
+                    WF.Form form = WF.Application.OpenForms[index];
+                    GetHandleAndName(form);
+                    if (NM.IsWindowVisible(m_Handle))
+                    {
+                        formList.Add(m_Handle);
+                        NM.SuspendDrawing(m_Handle, TimeOut);
+                    }
+                }
+                catch
+                {
                 }
             }
 
@@ -479,7 +486,13 @@ namespace APE.Communication
 
             foreach (IntPtr form in formList)
             {
+                try
+                {
                     NM.ResumeDrawing(form, TimeOut);
+                }
+                catch
+                {
+                }
                     //NM.RedrawWindow(m_Handle, IntPtr.Zero, IntPtr.Zero, NM.RedrawWindowFlags.Invalidate | NM.RedrawWindowFlags.Erase | NM.RedrawWindowFlags.AllChildren);
                     //NM.UpdateWindow(m_Handle);   
             }
