@@ -57,6 +57,10 @@ namespace APE.Communication
             /// For GetCellRange this returns whether the cells contain a background image
             /// </summary>
             BackgroundImage,
+            /// <summary>
+            /// Only for COM flexgrid to get displayed text of a range
+            /// </summary>
+            TextDisplay,
         }
 
         string m_ColumnSeparator = "";
@@ -78,6 +82,7 @@ namespace APE.Communication
             m_FlexgridGetAllRowsHiddenDelegater = new GetAllRowsHiddenDelegate(FlexgridGetAllRowsHiddenInternal);
             m_FlexgridGetAllRowsHeightDelegater = new GetAllRowsHeightDelegate(FlexgridGetAllRowsHeightInternal);
             m_FlexgridGetNodeCollapsedStateDelegater = new GetNodeCollapsedStateDelegate(FlexgridGetNodeCollapsedStateInternal);
+            m_FlexgridGetCellRangeTextDisplayDelegater = new GetCellRangeTestDisplayDelegate(FlexgridGetCellRangeTextDisplayInternal);
         }
 
         /// <summary>
@@ -143,6 +148,9 @@ namespace APE.Communication
                 case CellProperty.BackgroundImage:
                     ptrMessage->Action = MessageAction.FlexgridGetCellRangeBackgroundImage;
                     break;
+                case CellProperty.TextDisplay:
+                    ptrMessage->Action = MessageAction.FlexgridGetCellRangeTextDisplay;
+                    break;
                 default:
                     throw new Exception("Implement support for getting cell property " + property.ToString());
             }
@@ -194,6 +202,9 @@ namespace APE.Communication
                         break;
                     case CellProperty.BackgroundImage:
                         destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetCellRangeBackgroundImageDelegater, theParameters);
+                        break;
+                    case CellProperty.TextDisplay:
+                        destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetCellRangeTextDisplayDelegater, theParameters);
                         break;
                     default:
                         throw new Exception("Implement support for getting cell property " + property.ToString());
@@ -591,6 +602,67 @@ namespace APE.Communication
             }
 
             return rangeDataType.ToString();
+        }
+
+        //
+        //  FlexgridGetCellRangeTextDisplay
+        //
+
+        private delegate string GetCellRangeTestDisplayDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private GetCellRangeTestDisplayDelegate m_FlexgridGetCellRangeTextDisplayDelegater;
+        private const int flexcpTextDisplay = 19;
+
+        /// <summary>
+        /// Iterates over every cell in the grid returning a \t \r separated string of displayed text
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <param name="row1">The start row of the range</param>
+        /// <param name="column1">The start column of the range</param>
+        /// <param name="row2">The end row of the range</param>
+        /// <param name="column2">The end column of the range</param>
+        /// <returns>A \t \r delimited string of the data type</returns>
+        private string FlexgridGetCellRangeTextDisplayInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        {
+            DetermineClipSeparators(grid.ClipSeparators);
+
+            StringBuilder rangeTextDisplay = new StringBuilder(10240);
+
+            for (int row = row1; row <= row2; row++)
+            {
+                for (int column = column1; column <= column2; column++)
+                {
+                    string textDisplay;
+                    if (activeX)
+                    {
+                        textDisplay = grid.Cell(flexcpTextDisplay, row, column, row, column);
+                    }
+                    else
+                    {
+                        throw new Exception("Not needed");
+                    }
+
+                    if (string.IsNullOrEmpty(textDisplay))
+                    {
+                        rangeTextDisplay.Append("");
+                    }
+                    else
+                    {
+                        rangeTextDisplay.Append(textDisplay);
+                    }
+
+                    if (column < column2)
+                    {
+                        rangeTextDisplay.Append(m_ColumnSeparator);
+                    }
+                }
+
+                if (row < row2)
+                {
+                    rangeTextDisplay.Append(m_RowSeparator);
+                }
+            }
+
+            return rangeTextDisplay.ToString();
         }
 
         //

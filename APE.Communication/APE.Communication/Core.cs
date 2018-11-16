@@ -126,6 +126,7 @@ namespace APE.Communication
         AddToolStripItemEnteredHandler = 65,
         WaitForAndRemoveToolStripItemEnteredHandler = 66,
         DumpControl = 67,
+        FlexgridGetCellRangeTextDisplay = 68,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -463,6 +464,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.DumpControl:
                                     DumpControl(ptrMessage, messageNumber);
+                                    break;
+                                case MessageAction.FlexgridGetCellRangeTextDisplay:
+                                    FlexgridGetCellRange(ptrMessage, CellProperty.TextDisplay);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());

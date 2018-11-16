@@ -4403,7 +4403,7 @@ namespace APE.Language
             {
                 case CellProperty.TextDisplay:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Cell", MemberTypes.Method, new Parameter(GUI.m_APE, (int)VSFlexgridCellPropertySettings.flexcpTextDisplay), new Parameter(GUI.m_APE, row1Index), new Parameter(GUI.m_APE, column1Index), new Parameter(GUI.m_APE, row2Index), new Parameter(GUI.m_APE, column2Index));
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.TextDisplay, true);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
