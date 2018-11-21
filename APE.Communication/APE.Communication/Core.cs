@@ -184,7 +184,7 @@ namespace APE.Communication
         /// <param name="AppDomainToLoadInto">The application domain to the load into</param>
         /// <param name="WPF">Whether the AUT contains WPF controls</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        unsafe public void ProcessMessages(int APEPID, string AppDomainToLoadInto, bool WPF)
+        unsafe public void ProcessMessages(int APEPID, string AppDomainToLoadInto)
         {
             m_ManagedThreadId = Thread.CurrentThread.ManagedThreadId;
             try
@@ -196,7 +196,6 @@ namespace APE.Communication
                 // Set the thread name so its easy to find in the debugger
                 Thread.CurrentThread.Name = "APE_" + APEProcessId + "_" + AppDomainToLoadInto + "_" + AUTProcessId;
 
-                m_WPF = WPF;
                 m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, APEProcessId + "_String_" + AppDomainToLoadInto + "_" + AUTProcessId);
                 m_IntPtrMemoryMappedFileViewStringStore = NM.MapViewOfFile(m_HandleMemoryMappedFileStringStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)StringSpaceBytes);
                 m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), APEProcessId + "_Message_" + AppDomainToLoadInto + "_" + AUTProcessId);

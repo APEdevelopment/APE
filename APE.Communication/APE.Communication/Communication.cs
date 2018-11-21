@@ -72,7 +72,7 @@ namespace APE.Communication
         Store9 = 9,
     }
 
-    public partial class APEIPC
+    public partial class APEIPC : IDisposable
     {
         private const int ERROR_ALREADY_EXISTS = 183;
         internal const int StringSpaceBytes = 10485760; //1024 * 1024 * 10
@@ -159,6 +159,7 @@ namespace APE.Communication
         string m_Text;
 
         private bool m_WPF = false;
+        private bool m_AssemblyLoadEventHandlerActive = false;
 
         private delegate string GetTextDelegate(WF.Control theControl);
         private GetTextDelegate m_GetTextDelegater;
@@ -195,6 +196,14 @@ namespace APE.Communication
         {
             Success = 1,
             Failure = 2,
+        }
+
+        private void ApeAssemblyLoadEventHandler(object sender, AssemblyLoadEventArgs args)
+        {
+            if (args.LoadedAssembly.GetName().Name == "WindowsBase")
+            {
+                m_WPF = true;
+            }
         }
 
         private void BuildListOfAllControls(IntPtr parentWindow)
@@ -351,20 +360,22 @@ namespace APE.Communication
         [EditorBrowsable(EditorBrowsableState.Never)]
         public unsafe APEIPC(int APEPID, string AppDomainToLoadInto)
         {
-            bool WPF;
-            Assembly assemblyWPF = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "WindowsBase");
-            if (assemblyWPF == null)
-            {
-                WPF = false;
-            }
-            else
-            {
-                WPF = true;
-            }
-
             try
             {
-                Thread myThread = new Thread(() => ProcessMessages(APEPID, AppDomainToLoadInto, WPF));
+                Assembly assemblyWPF = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "WindowsBase");
+                if (assemblyWPF == null)
+                {
+                    m_WPF = false;
+                }
+                else
+                {
+                    m_WPF = true;
+                }
+
+                AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(ApeAssemblyLoadEventHandler);
+                m_AssemblyLoadEventHandlerActive = true;
+
+                Thread myThread = new Thread(() => ProcessMessages(APEPID, AppDomainToLoadInto));
                 myThread.SetApartmentState(ApartmentState.STA);
                 myThread.IsBackground = true;
                 myThread.Start();
@@ -381,7 +392,46 @@ namespace APE.Communication
 
         ~APEIPC()
         {
-            RemoveFileMapping();
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (m_IntPtrMemoryMappedFileViewStringStore != IntPtr.Zero)
+            {
+                NM.UnmapViewOfFile(m_IntPtrMemoryMappedFileViewStringStore);
+                m_IntPtrMemoryMappedFileViewStringStore = IntPtr.Zero;
+                NM.CloseHandle(m_HandleMemoryMappedFileStringStore);
+                m_HandleMemoryMappedFileStringStore = IntPtr.Zero;
+            }
+
+            if (m_IntPtrMemoryMappedFileViewMessageStore != IntPtr.Zero)
+            {
+                NM.UnmapViewOfFile(m_IntPtrMemoryMappedFileViewMessageStore);
+                m_IntPtrMemoryMappedFileViewMessageStore = IntPtr.Zero;
+                NM.CloseHandle(m_HandleMemoryMappedFileMessageStore);
+                m_HandleMemoryMappedFileMessageStore = IntPtr.Zero;
+            }
+
+            if (disposing)
+            {
+                if (m_eventIPC != null)
+                {
+                    m_eventIPC.Dispose();
+                }
+
+                if (m_AssemblyLoadEventHandlerActive)
+                {
+                    AppDomain.CurrentDomain.AssemblyLoad -= new AssemblyLoadEventHandler(ApeAssemblyLoadEventHandler);
+                    m_AssemblyLoadEventHandlerActive = false;
+                }
+            }
         }
 
         private unsafe void GetAppDomains(int MessageNumber)
@@ -683,26 +733,7 @@ namespace APE.Communication
 
         public unsafe void RemoveFileMapping()
         {
-            if (m_IntPtrMemoryMappedFileViewStringStore != IntPtr.Zero)
-            {
-                NM.UnmapViewOfFile(m_IntPtrMemoryMappedFileViewStringStore);
-                m_IntPtrMemoryMappedFileViewStringStore = IntPtr.Zero;
-                NM.CloseHandle(m_HandleMemoryMappedFileStringStore);
-                m_HandleMemoryMappedFileStringStore = IntPtr.Zero;
-            }
-
-            if (m_IntPtrMemoryMappedFileViewMessageStore != IntPtr.Zero)
-            {
-                NM.UnmapViewOfFile(m_IntPtrMemoryMappedFileViewMessageStore);
-                m_IntPtrMemoryMappedFileViewMessageStore = IntPtr.Zero;
-                NM.CloseHandle(m_HandleMemoryMappedFileMessageStore);
-                m_HandleMemoryMappedFileMessageStore = IntPtr.Zero;
-            }
-
-            if (m_eventIPC != null)
-            {
-                m_eventIPC.Dispose();
-            }
+            Dispose(true);
         }
 
         unsafe private void GetResultMessage()
