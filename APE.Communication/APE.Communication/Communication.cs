@@ -362,6 +362,9 @@ namespace APE.Communication
         {
             try
             {
+                AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(ApeAssemblyLoadEventHandler);
+                m_AssemblyLoadEventHandlerActive = true;
+
                 Assembly assemblyWPF = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "WindowsBase");
                 if (assemblyWPF == null)
                 {
@@ -371,9 +374,6 @@ namespace APE.Communication
                 {
                     m_WPF = true;
                 }
-
-                AppDomain.CurrentDomain.AssemblyLoad += new AssemblyLoadEventHandler(ApeAssemblyLoadEventHandler);
-                m_AssemblyLoadEventHandlerActive = true;
 
                 Thread myThread = new Thread(() => ProcessMessages(APEPID, AppDomainToLoadInto));
                 myThread.SetApartmentState(ApartmentState.STA);
@@ -1644,53 +1644,43 @@ namespace APE.Communication
             }
         }
 
-        unsafe private void wpfFindFormByHandle(IntPtr Handle, ref string Name, ref string theText, ref Type theType, ref bool foundControl)
+        unsafe private void wpfFindSourceByHandle(IntPtr handle, ref string name, ref string theText, ref Type theType, ref bool foundControl)
         {
-            WPF.Application wpfApp = WPF.Application.Current;
-            if (wpfApp != null)
+            foreach (WPF.Interop.HwndSource source in WPF.PresentationSource.CurrentSources)
             {
-                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                foreach (WPF.Window wpfWindow in wpfWindows)
+                if (source.Handle == handle)
                 {
-                    wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
-                    if (Handle == m_Handle)
-                    {
-                        Name = m_Name;
-                        theText = m_Text;
-                        theType = wpfWindow.GetType();
-                        foundControl = true;
-                        break;
-                    }
+                    //WPF.PresentationSource presentationSource = (WPF.PresentationSource)source;
+                    name = "";
+                    theText = GetWindowTextViaWindowMessage(handle);
+                    theType = source.GetType();
+                    
+                    foundControl = true;
+                    break;
                 }
             }
         }
 
-        unsafe private void wpfFindFormByIdentifier(ControlIdentifier Identifier, ref IntPtr Handle, ref string Name, ref string theText, ref Type theType, ref int CurrentIndex, ref bool foundControl)
+        unsafe private void wpfFindSourceByIdentifier(ControlIdentifier identifier, ref IntPtr handle, ref string name, ref string theText, ref Type theType, ref int currentIndex, ref bool foundControl)
         {
-            WPF.Application wpfApp = WPF.Application.Current;
-            if (wpfApp != null)
+            foreach (WPF.Interop.HwndSource source in WPF.PresentationSource.CurrentSources)
             {
-                WPF.WindowCollection wpfWindows = (WPF.WindowCollection)wpfApp.GetType().GetProperty("WindowsInternal", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(wpfApp, null);
-
-                foreach (WPF.Window wpfWindow in wpfWindows)
+                //WPF.PresentationSource presentationSource = (WPF.PresentationSource)source;
+                if (source.Handle == handle)
                 {
-                    wpfWindow.Dispatcher.Invoke(m_GetWPFHandleAndNameAndTitleDelegater, wpfWindow);
+                    name = "";
+                    theText = GetWindowTextViaWindowMessage(handle);
+                    theType = source.GetType();
 
-                    theType = wpfWindow.GetType();
-                    Handle = m_Handle;
-                    Name = m_Name;
-                    theText = m_Text;
-
-                    if (Identifier.Name != null)
+                    if (identifier.Name != null)
                     {
-                        if (Name != Identifier.Name)
+                        if (name != identifier.Name)
                         {
                             continue;
                         }
                     }
 
-                    if (Identifier.TypeNameSpace != null)
+                    if (identifier.TypeNameSpace != null)
                     {
                         if (theType.Namespace == null)
                         {
@@ -1698,14 +1688,14 @@ namespace APE.Communication
                         }
                         else
                         {
-                            if (!Regex.IsMatch(theType.Namespace, Identifier.TypeNameSpace))
+                            if (!Regex.IsMatch(theType.Namespace, identifier.TypeNameSpace))
                             {
                                 continue;
                             }
                         }
                     }
 
-                    if (Identifier.TypeName != null)
+                    if (identifier.TypeName != null)
                     {
                         if (theType.Name == null)
                         {
@@ -1713,30 +1703,30 @@ namespace APE.Communication
                         }
                         else
                         {
-                            if (!Regex.IsMatch(theType.Name, Identifier.TypeName))
+                            if (!Regex.IsMatch(theType.Name, identifier.TypeName))
                             {
                                 continue;
                             }
                         }
                     }
 
-                    if (Identifier.ModuleName != null)
+                    if (identifier.ModuleName != null)
                     {
-                        if (theType.Module.Name != Identifier.ModuleName)
+                        if (theType.Module.Name != identifier.ModuleName)
                         {
                             continue;
                         }
                     }
 
-                    if (Identifier.AssemblyName != null)
+                    if (identifier.AssemblyName != null)
                     {
-                        if (theType.Assembly.GetName().Name != Identifier.AssemblyName)
+                        if (theType.Assembly.GetName().Name != identifier.AssemblyName)
                         {
                             continue;
                         }
                     }
 
-                    if (Identifier.Text != null)
+                    if (identifier.Text != null)
                     {
                         if (theText == null)
                         {
@@ -1744,27 +1734,27 @@ namespace APE.Communication
                         }
                         else
                         {
-                            if (!Regex.IsMatch(theText, Identifier.Text))
+                            if (!Regex.IsMatch(theText, identifier.Text))
                             {
                                 continue;
                             }
                         }
                     }
 
-                    CurrentIndex++;
+                    currentIndex++;
 
-                    DebugLogging.WriteLog("found wpf form for " + Name);
+                    DebugLogging.WriteLog("found wpf form for " + name);
 
-                    if (Identifier.Index > 0)
+                    if (identifier.Index > 0)
                     {
-                        if (CurrentIndex != Identifier.Index)
+                        if (currentIndex != identifier.Index)
                         {
                             continue;
                         }
                     }
 
                     //we have a match
-                    if (NM.IsWindowVisible(Handle))
+                    if (NM.IsWindowVisible(handle))
                     {
                         foundControl = true;
                         break;
@@ -1854,12 +1844,12 @@ namespace APE.Communication
 
                     if (!FoundControl)
                     {
-                        if (m_WPF)  //Only look for WPF forms if the application has WPF loaded
+                        if (m_WPF)  //Only look for WPF source if the application has WPF loaded
                         {
                             if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
                             {
                                 Handle = Identifier.Handle;
-                                wpfFindFormByHandle(Handle, ref Name, ref theText, ref theType, ref FoundControl);
+                                wpfFindSourceByHandle(Handle, ref Name, ref theText, ref theType, ref FoundControl);
                             }
                         }
                     }
@@ -2045,6 +2035,18 @@ namespace APE.Communication
                                         }
                                     }
 
+                                    if (m_WPF)  //Only look for WPF source if the application has WPF loaded
+                                    {
+                                        if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                                        {
+                                            wpfFindSourceByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
+                                            if (FoundControl)
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                     if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
                                     {
                                         //Windows Native
@@ -2173,17 +2175,6 @@ namespace APE.Communication
                             {
                                 FindByIdentifierRenderedActiveX(Identifier, ref Handle, ref Name, ref theText, ref typeNameSpace, ref typeName, ref technologyType, ref uniqueId, ref FoundControl);
                             }
-
-                            if (!FoundControl)
-                            {
-                                if (m_WPF)  //Only look for WPF forms if the application has WPF loaded
-                                {
-                                    if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)")
-                                    {
-                                        wpfFindFormByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
-                                    }
-                                }
-                            }
                         }
                         catch (InvalidOperationException ex)
                         {
@@ -2273,6 +2264,18 @@ namespace APE.Communication
                                 theText = GetWindowTextViaWindowMessage(Handle);
                                 technologyType = "Windows ActiveX";
                                 FoundControl = true;
+                            }
+                        }
+                    }
+
+                    if (!FoundControl)
+                    {
+                        if (m_WPF)  //Only look for WPF source if the application has WPF loaded
+                        {
+                            if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                            {
+                                Handle = Identifier.Handle;
+                                wpfFindSourceByHandle(Handle, ref Name, ref theText, ref theType, ref FoundControl);
                             }
                         }
                     }
@@ -2453,7 +2456,19 @@ namespace APE.Communication
                                         break;
                                     }
                                 }
-                                
+
+                                if (m_WPF)  //Only look for WPF source if the application has WPF loaded
+                                {
+                                    if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
+                                    {
+                                        wpfFindSourceByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
+                                        if (FoundControl)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 if (Identifier.TechnologyType == "Windows Native" || Identifier.TechnologyType == null)
                                 {
                                     //Windows Native
@@ -2575,13 +2590,6 @@ namespace APE.Communication
 
                         if (!FoundControl)
                         {
-                            if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)")
-                            {
-                            }
-                        }
-
-                        if (!FoundControl)
-                        {
                             DebugLogging.WriteLog("");
                             Thread.Sleep(15);
                         }
@@ -2692,9 +2700,12 @@ namespace APE.Communication
 
             if (destinationObject == null)
             {
-                if (identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || identifier.TechnologyType == null)
+                if (m_WPF)  //Only look for WPF source if the application has WPF loaded
                 {
-                    //WPF TODO
+                    if (identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || identifier.TechnologyType == null)
+                    {
+                        //WPF TODO
+                    }
                 }
             }
 
