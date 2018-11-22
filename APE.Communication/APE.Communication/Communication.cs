@@ -2039,6 +2039,7 @@ namespace APE.Communication
                                     {
                                         if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
                                         {
+                                            Handle = hWnd;
                                             wpfFindSourceByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
                                             if (FoundControl)
                                             {
@@ -2461,6 +2462,7 @@ namespace APE.Communication
                                 {
                                     if (Identifier.TechnologyType == "Windows Presentation Foundation (WPF)" || Identifier.TechnologyType == null)
                                     {
+                                        Handle = hWnd;
                                         wpfFindSourceByIdentifier(Identifier, ref Handle, ref Name, ref theText, ref theType, ref CurrentIndex, ref FoundControl);
                                         if (FoundControl)
                                         {
