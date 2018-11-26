@@ -20,6 +20,7 @@ using APE.Communication;
 using System.Threading;
 using NM = APE.Native.NativeMethods;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace APE.Language
 {
@@ -244,6 +245,7 @@ namespace APE.Language
 
             IntPtr listBox = IntPtr.Zero;
             NM.COMBOBOXINFO cbi = new NM.COMBOBOXINFO();
+            cbi.cbSize = Marshal.SizeOf(cbi);
 
             Input.Block();
             try
@@ -427,6 +429,8 @@ namespace APE.Language
             else
             {
                 NM.COMBOBOXINFO cbi = new NM.COMBOBOXINFO();
+                cbi.cbSize = Marshal.SizeOf(cbi);
+
                 NM.GetComboBoxInfo(Identity.Handle, ref cbi);
                 editBox = cbi.hwndEdit;
             }
