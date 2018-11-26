@@ -1749,7 +1749,7 @@ namespace APE.Native
             STATE_SYSTEM_PRESSED = 0x00000008
         }
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetComboBoxInfo(IntPtr hWnd, ref COMBOBOXINFO pcbi);
 
         [DllImport("user32.dll", SetLastError = true)]
