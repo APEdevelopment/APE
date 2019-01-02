@@ -175,7 +175,9 @@ namespace APE.Communication
         List<IntPtr> m_AllControls;
         EventSet Side;
         Process ApeProcess = null;
-        Process AUTProcess = null;
+        public Process AUTProcess = null;
+        public string AUTProcessName = null;
+        public string AUTProcessId = null;
         bool m_Abort = false;
         uint m_TimeOut = 0;
         uint m_HangTimeOut = 30000;
@@ -257,13 +259,15 @@ namespace APE.Communication
         private unsafe void InjectAPEIPC(Process autProcess, string appDomain)
         {
             m_ManagedThreadId = Thread.CurrentThread.ManagedThreadId;
-            string autProcessId = autProcess.Id.ToString();
+            this.AUTProcess = autProcess;
+            this.AUTProcessId = AUTProcess.Id.ToString();
+            this.AUTProcessName = AUTProcess.ProcessName;
+
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string method = "LoadAPEIPC";
             string apeProcessId = Process.GetCurrentProcess().Id.ToString();
-            this.AUTProcess = autProcess;
-
-            m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, apeProcessId + "_String_" + appDomain + "_" + autProcessId);
+            
+            m_HandleMemoryMappedFileStringStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, StringSpaceBytes, apeProcessId + "_String_" + appDomain + "_" + AUTProcessId);
 
             if (m_HandleMemoryMappedFileStringStore == null)
             {
@@ -277,8 +281,8 @@ namespace APE.Communication
                 string tempPath = null;
                 try
                 {
-                    key.SetValue(apeProcessId + "_Path_" + autProcessId, path);
-                    key.SetValue(apeProcessId + "_AppDomain_" + autProcessId, appDomain);
+                    key.SetValue(apeProcessId + "_Path_" + AUTProcessId, path);
+                    key.SetValue(apeProcessId + "_AppDomain_" + AUTProcessId, appDomain);
                     key.SetValue(apeProcessId + "_Attach_Status", "Starting");
                     
                     string assembly;
@@ -304,7 +308,7 @@ namespace APE.Communication
                     File.Copy(path + @"\APE.Syringe.dll", tempPath + @"APE.Syringe.dll");
                     File.Copy(path + @"\APE.Native.dll", tempPath + @"APE.Native.dll");
 
-                    Injector.StartInfo = new ProcessStartInfo(tempPath + @"devenv.exe", autProcessId + " " + assembly + " " + method + " " + apeProcessId);
+                    Injector.StartInfo = new ProcessStartInfo(tempPath + @"devenv.exe", AUTProcessId + " " + assembly + " " + method + " " + apeProcessId);
 
                     Injector.StartInfo.WorkingDirectory = path;
                     Injector.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -330,8 +334,8 @@ namespace APE.Communication
                 finally
                 {
                     key.DeleteValue(apeProcessId + "_Attach_Status", false);
-                    key.DeleteValue(apeProcessId + "_Path_" + autProcessId, false);
-                    key.DeleteValue(apeProcessId + "_AppDomain_" + autProcessId, false);
+                    key.DeleteValue(apeProcessId + "_Path_" + AUTProcessId, false);
+                    key.DeleteValue(apeProcessId + "_AppDomain_" + AUTProcessId, false);
                     key.Close();
                     if (tempPath != null)
                     {
@@ -348,11 +352,11 @@ namespace APE.Communication
             }
 
             m_IntPtrMemoryMappedFileViewStringStore = NM.MapViewOfFile(m_HandleMemoryMappedFileStringStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)StringSpaceBytes);
-            m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), apeProcessId + "_Message_" + appDomain + "_" + autProcessId);
+            m_HandleMemoryMappedFileMessageStore = NM.CreateFileMapping((IntPtr)(NM.INVALID_HANDLE_VALUE), (IntPtr)0, NM.FileMapProtection.PageReadWrite, 0, (uint)sizeof(MessageStore), apeProcessId + "_Message_" + appDomain + "_" + AUTProcessId);
             m_IntPtrMemoryMappedFileViewMessageStore = NM.MapViewOfFile(m_HandleMemoryMappedFileMessageStore, NM.FileMapAccess.FileMapAllAccess, 0, 0, (UIntPtr)sizeof(MessageStore));
             m_PtrMessageStore = (MessageStore*)m_IntPtrMemoryMappedFileViewMessageStore.ToPointer();
 
-            m_eventIPC = new EventWaitHandle(false, EventResetMode.AutoReset, apeProcessId + "_EventIPC_" + appDomain + "_" + autProcessId);
+            m_eventIPC = new EventWaitHandle(false, EventResetMode.AutoReset, apeProcessId + "_EventIPC_" + appDomain + "_" + AUTProcessId);
             Side = EventSet.APE;
             m_Abort = false;
         }
@@ -768,14 +772,13 @@ namespace APE.Communication
 
         unsafe public dynamic GetValueFromMessage()
         {
-            // Checking if a process has exited is slow so we only check once every second or so
             if (m_Abort == true)
             {
                 if (AUTProcess == null)
                 {
                     throw new Exception("Not attached to a process");
                 }
-                if (AUTProcess.HasExited)
+                if (AUTProcessHasExited())
                 {
                     throw new Exception(AUTProcess.ProcessName + " has exited");
                 }
@@ -942,27 +945,17 @@ namespace APE.Communication
                 if (WhoIsSending == EventSet.APE)
                 {
                     // Check if the AUT is still running
-
                     if (AUTProcess == null)
                     {
                         m_Abort = true;
                         throw new Exception("Not attached to a process");
                     }
 
-                    // If its being debugged HasExited will throw a permission denined exception
-                    bool hasExited = false;
-                    try
-                    {
-                        hasExited = AUTProcess.HasExited;
-                    }
-                    catch
-                    {
-                    }
-                    if (hasExited)
+                    if (AUTProcessHasExited())
                     {
                         m_Abort = true;
                         throw new Exception(AUTProcess.ProcessName + " has exited");
-                    }
+                    }                    
 
                     //if last awake hasn't been set in m_TimeOut + m_HangTimeout ms then report a hang (might happen if the process still exists but is showing a 'stopped working dialog')
                     if (timer.ElapsedMilliseconds > m_TimeOut + m_HangTimeOut)
@@ -999,6 +992,23 @@ namespace APE.Communication
                     }
                 }
             }
+        }
+
+        public bool AUTProcessHasExited()
+        {
+            // If its being debugged HasExited will throw a permission denined exception
+            try
+            {
+                if (AUTProcess.HasExited)
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
         }
 
         unsafe public void WaitForMessages(EventSet WhoIsWaiting)

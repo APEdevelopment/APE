@@ -224,8 +224,6 @@ namespace APE.Language
     public static class GUI
     {
         internal static APEIPC m_APE;
-        internal static Process m_AttachedProcess;
-        internal static string m_AttachedProcessName;
         internal static ViewPort m_ViewPort;
         internal static bool m_APESpy = false;
         private static Thread m_threadViewPort;
@@ -405,35 +403,35 @@ namespace APE.Language
         /// <param name="domain">The domain in the process to attach to</param>
         public static void AttachToProcess(Process process, string domain)
         {
-            m_AttachedProcess = process;
-            m_AttachedProcessName = null;
+            string processName = null;
+            int processId = -1;
 
             try
             {
-                m_AttachedProcessName = m_AttachedProcess.ProcessName;
+                processName = process.ProcessName;
+                processId = process.Id;
             }
             catch
             {
             }
 
-            if (m_AttachedProcess.HasExited)
+            if (process.HasExited)
             {
-                if (string.IsNullOrEmpty(m_AttachedProcessName))
+                if (string.IsNullOrEmpty(processName))
                 {
                     throw GUI.ApeException("Process has exited");
                 }
                 else
                 {
-                    throw GUI.ApeException("Process " + m_AttachedProcessName + " has exited");
+                    throw GUI.ApeException("Process " + processName + " has exited");
                 }
             }
-            Log("Attached to process [" + m_AttachedProcessName + "]", LogItemType.Information);
-
+            
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
                 // TODO maybe replace this with a visible top level non zero width / height window check instead?
-                if (m_AttachedProcess.MainWindowHandle != IntPtr.Zero)
+                if (process.MainWindowHandle != IntPtr.Zero)
                 {
                     break;
                 }
@@ -450,8 +448,10 @@ namespace APE.Language
             {
                 m_APE.RemoveFileMapping();
             }
-            m_APE = new APEIPC(m_AttachedProcess, domain);
-            
+            m_APE = new APEIPC(process, domain);
+
+            Log("Attached to process [" + m_APE.AUTProcessName + "] pid [" + m_APE.AUTProcessId + "]", LogItemType.Information);
+
             //Set the default timeout
             SetTimeOut(GetTimeOut());
         }
@@ -464,7 +464,7 @@ namespace APE.Language
         {
             get
             {
-                return m_AttachedProcess;
+                return m_APE.AUTProcess;
             }
         }
 
@@ -475,12 +475,7 @@ namespace APE.Language
         {
             get
             {
-                bool exists = false;
-                if (m_AttachedProcess != null && !m_AttachedProcess.HasExited)
-                {
-                    exists = true;
-                }
-                return exists;
+                return !m_APE.AUTProcessHasExited();
             }
         }
 
@@ -493,7 +488,7 @@ namespace APE.Language
             m_MsTimeOut = msTimeOut;
             if (m_APE != null)
             {
-                if (!m_AttachedProcess.HasExited)
+                if (!m_APE.AUTProcessHasExited())
                 {
                     m_APE.TimeOut = (uint)msTimeOut;
                 }
