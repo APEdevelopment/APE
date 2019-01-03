@@ -482,9 +482,12 @@ namespace APE.Communication
                             break;
                     }
 
-                    rangeDataType.Append(currentCellDataType.Namespace);
-                    rangeDataType.Append(".");
-                    rangeDataType.Append(currentCellDataType.Name);
+                    if (currentCellDataType != null)
+                    {
+                        rangeDataType.Append(currentCellDataType.Namespace);
+                        rangeDataType.Append(".");
+                        rangeDataType.Append(currentCellDataType.Name);
+                    }
 
                     if (column < column2)
                     {
