@@ -20,6 +20,8 @@ using System.Text;
 using System.Threading;
 using WF = System.Windows.Forms;
 using System.Drawing;
+using Fasterflect;
+using System.Linq;
 
 namespace APE.Communication
 {
@@ -28,6 +30,13 @@ namespace APE.Communication
     /// </summary>
     public partial class APEIPC
     {
+        public enum FlexgridGridType
+        {
+            ActiveX,
+            Extended,
+            Normal,
+        }
+
         public enum CellProperty
         {
             /// <summary>
@@ -88,6 +97,7 @@ namespace APE.Communication
             m_FlexgridGetNodeCollapsedStateDelegater = new GetNodeCollapsedStateDelegate(FlexgridGetNodeCollapsedStateInternal);
             m_FlexgridGetCellRangeTextDisplayDelegater = new GetCellRangeTestDisplayDelegate(FlexgridGetCellRangeTextDisplayInternal);
             m_FlexgridGetCellRangeFontStyleDelegater = new GetCellRangeFontStyleDelegate(FlexgridGetCellRangeFontStyleInternal);
+            m_FlexgridGetCellBackgroundImageDelegater = new GetCellBackgroundImageDelegate(FlexgridGetCellBackgroundImageInternal);
         }
 
         /// <summary>
@@ -122,7 +132,7 @@ namespace APE.Communication
         /// <param name="column1">The start column of the range</param>
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
-        unsafe public void AddQueryMessageFlexgridGetCellRange(DataStores sourceStore, DataStores destinationStore, int row1, int column1, int row2, int column2, CellProperty property, bool activeX)
+        unsafe public void AddQueryMessageFlexgridGetCellRange(DataStores sourceStore, DataStores destinationStore, int row1, int column1, int row2, int column2, CellProperty property, FlexgridGridType gridType)
         {
             if (!m_DoneFind)
             {
@@ -167,7 +177,7 @@ namespace APE.Communication
             Parameter column1Parameter = new Parameter(this, column1);
             Parameter row2Parameter = new Parameter(this, row2);
             Parameter column2Parameter = new Parameter(this, column2);
-            Parameter activeXParameter = new Parameter(this, activeX);
+            Parameter gridTypeParameter = new Parameter(this, (int)gridType);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneQuery = true;
@@ -184,13 +194,13 @@ namespace APE.Communication
             int column1 = GetParameterInt32(ptrMessage, 1);
             int row2 = GetParameterInt32(ptrMessage, 2);
             int column2 = GetParameterInt32(ptrMessage, 3);
-            bool activeX = GetParameterBoolean(ptrMessage, 4);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 4);
             object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
             object destinationObject = null;
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, row1, column1, row2, column2, activeX };
+                object[] theParameters = { sourceObject, row1, column1, row2, column2, gridType };
                 switch (property)
                 {
                     case CellProperty.BackColourName:
@@ -230,9 +240,11 @@ namespace APE.Communication
         //  FlexgridGetCellRangeBackColourName
         //
 
-        private delegate string GetCellRangeBackColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeBackColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeBackColourNameDelegate m_FlexgridGetCellRangeBackColourNameDelegater;
         private const int flexcpBackColor = 6;
+        private Fasterflect.MethodInvoker m_MethodInvokerBackColourName = null;
+
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the back colours of the cells
         /// any cells which have the default back colour of the grid return an empty string for that cell
@@ -243,12 +255,12 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the back colours</returns>
-        private string FlexgridGetCellRangeBackColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeBackColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
             string gridBackColourName;
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 gridBackColourName = null;
             }
@@ -264,14 +276,35 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    if (activeX)
+                    switch (gridType)
                     {
-                        int colourOle = grid.Cell(flexcpBackColor, row, column, row, column);
-                        currentCellBackColourName = ColorTranslator.FromOle(colourOle).Name;
-                    }
-                    else
-                    {
-                        currentCellBackColourName = grid.GetCellRange(row, column).StyleDisplay.BackColor.Name;
+                        case FlexgridGridType.ActiveX:
+                            int colourOle = grid.Cell(flexcpBackColor, row, column, row, column);
+                            currentCellBackColourName = ColorTranslator.FromOle(colourOle).Name;
+                            break;
+                        case FlexgridGridType.Extended:
+                            if (m_MethodInvokerBackColourName == null)
+                            {
+                                Type typeGrid = grid.GetType();
+                                Type typeExtension = typeGrid.Assembly.GetTypes().SingleOrDefault(type => type.Name == "VSFlexGridExtensions");
+                                MethodInfo miGetCellBackColor = typeExtension.GetMethod("getCellBackColor", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                                ParameterInfo[] pi = miGetCellBackColor.GetParameters();
+                                Type[] typeParameters = new Type[pi.Length];
+                                for (int parameter = 0; parameter < typeParameters.Length; parameter++)
+                                {
+                                    typeParameters[parameter] = pi[parameter].ParameterType;
+                                }
+                                m_MethodInvokerBackColourName = typeExtension.DelegateForCallMethod("getCellBackColor", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                            }
+                            object[] parameters = new object[3];
+                            parameters[0] = grid;
+                            parameters[1] = row;
+                            parameters[2] = column;
+                            currentCellBackColourName = m_MethodInvokerBackColourName(grid, parameters).Name;
+                            break;
+                        default:
+                            currentCellBackColourName = grid.GetCellRange(row, column).StyleDisplay.BackColor.Name;
+                            break;
                     }
 
                     if (gridBackColourName == currentCellBackColourName)
@@ -302,9 +335,10 @@ namespace APE.Communication
         //  FlexgridGetCellRangeForeColourName
         //
 
-        private delegate string GetCellRangeForeColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeForeColourNameDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeForeColourNameDelegate m_FlexgridGetCellRangeForeColourNameDelegater;
         private const int flexcpForeColor = 7;
+        private Fasterflect.MethodInvoker m_MethodInvokerForeColourName = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the fore colours of the cells
@@ -316,11 +350,11 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the fore colours</returns>
-        private string FlexgridGetCellRangeForeColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeForeColourNameInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
             string gridForeColourName;
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 gridForeColourName = null;
             }
@@ -336,14 +370,35 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    if (activeX)
+                    switch (gridType)
                     {
-                        int colourOle = grid.Cell(flexcpForeColor, row, column, row, column);
-                        currentCellForeColourName = ColorTranslator.FromOle(colourOle).Name;
-                    }
-                    else
-                    {
-                        currentCellForeColourName = grid.GetCellRange(row, column).StyleDisplay.ForeColor.Name;
+                        case FlexgridGridType.ActiveX:
+                            int colourOle = grid.Cell(flexcpForeColor, row, column, row, column);
+                            currentCellForeColourName = ColorTranslator.FromOle(colourOle).Name;
+                            break;
+                        case FlexgridGridType.Extended:
+                            if (m_MethodInvokerForeColourName == null)
+                            {
+                                Type typeGrid = grid.GetType();
+                                Type typeExtension = typeGrid.Assembly.GetTypes().SingleOrDefault(type => type.Name == "VSFlexGridExtensions");
+                                MethodInfo miGetCellBackColor = typeExtension.GetMethod("getCellForeColor", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                                ParameterInfo[] pi = miGetCellBackColor.GetParameters();
+                                Type[] typeParameters = new Type[pi.Length];
+                                for (int parameter = 0; parameter < typeParameters.Length; parameter++)
+                                {
+                                    typeParameters[parameter] = pi[parameter].ParameterType;
+                                }
+                                m_MethodInvokerForeColourName = typeExtension.DelegateForCallMethod("getCellForeColor", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                            }
+                            object[] parameters = new object[3];
+                            parameters[0] = grid;
+                            parameters[1] = row;
+                            parameters[2] = column;
+                            currentCellForeColourName = m_MethodInvokerForeColourName(grid, parameters).Name;
+                            break;
+                        default:
+                            currentCellForeColourName = grid.GetCellRange(row, column).StyleDisplay.ForeColor.Name;
+                            break;
                     }
 
                     if (gridForeColourName == currentCellForeColourName)
@@ -374,8 +429,9 @@ namespace APE.Communication
         //  FlexgridGetCellRangeDataType
         //
 
-        private delegate string GetCellRangeDataTypeDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeDataTypeDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeDataTypeDelegate m_FlexgridGetCellRangeDataTypeDelegater;
+        private Fasterflect.MethodInvoker m_MethodInvokerDataType = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the data type of the cells
@@ -386,18 +442,45 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeDataTypeInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeDataTypeInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
-            Type currentCellDataType;
+            Type currentCellDataType = null;
             StringBuilder rangeDataType = new StringBuilder(10240);
 
             for (int row = row1; row <= row2; row++)
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    currentCellDataType = grid.GetCellRange(row, column).DataType;
+                    switch (gridType)
+                    {
+                        case FlexgridGridType.ActiveX:
+                            throw new Exception("Not supported");
+                        case FlexgridGridType.Extended:
+                            if (m_MethodInvokerDataType == null)
+                            {
+                                Type typeGrid = grid.GetType();
+                                Type typeExtension = typeGrid.Assembly.GetTypes().SingleOrDefault(type => type.Name == "VSFlexGridExtensions");
+                                MethodInfo miGetCellBackColor = typeExtension.GetMethod("getCellDataType", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                                ParameterInfo[] pi = miGetCellBackColor.GetParameters();
+                                Type[] typeParameters = new Type[pi.Length];
+                                for (int parameter = 0; parameter < typeParameters.Length; parameter++)
+                                {
+                                    typeParameters[parameter] = pi[parameter].ParameterType;
+                                }
+                                m_MethodInvokerDataType = typeExtension.DelegateForCallMethod("getCellDataType", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                            }
+                            object[] parameters = new object[3];
+                            parameters[0] = grid;
+                            parameters[1] = row;
+                            parameters[2] = column;
+                            currentCellDataType = m_MethodInvokerDataType(grid, parameters);
+                            break;
+                        default:
+                            currentCellDataType = grid.GetCellRange(row, column).StyleDisplay.DataType;
+                            break;
+                    }
 
                     rangeDataType.Append(currentCellDataType.Namespace);
                     rangeDataType.Append(".");
@@ -422,7 +505,7 @@ namespace APE.Communication
         //  FlexgridGetCellRangeCheckBox
         //
 
-        private delegate string GetCellRangeCheckBoxDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeCheckBoxDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeCheckBoxDelegate m_FlexgridGetCellRangeCheckBoxDelegater;
         private const int flexcpChecked = 5;
         private const int flexcpData = 20;
@@ -436,7 +519,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeCheckBoxInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeCheckBoxInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -447,7 +530,7 @@ namespace APE.Communication
             {
                 for (int column = column1; column <= column2; column++)
                 {
-                    if (activeX)
+                    if (gridType == FlexgridGridType.ActiveX)
                     {
                         currentCellCheckBox = "None";
                         int gridCheckbox = grid.Cell(flexcpChecked, row, column, row, column);
@@ -507,9 +590,10 @@ namespace APE.Communication
         //  FlexgridGetCellRangeImage
         //
 
-        private delegate string GetCellRangeImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeImageDelegate m_FlexgridGetCellRangeImageDelegater;
         private const int flexcpPicture = 3;
+
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of whether the cell contains an image
         /// </summary>
@@ -519,7 +603,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeImageInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeImageInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -530,7 +614,7 @@ namespace APE.Communication
                 for (int column = column1; column <= column2; column++)
                 {
                     object image;
-                    if (activeX)
+                    if (gridType == FlexgridGridType.ActiveX)
                     {
                         image = grid.Cell(flexcpPicture, row, column, row, column);
                     }
@@ -559,11 +643,114 @@ namespace APE.Communication
         }
 
         //
+        //  FlexgridGetCellBackgroundImage
+        //
+
+        private delegate Image GetCellBackgroundImageDelegate(dynamic grid, int row, int column, FlexgridGridType gridType);
+        private GetCellBackgroundImageDelegate m_FlexgridGetCellBackgroundImageDelegater;
+
+        /// <summary>
+        /// Calls into the AUT to iterate over every cell in the grid returning a \t \r separated string of the
+        /// required property of the cells
+        /// </summary>
+        /// <param name="sourceStore">The datastore which contains the grid object</param>
+        /// <param name="destinationStore">The datastore to put the resultant string into</param>
+        /// <param name="row">The row index to get</param>
+        /// <param name="column">The column index to get</param>
+        /// <param name="gridType">The type of flexgrid grid</param>
+        unsafe public void AddQueryMessageFlexgridGetCellBackgroundImage(DataStores sourceStore, DataStores destinationStore, int row, int column, FlexgridGridType gridType)
+        {
+            if (!m_DoneFind)
+            {
+                throw new Exception("Must locate the flexgrid before trying to use it");
+            }
+
+            Message* ptrMessage = GetPointerToNextMessage();
+            ptrMessage->SourceStore = sourceStore;
+            ptrMessage->DestinationStore = destinationStore;
+
+            ptrMessage->Action = MessageAction.FlexgridGetCellBackgroundImage;
+
+            Parameter row1Parameter = new Parameter(this, row);
+            Parameter column1Parameter = new Parameter(this, column);
+            Parameter gridTypeParameter = new Parameter(this, (int)gridType);
+
+            m_PtrMessageStore->NumberOfMessages++;
+            m_DoneQuery = true;
+        }
+
+        /// <summary>
+        /// Gets the parameters from the message then calls FlexgridGetCellRangeBackgroundImageInternal method 
+        /// on the correct thread storing the results in the specified datastore
+        /// </summary>
+        /// <param name="ptrMessage">A pointer to the message</param>
+        unsafe private void FlexgridGetCellBackgroundImage(Message* ptrMessage)
+        {
+            int row = GetParameterInt32(ptrMessage, 0);
+            int column = GetParameterInt32(ptrMessage, 1);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 2);
+            object sourceObject = GetObjectFromDatastore(ptrMessage->SourceStore);
+            object destinationObject = null;
+
+            if (sourceObject != null)
+            {
+                object[] theParameters = { sourceObject, row, column, gridType };
+                destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetCellBackgroundImageDelegater, theParameters);
+            }
+
+            PutObjectInDatastore(ptrMessage->DestinationStore, destinationObject);
+            CleanUpMessage(ptrMessage);
+        }
+
+        /// <summary>
+        /// Get the background image of the specified cell
+        /// </summary>
+        /// <param name="grid">The grid object</param>
+        /// <param name="row">The start row of the range</param>
+        /// <param name="column">The start column of the range</param>
+        /// <returns>The image</returns>
+        private Image FlexgridGetCellBackgroundImageInternal(dynamic grid, int row, int column, FlexgridGridType gridType)
+        {            
+            Image image = null;
+            switch (gridType)
+            {
+                case FlexgridGridType.ActiveX:
+                    image = grid.Cell(flexcpPicture, row, column, row, column);
+                    break;
+                case FlexgridGridType.Extended:
+                    if (m_MethodInvokerBackgroundImage == null)
+                    {
+                        Type typeGrid = grid.GetType();
+                        Type typeExtension = typeGrid.Assembly.GetTypes().SingleOrDefault(type => type.Name == "VSFlexGridExtensions");
+                        MethodInfo miGetCellBackColor = typeExtension.GetMethod("getCellBackgroundImage", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                        ParameterInfo[] pi = miGetCellBackColor.GetParameters();
+                        Type[] typeParameters = new Type[pi.Length];
+                        for (int parameter = 0; parameter < typeParameters.Length; parameter++)
+                        {
+                            typeParameters[parameter] = pi[parameter].ParameterType;
+                        }
+                        m_MethodInvokerBackgroundImage = typeExtension.DelegateForCallMethod("getCellBackgroundImage", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                    }
+                    object[] parameters = new object[3];
+                    parameters[0] = grid;
+                    parameters[1] = row;
+                    parameters[2] = column;
+                    image = m_MethodInvokerBackgroundImage(grid, parameters);
+                    break;
+                default:
+                    image = grid.GetCellRange(row, column).StyleDisplay.BackgroundImage;
+                    break;
+            }
+            return image;
+        }
+
+        //
         //  FlexgridGetCellRangeBackgroundImage
         //
 
-        private delegate string GetCellRangeBackgroundImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeBackgroundImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeBackgroundImageDelegate m_FlexgridGetCellRangeBackgroundImageDelegater;
+        private Fasterflect.MethodInvoker m_MethodInvokerBackgroundImage = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of whether the cell contains an 
@@ -574,8 +761,8 @@ namespace APE.Communication
         /// <param name="column1">The start column of the range</param>
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
-        /// <returns>A \t \r delimited string of the data type</returns>
-        private string FlexgridGetCellRangeBackgroundImageInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        /// <returns>A \t \r delimited string of BackgroundImage or empty string</returns>
+        private string FlexgridGetCellRangeBackgroundImageInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -586,13 +773,35 @@ namespace APE.Communication
                 for (int column = column1; column <= column2; column++)
                 {
                     object image;
-                    if (activeX)
+
+                    switch (gridType)
                     {
-                        image = grid.Cell(flexcpPicture, row, column, row, column);
-                    }
-                    else
-                    {
-                        image = grid.GetCellRange(row, column).StyleDisplay.BackgroundImage;
+                        case FlexgridGridType.ActiveX:
+                            image = grid.Cell(flexcpPicture, row, column, row, column);
+                            break;
+                        case FlexgridGridType.Extended:
+                            if (m_MethodInvokerBackgroundImage == null)
+                            {
+                                Type typeGrid = grid.GetType();
+                                Type typeExtension = typeGrid.Assembly.GetTypes().SingleOrDefault(type => type.Name == "VSFlexGridExtensions");
+                                MethodInfo miGetCellBackColor = typeExtension.GetMethod("getCellBackgroundImage", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                                ParameterInfo[] pi = miGetCellBackColor.GetParameters();
+                                Type[] typeParameters = new Type[pi.Length];
+                                for (int parameter = 0; parameter < typeParameters.Length; parameter++)
+                                {
+                                    typeParameters[parameter] = pi[parameter].ParameterType;
+                                }
+                                m_MethodInvokerBackgroundImage = typeExtension.DelegateForCallMethod("getCellBackgroundImage", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                            }
+                            object[] parameters = new object[3];
+                            parameters[0] = grid;
+                            parameters[1] = row;
+                            parameters[2] = column;
+                            image = m_MethodInvokerBackgroundImage(grid, parameters);
+                            break;
+                        default:
+                            image = grid.GetCellRange(row, column).StyleDisplay.BackgroundImage;
+                            break;
                     }
 
                     if (image != null)
@@ -619,12 +828,13 @@ namespace APE.Communication
         //  FlexgridGetCellRangeFontStyle
         //
 
-        private delegate string GetCellRangeFontStyleDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeFontStyleDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeFontStyleDelegate m_FlexgridGetCellRangeFontStyleDelegater;
         private const int flexcpFontBold = 13;
         private const int flexcpFontItalic = 14;
         private const int flexcpFontUnderline = 15;
         private const int flexcpFontStrikethru = 16;
+        private Fasterflect.MethodInvoker m_MethodInvokerFont = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of font style
@@ -635,7 +845,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the font style</returns>
-        private string FlexgridGetCellRangeFontStyleInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeFontStyleInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -647,38 +857,59 @@ namespace APE.Communication
                 for (int column = column1; column <= column2; column++)
                 {
                     fontStyleStringBuilder.Clear();
-                    if (activeX)
+                    switch (gridType)
                     {
-                        bool bold = grid.Cell(flexcpFontBold, row, column, row, column);
-                        bool italic = grid.Cell(flexcpFontItalic, row, column, row, column);
-                        bool underline = grid.Cell(flexcpFontUnderline, row, column, row, column);
-                        bool strikeout = grid.Cell(flexcpFontStrikethru, row, column, row, column);
+                        case FlexgridGridType.ActiveX:
+                            bool bold = grid.Cell(flexcpFontBold, row, column, row, column);
+                            bool italic = grid.Cell(flexcpFontItalic, row, column, row, column);
+                            bool underline = grid.Cell(flexcpFontUnderline, row, column, row, column);
+                            bool strikeout = grid.Cell(flexcpFontStrikethru, row, column, row, column);
 
-                        if (bold)
-                        {
-                            fontStyleStringBuilder.Append("Bold,");
-                        }
-                        if (italic)
-                        {
-                            fontStyleStringBuilder.Append("Italic,");
-                        }
-                        if (underline)
-                        {
-                            fontStyleStringBuilder.Append("Underline,");
-                        }
-                        if (strikeout)
-                        {
-                            fontStyleStringBuilder.Append("Strikeout,");
-                        }
-                        if (fontStyleStringBuilder.Length == 0)
-                        {
-                            fontStyleStringBuilder.Append("Regular,");
-                        }
-                        fontStyleStringBuilder.Length--;
-                    }
-                    else
-                    {
-                        fontStyleStringBuilder.Append(grid.GetCellRange(row, column).StyleDisplay.Font.Style.ToString());
+                            if (bold)
+                            {
+                                fontStyleStringBuilder.Append("Bold,");
+                            }
+                            if (italic)
+                            {
+                                fontStyleStringBuilder.Append("Italic,");
+                            }
+                            if (underline)
+                            {
+                                fontStyleStringBuilder.Append("Underline,");
+                            }
+                            if (strikeout)
+                            {
+                                fontStyleStringBuilder.Append("Strikeout,");
+                            }
+                            if (fontStyleStringBuilder.Length == 0)
+                            {
+                                fontStyleStringBuilder.Append("Regular,");
+                            }
+                            fontStyleStringBuilder.Length--;
+                            break;
+                        case FlexgridGridType.Extended:
+                            if (m_MethodInvokerFont == null)
+                            {
+                                Type typeGrid = grid.GetType();
+                                Type typeExtension = typeGrid.Assembly.GetTypes().SingleOrDefault(type => type.Name == "VSFlexGridExtensions");
+                                MethodInfo miGetCellBackColor = typeExtension.GetMethod("getCellFont", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                                ParameterInfo[] pi = miGetCellBackColor.GetParameters();
+                                Type[] typeParameters = new Type[pi.Length];
+                                for (int parameter = 0; parameter < typeParameters.Length; parameter++)
+                                {
+                                    typeParameters[parameter] = pi[parameter].ParameterType;
+                                }
+                                m_MethodInvokerFont = typeExtension.DelegateForCallMethod("getCellFont", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                            }
+                            object[] parameters = new object[3];
+                            parameters[0] = grid;
+                            parameters[1] = row;
+                            parameters[2] = column;
+                            fontStyleStringBuilder.Append(m_MethodInvokerFont(grid, parameters).Style.ToString());
+                            break;
+                        default:
+                            fontStyleStringBuilder.Append(grid.GetCellRange(row, column).StyleDisplay.Font.Style.ToString());
+                            break;
                     }
 
                     rangeTextDisplay.Append(fontStyleStringBuilder.ToString());
@@ -702,7 +933,7 @@ namespace APE.Communication
         //  FlexgridGetCellRangeTextDisplay
         //
 
-        private delegate string GetCellRangeTestDisplayDelegate(dynamic grid, int row1, int column1, int row2, int column2, bool activeX);
+        private delegate string GetCellRangeTestDisplayDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeTestDisplayDelegate m_FlexgridGetCellRangeTextDisplayDelegater;
         private const int flexcpTextDisplay = 19;
 
@@ -715,7 +946,7 @@ namespace APE.Communication
         /// <param name="row2">The end row of the range</param>
         /// <param name="column2">The end column of the range</param>
         /// <returns>A \t \r delimited string of the displayed text</returns>
-        private string FlexgridGetCellRangeTextDisplayInternal(dynamic grid, int row1, int column1, int row2, int column2, bool activeX)
+        private string FlexgridGetCellRangeTextDisplayInternal(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType)
         {
             DetermineClipSeparators(grid.ClipSeparators);
 
@@ -726,13 +957,13 @@ namespace APE.Communication
                 for (int column = column1; column <= column2; column++)
                 {
                     string textDisplay;
-                    if (activeX)
+                    switch (gridType)
                     {
-                        textDisplay = grid.Cell(flexcpTextDisplay, row, column, row, column);
-                    }
-                    else
-                    {
-                        throw new Exception("Not needed");
+                        case FlexgridGridType.ActiveX:
+                            textDisplay = grid.Cell(flexcpTextDisplay, row, column, row, column);
+                            break;
+                        default:
+                            throw new Exception("Not supported");
                     }
 
                     if (string.IsNullOrEmpty(textDisplay))
@@ -763,7 +994,7 @@ namespace APE.Communication
         //  FlexgridGetAllColumnsHidden
         //
 
-        private delegate string GetAllColumnsHiddenDelegate(dynamic grid, bool activeX);
+        private delegate string GetAllColumnsHiddenDelegate(dynamic grid, FlexgridGridType gridType);
         private GetAllColumnsHiddenDelegate m_FlexgridGetAllColumnsHiddenDelegater;
 
         /// <summary>
@@ -772,8 +1003,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
-        unsafe public void AddQueryMessageFlexgridGetAllColumnsHidden(DataStores sourceStore, DataStores destinationStore, bool activeX)
+        /// <param name="gridType">The type of flexgrid</param>
+        unsafe public void AddQueryMessageFlexgridGetAllColumnsHidden(DataStores sourceStore, DataStores destinationStore, FlexgridGridType gridType)
         {
             if (!m_DoneFind)
             {
@@ -784,7 +1015,7 @@ namespace APE.Communication
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
 
-            Parameter activeXParam = new Parameter(this, activeX);
+            Parameter gridTypeParam = new Parameter(this, (int)gridType);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllColumnsHidden;
             
@@ -803,11 +1034,11 @@ namespace APE.Communication
             object destinationObject = null;
 
             // p1  = bool
-            bool activeX = GetParameterBoolean(ptrMessage, 0);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 0);
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, activeX };
+                object[] theParameters = { sourceObject, gridType };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsHiddenDelegater, theParameters);
             }
 
@@ -820,12 +1051,12 @@ namespace APE.Communication
         /// hidden (True) or visible (False)
         /// </summary>
         /// <param name="grid">The grid object</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
+        /// <param name="gridType">The type of flexgrid</param>
         /// <returns>A comma delimited string of whether the column is hidden</returns>
-        private string FlexgridGetAllColumnsHiddenInternal(dynamic grid, bool activeX)
+        private string FlexgridGetAllColumnsHiddenInternal(dynamic grid, FlexgridGridType gridType)
         {
             StringBuilder columnsHiddenState = new StringBuilder(10240);
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 int columns = grid.Cols;
                 for (int column = 0; column < columns; column++)
@@ -872,7 +1103,7 @@ namespace APE.Communication
         //  FlexgridGetAllColumnsWidth
         //
 
-        private delegate string GetAllColumnsWidthDelegate(dynamic grid, bool activeX);
+        private delegate string GetAllColumnsWidthDelegate(dynamic grid, FlexgridGridType gridType);
         private GetAllColumnsWidthDelegate m_FlexgridGetAllColumnsWidthDelegater;
 
         /// <summary>
@@ -881,8 +1112,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
-        unsafe public void AddQueryMessageFlexgridGetAllColumnsWidth(DataStores sourceStore, DataStores destinationStore, bool activeX)
+        /// <param name="gridType">The type of flexgrid</param>
+        unsafe public void AddQueryMessageFlexgridGetAllColumnsWidth(DataStores sourceStore, DataStores destinationStore, FlexgridGridType gridType)
         {
             if (!m_DoneFind)
             {
@@ -893,7 +1124,7 @@ namespace APE.Communication
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
 
-            Parameter activeXParam = new Parameter(this, activeX);
+            Parameter gridTypeParam = new Parameter(this, (int)gridType);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllColumnsWidth;
 
@@ -912,11 +1143,11 @@ namespace APE.Communication
             object destinationObject = null;
 
             // p1  = bool
-            bool activeX = GetParameterBoolean(ptrMessage, 0);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 0);
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, activeX };
+                object[] theParameters = { sourceObject, gridType };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllColumnsWidthDelegater, theParameters);
             }
 
@@ -928,12 +1159,12 @@ namespace APE.Communication
         /// Iterates over every column in the grid returning a comma separated string of the column width
         /// </summary>
         /// <param name="grid">The grid object</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
+        /// <param name="gridType">The type of flexgrid</param>
         /// <returns>A comma delimited string of the column width</returns>
-        private string FlexgridGetAllColumnsWidthInternal(dynamic grid, bool activeX)
+        private string FlexgridGetAllColumnsWidthInternal(dynamic grid, FlexgridGridType gridType)
         {
             StringBuilder columnsWidth = new StringBuilder(10240);
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 int columns = grid.Cols;
                 for (int column = 0; column < columns; column++)
@@ -966,7 +1197,7 @@ namespace APE.Communication
         //  FlexgridGetAllRowsHidden
         //
 
-        private delegate string GetAllRowsHiddenDelegate(dynamic grid, bool activeX);
+        private delegate string GetAllRowsHiddenDelegate(dynamic grid, FlexgridGridType gridType);
         private GetAllRowsHiddenDelegate m_FlexgridGetAllRowsHiddenDelegater;
 
         /// <summary>
@@ -975,8 +1206,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
-        unsafe public void AddQueryMessageFlexgridGetAllRowsHidden(DataStores sourceStore, DataStores destinationStore, bool activeX)
+        /// <param name="gridType">The type of flexgrid</param>
+        unsafe public void AddQueryMessageFlexgridGetAllRowsHidden(DataStores sourceStore, DataStores destinationStore, FlexgridGridType gridType)
         {
             if (!m_DoneFind)
             {
@@ -987,7 +1218,7 @@ namespace APE.Communication
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
 
-            Parameter activeXParam = new Parameter(this, activeX);
+            Parameter gridTypeParam = new Parameter(this, (int)gridType);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllRowsHidden;
 
@@ -1006,11 +1237,11 @@ namespace APE.Communication
             object destinationObject = null;
 
             // p1  = bool
-            bool activeX = GetParameterBoolean(ptrMessage, 0);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 0);
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, activeX };
+                object[] theParameters = { sourceObject, gridType };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllRowsHiddenDelegater, theParameters);
             }
 
@@ -1023,12 +1254,12 @@ namespace APE.Communication
         /// hidden (True) or visible (False)
         /// </summary>
         /// <param name="grid">The grid object</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
+        /// <param name="gridType">The type of flexgrid</param>
         /// <returns>A comma delimited string of whether the row is hidden</returns>
-        private string FlexgridGetAllRowsHiddenInternal(dynamic grid, bool activeX)
+        private string FlexgridGetAllRowsHiddenInternal(dynamic grid, FlexgridGridType gridType)
         {
             StringBuilder rowsHiddenState = new StringBuilder(10240);
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 int rows = grid.Rows;
                 for (int row = 0; row < rows; row++)
@@ -1075,7 +1306,7 @@ namespace APE.Communication
         //  FlexgridGetAllRowsHeight
         //
 
-        private delegate string GetAllRowsHeightDelegate(dynamic grid, bool activeX);
+        private delegate string GetAllRowsHeightDelegate(dynamic grid, FlexgridGridType gridType);
         private GetAllRowsHeightDelegate m_FlexgridGetAllRowsHeightDelegater;
 
         /// <summary>
@@ -1084,8 +1315,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
-        unsafe public void AddQueryMessageFlexgridGetAllRowsHeight(DataStores sourceStore, DataStores destinationStore, bool activeX)
+        /// <param name="gridType">The type of flexgrid</param>
+        unsafe public void AddQueryMessageFlexgridGetAllRowsHeight(DataStores sourceStore, DataStores destinationStore, FlexgridGridType gridType)
         {
             if (!m_DoneFind)
             {
@@ -1096,7 +1327,7 @@ namespace APE.Communication
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
 
-            Parameter activeXParam = new Parameter(this, activeX);
+            Parameter gridTypeParam = new Parameter(this, (int)gridType);
 
             ptrMessage->Action = MessageAction.FlexgridGetAllRowsHeight;
 
@@ -1115,11 +1346,11 @@ namespace APE.Communication
             object destinationObject = null;
 
             // p1  = bool
-            bool activeX = GetParameterBoolean(ptrMessage, 0);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 0);
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, activeX };
+                object[] theParameters = { sourceObject, gridType };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetAllRowsHeightDelegater, theParameters);
             }
 
@@ -1131,12 +1362,12 @@ namespace APE.Communication
         /// Iterates over every row in the grid returning a comma separated string of the row height
         /// </summary>
         /// <param name="grid">The grid object</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
+        /// <param name="gridType">The type of flexgrid</param>
         /// <returns>A comma delimited string of the row height</returns>
-        private string FlexgridGetAllRowsHeightInternal(dynamic grid, bool activeX)
+        private string FlexgridGetAllRowsHeightInternal(dynamic grid, FlexgridGridType gridType)
         {
             StringBuilder rowHeight = new StringBuilder(10240);
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 int rows = grid.Rows;
                 for (int row = 0; row < rows; row++)
@@ -1435,7 +1666,7 @@ namespace APE.Communication
         //  FlexgridGetNodeCollapsedState
         //
 
-        private delegate string GetNodeCollapsedStateDelegate(dynamic grid, bool activeX);
+        private delegate string GetNodeCollapsedStateDelegate(dynamic grid, FlexgridGridType gridType);
         private GetNodeCollapsedStateDelegate m_FlexgridGetNodeCollapsedStateDelegater;
 
         /// <summary>
@@ -1444,8 +1675,8 @@ namespace APE.Communication
         /// </summary>
         /// <param name="sourceStore">The datastore which contains the grid object</param>
         /// <param name="destinationStore">The datastore to put the resultant string into</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
-        unsafe public void AddQueryMessageFlexgridGetNodeCollapsedState(DataStores sourceStore, DataStores destinationStore, bool activeX)
+        /// <param name="gridType">The type of flexgrid</param>
+        unsafe public void AddQueryMessageFlexgridGetNodeCollapsedState(DataStores sourceStore, DataStores destinationStore, FlexgridGridType gridType)
         {
             if (!m_DoneFind)
             {
@@ -1456,7 +1687,7 @@ namespace APE.Communication
             ptrMessage->SourceStore = sourceStore;
             ptrMessage->DestinationStore = destinationStore;
 
-            Parameter activeXParam = new Parameter(this, activeX);
+            Parameter gridTypeParam = new Parameter(this, (int)gridType);
 
             ptrMessage->Action = MessageAction.FlexgridGetNodeCollapsedState;
 
@@ -1475,11 +1706,11 @@ namespace APE.Communication
             object destinationObject = null;
 
             // p1  = bool
-            bool activeX = GetParameterBoolean(ptrMessage, 0);
+            FlexgridGridType gridType = (FlexgridGridType)GetParameterInt32(ptrMessage, 0);
 
             if (sourceObject != null)
             {
-                object[] theParameters = { sourceObject, activeX };
+                object[] theParameters = { sourceObject, gridType };
                 destinationObject = ((WF.Control)tempStore0).Invoke(m_FlexgridGetNodeCollapsedStateDelegater, theParameters);
             }
 
@@ -1491,12 +1722,12 @@ namespace APE.Communication
         /// Iterates over every row in the grid returning a comma separated string of 'whether the node is a row' | 'is collapsed / visible' | 'has children'
         /// </summary>
         /// <param name="grid">The grid object</param>
-        /// <param name="activeX">If the control is an ActiveX control</param>
+        /// <param name="gridType">The type of flexgrid</param>
         /// <returns>A comma delimited string</returns>
-        private string FlexgridGetNodeCollapsedStateInternal(dynamic grid, bool activeX)
+        private string FlexgridGetNodeCollapsedStateInternal(dynamic grid, FlexgridGridType gridType)
         {
             StringBuilder nodeCollapsedState = new StringBuilder(10240);
-            if (activeX)
+            if (gridType == FlexgridGridType.ActiveX)
             {
                 int rows = grid.Rows;
                 for (int row = 0; row < rows; row++)

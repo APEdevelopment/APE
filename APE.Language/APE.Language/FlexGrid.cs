@@ -1306,6 +1306,12 @@ namespace APE.Language
         {
             if (flexgridActiveX != null) return flexgridActiveX.GetCellInternal(rowIndex, columnIndex, property);
 
+            APEIPC.FlexgridGridType gridType = APEIPC.FlexgridGridType.Normal;
+            if (this.TypeName == "ExtendedFlexGrid")
+            {
+                gridType = APEIPC.FlexgridGridType.Extended;
+            }
+
             switch (property)
             {
                 case CellProperty.TextDisplay:
@@ -1319,44 +1325,14 @@ namespace APE.Language
                     string CellDataDisplay = GUI.m_APE.GetValueFromMessage();
                     return CellDataDisplay;
                 case CellProperty.BackColourName:
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "BackColor", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string backColourName = GUI.m_APE.GetValueFromMessage();
+                    string backColourName = GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex, property);
                     return backColourName;
                 case CellProperty.ForeColourName:
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "ForeColor", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Name", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string foreColourName = GUI.m_APE.GetValueFromMessage();
+                    string foreColourName = GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex, property);
                     return foreColourName;
                 case CellProperty.DataType:
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "DataType", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Namespace", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Name", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string cellTypeNamespace = GUI.m_APE.GetValueFromMessage();
-                    string cellTypeName = GUI.m_APE.GetValueFromMessage();
-                    return cellTypeNamespace + "." + cellTypeName;
+                    string cellDataType = GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex, property);
+                    return cellDataType;
                 case CellProperty.CheckBox:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
                     GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
@@ -1380,27 +1356,15 @@ namespace APE.Language
                     return image;
                 case CellProperty.BackgroundImage:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "BackgroundImage", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellBackgroundImage(DataStores.Store0, DataStores.Store1, rowIndex, columnIndex, gridType);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     //Get the value(s) returned MUST be done straight after the WaitForMessages call
                     Image backgroundImage = GUI.m_APE.GetValueFromMessage();
                     return backgroundImage;
                 case CellProperty.FontStyle:
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetCellRange", MemberTypes.Method, new Parameter(GUI.m_APE, rowIndex), new Parameter(GUI.m_APE, columnIndex));
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "StyleDisplay", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store2, DataStores.Store3, "Font", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Style", MemberTypes.Property);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "ToString", MemberTypes.Method);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    string fontStyleText = GUI.m_APE.GetValueFromMessage();
+                    string fontStyleText = GetCellRange(rowIndex, columnIndex, rowIndex, columnIndex, property);
                     FontStyle fontStyle = (FontStyle)Enum.Parse(typeof(FontStyle), fontStyleText);
                     return fontStyle;
                 case CellProperty.UserDataType:
@@ -1440,6 +1404,12 @@ namespace APE.Language
         {
             if (flexgridActiveX != null) return flexgridActiveX.GetCellRangeInternal(row1Index, column1Index, row2Index, column2Index, property);
 
+            APEIPC.FlexgridGridType gridType = APEIPC.FlexgridGridType.Normal;
+            if (this.TypeName == "ExtendedFlexGrid")
+            {
+                gridType = APEIPC.FlexgridGridType.Extended;
+            }
+
             switch (property)
             {
                 case CellProperty.TextDisplay:
@@ -1455,7 +1425,7 @@ namespace APE.Language
                     return rangeClip;
                 case CellProperty.BackColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1464,7 +1434,7 @@ namespace APE.Language
                     return rangeBackColourName;
                 case CellProperty.ForeColourName:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1473,7 +1443,7 @@ namespace APE.Language
                     return rangeForeColourName;
                 case CellProperty.DataType:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.DataType, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.DataType, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1482,7 +1452,7 @@ namespace APE.Language
                     return rangeDataType;
                 case CellProperty.CheckBox:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1491,7 +1461,7 @@ namespace APE.Language
                     return rangeCheckBoxState;
                 case CellProperty.Image:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1500,7 +1470,7 @@ namespace APE.Language
                     return rangeHasImage;
                 case CellProperty.BackgroundImage:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -1509,7 +1479,7 @@ namespace APE.Language
                     return rangeHasBackgroundImage;
                 case CellProperty.FontStyle:
                     GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.FontStyle, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store0, DataStores.Store1, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.FontStyle, gridType);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2018,12 +1988,18 @@ namespace APE.Language
         {
             if (flexgridActiveX != null) return flexgridActiveX.GetAllVisibleCells(property);
 
+            APEIPC.FlexgridGridType gridType = APEIPC.FlexgridGridType.Normal;
+            if (this.TypeName == "ExtendedFlexGrid")
+            {
+                gridType = APEIPC.FlexgridGridType.Extended;
+            }
+
             string[] separatorComma = { "," };
             string[] separatorCr = { "\r" };
             string[] separatorTab = { "\t" };
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2032,7 +2008,7 @@ namespace APE.Language
             string[] columnsHiddenTextArray = columnsHiddenText.Split(separatorComma, StringSplitOptions.None);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2041,7 +2017,7 @@ namespace APE.Language
             string[] rowsHiddenTextArray = rowsHiddenText.Split(separatorComma, StringSplitOptions.None);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2050,7 +2026,7 @@ namespace APE.Language
             string[] columnsWidthTextArray = columnsWidthText.Split(separatorComma, StringSplitOptions.None);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2144,12 +2120,18 @@ namespace APE.Language
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string GetAllVisibleCells(CellProperty property, bool excludeWidthHeightSmallerThan2)
         {
+            APEIPC.FlexgridGridType gridType = APEIPC.FlexgridGridType.Normal;
+            if (this.TypeName == "ExtendedFlexGrid")
+            {
+                gridType = APEIPC.FlexgridGridType.Extended;
+            }
+
             string[] separatorComma = { "," };
             string[] separatorCr = { "\r" };
             string[] separatorTab = { "\t" };
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2158,7 +2140,7 @@ namespace APE.Language
             string[] columnsHiddenTextArray = columnsHiddenText.Split(separatorComma, StringSplitOptions.None);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2167,7 +2149,7 @@ namespace APE.Language
             string[] rowsHiddenTextArray = rowsHiddenText.Split(separatorComma, StringSplitOptions.None);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2176,7 +2158,7 @@ namespace APE.Language
             string[] columnsWidthTextArray = columnsWidthText.Split(separatorComma, StringSplitOptions.None);
 
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store0, DataStores.Store1, false);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store0, DataStores.Store1, gridType);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2542,7 +2524,7 @@ namespace APE.Language
             string[] separatorComma = { "," };
 
             FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageFlexgridGetNodeCollapsedState(DataStores.Store2, DataStores.Store3, true);
+            GUI.m_APE.AddQueryMessageFlexgridGetNodeCollapsedState(DataStores.Store2, DataStores.Store3, APEIPC.FlexgridGridType.ActiveX);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -2594,7 +2576,7 @@ namespace APE.Language
             string[] separatorComma = { "," };
 
             FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageFlexgridGetNodeCollapsedState(DataStores.Store2, DataStores.Store3, true);
+            GUI.m_APE.AddQueryMessageFlexgridGetNodeCollapsedState(DataStores.Store2, DataStores.Store3, APEIPC.FlexgridGridType.ActiveX);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -3649,7 +3631,7 @@ namespace APE.Language
             string[] separatorTab = { "\t" };
 
             FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store2, DataStores.Store3, true);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsHidden(DataStores.Store2, DataStores.Store3, APEIPC.FlexgridGridType.ActiveX);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -3658,7 +3640,7 @@ namespace APE.Language
             string[] columnsHiddenTextArray = columnsHiddenText.Split(separatorComma, StringSplitOptions.None);
 
             FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store2, DataStores.Store3, true);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHidden(DataStores.Store2, DataStores.Store3, APEIPC.FlexgridGridType.ActiveX);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -3667,7 +3649,7 @@ namespace APE.Language
             string[] rowsHiddenTextArray = rowsHiddenText.Split(separatorComma, StringSplitOptions.None);
 
             FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store2, DataStores.Store3, true);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllColumnsWidth(DataStores.Store2, DataStores.Store3, APEIPC.FlexgridGridType.ActiveX);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -3676,7 +3658,7 @@ namespace APE.Language
             string[] columnsWidthTextArray = columnsWidthText.Split(separatorComma, StringSplitOptions.None);
 
             FindGridByHandleAndPutInDatastore2();
-            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store2, DataStores.Store3, true);
+            GUI.m_APE.AddQueryMessageFlexgridGetAllRowsHeight(DataStores.Store2, DataStores.Store3, APEIPC.FlexgridGridType.ActiveX);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4412,7 +4394,7 @@ namespace APE.Language
             {
                 case CellProperty.TextDisplay:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.TextDisplay, true);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.TextDisplay, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4452,7 +4434,7 @@ namespace APE.Language
                     return range.ToString();
                 case CellProperty.ForeColourName:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName, false);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.ForeColourName, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4461,7 +4443,7 @@ namespace APE.Language
                     return rangeForeColourName;
                 case CellProperty.BackColourName:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName, true);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackColourName, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4470,7 +4452,7 @@ namespace APE.Language
                     return rangeBackColourName;
                 case CellProperty.CheckBox:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox, true);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.CheckBox, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4479,7 +4461,7 @@ namespace APE.Language
                     return rangeCheckBoxState;
                 case CellProperty.Image:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image, true);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.Image, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4488,7 +4470,7 @@ namespace APE.Language
                     return rangeHasImage;
                 case CellProperty.BackgroundImage:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage, true);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.BackgroundImage, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
@@ -4497,7 +4479,7 @@ namespace APE.Language
                     return rangeHasBackgroundImage;
                 case CellProperty.FontStyle:
                     FindGridByHandleAndPutInDatastore2();
-                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.FontStyle, true);
+                    GUI.m_APE.AddQueryMessageFlexgridGetCellRange(DataStores.Store2, DataStores.Store3, row1Index, column1Index, row2Index, column2Index, APEIPC.CellProperty.FontStyle, APEIPC.FlexgridGridType.ActiveX);
                     GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);

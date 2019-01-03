@@ -128,6 +128,7 @@ namespace APE.Communication
         DumpControl = 67,
         FlexgridGetCellRangeTextDisplay = 68,
         FlexgridGetCellRangeFontStyle = 69,
+        FlexgridGetCellBackgroundImage = 70,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -470,6 +471,9 @@ namespace APE.Communication
                                     break;
                                 case MessageAction.FlexgridGetCellRangeFontStyle:
                                     FlexgridGetCellRange(ptrMessage, CellProperty.FontStyle);
+                                    break;
+                                case MessageAction.FlexgridGetCellBackgroundImage:
+                                    FlexgridGetCellBackgroundImage(ptrMessage);
                                     break;
                                 default:
                                     throw new Exception("Unknown action for message " + messageNumber.ToString() + " : " + ptrMessage->Action.ToString());
