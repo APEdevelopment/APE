@@ -244,6 +244,7 @@ namespace APE.Communication
         private GetCellRangeBackColourNameDelegate m_FlexgridGetCellRangeBackColourNameDelegater;
         private const int flexcpBackColor = 6;
         private Fasterflect.MethodInvoker m_MethodInvokerBackColourName = null;
+        private object[] m_MethodInvokerBackColourNameParameterArray = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the back colours of the cells
@@ -295,12 +296,17 @@ namespace APE.Communication
                                     typeParameters[parameter] = pi[parameter].ParameterType;
                                 }
                                 m_MethodInvokerBackColourName = typeExtension.DelegateForCallMethod("getCellBackColor", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                                m_MethodInvokerBackColourNameParameterArray = new object[typeParameters.Length];
+                                if (typeParameters.Length == 5)
+                                {
+                                    m_MethodInvokerBackColourNameParameterArray[3] = (int)-1;
+                                    m_MethodInvokerBackColourNameParameterArray[4] = (int)-1;
+                                }
                             }
-                            object[] parameters = new object[3];
-                            parameters[0] = grid;
-                            parameters[1] = row;
-                            parameters[2] = column;
-                            currentCellBackColourName = m_MethodInvokerBackColourName(grid, parameters).Name;
+                            m_MethodInvokerBackColourNameParameterArray[0] = grid;
+                            m_MethodInvokerBackColourNameParameterArray[1] = row;
+                            m_MethodInvokerBackColourNameParameterArray[2] = column;
+                            currentCellBackColourName = m_MethodInvokerBackColourName(grid, m_MethodInvokerBackColourNameParameterArray).Name;
                             break;
                         default:
                             currentCellBackColourName = grid.GetCellRange(row, column).StyleDisplay.BackColor.Name;
@@ -339,6 +345,7 @@ namespace APE.Communication
         private GetCellRangeForeColourNameDelegate m_FlexgridGetCellRangeForeColourNameDelegater;
         private const int flexcpForeColor = 7;
         private Fasterflect.MethodInvoker m_MethodInvokerForeColourName = null;
+        private object[] m_MethodInvokerForeColourNameParameterArray = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the fore colours of the cells
@@ -389,12 +396,17 @@ namespace APE.Communication
                                     typeParameters[parameter] = pi[parameter].ParameterType;
                                 }
                                 m_MethodInvokerForeColourName = typeExtension.DelegateForCallMethod("getCellForeColor", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                                m_MethodInvokerForeColourNameParameterArray = new object[typeParameters.Length];
+                                if (typeParameters.Length == 5)
+                                {
+                                    m_MethodInvokerForeColourNameParameterArray[3] = (int)-1;
+                                    m_MethodInvokerForeColourNameParameterArray[4] = (int)-1;
+                                }
                             }
-                            object[] parameters = new object[3];
-                            parameters[0] = grid;
-                            parameters[1] = row;
-                            parameters[2] = column;
-                            currentCellForeColourName = m_MethodInvokerForeColourName(grid, parameters).Name;
+                            m_MethodInvokerForeColourNameParameterArray[0] = grid;
+                            m_MethodInvokerForeColourNameParameterArray[1] = row;
+                            m_MethodInvokerForeColourNameParameterArray[2] = column;
+                            currentCellForeColourName = m_MethodInvokerForeColourName(grid, m_MethodInvokerForeColourNameParameterArray).Name;
                             break;
                         default:
                             currentCellForeColourName = grid.GetCellRange(row, column).StyleDisplay.ForeColor.Name;
@@ -432,6 +444,7 @@ namespace APE.Communication
         private delegate string GetCellRangeDataTypeDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeDataTypeDelegate m_FlexgridGetCellRangeDataTypeDelegater;
         private Fasterflect.MethodInvoker m_MethodInvokerDataType = null;
+        private object[] m_MethodInvokerDataTypeParameterArray = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of the data type of the cells
@@ -470,12 +483,17 @@ namespace APE.Communication
                                     typeParameters[parameter] = pi[parameter].ParameterType;
                                 }
                                 m_MethodInvokerDataType = typeExtension.DelegateForCallMethod("getCellDataType", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                                m_MethodInvokerDataTypeParameterArray = new object[typeParameters.Length];
+                                if (typeParameters.Length == 5)
+                                {
+                                    m_MethodInvokerDataTypeParameterArray[3] = (int)-1;
+                                    m_MethodInvokerDataTypeParameterArray[4] = (int)-1;
+                                }
                             }
-                            object[] parameters = new object[3];
-                            parameters[0] = grid;
-                            parameters[1] = row;
-                            parameters[2] = column;
-                            currentCellDataType = m_MethodInvokerDataType(grid, parameters);
+                            m_MethodInvokerDataTypeParameterArray[0] = grid;
+                            m_MethodInvokerDataTypeParameterArray[1] = row;
+                            m_MethodInvokerDataTypeParameterArray[2] = column;
+                            currentCellDataType = m_MethodInvokerDataType(grid, m_MethodInvokerDataTypeParameterArray);
                             break;
                         default:
                             currentCellDataType = grid.GetCellRange(row, column).StyleDisplay.DataType;
@@ -754,6 +772,7 @@ namespace APE.Communication
         private delegate string GetCellRangeBackgroundImageDelegate(dynamic grid, int row1, int column1, int row2, int column2, FlexgridGridType gridType);
         private GetCellRangeBackgroundImageDelegate m_FlexgridGetCellRangeBackgroundImageDelegater;
         private Fasterflect.MethodInvoker m_MethodInvokerBackgroundImage = null;
+        private object[] m_MethodInvokerBackgroundImageParameterArray = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of whether the cell contains an 
@@ -795,12 +814,17 @@ namespace APE.Communication
                                     typeParameters[parameter] = pi[parameter].ParameterType;
                                 }
                                 m_MethodInvokerBackgroundImage = typeExtension.DelegateForCallMethod("getCellBackgroundImage", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                                m_MethodInvokerBackgroundImageParameterArray = new object[typeParameters.Length];
+                                if (typeParameters.Length == 5)
+                                {
+                                    m_MethodInvokerBackgroundImageParameterArray[3] = (int)-1;
+                                    m_MethodInvokerBackgroundImageParameterArray[4] = (int)-1;
+                                }
                             }
-                            object[] parameters = new object[3];
-                            parameters[0] = grid;
-                            parameters[1] = row;
-                            parameters[2] = column;
-                            image = m_MethodInvokerBackgroundImage(grid, parameters);
+                            m_MethodInvokerBackgroundImageParameterArray[0] = grid;
+                            m_MethodInvokerBackgroundImageParameterArray[1] = row;
+                            m_MethodInvokerBackgroundImageParameterArray[2] = column;
+                            image = m_MethodInvokerBackgroundImage(grid, m_MethodInvokerBackgroundImageParameterArray);
                             break;
                         default:
                             image = grid.GetCellRange(row, column).StyleDisplay.BackgroundImage;
@@ -838,6 +862,7 @@ namespace APE.Communication
         private const int flexcpFontUnderline = 15;
         private const int flexcpFontStrikethru = 16;
         private Fasterflect.MethodInvoker m_MethodInvokerFont = null;
+        private object[] m_MethodInvokerFontParameterArray = null;
 
         /// <summary>
         /// Iterates over every cell in the grid returning a \t \r separated string of font style
@@ -903,12 +928,17 @@ namespace APE.Communication
                                     typeParameters[parameter] = pi[parameter].ParameterType;
                                 }
                                 m_MethodInvokerFont = typeExtension.DelegateForCallMethod("getCellFont", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic, typeParameters);
+                                m_MethodInvokerFontParameterArray = new object[typeParameters.Length];
+                                if (typeParameters.Length == 5)
+                                {
+                                    m_MethodInvokerFontParameterArray[3] = (int)-1;
+                                    m_MethodInvokerFontParameterArray[4] = (int)-1;
+                                }
                             }
-                            object[] parameters = new object[3];
-                            parameters[0] = grid;
-                            parameters[1] = row;
-                            parameters[2] = column;
-                            fontStyleStringBuilder.Append(m_MethodInvokerFont(grid, parameters).Style.ToString());
+                            m_MethodInvokerFontParameterArray[0] = grid;
+                            m_MethodInvokerFontParameterArray[1] = row;
+                            m_MethodInvokerFontParameterArray[2] = column;
+                            fontStyleStringBuilder.Append(m_MethodInvokerFont(grid, m_MethodInvokerFontParameterArray).Style.ToString());
                             break;
                         default:
                             fontStyleStringBuilder.Append(grid.GetCellRange(row, column).StyleDisplay.Font.Style.ToString());
