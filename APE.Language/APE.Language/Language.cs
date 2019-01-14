@@ -464,6 +464,7 @@ namespace APE.Language
         {
             get
             {
+                if (m_APE == null) { return null; }
                 return m_APE.AUTProcess;
             }
         }
@@ -475,6 +476,7 @@ namespace APE.Language
         {
             get
             {
+                if (m_APE == null) { return false; }
                 return !m_APE.AUTProcessHasExited();
             }
         }
