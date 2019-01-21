@@ -488,6 +488,42 @@ namespace APE.Communication
             PtrMessage->Action = MessageAction.None;
         }
 
+        private MethodInfo MethodInfoGetAllRepositories = null;
+        private void FlushAllLog4NetLogs()
+        {
+            if (MethodInfoGetAllRepositories == null)
+            {
+                Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                for (int i = 0; i < allAssemblies.Count(); i++)
+                {
+                    if (allAssemblies[i].FullName.StartsWith("log4net, "))
+                    {
+                        Type typeLogManager = allAssemblies[i].GetType("log4net.LogManager");
+                        if (typeLogManager != null)
+                        {
+                            MethodInfoGetAllRepositories = typeLogManager.GetMethod("GetAllRepositories", BindingFlags.Public | BindingFlags.Static);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (MethodInfoGetAllRepositories != null)
+            {
+                dynamic repositories = MethodInfoGetAllRepositories.Invoke(null, null);
+                foreach (dynamic repository in repositories)
+                {
+                    try
+                    {
+                        repository.Flush((int)TimeOut);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+        }
+
         private unsafe void GarbageCollect(Message* ptrMessage, int messageNumber)
         {
             //must be first message
@@ -499,16 +535,10 @@ namespace APE.Communication
             int generation = GetParameterInt32(ptrMessage, 0);
             CleanUpMessage(ptrMessage);
 
-            //// Make sure the the logs are all flushed.
-            //Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            //for (int i = 0; i < allAssemblies.Count(); i++)
-            //{
-            //    if (allAssemblies[i].FullName.StartsWith("Lz.Utility.Diagnostics.LogManager, "))
-            //    {
-            //        allAssemblies[i].CallMethod("FlushAllLogs", null);
-            //        break;
-            //    }
-            //}
+            // Make sure the the logs are all flushed
+            //FlushAllLog4NetLogs();
+
+            //Tempoary workaround for painting issues with GC
             List<IntPtr> formList = new List<IntPtr>();
             for (int index = WF.Application.OpenForms.Count - 1; index > -1; index--)
             {
@@ -527,6 +557,7 @@ namespace APE.Communication
                 }
             }
 
+            // Do a single GC (more than this can have undesirable effects on performance)
             if (generation == GC.MaxGeneration)
             {
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -538,6 +569,7 @@ namespace APE.Communication
             }
             GC.WaitForPendingFinalizers();
 
+            //Tempoary workaround for painting issues with GC
             foreach (IntPtr form in formList)
             {
                 try
@@ -547,17 +579,7 @@ namespace APE.Communication
                 catch
                 {
                 }
-                    //NM.RedrawWindow(m_Handle, IntPtr.Zero, IntPtr.Zero, NM.RedrawWindowFlags.Invalidate | NM.RedrawWindowFlags.Erase | NM.RedrawWindowFlags.AllChildren);
-                    //NM.UpdateWindow(m_Handle);   
             }
-
-            //// Do a single GC (more than this can have undesirable effects on performance)
-            //if (generation == GC.MaxGeneration)
-            //{
-            //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            //}
-            //GC.Collect(generation);
-            //GC.WaitForPendingFinalizers();
 
             Thread.Sleep(150);  //A small sleep after GC seems to make the performance timings more accurate
         }
@@ -1992,7 +2014,18 @@ namespace APE.Communication
                                             }
 
                                             object[] parameters = { form };
-                                            theText = (string)form.Invoke(m_GetTextDelegater, parameters);
+
+                                            theText = null;
+                                            if (!form.IsDisposed && !form.Disposing)
+                                            {
+                                                try
+                                                {
+                                                    theText = (string)form.Invoke(m_GetTextDelegater, parameters);
+                                                }
+                                                catch (ObjectDisposedException ex)
+                                                {
+                                                }
+                                            }
                                             if (Identifier.Text != null)
                                             {
                                                 if (theText == null)
@@ -2008,7 +2041,17 @@ namespace APE.Communication
                                                 }
                                             }
 
-                                            accessibilityObjectName = (string)form.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                            accessibilityObjectName = null;
+                                            if (!form.IsDisposed && !form.Disposing)
+                                            {
+                                                try
+                                                {
+                                                    accessibilityObjectName = (string)form.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                                }
+                                                catch (ObjectDisposedException ex)
+                                                {
+                                                }
+                                            }
                                             if (Identifier.AccessibilityObjectName != null)
                                             {
                                                 if (accessibilityObjectName != Identifier.AccessibilityObjectName)
@@ -2417,7 +2460,18 @@ namespace APE.Communication
                                         }
 
                                         object[] parameters = { control };
-                                        theText = (string)control.Invoke(m_GetTextDelegater, parameters);
+
+                                        theText = null;
+                                        if (!control.IsDisposed && !control.Disposing)
+                                        {
+                                            try
+                                            {
+                                                theText = (string)control.Invoke(m_GetTextDelegater, parameters);
+                                            }
+                                            catch (ObjectDisposedException ex)
+                                            {
+                                            }
+                                        }
                                         if (Identifier.Text != null)
                                         {
                                             if (theText == null)
@@ -2433,7 +2487,17 @@ namespace APE.Communication
                                             }
                                         }
 
-                                        accessibilityObjectName = (string)control.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                        accessibilityObjectName = null;
+                                        if (!control.IsDisposed && !control.Disposing)
+                                        {
+                                            try
+                                            {
+                                                accessibilityObjectName = (string)control.Invoke(m_GetAccessibilityObjectNameDelegater, parameters);
+                                            }
+                                            catch (ObjectDisposedException ex)
+                                            {
+                                            }
+                                        }
                                         if (Identifier.AccessibilityObjectName != null)
                                         {
                                             if (accessibilityObjectName != Identifier.AccessibilityObjectName)
