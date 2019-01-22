@@ -253,10 +253,6 @@ namespace APE.Test
             GUI.AttachToProcess(p);
             GUI.SetTimeOut(5000);
 
-
-
-
-
             GUIForm quote = new GUIForm("q", new Identifier(Identifiers.Name, "frmSingleQuote"));
 
             GUIFlexgrid grid = new GUIFlexgrid(quote, "grid", new Identifier(Identifiers.Name, "fgGrid"));
