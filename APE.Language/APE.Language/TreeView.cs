@@ -38,6 +38,10 @@ namespace APE.Language
     {
         private bool m_ShowPlusMinus = true;
         private bool m_CheckBoxes = false;
+        private int m_ImageWidth = 16;
+        private int m_ImageHeight = 16;
+        private int m_StateImageWidth = 16;
+        private int m_StateImageHeight = 16;
 
         /// <summary>
         /// Constructor used for non-form controls
@@ -58,23 +62,41 @@ namespace APE.Language
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "GetNodeCount", MemberTypes.Method, new Parameter(GUI.m_APE, false));
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store2, "ShowPlusMinus", MemberTypes.Property);
             GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store3, "CheckBoxes", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store4, "ImageList", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "ImageSize", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store6, "Width", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store7, "Height", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store4, "StateImageList", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store4, DataStores.Store5, "ImageSize", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store8, "Width", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store5, DataStores.Store9, "Height", MemberTypes.Property);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
             GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store3);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
             int ChildNodes = GUI.m_APE.GetValueFromMessage();
             m_ShowPlusMinus = GUI.m_APE.GetValueFromMessage();
             m_CheckBoxes = GUI.m_APE.GetValueFromMessage();
-
-            //if (CheckBoxes)
-            //{
-            //    using (Graphics g = GUI.CreateGraphics())
-            //    {
-            //        CheckBoxModifier = CheckBoxRenderer.GetGlyphSize(g, CheckBoxState.UncheckedNormal).Width;
-            //    }
-            //}
+            dynamic imageWidth = GUI.m_APE.GetValueFromMessage();
+            dynamic imageHeight = GUI.m_APE.GetValueFromMessage();
+            dynamic stateImageWidth = GUI.m_APE.GetValueFromMessage();
+            dynamic stateImageHeight = GUI.m_APE.GetValueFromMessage();
+            if (imageWidth != null)
+            {
+                m_ImageWidth = imageWidth;
+                m_ImageHeight = imageHeight;
+            }
+            if (stateImageWidth != null)
+            {
+                m_StateImageWidth = stateImageWidth;
+                m_StateImageHeight = stateImageHeight;
+            }
 
             for (int ChildItem = 0; ChildItem < ChildNodes; ChildItem++)
             {
@@ -145,13 +167,15 @@ namespace APE.Language
 
         private void ExpandNode(IntPtr Node)
         {
-            int Position = 0;
+            int position = 0;
             Stopwatch timer;
-            int Left = 0;
-            int Top = 0;
-            int Right = 0;
-            int Bottom = 0;
-            NM.tagRect ClientRect = new NM.tagRect();
+            int left = 0;
+            int top = 0;
+            int right = 0;
+            int bottom = 0;
+            int imageIndex = -1;
+            string imageKey = "";
+            NM.tagRect clientRect = new NM.tagRect();
 
             // check if already expanded
             GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
@@ -161,9 +185,9 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            bool IsExpanded = GUI.m_APE.GetValueFromMessage();
+            bool isExpanded = GUI.m_APE.GetValueFromMessage();
 
-            if (IsExpanded)
+            if (isExpanded)
             {
                 return;
             }
@@ -179,21 +203,27 @@ namespace APE.Language
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store8, "ImageIndex", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store9, "ImageKey", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                Left = GUI.m_APE.GetValueFromMessage();
-                Top = GUI.m_APE.GetValueFromMessage();
-                Right = GUI.m_APE.GetValueFromMessage();
-                Bottom = GUI.m_APE.GetValueFromMessage();
+                left = GUI.m_APE.GetValueFromMessage();
+                top = GUI.m_APE.GetValueFromMessage();
+                right = GUI.m_APE.GetValueFromMessage();
+                bottom = GUI.m_APE.GetValueFromMessage();
+                imageIndex = GUI.m_APE.GetValueFromMessage();
+                imageKey = GUI.m_APE.GetValueFromMessage();
 
-                NM.GetClientRect(Identity.Handle, out ClientRect);
+                NM.GetClientRect(Identity.Handle, out clientRect);
 
-                if (Left < 0 || Top < 0 || Bottom > ClientRect.bottom)
+                if (left < 0 || top < 0 || bottom > clientRect.bottom)
                 {
                     // Go round again
                 }
@@ -203,56 +233,80 @@ namespace APE.Language
                 }
             }
 
-            if (Right > ClientRect.right)
+            if (right > clientRect.right)
             {
-                Right = ClientRect.right;
+                right = clientRect.right;
             }
 
-            bool WaitForMove = false;
-            if (Bottom > ClientRect.bottom)
+            bool waitForMove = false;
+            if (bottom > clientRect.bottom)
             {
-                WaitForMove = true;
-                Bottom = ClientRect.bottom;
+                waitForMove = true;
+                bottom = clientRect.bottom;
             }
 
             // Expand it
             if (m_ShowPlusMinus)
             {
-                int CheckBoxModifier = 0;
+                int stateImageWidth = 0;
                 if (m_CheckBoxes)
                 {
-                    CheckBoxModifier = 12;
+                    stateImageWidth = m_StateImageWidth;
                 }
 
+                int imageWidth = 0;
+                if (imageIndex != -1 || imageKey != "")
+                {
+                    imageWidth = m_ImageWidth;
+                }
+
+                int expandImageWidth = m_ImageWidth;
+
                 // Scroll the expand icon in to view if need be
-                int X = Left - 7 - CheckBoxModifier - 5;
-                if (X < 0)
+                int x = left - imageWidth - stateImageWidth - expandImageWidth;
+                if (x != 0)
                 {
                     //get current scroll bar pos
-                    Position = NM.GetScrollPos(Identity.Handle, NM.SBS_HORZ);
+                    position = NM.GetScrollPos(Identity.Handle, NM.SBS_HORZ);
 
                     //update the pos
-                    Position = Position + X;
-                    NM.SetScrollPos(Identity.Handle, NM.SBS_HORZ, Position, false);
+                    position = position + x;
+                    NM.SetScrollPos(Identity.Handle, NM.SBS_HORZ, position, false);
 
                     //send the message to move
                     IntPtr MessageResult;
-                    IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
+                    IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
 
-                    base.SingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                    //update the bounds
+                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
+                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                    GUI.m_APE.SendMessages(EventSet.APE);
+                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                    // Get the value(s) returned MUST be done straight after the WaitForMessages call
+                    left = GUI.m_APE.GetValueFromMessage();
+                    top = GUI.m_APE.GetValueFromMessage();
+                    right = GUI.m_APE.GetValueFromMessage();
+                    bottom = GUI.m_APE.GetValueFromMessage();
                 }
-                else
-                {
-                    base.SingleClickInternal(Left - 7 - CheckBoxModifier, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
-                }
+                
+                base.SingleClickInternal(left - imageWidth - stateImageWidth - (expandImageWidth / 2), top + ((bottom - top) / 2), MouseButton.Left, MouseKeyModifier.None);
             }
             else
             {
-                base.DoubleClickInternal(Right - 4, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                base.DoubleClickInternal(right - 4, top + ((bottom - top) / 2), MouseButton.Left, MouseKeyModifier.None);
             }
 
             // Wait for it to be expanded
-            bool IsNowExpanded = false;
+            bool isNowExpanded = false;
             timer = Stopwatch.StartNew();
             do
             {
@@ -264,9 +318,9 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IsNowExpanded = GUI.m_APE.GetValueFromMessage();
+                isNowExpanded = GUI.m_APE.GetValueFromMessage();
 
-                if (IsNowExpanded)
+                if (isNowExpanded)
                 {
                     break;
                 }
@@ -281,7 +335,7 @@ namespace APE.Language
             while (true);
 
             //left clicking on a node which is partially off the bottom of the window will scroll it
-            if (WaitForMove)
+            if (waitForMove)
             {
                 timer = Stopwatch.StartNew();
                 do
@@ -295,9 +349,9 @@ namespace APE.Language
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    Bottom = GUI.m_APE.GetValueFromMessage();
+                    bottom = GUI.m_APE.GetValueFromMessage();
 
-                    if (Bottom >= ClientRect.bottom)
+                    if (bottom >= clientRect.bottom)
                     {
                         break;
                     }
@@ -446,14 +500,16 @@ namespace APE.Language
 
         private void CheckNode(IntPtr Node, bool Check)
         {
-            int Position = 0;
+            int position = 0;
             Stopwatch timer;
-            bool IsChecked = false;
-            int Left = 0;
-            int Top = 0;
-            int Right = 0;
-            int Bottom = 0;
-            NM.tagRect ClientRect = new NM.tagRect();
+            bool isChecked = false;
+            int left = 0;
+            int top = 0;
+            int right = 0;
+            int bottom = 0;
+            int imageIndex = -1;
+            string imageKey = "";
+            NM.tagRect clientRect = new NM.tagRect();
 
             // Check for checkbox style
             if (!m_CheckBoxes)
@@ -470,9 +526,9 @@ namespace APE.Language
             GUI.m_APE.SendMessages(EventSet.APE);
             GUI.m_APE.WaitForMessages(EventSet.APE);
             // Get the value(s) returned MUST be done straight after the WaitForMessages call
-            IsChecked = GUI.m_APE.GetValueFromMessage();
+            isChecked = GUI.m_APE.GetValueFromMessage();
 
-            if (IsChecked == Check)
+            if (isChecked == Check)
             {
                 return;
             }
@@ -492,29 +548,35 @@ namespace APE.Language
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
                 GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store8, "ImageIndex", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store9, "ImageKey", MemberTypes.Property);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
                 GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store8);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store9);
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                Left = GUI.m_APE.GetValueFromMessage();
-                Top = GUI.m_APE.GetValueFromMessage();
-                Right = GUI.m_APE.GetValueFromMessage();
-                Bottom = GUI.m_APE.GetValueFromMessage();
+                left = GUI.m_APE.GetValueFromMessage();
+                top = GUI.m_APE.GetValueFromMessage();
+                right = GUI.m_APE.GetValueFromMessage();
+                bottom = GUI.m_APE.GetValueFromMessage();
+                imageIndex = GUI.m_APE.GetValueFromMessage();
+                imageKey = GUI.m_APE.GetValueFromMessage();
 
-                NM.GetClientRect(Identity.Handle, out ClientRect);
+                NM.GetClientRect(Identity.Handle, out clientRect);
 
-                if (Top == 0)
+                if (top == 0)
                 {
-                    if (Bottom > ClientRect.bottom)
+                    if (bottom > clientRect.bottom)
                     {
-                        Bottom = ClientRect.bottom;
+                        bottom = clientRect.bottom;
                     }
                 }
                 
-                if (Left < 0 || Top < 0 || Bottom > ClientRect.bottom)
+                if (left < 0 || top < 0 || bottom > clientRect.bottom)
                 {
                     // Go round again
                 }
@@ -525,35 +587,59 @@ namespace APE.Language
             }
             while (true);
 
-            if (Right > ClientRect.right)
+            if (right > clientRect.right)
             {
-                Right = ClientRect.right;
+                right = clientRect.right;
             }
 
+            int imageWidth = 0;
+            if (imageIndex != -1 || imageKey != "")
+            {
+                imageWidth = m_ImageWidth;
+            }
+
+            int stateImageWidth = m_StateImageWidth;
+
             // Scroll the checkbox in to view if need be
-            int X = Left - 7 - 5;
-            if (X < 0)
+            int x = left - imageWidth - stateImageWidth;
+            if (x != 0)
             {
                 //get current scroll bar pos
-                Position = NM.GetScrollPos(Identity.Handle, NM.SBS_HORZ);
+                position = NM.GetScrollPos(Identity.Handle, NM.SBS_HORZ);
 
                 //update the pos
-                Position = Position + X;
-                NM.SetScrollPos(Identity.Handle, NM.SBS_HORZ, Position, true);
+                position = position + x;
+                NM.SetScrollPos(Identity.Handle, NM.SBS_HORZ, position, true);
 
                 //send the message to move
                 IntPtr MessageResult;
-                IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, Position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
+                IntPtr SendResult = NM.SendMessageTimeout(Handle, NM.WM_HSCROLL, new IntPtr(MakeLParam((int)NM.SB_THUMBPOSITION, position)), IntPtr.Zero, NM.SendMessageTimeoutFlags.SMTO_NORMAL, (uint)GUI.GetTimeOut(), out MessageResult);
 
-                base.SingleClickInternal(5, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
+                //update the bounds
+                GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "NodeFromHandle", MemberTypes.Method, new Parameter(GUI.m_APE, Node));
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store3, "Bounds", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store4, "Left", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store5, "Top", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store6, "Right", MemberTypes.Property);
+                GUI.m_APE.AddQueryMessageReflect(DataStores.Store3, DataStores.Store7, "Bottom", MemberTypes.Property);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store4);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store5);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store6);
+                GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store7);
+                GUI.m_APE.SendMessages(EventSet.APE);
+                GUI.m_APE.WaitForMessages(EventSet.APE);
+                // Get the value(s) returned MUST be done straight after the WaitForMessages call
+                left = GUI.m_APE.GetValueFromMessage();
+                top = GUI.m_APE.GetValueFromMessage();
+                right = GUI.m_APE.GetValueFromMessage();
+                bottom = GUI.m_APE.GetValueFromMessage();
             }
-            else
-            {
-                base.SingleClickInternal(Left - 7, Top + ((Bottom - Top) / 2), MouseButton.Left, MouseKeyModifier.None);
-            }
+
+            base.SingleClickInternal(left - imageWidth - (stateImageWidth / 2), top + ((bottom - top) / 2), MouseButton.Left, MouseKeyModifier.None);
 
             // Wait for it to be checked / unchecked
-            bool IsNowChecked = !Check;
+            bool isNowChecked = !Check;
             timer = Stopwatch.StartNew();
             do
             {
@@ -565,9 +651,9 @@ namespace APE.Language
                 GUI.m_APE.SendMessages(EventSet.APE);
                 GUI.m_APE.WaitForMessages(EventSet.APE);
                 // Get the value(s) returned MUST be done straight after the WaitForMessages call
-                IsNowChecked = GUI.m_APE.GetValueFromMessage();
+                isNowChecked = GUI.m_APE.GetValueFromMessage();
 
-                if (IsNowChecked == Check)
+                if (isNowChecked == Check)
                 {
                     break;
                 }
