@@ -1116,7 +1116,7 @@ namespace APE.Test
                     GUITextBox tbxContext = new GUITextBox(TestApplication, "textbox", new Identifier(Identifiers.Name, "tbxContext"));
                     GUIButton btnStatusBar = new GUIButton(TestApplication, "increment statusbar button", new Identifier(Identifiers.Text, "Increment StatusBar"));
 
-                    tbxContext.SetText("autosen");
+                    tbxContext.SetText("auto {%} sen");
                     tbxContext.SetText("whoop");
                     tbxContext.SetText("moo");
 

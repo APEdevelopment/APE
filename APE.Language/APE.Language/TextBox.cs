@@ -62,12 +62,12 @@ namespace APE.Language
         public void SetText(string text, string submitKey)
         {
             Stopwatch timer;
-            string currentText;
 
-            currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
-            if (currentText == text)
+            string currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
+            string unescapedText = Unescape(text);
+            if (currentText == unescapedText)
             {
-                GUI.Log("Ensure the " + Identity.Description + " is set to " + text, LogItemType.Action);
+                GUI.Log("Ensure the " + Identity.Description + " is set to " + unescapedText, LogItemType.Action);
                 return;
             }
 
@@ -138,7 +138,7 @@ namespace APE.Language
                         while (true)
                         {
                             currentText = GUI.m_APE.GetWindowTextViaWindowMessage(Identity.Handle);
-                            if (currentText == text)
+                            if (currentText == unescapedText)
                             {
                                 break;
                             }

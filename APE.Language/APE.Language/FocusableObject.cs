@@ -80,7 +80,7 @@ namespace APE.Language
         /// <param name="textToSend">The text to send to the control</param>
         protected void SendKeys(string textToSend)
         {
-            GUI.Log("Type [" + textToSend + "] into the " + Identity.Description, LogItemType.Action);
+            GUI.Log("Type [" + Unescape(textToSend) + "] into the " + Identity.Description, LogItemType.Action);
             SendKeysInternal(textToSend);
         }
 
@@ -91,6 +91,23 @@ namespace APE.Language
         protected void SendKeysInternal(string textToSend)
         {
             Input.SendKeys(this, textToSend);
+        }
+
+        internal string Unescape(string escapedText)
+        {
+            string unescapedText = escapedText;
+            unescapedText = unescapedText.Replace("{{}", "{");
+            unescapedText = unescapedText.Replace("{}}", "}");
+            unescapedText = unescapedText.Replace("{(}", "(");
+            unescapedText = unescapedText.Replace("{)}", ")");
+            unescapedText = unescapedText.Replace("{{}", "{");
+            unescapedText = unescapedText.Replace("{+}", "+");
+            unescapedText = unescapedText.Replace("{^}", "^");
+            unescapedText = unescapedText.Replace("{%}", "%");
+            unescapedText = unescapedText.Replace("{~}", "~");
+            unescapedText = unescapedText.Replace("{[}", "[");
+            unescapedText = unescapedText.Replace("{]}", "]");
+            return unescapedText;
         }
     }
 }

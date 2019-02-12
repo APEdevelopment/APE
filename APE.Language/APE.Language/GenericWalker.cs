@@ -385,22 +385,5 @@ namespace APE.Language
             tokens.TrimToSize();
             return (string[])tokens.ToArray(typeof(string));
         }
-
-        private string Unescape(string escapedText)
-        {
-            string unescapedText = escapedText;
-            unescapedText = unescapedText.Replace("{{}", "{");
-            unescapedText = unescapedText.Replace("{}}", "}");
-            unescapedText = unescapedText.Replace("{(}", "(");
-            unescapedText = unescapedText.Replace("{)}", ")");
-            unescapedText = unescapedText.Replace("{{}", "{");
-            unescapedText = unescapedText.Replace("{+}", "+");
-            unescapedText = unescapedText.Replace("{^}", "^");
-            unescapedText = unescapedText.Replace("{%}", "%");
-            unescapedText = unescapedText.Replace("{~}", "~");
-            unescapedText = unescapedText.Replace("{[}", "[");
-            unescapedText = unescapedText.Replace("{]}", "]");
-            return unescapedText;
-        }
     }
 }
