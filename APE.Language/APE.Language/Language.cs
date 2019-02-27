@@ -403,6 +403,12 @@ namespace APE.Language
         /// <param name="domain">The domain in the process to attach to</param>
         public static void AttachToProcess(Process process, string domain)
         {
+            if (m_APE != null)
+            {
+                m_APE.RemoveFileMapping();
+                m_APE = null;
+            }
+
             string processName = null;
             int processId = -1;
 
@@ -444,10 +450,6 @@ namespace APE.Language
                 Thread.Sleep(50);
             }
 
-            if (m_APE != null)
-            {
-                m_APE.RemoveFileMapping();
-            }
             m_APE = new APEIPC(process, domain);
 
             Log("Attached to process [" + m_APE.AUTProcessName + "] pid [" + m_APE.AUTProcessId + "]", LogItemType.Information);
