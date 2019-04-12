@@ -1123,7 +1123,7 @@ namespace APE.Language
 
         public static NM.tagPoint MouseMove(IntPtr handle, string description, int x, int y, bool performCheck = true)
         {
-            NM.tagRect WindowRect;
+            NM.tagRect windowRect;
             NM.tagPoint thePoint;
             int xOffset;
             int yOffset;
@@ -1132,13 +1132,26 @@ namespace APE.Language
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
             {
-                NM.GetWindowRect(handle, out WindowRect);
-                NM.GetClientRect(handle, out NM.tagRect ClientRect);
+                NM.GetWindowRect(handle, out windowRect);
+                NM.GetClientRect(handle, out NM.tagRect clientRect);
 
                 // TODO fix this as -1 might be a valid move,,, maybe 0 instead or...
                 if (x == -1)
                 {
-                    xOffset = ClientRect.right / 2;
+                    xOffset = clientRect.right / 2;
+
+                    // check if its off screen
+                    int screenWidth = SystemInformation.VirtualScreen.Width - 1;
+
+                    if (windowRect.left > screenWidth)
+                    {
+                        //Its off screen
+                    }
+                    else if (windowRect.left + xOffset > screenWidth)
+                    {
+                        //Its partial off screen
+                        xOffset = screenWidth - windowRect.left;
+                    }
                 }
                 else
                 {
@@ -1147,7 +1160,19 @@ namespace APE.Language
 
                 if (y == -1)
                 {
-                    yOffset = ClientRect.bottom / 2;
+                    yOffset = clientRect.bottom / 2;
+
+                    int screenHeight = SystemInformation.VirtualScreen.Height - 1;
+
+                    if (windowRect.top > screenHeight)
+                    {
+                        //Its off screen
+                    }
+                    else if (windowRect.top + yOffset > screenHeight)
+                    {
+                        //Its partial off screen
+                        yOffset = screenHeight - windowRect.top;
+                    }
                 }
                 else
                 {
@@ -1155,22 +1180,17 @@ namespace APE.Language
                 }
 
                 // Convert the window area to screen point
-                thePoint.x = WindowRect.left + xOffset;
-                thePoint.y = WindowRect.top + yOffset;
+                thePoint.x = windowRect.left + xOffset;
+                thePoint.y = windowRect.top + yOffset;
 
-                if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == null)
+                if (NM.MonitorFromPoint(thePoint, NM.MonitorOptions.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
                 {
                     throw GUI.ApeException("Coordinates offscreen");
                 }
 
                 if (performCheck)
                 {
-                    IntPtr childHandle;
-
-                    thePoint.x = xOffset + WindowRect.left;
-                    thePoint.y = yOffset + WindowRect.top;
-
-                    childHandle = NM.WindowFromPoint(thePoint);
+                    IntPtr childHandle = NM.WindowFromPoint(thePoint);
 
                     // Make sure we are inside the controls window area
                     if (handle == childHandle)
@@ -1254,8 +1274,8 @@ namespace APE.Language
                 Thread.Sleep(15);
             }
 
-            int screenX = WindowRect.left + xOffset;
-            int screenY = WindowRect.top + yOffset;
+            int screenX = windowRect.left + xOffset;
+            int screenY = windowRect.top + yOffset;
 
             if (performCheck)
             {
