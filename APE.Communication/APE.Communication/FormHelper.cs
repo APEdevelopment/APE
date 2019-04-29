@@ -160,6 +160,12 @@ namespace APE.Communication
                     throw new Exception("Unknown titlebar element: " + item.ToString());
             }
 
+            //HACK - Windows 10 1809 has a bug where by when the window is maximised and you have a docked app bar above it then the top value is wrong
+            if (top < tbi.rcTitleBar.top)
+            {
+                top = tbi.rcTitleBar.top;
+            }
+
             left = (int)(Math.Round((float)(left) / screenScalingFactor));
             top = (int)(Math.Round((float)(top) / screenScalingFactor));
             right = (int)(Math.Round((float)(right) / screenScalingFactor));
