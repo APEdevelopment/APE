@@ -276,7 +276,8 @@ namespace APE.Communication
 
             if (Marshal.GetLastWin32Error() != ERROR_ALREADY_EXISTS)
             {
-                Process Injector = new Process();
+                int exitCode = -1;
+                Process Injector = null;
                 RegistryKey key = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("APE", RegistryKeyPermissionCheck.Default, RegistryOptions.Volatile);
                 string tempPath = null;
                 try
@@ -291,13 +292,11 @@ namespace APE.Communication
                     {
                         assembly = "APE.Loader_x86.dll";
                         exe = "APE.Injector_x86.exe";
-                        //Injector.StartInfo = new ProcessStartInfo("APE.Injector_x86.exe", autProcessId + " " + assembly + " " + method + " " + apeProcessId);
                     }
                     else
                     {
                         assembly = "APE.Loader_x64.dll";
                         exe = "APE.Injector_x64.exe";
-                        //Injector.StartInfo = new ProcessStartInfo("APE.Injector_x64.exe", autProcessId + " " + assembly + " " + method + " " + apeProcessId);
                     }
 
                     tempPath = Path.GetTempPath();
@@ -308,14 +307,14 @@ namespace APE.Communication
                     File.Copy(path + @"\APE.Syringe.dll", tempPath + @"APE.Syringe.dll");
                     File.Copy(path + @"\APE.Native.dll", tempPath + @"APE.Native.dll");
 
+                    Injector = new Process();
                     Injector.StartInfo = new ProcessStartInfo(tempPath + @"devenv.exe", AUTProcessId + " " + assembly + " " + method + " " + apeProcessId);
-
                     Injector.StartInfo.WorkingDirectory = path;
                     Injector.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     Injector.Start();
 
                     Injector.WaitForExit();
-                    int exitCode = Injector.ExitCode;
+                    exitCode = Injector.ExitCode;
                     if (exitCode != 0)
                     {
                         throw new Exception("Failed to attach to process: exit code: " + exitCode.ToString());
@@ -333,19 +332,33 @@ namespace APE.Communication
                 }
                 finally
                 {
+                    if (Injector != null)
+                    {
+                        Injector.Dispose();
+                    }
                     key.DeleteValue(apeProcessId + "_Attach_Status", false);
                     key.DeleteValue(apeProcessId + "_Path_" + AUTProcessId, false);
                     key.DeleteValue(apeProcessId + "_AppDomain_" + AUTProcessId, false);
-                    key.Close();
+                    key.Dispose();
                     if (tempPath != null)
                     {
-                        File.Delete(tempPath + @"devenv.exe");
-                        File.Delete(tempPath + @"APE.Syringe.dll");
-                        File.Delete(tempPath + @"APE.Native.dll");
+                        try
+                        {
+                            File.Delete(tempPath + @"devenv.exe");
+                            File.Delete(tempPath + @"APE.Syringe.dll");
+                            File.Delete(tempPath + @"APE.Native.dll");
+                        }
+                        catch   //Shouldn't be needed but worth an attempt if it ever does
+                        {
+                            Thread.Sleep(1000);
+                            File.Delete(tempPath + @"devenv.exe");
+                            File.Delete(tempPath + @"APE.Syringe.dll");
+                            File.Delete(tempPath + @"APE.Native.dll");
+                        }
                     }
                 }
 
-                if (Injector.ExitCode != 0)
+                if (exitCode != 0)
                 {
                     throw new Exception("Injector exited with status: " + Injector.ExitCode.ToString());
                 }

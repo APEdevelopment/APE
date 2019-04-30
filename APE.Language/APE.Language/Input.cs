@@ -1128,6 +1128,9 @@ namespace APE.Language
             int xOffset;
             int yOffset;
             int loops = 0;
+            int screenWidth = SystemInformation.VirtualScreen.Width - 1;
+            int screenHeight = SystemInformation.VirtualScreen.Height - 1;
+            NM.GetCursorPos(out NM.tagPoint originalPoint);
 
             Stopwatch timer = Stopwatch.StartNew();
             while (true)
@@ -1141,8 +1144,6 @@ namespace APE.Language
                     xOffset = clientRect.right / 2;
 
                     // check if its off screen
-                    int screenWidth = SystemInformation.VirtualScreen.Width - 1;
-
                     if (windowRect.left > screenWidth)
                     {
                         //Its off screen
@@ -1161,8 +1162,6 @@ namespace APE.Language
                 if (y == -1)
                 {
                     yOffset = clientRect.bottom / 2;
-
-                    int screenHeight = SystemInformation.VirtualScreen.Height - 1;
 
                     if (windowRect.top > screenHeight)
                     {
@@ -1279,6 +1278,7 @@ namespace APE.Language
 
             if (performCheck)
             {
+                int originalTimeout = GUI.GetTimeOut();
                 bool hooked = false;
                 try
                 {
@@ -1287,23 +1287,43 @@ namespace APE.Language
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                     hooked = true;
 
-                    MoveMouse(screenX - 1, screenY - 1);
-                    MoveMouse(screenX, screenY);
-                    MoveMouse(screenX + 1, screenY + 1);
-                    MoveMouse(screenX, screenY);
-
-                    // Make sure the AUT recieves the mouse move message
-                    if (!WaitForInputIdle(handle, GUI.m_APE.TimeOut))
+                    GUI.SetTimeOut(200);
+                    while (true)
                     {
-                        throw GUI.ApeException(description + " did not go idle within timeout");
-                    }
+                        MoveMouse(screenX - 1, screenY - 1);
+                        MoveMouse(screenX, screenY);
+                        MoveMouse(screenX + 1, screenY + 1);
+                        MoveMouse(screenX, screenY);
 
-                    GUI.m_APE.AddFirstMessageWaitForMouseMove(screenX, screenY);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
+                        // Make sure the AUT recieves the mouse move message
+                        if (!WaitForInputIdle(handle, (uint)originalTimeout))
+                        {
+                            throw GUI.ApeException(description + " did not go idle within timeout");
+                        }
+
+                        try
+                        {
+                            GUI.m_APE.AddFirstMessageWaitForMouseMove(screenX, screenY);
+                            GUI.m_APE.SendMessages(EventSet.APE);
+                            GUI.m_APE.WaitForMessages(EventSet.APE);
+                            break;
+                        }
+                        catch (Exception ex) when (ex.Message.Contains("Failed to find Mouse Move"))
+                        {
+                            if (timer.ElapsedMilliseconds > originalTimeout)
+                            {
+                                GUI.Log("Failed to MouseMove to " + screenX.ToString() + ", " + screenY.ToString() + " (" + screenWidth.ToString() + ", " + screenWidth.ToString() + ") in the " + description, LogItemType.Information);
+                                throw;
+                            }
+                        }
+
+                        MoveMouse(originalPoint.x, originalPoint.y);
+                    }
                 }
                 finally
                 {
+                    GUI.SetTimeOut(originalTimeout);
+
                     if (hooked)
                     {
                         GUI.m_APE.AddFirstMessageRemoveMouseHook(handle);
