@@ -1035,7 +1035,7 @@ namespace APE.Language
                 try
                 {
                     if (WaitForInputIdleProcess.HasExited) { return true; }
-                    GUI.m_APE.AddFirstMessagePeakMessage(handle);
+                    GUI.m_APE.AddFirstMessagePeakMessage(handle, (int)timeoutMs);
                     GUI.m_APE.SendMessages(EventSet.APE);
                     GUI.m_APE.WaitForMessages(EventSet.APE);
                 }

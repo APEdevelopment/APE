@@ -367,7 +367,7 @@ namespace APE.Communication
         private delegate bool PeakMessageDelegate();
         private PeakMessageDelegate m_PeakMessagDelegater;
 
-        unsafe public void AddFirstMessagePeakMessage(IntPtr handle)
+        unsafe public void AddFirstMessagePeakMessage(IntPtr handle, int timeoutMs)
         {
             FirstMessageInitialise();
 
@@ -376,6 +376,7 @@ namespace APE.Communication
             ptrMessage->Action = MessageAction.PeakMessage;
 
             Parameter HandleParam = new Parameter(this, handle);
+            Parameter TimeoutParam = new Parameter(this, timeoutMs);
 
             m_PtrMessageStore->NumberOfMessages++;
             m_DoneFind = true;
@@ -393,7 +394,7 @@ namespace APE.Communication
 
             // p1  = handle
             IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
-            object[] theParameters = { handle };
+            int timeoutMS = GetParameterInt32(ptrMessage, 1);
 
             m_AllControls = new List<IntPtr>();
             //0 for the thread seems to enumerate all threads
@@ -475,7 +476,7 @@ namespace APE.Communication
                                             break;
                                         }
 
-                                        if (timer.ElapsedMilliseconds > m_TimeOut)
+                                        if (timer.ElapsedMilliseconds > timeoutMS)
                                         {
                                             throw new Exception("Thread failed to have zero messages within timeout");
                                         }
@@ -504,7 +505,7 @@ namespace APE.Communication
                                 break;
                             }
 
-                            if (timer.ElapsedMilliseconds > m_TimeOut)
+                            if (timer.ElapsedMilliseconds > timeoutMS)
                             {
                                 throw new Exception("Thread failed to have zero messages within timeout");
                             }
