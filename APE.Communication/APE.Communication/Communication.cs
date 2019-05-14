@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using APE.Bridge;
+using Accessibility;
 
 namespace APE.Communication
 {
@@ -2209,7 +2210,18 @@ namespace APE.Communication
 
                                         if (Identifier.AccessibilityObjectName != null)
                                         {
-                                            continue;
+                                            IAccessible obj = NM.IAccessibleObjectFromWindow(Handle);
+                                            if (obj == null || obj.accName == null)
+                                            {
+                                                continue;
+                                            }
+                                            else
+                                            {
+                                                if (obj.accName != Identifier.AccessibilityObjectName)
+                                                {
+                                                    continue;
+                                                }
+                                            }
                                         }
 
                                         DebugLogging.WriteLog("found form for " + Name);
@@ -2653,7 +2665,18 @@ namespace APE.Communication
 
                                     if (Identifier.AccessibilityObjectName != null)
                                     {
-                                        continue;
+                                        IAccessible obj = NM.IAccessibleObjectFromWindow(Handle);
+                                        if (obj == null || obj.accName == null)
+                                        {
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            if (obj.accName != Identifier.AccessibilityObjectName)
+                                            {
+                                                continue;
+                                            }
+                                        }
                                     }
 
                                     CurrentIndex++;
@@ -2709,6 +2732,12 @@ namespace APE.Communication
                 {
                     NewIdentifier.TypeName = NM.GetClassName(Identifier.Handle);
                     NewIdentifier.ModuleName = Path.GetFileName(NM.GetWindowModuleFileName(Identifier.Handle));
+
+                    IAccessible obj = NM.IAccessibleObjectFromWindow(Handle);
+                    if (obj != null && obj.accName != null)
+                    {
+                        NewIdentifier.AccessibilityObjectName = obj.accName;
+                    }
                 }
                 else if(NewIdentifier.TechnologyType == "Windows ActiveX")
                 {

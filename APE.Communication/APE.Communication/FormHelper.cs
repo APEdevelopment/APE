@@ -396,14 +396,14 @@ namespace APE.Communication
             IntPtr handle = GetParameterIntPtr(ptrMessage, 0);
             int timeoutMS = GetParameterInt32(ptrMessage, 1);
 
+            int threadId = NM.GetWindowThreadProcessId(handle, out int pid);
             m_AllControls = new List<IntPtr>();
-            //0 for the thread seems to enumerate all threads
-            NM.EnumThreadWindows(0, EnumThreadProcedue, IntPtr.Zero);
+            NM.EnumThreadWindows((uint)threadId, EnumThreadProcedue, IntPtr.Zero);
 
             Stopwatch timer = Stopwatch.StartNew();
             for (int loop = 0; loop < 2; loop++)
             {
-                foreach (IntPtr hWnd in m_AllControls)  //TODO maybe only once per thread rather than once per window handle on a thread?
+                foreach (IntPtr hWnd in m_AllControls)
                 {
                     WF.Control control = WF.Control.FromHandle(hWnd);
 
@@ -512,6 +512,7 @@ namespace APE.Communication
 
                             Thread.Sleep(15);
                         }
+                        break;
                     }
                 }
             }

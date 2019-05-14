@@ -596,6 +596,7 @@ namespace APE.Spy
             PropertyListbox.Items.Add("Control Handle\t: " + m_Identity.Handle);
             PropertyListbox.Items.Add("Form Handle\t: " + m_Identity.ParentHandle);
             PropertyListbox.Items.Add("Name\t\t: " + m_Identity.Name);
+            PropertyListbox.Items.Add("Accessibility Name\t: " + m_Identity.AccessibilityObjectName);
             if (m_Identity.Text == null)
             {
                 m_Identity.Text = "";

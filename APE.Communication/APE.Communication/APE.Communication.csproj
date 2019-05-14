@@ -26,6 +26,7 @@
     </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Accessibility" />
     <Reference Include="APE.Bridge">
       <HintPath>..\..\APE.Bridge\APE.Bridge\bin\Debug\APE.Bridge.dll</HintPath>
     </Reference>

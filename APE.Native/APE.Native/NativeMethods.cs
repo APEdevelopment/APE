@@ -20,6 +20,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Security;
 using System.Threading;
+using Accessibility;
 
 namespace APE.Native
 {
@@ -1401,6 +1402,33 @@ namespace APE.Native
             public uint time;
             public int pointX;
             public int pointY;
+        }
+
+        internal enum OBJID : uint
+        {
+            WINDOW = 0x00000000,
+            SYSMENU = 0xFFFFFFFF,
+            TITLEBAR = 0xFFFFFFFE,
+            MENU = 0xFFFFFFFD,
+            CLIENT = 0xFFFFFFFC,
+            VSCROLL = 0xFFFFFFFB,
+            HSCROLL = 0xFFFFFFFA,
+            SIZEGRIP = 0xFFFFFFF9,
+            CARET = 0xFFFFFFF8,
+            CURSOR = 0xFFFFFFF7,
+            ALERT = 0xFFFFFFF6,
+            SOUND = 0xFFFFFFF5,
+        }
+
+        [DllImport("oleacc.dll")]
+        internal static extern int AccessibleObjectFromWindow(IntPtr hwnd, OBJID id, ref Guid iid, [In, Out, MarshalAs(UnmanagedType.IUnknown)] ref object ppvObject);
+
+        public static IAccessible IAccessibleObjectFromWindow(IntPtr hWnd)
+        {
+            Guid guid = new Guid("{618736E0-3C3D-11CF-810C-00AA00389B71}");
+            object obj = null;
+            int retVal = AccessibleObjectFromWindow(hWnd, OBJID.WINDOW, ref guid, ref obj);
+            return (IAccessible)obj;
         }
 
         // local process hooking
