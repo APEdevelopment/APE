@@ -15,11 +15,11 @@
 //
 using System;
 using System.Windows.Forms;
-using RGiesecke.DllExport;  //[Un]install-Package UnmanagedExports
 using System.Reflection;
 using Microsoft.Win32;
 using System.Diagnostics;
-using System.Linq;
+//https://github.com/3F/DllExport
+//[Un]Install-Package DllExport -version 1.5.2
 
 namespace APE.Loader
 {
