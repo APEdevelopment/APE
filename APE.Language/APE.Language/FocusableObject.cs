@@ -95,6 +95,10 @@ namespace APE.Language
 
         internal string Unescape(string escapedText)
         {
+            if (escapedText == null)
+            {
+                return null;
+            }
             string unescapedText = escapedText;
             unescapedText = unescapedText.Replace("{{}", "{");
             unescapedText = unescapedText.Replace("{}}", "}");
