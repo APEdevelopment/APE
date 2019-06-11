@@ -191,16 +191,7 @@ namespace APE.Language
             //Parse the text into a DateTime
             DateTime dateValue = DateTime.Parse(dateText);
 
-            //Get the format of the date time picker
-            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Format", MemberTypes.Property);
-            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
-            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
-            GUI.m_APE.SendMessages(EventSet.APE);
-            GUI.m_APE.WaitForMessages(EventSet.APE);
-            //Get the value(s) returned MUST be done straight after the WaitForMessages call
-            string datePickerFormat = GUI.m_APE.GetValueFromMessage();
-
+            string datePickerFormat = Format();
             switch (datePickerFormat)
             {
                 case "Long":
@@ -213,14 +204,7 @@ namespace APE.Language
                     formatedDateText = dateValue.ToLongTimeString();
                     break;
                 case "Custom":
-                    //Get the format of the date time picker
-                    GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
-                    GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "CustomFormat", MemberTypes.Property);
-                    GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
-                    GUI.m_APE.SendMessages(EventSet.APE);
-                    GUI.m_APE.WaitForMessages(EventSet.APE);
-                    //Get the value(s) returned MUST be done straight after the WaitForMessages call
-                    customFormat = GUI.m_APE.GetValueFromMessage();
+                    customFormat = CustomFormat();
                     formatedDateText = dateValue.ToString(customFormat);
                     break;
                 default:
@@ -271,7 +255,7 @@ namespace APE.Language
                 //remove three or more d (to remove the day of the week)
                 customFormat = Regex.Replace(customFormat, "ddd+", "");
 
-                char[] splitSeparator = { '/', ':', ' ', ',', '.' };
+                char[] splitSeparator = { '/', ':', ' ', ',', '.', '-' };
                 string[] dateParts;
                 dateParts = dateValue.ToString(customFormat).Split(splitSeparator);
 
@@ -292,6 +276,7 @@ namespace APE.Language
 
                     if (timer.ElapsedMilliseconds > GUI.m_APE.TimeOut)
                     {
+                        GUI.Log("Failed to set text to [" + formatedDateText + "] got [" + currentDateText + "]", LogItemType.Information);
                         throw GUI.ApeException("Failed to set the text of the TextBox");
                     }
 
@@ -308,6 +293,63 @@ namespace APE.Language
             {
                 Input.Unblock();
             }
+        }
+
+        /// <summary>
+        /// Get the format of the date time picker
+        /// </summary>
+        /// <returns>The format</returns>
+        public string Format()
+        {
+            //Get the format of the date time picker
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Format", MemberTypes.Property);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store1, DataStores.Store2, "ToString", MemberTypes.Method);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store2);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string datePickerFormat = GUI.m_APE.GetValueFromMessage();
+            return datePickerFormat;
+        }
+
+        /// <summary>
+        /// Get the custom format of the date time picker
+        /// </summary>
+        /// <returns>The custom format</returns>
+        public string CustomFormat()
+        {
+            if (Format() != "Custom")
+            {
+                throw new Exception(Description + " does not have a custom format");
+            }
+            //Get the custom format of the date time picker
+            //Get the format of the date time picker
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "CustomFormat", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            string customFormat = GUI.m_APE.GetValueFromMessage();
+            return customFormat;
+        }
+
+        /// <summary>
+        /// Gets the date time value of the date timer picker
+        /// </summary>
+        /// <returns>The date time value</returns>
+        public DateTime Value()
+        {
+            //Get the format of the date time picker
+            GUI.m_APE.AddFirstMessageFindByHandle(DataStores.Store0, Identity.ParentHandle, Identity.Handle);
+            GUI.m_APE.AddQueryMessageReflect(DataStores.Store0, DataStores.Store1, "Value", MemberTypes.Property);
+            GUI.m_APE.AddRetrieveMessageGetValue(DataStores.Store1);
+            GUI.m_APE.SendMessages(EventSet.APE);
+            GUI.m_APE.WaitForMessages(EventSet.APE);
+            //Get the value(s) returned MUST be done straight after the WaitForMessages call
+            DateTime datePickerValue = GUI.m_APE.GetValueFromMessage();
+            return datePickerValue;
         }
     }
 }

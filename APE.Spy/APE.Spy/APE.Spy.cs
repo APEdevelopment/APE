@@ -776,6 +776,9 @@ namespace APE.Spy
                 case "GUIDockContainer":
                     AddGUIDockContainerToPropertyListbox();
                     break;
+                case "GUIDateTimePicker":
+                    AddGUIDateTimePickerToPropertyListbox();
+                    break;
                 default:
                     switch (m_Identity.TypeName)
                     {
@@ -1013,6 +1016,44 @@ namespace APE.Spy
 
                 PropertyListbox.Items.Add("Panel " + panel.ToString() + " Name\t: " + panelName);
             }
+        }
+
+        private void AddGUIDateTimePickerToPropertyListbox()
+        {
+            // Locate the form and the dock container
+            GUIForm dateTimePickerForm = new GUIForm("form", new Identifier(Identifiers.Handle, m_Identity.ParentHandle));
+            GUIDateTimePicker dateTimePicker = new GUIDateTimePicker(dateTimePickerForm, "date time picker", new Identifier(Identifiers.Handle, m_Identity.Handle));
+
+            string datePickerFormat = dateTimePicker.Format();
+            DateTime datePickerValue = dateTimePicker.Value();
+            string formatedDateText;
+            string customFormat = null;
+            switch (datePickerFormat)
+            {
+                case "Long":
+                    formatedDateText = datePickerValue.ToLongDateString();
+                    break;
+                case "Short":
+                    formatedDateText = datePickerValue.ToShortDateString();
+                    break;
+                case "Time":
+                    formatedDateText = datePickerValue.ToLongTimeString();
+                    break;
+                case "Custom":
+                    customFormat = dateTimePicker.CustomFormat();
+                    formatedDateText = datePickerValue.ToString(customFormat);
+                    break;
+                default:
+                    throw new Exception("Implement support for date time picker format " + datePickerFormat);
+            }
+
+            PropertyListbox.Items.Add("Format Type\t: " + datePickerFormat);
+            if (datePickerFormat == "Custom")
+            {
+                PropertyListbox.Items.Add("Custom Format\t: " + customFormat);
+            }
+            PropertyListbox.Items.Add("Formated text\t: " + formatedDateText);
+            PropertyListbox.Items.Add("Value\t\t: " + dateTimePicker.Value().ToString());
         }
 
         private void AddGUITitleFrameToPropertyListbox()
