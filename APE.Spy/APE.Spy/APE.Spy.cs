@@ -28,6 +28,7 @@ using System.Xml;
 using System.Text.RegularExpressions;
 using System.Text;
 using APE.Language;
+using System.Globalization;
 
 namespace APE.Spy
 {
@@ -1041,7 +1042,7 @@ namespace APE.Spy
                     break;
                 case "Custom":
                     customFormat = dateTimePicker.CustomFormat();
-                    formatedDateText = datePickerValue.ToString(customFormat);
+                    formatedDateText = datePickerValue.ToString(customFormat, CultureInfo.InvariantCulture);
                     break;
                 default:
                     throw new Exception("Implement support for date time picker format " + datePickerFormat);
