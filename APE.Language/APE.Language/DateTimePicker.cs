@@ -205,7 +205,7 @@ namespace APE.Language
                     break;
                 case "Custom":
                     customFormat = CustomFormat();
-                    formatedDateText = dateValue.ToString(customFormat);
+                    formatedDateText = dateValue.ToString(customFormat, CultureInfo.InvariantCulture);
                     break;
                 default:
                     throw GUI.ApeException("Implement support for date time picker format " + datePickerFormat);
@@ -249,7 +249,7 @@ namespace APE.Language
                     default:
                         throw GUI.ApeException("Implement support for date time picker format " + datePickerFormat);
                 }
-
+                
                 //replace one or more M with a single M (to get numeric month)
                 customFormat = Regex.Replace(customFormat, "M+", "M");
                 //remove three or more d (to remove the day of the week)
