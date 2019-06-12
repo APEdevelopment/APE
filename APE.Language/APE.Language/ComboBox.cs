@@ -283,7 +283,12 @@ namespace APE.Language
                 {
                     if (droppedDown == null)
                     {
-                        throw GUI.ApeException("Failed to determine the dropdown state of the " + Description);
+                        Thread.Sleep(250);
+                        style = GetComboBoxStyle(out droppedDown);
+                        if (droppedDown == null)
+                        {
+                            throw GUI.ApeException("Failed to determine the dropdown state of the " + Description);
+                        }
                     }
                     
                     if (!droppedDown)
