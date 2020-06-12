@@ -13,6 +13,8 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //
+// This file badly needs to be refactored, although there is an argument of if it isn't broke...
+//
 using System;
 using System.Linq;
 using System.Linq.Expressions;
